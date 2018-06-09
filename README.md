@@ -2,4 +2,4 @@
 my website
 
 ## To do
-* [x]register jessehattabaugh.com
+* [x] register jessehattabaugh.com
