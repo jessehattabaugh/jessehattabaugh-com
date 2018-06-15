@@ -1,0 +1,23 @@
+{
+  "author": "Jesse Hattabaugh",
+  "bugs": {
+    "url": "https://github.com/jessehattabaugh/jessehattabaugh-com/issues"
+  },
+  "description": "my website",
+  "homepage": "https://github.com/jessehattabaugh/jessehattabaugh-com#readme",
+  "keywords": [
+    "Jesse",
+    "Hattabaugh"
+  ],
+  "license": "Artistic-2.0",
+  "name": "jessehattabaugh-com",
+  "private": true,
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jessehattabaugh/jessehattabaugh-com.git"
+  },
+  "scripts": {
+    "test": "none"
+  },
+  "version": "0.0.0"
+}
