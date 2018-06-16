@@ -1,0 +1,60 @@
+html {
+  font-family: Cambria, 'Hoefler Text', Utopia, 'Liberation Serif', 'Nimbus Roman No9 L Regular', Times, 'Times New Roman', serif
+  box-sizing: border-box;
+}
+*, *:before, *:after {
+  margin: 0;
+  padding: 0;
+  box-sizing: inherit;
+}
+body {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+h1, h2 {
+  font-family: Corbel, 'Lucida Grande', 'Lucida Sans Unicode', 'DejaVu Sans', 'Bitstream Vera Sans', 'Liberation Sans', Verdana, 'Verdana Ref', sans-serif
+}
+header {
+  background: lightblue;
+  padding: 1rem;
+  z-index: 1;
+}
+main {
+  flex: 1;
+}
+article {
+  padding: 1rem;
+}
+#photo img {
+  border-radius: 50%;
+  width: 100%;
+}
+footer {
+  background: lemonchiffon;
+  text-align: center;
+}
+@media (max-width: 425px) {
+  #photo img {
+    width: 90%;
+    margin: 5%;
+  }
+}
+@media (min-width: 426px) {
+  main {
+    display: flex;
+    align-items: center;
+  }
+  #photo {
+    width: 50%;
+    margin: 1rem;
+    max-height: 80vh;
+    max-width: 80vh;
+  }
+  #photo img {
+    width: 100%;
+  }
+  article {
+    flex: 1;
+  }
+}
