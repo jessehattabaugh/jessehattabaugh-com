@@ -1,26 +1,30 @@
 {
-  "author": "Jesse Hattabaugh",
-  "bugs": {
-    "url": "https://github.com/jessehattabaugh/jessehattabaugh-com/issues"
-  },
-  "description": "my website",
-  "devDependencies": {
-  },
-  "homepage": "https://github.com/jessehattabaugh/jessehattabaugh-com#readme",
-  "keywords": [
-    "Jesse",
-    "Hattabaugh"
-  ],
-  "license": "Artistic-2.0",
-  "name": "jessehattabaugh-com",
-  "private": true,
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/jessehattabaugh/jessehattabaugh-com.git"
-  },
-  "scripts": {
-    "start": "parcel www/index.html",
-    "test": "node text.js"
-  },
-  "version": "0.0.0"
+	"author": "Jesse Hattabaugh",
+	"bugs": {
+		"url": "https://github.com/jessehattabaugh/jessehattabaugh-com/issues"
+	},
+	"description": "my website",
+	"devDependencies": {
+		"parcel": "^1.9.2",
+		"surge": "^0.20.1"
+	},
+	"homepage": "https://github.com/jessehattabaugh/jessehattabaugh-com#readme",
+	"keywords": [
+		"Jesse",
+		"Hattabaugh"
+	],
+	"license": "Artistic-2.0",
+	"name": "jessehattabaugh-com",
+	"private": true,
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/jessehattabaugh/jessehattabaugh-com.git"
+	},
+	"scripts": {
+		"build": "rimraf dist && parcel build www/index.html",
+		"deploy": "npm run build && surge --domain jessehattabaugh.com dist",
+		"start": "parcel www/index.html",
+		"test": "node test"
+	},
+	"version": "0.0.1"
 }
