@@ -6,6 +6,8 @@
     "description": "my website",
     "devDependencies": {
         "parcel": "^1.9.2",
+        "posthtml-extend": "^0.2.1",
+        "posthtml-favicons": "^1.0.0",
         "surge": "^0.20.1"
     },
     "homepage": "https://github.com/jessehattabaugh/jessehattabaugh-com#readme",
