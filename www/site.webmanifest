@@ -1,11 +1,11 @@
 {
-  "icons": [
-    {
-      "sizes": "192x192",
-      "src": "jesse.jpg",
-      "type": "image/jpeg"
-    }
-  ],
-  "short_name": "jesse's site",
-  "start_url": "/"
+	"icons": [
+		{
+			"sizes": "192x192",
+			"src": "jesse.jpg",
+			"type": "image/jpeg"
+		}
+	],
+	"short_name": "jesse's site",
+	"start_url": "/"
 }
