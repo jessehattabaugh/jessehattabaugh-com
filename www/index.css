@@ -33,6 +33,10 @@ article {
 	padding: 1rem;
 }
 
+p {
+	margin-bottom: 1rem;
+}
+
 #photo img {
 	border-radius: 50%;
 	width: 100%;
