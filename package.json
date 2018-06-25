@@ -7,7 +7,6 @@
     "devDependencies": {
         "parcel": "^1.9.2",
         "posthtml-extend": "^0.2.1",
-        "posthtml-favicons": "^1.0.0",
         "surge": "^0.20.1"
     },
     "homepage": "https://github.com/jessehattabaugh/jessehattabaugh-com#readme",
@@ -29,5 +28,5 @@
         "start": "npm run clean && parcel www/index.html",
         "test": "node test"
     },
-    "version": "0.0.1"
+    "version": "0.0.2"
 }

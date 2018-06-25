@@ -2,8 +2,8 @@
 	"icons": [
 		{
 			"sizes": "192x192",
-			"src": "jesse.jpg",
-			"type": "image/jpeg"
+			"src": "icon.png",
+			"type": "image/png"
 		}
 	],
 	"short_name": "jesse's site",
