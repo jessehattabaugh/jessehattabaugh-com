@@ -22,8 +22,8 @@
         "url": "git+https://github.com/jessehattabaugh/jessehattabaugh-com.git"
     },
     "scripts": {
-		"build": "npm run clean && parcel build www/index.html",
-		"clean": "rimraf dist",
+        "build": "npm run clean && parcel build www/index.html",
+        "clean": "rimraf dist && rimraf .cache",
         "deploy": "npm run build && surge --domain jessehattabaugh.com dist",
         "start": "npm run clean && parcel www/index.html",
         "test": "node test"
