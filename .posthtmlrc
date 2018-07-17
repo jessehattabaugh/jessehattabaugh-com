@@ -1,7 +1,7 @@
 {
 	"plugins": {
 		"posthtml-extend": {
-			"root": "www"
+			"root": "src"
 		}
 	}
 }

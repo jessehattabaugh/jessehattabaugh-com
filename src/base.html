@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" class="serif">
 
 <head>
 	<meta charset="utf-8">
@@ -11,22 +11,34 @@
 	<link rel="manifest" href="site.webmanifest">
 	<link rel="apple-touch-icon" href="icon.png">
 	<meta name="theme-color" content="#aabbcc">
-	<link rel="stylesheet" href="index.css">
+	<style>
+		*, *:before, *:after {
+			box-sizing: inherit;
+			outline: 1px dashed purple;
+		}
+		@import url('css/all.css') all;
+		@import url('css/small.css') screen and (max-width: 425px);
+		@import url('css/large.css') screen and (min-width: 426px);
+	</style>
 </head>
 
 <body>
-	<header>
-		<h1><a href="/">Jesse Hattabaugh</a></h1>
-	</header>
-	<nav>
-		<a href="history.html">History</a>
-	</nav>
 	<main>
-		<block name="main"></block>
+		<header>
+			<h1><a href="/">Jesse Hattabaugh</a></h1>
+		</header>
+		<nav>
+			<a href="contact.html">Contact</a>
+		</nav>
+
+		<block name="stage"></block>
+
+		<footer>
+			&copy; Jesse Hattabaugh 2018
+		</footer>
 	</main>
-	<footer>
-		&copy; Jesse Hattabaugh 2018
-	</footer>
+
+	<marquee behavior="alternate">I just don't give a fuck!</marquee>
 	<script src="index.js"></script>
 </body>
 
