@@ -1,32 +1,31 @@
 {
-    "author": "Jesse Hattabaugh",
-    "bugs": {
-        "url": "https://github.com/jessehattabaugh/jessehattabaugh-com/issues"
-    },
-    "description": "my website",
-    "devDependencies": {
-        "parcel": "^1.9.2",
-        "posthtml-extend": "^0.2.1",
-        "surge": "^0.20.1"
-    },
-    "homepage": "https://github.com/jessehattabaugh/jessehattabaugh-com#readme",
-    "keywords": [
-        "Jesse",
-        "Hattabaugh"
-    ],
-    "license": "Artistic-2.0",
-    "name": "jessehattabaugh-com",
-    "private": true,
-    "repository": {
-        "type": "git",
-        "url": "git+https://github.com/jessehattabaugh/jessehattabaugh-com.git"
-    },
-    "scripts": {
-        "build": "npm run clean && parcel build www/index.html",
-        "clean": "rimraf dist && rimraf .cache",
-        "deploy": "npm run build && surge --domain jessehattabaugh.com dist",
-        "start": "npm run clean && parcel www/index.html",
-        "test": "node test"
-    },
-    "version": "0.0.2"
+	"author": "Jesse Hattabaugh <me@jessehattabaugh.com>",
+	"bugs": {
+		"url": "https://github.com/jessehattabaugh/jessehattabaugh-com/issues"
+	},
+	"description": "my website",
+	"devDependencies": {
+		"parcel": "^1.9.7",
+		"surge": "^0.20.1"
+	},
+	"homepage": "https://github.com/jessehattabaugh/jessehattabaugh-com#readme",
+	"keywords": [
+		"Jesse",
+		"Hattabaugh"
+	],
+	"license": "Artistic-2.0",
+	"name": "jessehattabaugh-com",
+	"private": true,
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/jessehattabaugh/jessehattabaugh-com.git"
+	},
+	"scripts": {
+		"build": "npm run clean && parcel build src/index.html",
+		"clean": "rm -rf dist && rm -rf .cache",
+		"deploy": "npm run build && surge --domain jessehattabaugh.com dist",
+		"start": "npm run clean && parcel src/index.html",
+		"test": "node test"
+	},
+	"version": "0.0.2"
 }

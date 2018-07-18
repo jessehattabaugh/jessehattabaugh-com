@@ -1,11 +1,73 @@
-<extends src="base.html">
-	<block name="stage">
-		<picture id="photo">
-			<source srcset="jesse.jpg" media="(min-width: 426px)">
-			<img src="icon.png" alt="Photo of Jesse Hattabaugh" class="round">
-		</picture>
+<!doctype html>
+<html lang="en" class="sans-serif">
+
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="x-ua-compatible" content="ie=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+	<link rel="manifest" href="site.webmanifest">
+
+	<title>Jesse Hattabaugh</title>
+	<meta name="description" content="my personal website">
+
+	<link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
+	<link rel="apple-touch-icon" href="icon.png">
+
+	<meta name="theme-color" content="#aabbcc">
+
+	<link rel="stylesheet" href="screen.css" media="screen">
+	<link rel="stylesheet" href="wide.css" media="screen and (min-width: 426px)">
+</head>
+
+<body>
+	<main>
+		<header>
+			<h1 class="serif">
+				<a href="/">Jesse Hattabaugh</a>
+			</h1>
+			<h2 class="serif">Web Developer</h2>
+		</header>
+
 		<article>
-			<p>Hi, my name's Jesse Hattabaugh, and this is my site. I've been a professional web developer since I graduated High School at the turn of the millenium, so I figured I should have a site of my own. I don't really do anything that impressive, but whatever. I like to build bicycles, play video games, and drink coffee. I'm a decent writer and alright photographer. We'll see if I can come up with something interesting.</p>
+
+			<section>
+				<h2 class="serif">Hi, I'm new in town!</h2>
+				<picture id="photo">
+					<source srcset="jesse.jpg" media="(min-width: 426px)">
+					<img src="icon.png" alt="Photo of Jesse Hattabaugh" class="round">
+				</picture>
+				<button><a href="#contact">Get in touch!</a></button>
+			</section>
+
+			<section>
+				<h2 class="serif">Work History</h2>
+			</section>
+
+			<section id="contact">
+				<h2 class="serif">Contact me</h2>
+				<img alt="picture of Jesse on the phone">
+				<p>Here are all the ways you can contact me!</p>
+				<ol>
+					<li>
+						<a href="mailto:email@jessehattabaugh.com">email@jessehattabaugh.com</a>
+					</li>
+					<li>
+						<a href="tel:(415)828-1535">(415)828-1535</a>
+					</li>
+				</ol>
+			</section>
+
 		</article>
-	</block>
-</extends>
+
+		<footer>
+			&copy; Jesse Hattabaugh 2018
+		</footer>
+	</main>
+
+	<marquee behavior="alternate" style="display: none;">I just don't give a fuck!</marquee>
+	<script>
+		console.log("Welcome to my website");
+	</script>
+</body>
+
+</html>
