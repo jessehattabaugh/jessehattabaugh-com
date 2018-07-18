@@ -4,6 +4,7 @@ my website
 
 ## To do
 
+-   deploy with now.js
 -   set up https
 -   use http/2
 -   inline the CSS into HTML

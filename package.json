@@ -5,8 +5,9 @@
 	},
 	"description": "my website",
 	"devDependencies": {
+		"now": "^11.2.10",
 		"parcel": "^1.9.7",
-		"surge": "^0.20.1"
+		"serve": "^9.2.0"
 	},
 	"homepage": "https://github.com/jessehattabaugh/jessehattabaugh-com#readme",
 	"keywords": [
@@ -21,10 +22,9 @@
 		"url": "git+https://github.com/jessehattabaugh/jessehattabaugh-com.git"
 	},
 	"scripts": {
-		"build": "npm run clean && parcel build src/index.html",
-		"clean": "rm -rf dist && rm -rf .cache",
-		"deploy": "npm run build && surge --domain jessehattabaugh.com dist",
-		"start": "npm run clean && parcel src/index.html",
+		"build": "rm -rf dist && rm -rf .cache && parcel build src/index.html",
+		"deploy": "npm run build && now --public dist",
+		"start": "npm run build && parcel watch src/index.html & serve dist",
 		"test": "node test"
 	},
 	"version": "0.0.2"
