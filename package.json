@@ -24,7 +24,9 @@
 	"scripts": {
 		"build": "rm -rf dist && rm -rf .cache && parcel build src/index.html",
 		"deploy": "npm run build && now --public dist",
-		"start": "npm run build && parcel watch src/index.html & serve dist",
+		"kill": "killall -9 node && killall -9 npm",
+		"serve": "serve --no-clipboard -l 1234 dist",
+		"start": "npm run build && parcel watch src/index.html & npm run serve",
 		"test": "node test"
 	},
 	"version": "0.0.2"

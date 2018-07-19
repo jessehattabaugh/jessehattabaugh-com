@@ -15,8 +15,9 @@
 
 	<meta name="theme-color" content="#aabbcc">
 
+	<link rel="stylesheet" href="print.css" media="print">
 	<link rel="stylesheet" href="screen.css" media="screen">
-	<link rel="stylesheet" href="wide.css" media="screen and (min-width: 426px)">
+	<link rel="stylesheet" href="wide.css" media="screen and (min-width: 512px)">
 </head>
 
 <body>
@@ -25,18 +26,24 @@
 			<h1 class="serif">
 				<a href="/">Jesse Hattabaugh</a>
 			</h1>
-			<h2 class="serif">Web Developer</h2>
+			<h2 class="serif">Web and Bicycle Engineer</h2>
 		</header>
 
 		<article>
 
 			<section>
-				<h2 class="serif">Hi, I'm new in town!</h2>
-				<picture id="photo">
-					<source srcset="jesse.jpg" media="(min-width: 426px)">
-					<img src="icon.png" alt="Photo of Jesse Hattabaugh" class="round">
+				<h1 class="serif">Howd'y do?</h1>
+				<picture>
+					<source srcset="jesse.jpg" media="(min-width: 196px)">
+					<img src="icon.png" alt="Photo of Jesse Hattabaugh" class="round" style="width: 100%">
 				</picture>
-				<button><a href="#contact">Get in touch!</a></button>
+				<p>I'm an engineer with 18 years of experience building applications on the web platform and it's related technologies.
+					I've worked deeply in every part of the stack from client facing web pages, to administrating database servers, to writing
+					build scripts. I recently moved from San Francisco, to Portland and I'm searching for new problems to apply my skills
+					to.</p>
+				<h1>
+					<a href="mailto:email@jessehattabaugh.com">Get in touch!</a>
+				</h1>
 			</section>
 
 			<section>
@@ -44,17 +51,14 @@
 			</section>
 
 			<section id="contact">
-				<h2 class="serif">Contact me</h2>
-				<img alt="picture of Jesse on the phone">
-				<p>Here are all the ways you can contact me!</p>
-				<ol>
-					<li>
-						<a href="mailto:email@jessehattabaugh.com">email@jessehattabaugh.com</a>
-					</li>
-					<li>
-						<a href="tel:(415)828-1535">(415)828-1535</a>
-					</li>
-				</ol>
+				<h2 class="serif">How to contact me</h2>
+
+				<h3>
+					<a href="mailto:email@jessehattabaugh.com">email@jessehattabaugh.com</a>
+				</h3>
+				<h3>
+					<a href="tel:(415) 684-8486">(415) 684-8486</a>
+				</h3>
 			</section>
 
 		</article>
@@ -65,9 +69,10 @@
 	</main>
 
 	<marquee behavior="alternate" style="display: none;">I just don't give a fuck!</marquee>
-	<script>
-		console.log("Welcome to my website");
-	</script>
+	<script src="main.js"></script>
+
+	<!--dirty hack-->
+	<a href="offline.html" style="display: none;"></a>
 </body>
 
 </html>
