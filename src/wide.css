@@ -1,1 +1,5 @@
-/* styles for (min-width: 426px) screens */
+/* styles for (min-width: 512px) screens */
+
+* {
+	outline: 1px dashed purple;
+}
