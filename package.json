@@ -5,9 +5,9 @@
 	},
 	"description": "my website",
 	"devDependencies": {
-		"now": "^11.2.10",
+		"now": "^11.3.0",
 		"parcel": "^1.9.7",
-		"serve": "^9.2.0"
+		"serve": "^9.3.0"
 	},
 	"homepage": "https://github.com/jessehattabaugh/jessehattabaugh-com#readme",
 	"keywords": [
@@ -23,7 +23,7 @@
 	},
 	"scripts": {
 		"build": "rm -rf dist && rm -rf .cache && parcel build src/index.html",
-		"deploy": "npm run build && now --public dist",
+		"deploy": "npm run build && now --static --public dist",
 		"kill": "killall -9 node && killall -9 npm",
 		"serve": "serve --no-clipboard -l 1234 dist",
 		"start": "npm run build && parcel watch src/index.html & npm run serve",
