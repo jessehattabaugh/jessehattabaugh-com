@@ -5,9 +5,11 @@
 	},
 	"description": "my website",
 	"devDependencies": {
-		"now": "^11.3.0",
+		"now": "^11.3.9",
+		"npm": "^6.3.0",
 		"parcel": "^1.9.7",
-		"serve": "^9.3.0"
+		"puppeteer": "^1.7.0",
+		"serve": "^9.4.2"
 	},
 	"homepage": "https://github.com/jessehattabaugh/jessehattabaugh-com#readme",
 	"keywords": [
