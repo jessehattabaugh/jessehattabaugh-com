@@ -4,17 +4,13 @@ my website
 
 ## To do
 
+-   ask for written references
 -   Make the photo float on wide screens
 -   add GitHub, LinkedIn, StackOverflow, Medium links
--   add List of technologies I like to use with icons, skill level
+
 -   write about background
--   write about work history
--   find screenshots of sites I've worked on
--   find company logos of companies I;ve worked for
--   ask for written references
-
-Work History, screen shots of apps I've worked on company logos, blurbs about contributions, how long, what tech I used
-
-Recomendations
-
-Contact Form
+-   add images to work history sections
+-   maybe split dates, and job titles from company names in work history
+-   massage the skills into sections
+-   locate logos for skills
+-   maybe markup skills with aptitude or dates
