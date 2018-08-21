@@ -6,7 +6,6 @@
 	"description": "my website",
 	"devDependencies": {
 		"ansi-colors": "^3.0.0",
-		"kleur": "^2.0.1",
 		"node": "^10.8.0",
 		"now": "^11.3.9",
 		"npm": "^6.4.0",
