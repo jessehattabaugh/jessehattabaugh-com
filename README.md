@@ -6,3 +6,4 @@ my website
 
 -   Make the photo float on wide screens
 -   add GitHub, LinkedIn, StackOverflow, Medium links
+-
