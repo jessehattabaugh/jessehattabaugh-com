@@ -15,6 +15,7 @@
 		"now": "^11.3.12",
 		"npm": "^6.4.0",
 		"parcel": "^1.9.7",
+		"prettier": "^1.14.2",
 		"puppeteer": "^1.7.0",
 		"serve": "^10.0.0",
 		"start-server-and-test": "^1.7.0"
@@ -36,6 +37,7 @@
 		"clean": "rm -rf dist && rm -rf .cache",
 		"deploy": "npm run build && now --static --public dist",
 		"dev": "npm run clean && parcel watch src/index.html & npm run serve",
+		"format": "prettier --write ./*",
 		"kill": "killall -9 node && killall -9 npm",
 		"test": "start-test 1234 e2e",
 		"start": "npm run build && npm run serve",
