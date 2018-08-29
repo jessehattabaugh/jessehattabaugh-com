@@ -8,4 +8,4 @@ my website
 -   add GitHub, LinkedIn, StackOverflow, Medium links
 -   Make installable
 -   Test for time to first contentful paint
--   
+-   Try to get the entire page in the screenshot
