@@ -6,9 +6,7 @@ const Code = require('code');
 const expect = Code.expect;
 
 const puppeteer = require('puppeteer');
-
 const looksSame = require('looks-same');
-
 const fs = require('fs-extra');
 
 let browser;
@@ -34,35 +32,30 @@ describe('the home page', () => {
 			hasTouch: true,
 			isLandscape: false,
 		});
-		//await page.waitFor(10000);
 		await page.goto('http://localhost:1234');
-
-		const newPath = 'shots/home.new.png';
-		const oldPath = 'shots/home.old.png';
+		const currPath = 'shots/home.curr.png';
+		const refPath = 'shots/home.ref.png';
 		const diffPath = 'shots/home.diff.png';
-		//await page.waitFor(10000);
 		await page.screenshot({
-			path: newPath,
+			path: currPath,
 			fullPage: true,
 		});
-
-		const oldFileExists = await fs.pathExists(oldPath);
-
+		const oldFileExists = await fs.pathExists(refPath);
 		if (oldFileExists) {
 			console.info("comparing to previous screenshot");
 			const looksSameOpts = {
-				current: newPath,
+				current: currPath,
 				diff: diffPath,
 				highlightColor: '#ff00ff',
 				ignoreAntialiasing: true,
 				ignoreCaret: true,
-				reference: oldPath,
+				reference: refPath,
 				//strict: true,
 				tolerance: 2.3,
 			};
 			const eql = await new Promise((resolve) => {
-				looksSame(newPath, oldPath, looksSameOpts, (err, eql) => {
-					//if (err) console.error(err);
+				looksSame(currPath, refPath, looksSameOpts, (err, eql) => {
+					if (err) console.error(err);
 					resolve(eql);
 				});
 			});
@@ -70,7 +63,7 @@ describe('the home page', () => {
 				console.info("creating diff image");
 				await new Promise((resolve) => {
 					looksSame.createDiff(looksSameOpts, (err) => {
-						//if (err) console.error(err);
+						if (err) console.error(err);
 						resolve();
 					});
 				});
@@ -78,7 +71,7 @@ describe('the home page', () => {
 			expect(eql, 'return value of looks-same').to.be.true();
 		} else {
 			console.info("saving current screenshot for next time");
-			await fs.move(newPath, oldPath);
+			await fs.move(currPath, refPath);
 			expect(
 				oldFileExists,
 				'a previous screenshot was not found, current screenshot has been saved',
