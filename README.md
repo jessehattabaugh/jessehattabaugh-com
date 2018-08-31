@@ -10,3 +10,4 @@ my website
 -   Test for time to first contentful paint
 -   add e2e test for desktop screens
 -   test for lighthouse score
+-   test how it looks with Javascript turned off
