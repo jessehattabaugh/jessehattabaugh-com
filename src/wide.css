@@ -1,5 +1,6 @@
 /* styles for (min-width: 512px) screens */
 
-* {
-	/*outline: 1px dashed purple;*/
+#photo {
+	float: right;
+	max-width: 25%;
 }

@@ -34,7 +34,7 @@
 	},
 	"scripts": {
 		"build": "npm run clean && parcel build src/index.html",
-		"clean": "rimraf dist .cache",
+		"clean": "rimraf dist .cache shots/*.diff.png shots/*.curr.png",
 		"deploy": "npm run build && now --static --public dist",
 		"dev": "npm run clean && concurrently \"parcel watch src/index.html\" \"npm run serve\"",
 		"format": "prettier --write ./*",
