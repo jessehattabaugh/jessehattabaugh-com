@@ -16,7 +16,28 @@
 	<meta name="theme-color" content="#aabbcc">
 
 	<style>
-		/* above the fold styles */
+		/* above the fold styles for all media */
+		*,
+		*:before,
+		*:after {
+			box-sizing: inherit;
+		}
+
+		html {
+			box-sizing: border-box;
+		}
+
+		.serif {
+			font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
+		}
+
+		.sans-serif {
+			font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+		}
+
+		.round {
+			border-radius: 50%;
+		}
 	</style>
 
 	<link rel="preload" href="print.css" media="print" as="style" onload="this.rel='stylesheet'">
