@@ -11,3 +11,4 @@ my website
 -   add e2e test for desktop screens
 -   test for lighthouse score
 -   test how it looks with Javascript turned off
+-   make github deployments work
