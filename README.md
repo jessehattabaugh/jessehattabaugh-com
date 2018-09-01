@@ -12,3 +12,6 @@ my website
 -   test for lighthouse score
 -   test how it looks with Javascript turned off
 -   make github deployments work
+-   increment version number on deploy
+-   run e2e tests before aliasing in case there are prod bugs
+-   add a 404
