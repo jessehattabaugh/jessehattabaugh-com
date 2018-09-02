@@ -1,0 +1,10 @@
+{
+	"alias": "jessehattabaugh.com",
+	"files": ["dist"],
+	"name": "jessehattabaugh",
+	"public": true,
+	"static": {
+		"public": "dist"
+	},
+	"type": "static"
+}
