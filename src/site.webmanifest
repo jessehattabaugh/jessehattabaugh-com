@@ -1,11 +1,22 @@
 {
+	"background_color": "Brown",
+	"display": "standalone",
 	"icons": [
 		{
 			"sizes": "192x192",
 			"src": "icon.png",
 			"type": "image/png"
+		},
+		{
+			"sizes": "984x984",
+			"src": "jesse.jpg",
+			"type": "image/jpeg"
 		}
 	],
-	"short_name": "Jesse's Site",
-	"start_url": "/"
+	"lang": "en-US",
+	"name": "Jesse Hattabaugh",
+	"scope": "/",
+	"short_name": "Jesse Hattabaugh",
+	"start_url": "/",
+	"theme_color": "#F00"
 }
