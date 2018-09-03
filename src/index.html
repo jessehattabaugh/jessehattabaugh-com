@@ -13,31 +13,67 @@
 	<link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
 	<link rel="apple-touch-icon" href="icon.png">
 
-	<meta name="theme-color" content="#aabbcc">
+	<meta name="theme-color" content="#F00">
 
-	<link rel="stylesheet" href="print.css" media="print">
-	<link rel="stylesheet" href="screen.css" media="screen">
-	<link rel="stylesheet" href="wide.css" media="screen and (min-width: 512px)">
+	<style>
+		/* above the fold styles for all media */
+		*,
+		*:before,
+		*:after {
+			box-sizing: inherit;
+		}
+
+		html {
+			box-sizing: border-box;
+		}
+
+		.serif {
+			font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
+		}
+
+		.sans-serif {
+			font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+		}
+
+		.round {
+			border-radius: 50%;
+		}
+	</style>
+
+	<link rel="preload" href="print.css" media="print" as="style" onload="this.rel='stylesheet'">
+	<link rel="preload" href="screen.css" media="screen" as="style" onload="this.rel='stylesheet'">
+	<link rel="preload" href="wide.css" media="screen and (min-width: 512px)" as="style" onload="this.rel='stylesheet'">
+
+	<noscript>
+		<link rel="stylesheet" href="print.css" media="print">
+		<link rel="stylesheet" href="screen.css" media="screen">
+		<link rel="stylesheet" href="wide.css" media="screen and (min-width: 512px)">
+	</noscript>
 </head>
 
 <body>
 	<main>
 		<header>
 			<h1 class="serif">
-				<a href="/">Jesse Hattabaugh!</a>
+				<a href="/">Jesse Hattabaugh</a>
 			</h1>
 			<h2 class="serif">Web and Bicycle Engineer</h2>
 		</header>
 
 		<article>
 
+			<picture>
+				<source srcset="jesse.jpg" media="(min-width: 320px)">
+				<img id="photo" src="icon.png" alt="Photo of Jesse Hattabaugh" class="round" style="width: 100%">
+			</picture>
+
 			<section>
-				<h1 class="serif">Howd'y do?</h1>
-				<picture>
-					<source srcset="jesse.jpg" media="(min-width: 196px)">
-					<img src="icon.png" alt="Photo of Jesse Hattabaugh" class="round" style="width: 100%">
-				</picture>
-				<p>I'm an engineer with 18 years of experience building applications on the web platform and it's related technologies. I've worked deeply in every part of the stack from client facing web pages, to administrating database servers, to writing build scripts. I recently moved from San Francisco, to Portland and I'm searching for new problems to apply my skills to.
+				<h1 class="serif">How'd'y do?</h1>
+
+				<p>I'm an engineer with 18 years of experience building applications on the web platform and it's related technologies.
+					I've worked deeply in every part of the stack from client facing web pages, to administrating database servers, to writing
+					build scripts. I recently moved from San Francisco, to Portland and I'm searching for new problems to apply my skills
+					to.
 				</p>
 				<h1>
 					<a href="mailto:contact@jessehattabaugh.com">Get in touch!</a>
@@ -233,7 +269,10 @@
 		</footer>
 	</main>
 
-	<marquee behavior="alternate" style="display: none;">I just don't give a fuck!</marquee>
+	<marquee behavior="alternate" style="display: none;">
+		<blink>I just don't give a fuck!</blink>
+	</marquee>
+
 	<script src="main.js"></script>
 
 	<!--dirty hack-->

@@ -1,5 +1,5 @@
 node_modules
 dist
 .cache
-shots/*.new.png
+shots/*.curr.png
 shots/*.diff.png

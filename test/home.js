@@ -6,19 +6,25 @@ const Code = require('code');
 const expect = Code.expect;
 
 const puppeteer = require('puppeteer');
-
 const looksSame = require('looks-same');
-
 const fs = require('fs-extra');
 
 let browser;
 let page;
 
+const looksSameOpts = {
+	highlightColor: '#ff00ff',
+	ignoreAntialiasing: true,
+	ignoreCaret: true,
+	//strict: true,
+	tolerance: 2.3,
+};
+
 describe('the home page', () => {
 	before(async () => {
 		browser = await puppeteer.launch({
 			executablePath: 'chrome.exe',
-			headless: false,
+			headless: true,
 			//ignoreHTTPSErrors: true,
 			//dumpio: true,
 		});
@@ -26,55 +32,113 @@ describe('the home page', () => {
 
 	it('looks right on mobile', async () => {
 		page = await browser.newPage();
-		page.setViewport({
-			width: 360,
-			height: 640,
-			deviceScaleFactor: 1,
-			isMobile: true,
+		await page.setViewport({
+			deviceScaleFactor: 4,
 			hasTouch: true,
+			height: 640,
 			isLandscape: false,
+			isMobile: true,
+			width: 360,
 		});
 		await page.goto('http://localhost:1234');
-
-		const newPath = 'shots/home.new.png';
-		const oldPath = 'shots/home.old.png';
-		const diffPath = 'shots/home.diff.png';
-
+		const currPath = 'shots/home.mobile.curr.png';
+		const refPath = 'shots/home.mobile.ref.png';
+		const diffPath = 'shots/home.mobile.diff.png';
 		await page.screenshot({
-			path: newPath,
-			fullscreen: true,
+			path: currPath,
+			fullPage: true,
 		});
-
-		const oldFileExists = await fs.pathExists(oldPath);
-
+		const oldFileExists = await fs.pathExists(refPath);
 		if (oldFileExists) {
-			const looksSameOpts = {
-				current: newPath,
-				diff: diffPath,
-				highlightColor: '#ff00ff',
-				ignoreAntialiasing: true,
-				ignoreCaret: true,
-				reference: oldPath,
-				//strict: true,
-				tolerance: 2.3,
-			};
+			console.info('comparing to previous screenshot');
+
 			const eql = await new Promise((resolve) => {
-				looksSame(newPath, oldPath, looksSameOpts, (err, eql) => {
-					if (err) throw err;
+				looksSame(currPath, refPath, looksSameOpts, (err, eql) => {
+					if (err) console.error(err);
 					resolve(eql);
 				});
 			});
 			if (!eql) {
+				console.info('creating diff image');
 				await new Promise((resolve) => {
-					looksSame.createDiff(looksSameOpts, (err) => {
-						if (err) throw err;
-						resolve();
-					});
+					looksSame.createDiff(
+						Object.assign(
+							{
+								current: currPath,
+								diff: diffPath,
+								reference: refPath,
+							},
+							looksSameOpts,
+						),
+						(err) => {
+							if (err) console.error(err);
+							resolve();
+						},
+					);
 				});
 			}
 			expect(eql, 'return value of looks-same').to.be.true();
 		} else {
-			await fs.move(newPath, oldPath);
+			console.info('saving current screenshot for next time');
+			await fs.move(currPath, refPath);
+			expect(
+				oldFileExists,
+				'a previous screenshot was not found, current screenshot has been saved',
+			).to.be.true();
+		}
+	});
+
+	it('looks right on desktop', async () => {
+		page = await browser.newPage();
+		await page.setViewport({
+			deviceScaleFactor: 3,
+			hasTouch: false,
+			height: 768,
+			isLandscape: true,
+			isMobile: false,
+			width: 1366,
+		});
+		await page.goto('http://localhost:1234');
+		const currPath = 'shots/home.desktop.curr.png';
+		const refPath = 'shots/home.desktop.ref.png';
+		const diffPath = 'shots/home.desktop.diff.png';
+		await page.screenshot({
+			path: currPath,
+			fullPage: true,
+		});
+		const oldFileExists = await fs.pathExists(refPath);
+		if (oldFileExists) {
+			console.info('comparing to previous screenshot');
+
+			const eql = await new Promise((resolve) => {
+				looksSame(currPath, refPath, looksSameOpts, (err, eql) => {
+					if (err) console.error(err);
+					resolve(eql);
+				});
+			});
+			if (!eql) {
+				console.info('creating diff image');
+				await new Promise((resolve) => {
+					looksSame.createDiff(
+						Object.assign(
+							{
+								current: currPath,
+								diff: diffPath,
+								reference: refPath,
+							},
+							looksSameOpts,
+						),
+						(err) => {
+							if (err) console.error(err);
+							resolve();
+						},
+					);
+				});
+			}
+			expect(eql, 'return value of looks-same').to.be.true();
+		} else {
+			console.info('saving current screenshot for next time');
+			await fs.move(currPath, refPath);
 			expect(
 				oldFileExists,
 				'a previous screenshot was not found, current screenshot has been saved',
