@@ -18,7 +18,8 @@
 		"puppeteer": "^1.7.0",
 		"rimraf": "^2.6.2",
 		"serve": "^10.0.0",
-		"start-server-and-test": "^1.7.0"
+		"start-server-and-test": "^1.7.0",
+		"workbox-cli": "^3.4.1"
 	},
 	"homepage": "https://github.com/jessehattabaugh/jessehattabaugh-com#readme",
 	"keywords": [
@@ -44,7 +45,8 @@
 		"prepush": "npm test",
 		"serve": "kill-port 1234 && serve --no-clipboard -l 1234 dist",
 		"start": "npm run build && npm run serve",
-		"test": "start-test 1234 e2e"
+		"test": "start-test 1234 e2e",
+		"wb": "workbox wizard --injectManifest"
 	},
 	"version": "0.0.2"
 }
