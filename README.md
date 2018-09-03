@@ -6,15 +6,12 @@ my website
 
 -   Make the photo float on wide screens
 -   add GitHub, LinkedIn, StackOverflow, Medium links
--   add List of technologies I like to use with icons, skill level
--   write about background
--   write about work history
--   find screenshots of sites I've worked on
--   find company logos of companies I;ve worked for
--   ask for written references
-
-Work History, screen shots of apps I've worked on company logos, blurbs about contributions, how long, what tech I used
-
-Recomendations
-
-Contact Form
+-   Make installable
+-   Test for time to first contentful paint
+-   add e2e test for desktop screens
+-   test for lighthouse score
+-   test how it looks with Javascript turned off
+-   make github deployments work
+-   increment version number on deploy
+-   run e2e tests before aliasing in case there are prod bugs
+-   add a 404

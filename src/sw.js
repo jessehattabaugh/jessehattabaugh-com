@@ -1,1 +1,2 @@
-console.log("hello world, I am at your service");
+console.log('hello world, I am at your service');
+workbox.precaching.precacheAndRoute([]);
