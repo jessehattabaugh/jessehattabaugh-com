@@ -20,9 +20,9 @@
 	"share_target": {
 		"action": "share.html",
 		"params": {
-			"text": "description",
-			"title": "name",
-			"url": "link"
+			"text": "text",
+			"title": "title",
+			"url": "url"
 		}
 	},
 	"short_name": "Jesse's Site",
