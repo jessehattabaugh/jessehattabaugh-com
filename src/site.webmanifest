@@ -17,6 +17,14 @@
 	"lang": "en-US",
 	"name": "Jesse Hattabaugh",
 	"scope": "/",
+	"share_target": {
+		"action": "share.html",
+		"params": {
+			"text": "description",
+			"title": "name",
+			"url": "link"
+		}
+	},
 	"short_name": "Jesse's Site",
 	"start_url": "/",
 	"theme_color": "#F00"
