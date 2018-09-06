@@ -1,4 +1,7 @@
-.gitignore
+.cache
 .editorconfig
+.gitignore
 .npmrc
 .prettierignore
+dist
+node_modules
