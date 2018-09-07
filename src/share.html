@@ -1,15 +1,42 @@
-<!doctype html>
-<html lang="en">
-
-<head>
-	<meta charset="utf-8">
-	<meta http-equiv="x-ua-compatible" content="ie=edge">
-	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-	<link rel="manifest" href="site.webmanifest">
-</head>
-
-<body>
-	<h1>Thanks for sharing!</h1>
-</body>
-
-</html>
+<extends src="base.html">
+	<block name="main">
+		<h1>Thanks for sharing!</h1>
+		<form name="share">
+			<fieldset>
+				<h2>The link you're sharing</h2>
+				<label>
+					Title:
+					<input name="title" required>
+				</label>
+				<label>
+					Url:
+					<input type="url" name="url" required>
+				</label>
+				<label>
+					Text:
+					<textarea name="text"></textarea>
+				</label>
+			</fieldset>
+			<fieldset>
+				<h2>Who are you?</h2>
+				<label>
+					Name:
+					<input name="name" autocomplete="name">
+				</label>
+				<label>
+					Email:
+					<input type="email" name="email" autocomplete="email">
+				</label>
+			</fieldset>
+			<input type="submit">
+		</form>
+		<script>
+			const params = new URLSearchParams(location.search);
+			console.log(params.get('text'));
+			const form = document.forms.share;
+			form.text.value = params.get('text');
+			form.title.value = params.get('title');
+			form.url.value = params.get('url');
+		</script>
+	</block>
+</extends>

@@ -16,6 +16,7 @@
 		"now": "^11.4.1",
 		"parcel": "^1.9.7",
 		"parcel-plugin-sw-cache": "^0.2.5",
+		"posthtml-extend": "^0.2.1",
 		"prettier": "^1.14.2",
 		"puppeteer": "^1.7.0",
 		"rimraf": "^2.6.2",
