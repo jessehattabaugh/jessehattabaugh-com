@@ -1,5 +1,5 @@
 {
-	"background_color": "Brown",
+	"background_color": "#F00",
 	"description": "Personal website of Jesse Hattabaugh",
 	"display": "standalone",
 	"icons": [
@@ -18,7 +18,7 @@
 	"name": "Jesse Hattabaugh",
 	"scope": "/",
 	"share_target": {
-		"action": "share.html",
+		"action": "share",
 		"params": {
 			"text": "text",
 			"title": "title",
@@ -27,5 +27,5 @@
 	},
 	"short_name": "Jesse's Site",
 	"start_url": "/",
-	"theme_color": "#F00"
+	"theme_color": "Brown"
 }

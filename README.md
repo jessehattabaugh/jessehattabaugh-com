@@ -14,5 +14,4 @@ my website
 -   put resume on it's own page
 -   rebase to edit commits and make it presentable for outside viewers
 -   add "see it on github", banner
-- make header sticky
-
+-   make header sticky

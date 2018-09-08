@@ -4,6 +4,9 @@
 	"bugs": {
 		"url": "https://github.com/jessehattabaugh/jessehattabaugh-com/issues"
 	},
+	"cache": {
+		"ignoreUrlParametersMatching": [[".*", "i"]]
+	},
 	"description": "my website",
 	"devDependencies": {
 		"code": "^5.2.0",

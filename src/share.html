@@ -31,8 +31,7 @@
 			<input type="submit">
 		</form>
 		<script>
-			const params = new URLSearchParams(location.search);
-			console.log(params.get('text'));
+			const params = new URL(location).searchParams;
 			const form = document.forms.share;
 			form.text.value = params.get('text');
 			form.title.value = params.get('title');
