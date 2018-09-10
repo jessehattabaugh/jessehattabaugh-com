@@ -23,7 +23,8 @@
 			"text": "text",
 			"title": "title",
 			"url": "url"
-		}
+		},
+		"url_template": "share?spec={old}&text={text}&title={title}&url={url}"
 	},
 	"short_name": "Jesse's Site",
 	"start_url": "/",

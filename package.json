@@ -5,7 +5,12 @@
 		"url": "https://github.com/jessehattabaugh/jessehattabaugh-com/issues"
 	},
 	"cache": {
-		"ignoreUrlParametersMatching": [[".*", "i"]]
+		"ignoreUrlParametersMatching": [
+			[
+				".*",
+				"i"
+			]
+		]
 	},
 	"description": "my website",
 	"devDependencies": {
