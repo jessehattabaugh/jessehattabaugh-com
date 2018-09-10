@@ -26,3 +26,8 @@ label {
 .round {
 	border-radius: 50%;
 }
+
+#photo {
+	width: 100%;
+	margin: 0 1em;
+}
