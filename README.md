@@ -15,6 +15,5 @@ my website
 -   rebase to edit commits and make it presentable for outside viewers
 -   add "see it on github", banner
 -   make header sticky
-- create tests for share.html
-- use https on localhost
-
+-   create tests for share.html
+-   use https on localhost
