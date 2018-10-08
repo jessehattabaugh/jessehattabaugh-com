@@ -42,8 +42,6 @@
 		"e2e": "lab --timeout 100000",
 		"format": "prettier --write **/*.{js,json,css,md,webmanifest}",
 		"kill": "killall -9 node && killall -9 npm",
-		"precommit": "npm run format",
-		"prepush": "npm test",
 		"serve": "kill-port 1234 && serve --no-clipboard -l 1234 dist",
 		"start": "npm run build && npm run serve",
 		"test": "start-test 1234 e2e"
