@@ -1,23 +1,38 @@
-self.addEventListener('install', (event) => {
-	event.waitUntil(
+oninstall = (ev) => {
+	// set up cache
+	ev.waitUntil(
 		caches.open('v1').then((cache) => {
-			console.info('opened cache');
+			console.info('sw opened cache');
 			return cache.addAll(['/']);
 		}),
 	);
-	console.info('service worker installed');
-});
+	console.info('sw installed');
+};
 
-self.addEventListener('fetch', (event) => {
-	event.respondWith(
-		caches.match(event.request).then((response) => {
+onactivate = (ev) => {
+	// todo: remove old caches
+	//clients.claim();
+	console.log('sw activated');
+};
+
+onfetch = (ev) => {
+	ev.respondWith(
+		caches.match(ev.request).then((response) => {
 			if (response) {
-				console.info('file found in cache');
+				console.info('sw file found in cache');
 				return response;
 			}
-			return fetch(event.request);
+			return fetch(ev.request);
 		}),
 	);
-});
+	//console.info("sw fetched");
+};
 
-console.info('service worker initialized');
+onmessage = (ev) => console.log('sw message', ev);
+onnotificationclick = (ev) => console.log('sw notification click', ev);
+onnotificationclose = (ev) => console.log('sw notification close', ev);
+onpush = (ev) => console.log('sw push:', ev);
+onpushsubscriptionchange = (ev) =>
+	console.log('sw push subscription change', ev);
+
+console.info('sw evaluated');
