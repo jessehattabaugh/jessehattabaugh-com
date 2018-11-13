@@ -11,7 +11,7 @@
 	<meta name="description" content="my personal website">
 
 	<link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
-	<link rel="apple-touch-icon" href="icon.png">
+	<link rel="apple-touch-icon" href="jesse192.png">
 
 	<meta name="theme-color" content="#F00">
 
@@ -28,7 +28,7 @@
 	<link rel="stylesheet" href="wide.css" media="screen and (min-width: 512px)">
 
 	<!-- Global site tag (gtag.js) - Google Analytics -->
-	<script async src="https://www.googletagmanager.com/gtag/js?id=UA-125406508-1"></script>
+	<script async src="//www.googletagmanager.com/gtag/js?id=UA-125406508-1"></script>
 	<script>
 		window.dataLayer = window.dataLayer || [];
 		const gtag = (...args) => dataLayer.push(args);
@@ -47,21 +47,24 @@
 		<blink>I just don't give a fuck!</blink>
 	</marquee>
 
-	<script src="main.js"></script>
+	<script src="main.js" type="text/javascript"></script>
 
 	<script>
+		// registering the SW after DOM Load to protect the page load from the SW
+		//document.addEventListener('load', () => {
 		if ('serviceWorker' in navigator) {
 			navigator.serviceWorker.register('sw.js')
 				.then((reg) => {
-					console.log('Registration successful, scope is:', reg.scope);
+					console.log("Registration successful, scope is:", reg.scope);
 					reg.onupdatefound = (ev) => console.log("sw update found", ev);
 				})
 				.catch((er) => {
-					console.log('Service worker registration failed, error:', er);
+					console.log("Service worker registration failed, error:", er);
 				});
 		} else {
 			console.info("The current browser doesn't support service workers");
 		}
+		//});
 	</script>
 
 </body>

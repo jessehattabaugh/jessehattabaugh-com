@@ -23,7 +23,7 @@ const looksSameOpts = {
 describe('the home page', () => {
 	before(async () => {
 		browser = await puppeteer.launch({
-			executablePath: 'chrome.exe',
+			//executablePath: 'chrome.exe',
 			headless: true,
 			//ignoreHTTPSErrors: true,
 			//dumpio: true,
