@@ -1,72 +1,83 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en" class="sans-serif">
+	<head>
+		<meta charset="utf-8" />
+		<meta http-equiv="x-ua-compatible" content="ie=edge" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<link rel="manifest" href="site.webmanifest" />
 
-<head>
-	<meta charset="utf-8">
-	<meta http-equiv="x-ua-compatible" content="ie=edge">
-	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<link rel="manifest" href="site.webmanifest">
+		<title>Jesse Hattabaugh</title>
+		<meta name="description" content="my personal website" />
 
-	<title>Jesse Hattabaugh</title>
-	<meta name="description" content="my personal website">
+		<link rel="shortcut icon" href="favicon.ico" type="image/x-icon" />
+		<link rel="apple-touch-icon" href="jesse180.png" />
 
-	<link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
-	<link rel="apple-touch-icon" href="jesse180.png">
+		<meta name="theme-color" content="#F00" />
 
-	<meta name="theme-color" content="#F00">
+		<style>
+			/* above the fold styles for all media */
+		</style>
 
-	<style>
-		/* above the fold styles for all media */
-	</style>
+		<link rel="preload" href="print.css" as="style" />
+		<link rel="preload" href="screen.css" as="style" />
+		<link rel="preload" href="wide.css" as="style" />
 
-	<link rel="preload" href="print.css" as="style">
-	<link rel="preload" href="screen.css" as="style">
-	<link rel="preload" href="wide.css" as="style">
+		<link rel="stylesheet" href="print.css" media="print" />
+		<link rel="stylesheet" href="screen.css" media="screen" />
+		<link
+			rel="stylesheet"
+			href="wide.css"
+			media="screen and (min-width: 512px)"
+		/>
 
-	<link rel="stylesheet" href="print.css" media="print">
-	<link rel="stylesheet" href="screen.css" media="screen">
-	<link rel="stylesheet" href="wide.css" media="screen and (min-width: 512px)">
+		<!-- Global site tag (gtag.js) - Google Analytics -->
+		<script
+			async
+			src="//www.googletagmanager.com/gtag/js?id=UA-125406508-1"
+		></script>
+		<script>
+			window.dataLayer = window.dataLayer || [];
+			const gtag = (...args) => dataLayer.push(args);
+			gtag('js', new Date());
+			gtag('config', 'UA-125406508-1');
+		</script>
+	</head>
 
-	<!-- Global site tag (gtag.js) - Google Analytics -->
-	<script async src="//www.googletagmanager.com/gtag/js?id=UA-125406508-1"></script>
-	<script>
-		window.dataLayer = window.dataLayer || [];
-		const gtag = (...args) => dataLayer.push(args);
-		gtag('js', new Date());
-		gtag('config', 'UA-125406508-1');
-	</script>
+	<body>
+		<main><block name="main"></block></main>
 
-</head>
+		<marquee behavior="alternate" style="display: none;">
+			<blink>I just don't give a fuck!</blink>
+		</marquee>
 
-<body>
-	<main>
-		<block name="main"></block>
-	</main>
+		<script src="main.js" type="text/javascript"></script>
 
-	<marquee behavior="alternate" style="display: none;">
-		<blink>I just don't give a fuck!</blink>
-	</marquee>
-
-	<script src="main.js" type="text/javascript"></script>
-
-	<script>
-		// registering the SW after DOM Load to protect the page load from the SW
-		//document.addEventListener('load', () => {
-		if ('serviceWorker' in navigator) {
-			navigator.serviceWorker.register('sw.js')
-				.then((reg) => {
-					console.log("Registration successful, scope is:", reg.scope);
-					reg.onupdatefound = (ev) => console.log("sw update found", ev);
-				})
-				.catch((er) => {
-					console.log("Service worker registration failed, error:", er);
-				});
-		} else {
-			console.info("The current browser doesn't support service workers");
-		}
-		//});
-	</script>
-
-</body>
-
+		<script>
+			// registering the SW after DOM Load to protect the page load from the SW
+			document.addEventListener('load', () => {
+				if ('serviceWorker' in navigator) {
+					navigator.serviceWorker
+						.register('sw.js')
+						.then((reg) => {
+							console.log(
+								'Registration successful, scope is:',
+								reg.scope,
+							);
+							reg.onupdatefound = (ev) =>
+								console.log('sw update found', ev);
+						})
+						.catch((er) => {
+							console.log(
+								'Service worker registration failed, error:',
+								er,
+							);
+						});
+				} else {
+					console.info(
+						"The current browser doesn't support service workers",
+					);
+				}
+			});
+		</script>
+	</body>
 </html>

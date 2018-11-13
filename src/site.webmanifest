@@ -4,11 +4,6 @@
 	"display": "standalone",
 	"icons": [
 		{
-			"sizes": "180x180",
-			"src": "jesse180.png",
-			"type": "image/png"
-		},
-		{
 			"sizes": "512x512",
 			"src": "jesse512.webp",
 			"type": "image/webp"
@@ -17,6 +12,11 @@
 			"sizes": "512x512",
 			"src": "jesse512.jpg",
 			"type": "image/jpeg"
+		},
+		{
+			"sizes": "180x180",
+			"src": "jesse180.png",
+			"type": "image/png"
 		}
 	],
 	"lang": "en-US",
