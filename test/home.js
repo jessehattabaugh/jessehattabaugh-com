@@ -9,8 +9,8 @@ const puppeteer = require('puppeteer');
 const looksSame = require('looks-same');
 const fs = require('fs-extra');
 
-let browser;
-let page;
+//let browser;
+//let page;
 
 const looksSameOpts = {
 	highlightColor: '#ff00ff',
@@ -21,17 +21,10 @@ const looksSameOpts = {
 };
 
 describe('the home page', () => {
-	before(async () => {
-		browser = await puppeteer.launch({
-			executablePath: 'chrome.exe',
-			headless: true,
-			//ignoreHTTPSErrors: true,
-			//dumpio: true,
-		});
-	});
 
 	it('looks right on mobile', async () => {
-		page = await browser.newPage();
+		const browser = await puppeteer.launch();
+		const page = await browser.newPage();
 		await page.setViewport({
 			deviceScaleFactor: 4,
 			hasTouch: true,
@@ -89,7 +82,8 @@ describe('the home page', () => {
 	});
 
 	it('looks right on desktop', async () => {
-		page = await browser.newPage();
+		const browser = await puppeteer.launch();
+		const page = await browser.newPage();
 		await page.setViewport({
 			deviceScaleFactor: 3,
 			hasTouch: false,
@@ -146,5 +140,4 @@ describe('the home page', () => {
 		}
 	});
 
-	after(async () => browser.close());
 });
