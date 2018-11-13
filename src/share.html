@@ -4,31 +4,19 @@
 		<form name="share">
 			<fieldset>
 				<h2>The link you're sharing</h2>
-				<label>
-					Title:
-					<input name="title" required>
-				</label>
-				<label>
-					Url:
-					<input type="url" name="url" required>
-				</label>
-				<label>
-					Text:
-					<textarea name="text"></textarea>
-				</label>
+				<label> Title: <input name="title" required /> </label>
+				<label> Url: <input type="url" name="url" required /> </label>
+				<label> Text: <textarea name="text"></textarea> </label>
 			</fieldset>
 			<fieldset>
 				<h2>Who are you?</h2>
-				<label>
-					Name:
-					<input name="name" autocomplete="name">
-				</label>
+				<label> Name: <input name="name" autocomplete="name" /> </label>
 				<label>
 					Email:
-					<input type="email" name="email" autocomplete="email">
+					<input type="email" name="email" autocomplete="email" />
 				</label>
 			</fieldset>
-			<input type="submit">
+			<input type="submit" />
 		</form>
 		<script>
 			const params = new URL(location).searchParams;
