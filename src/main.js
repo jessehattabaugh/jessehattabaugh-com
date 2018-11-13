@@ -6,22 +6,13 @@ document.addEventListener('load', () => {
 		navigator.serviceWorker
 			.register('sw.js')
 			.then((reg) => {
-				console.log(
-					'Registration successful, scope is:',
-					reg.scope,
-				);
-				reg.onupdatefound = (ev) =>
-					console.log('sw update found', ev);
+				console.log('Registration successful, scope is:', reg.scope);
+				reg.onupdatefound = (ev) => console.log('sw update found', ev);
 			})
 			.catch((er) => {
-				console.log(
-					'Service worker registration failed, error:',
-					er,
-				);
+				console.log('Service worker registration failed, error:', er);
 			});
 	} else {
-		console.info(
-			"The current browser doesn't support service workers",
-		);
+		console.info("The current browser doesn't support service workers");
 	}
 });
