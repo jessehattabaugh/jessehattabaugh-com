@@ -4,8 +4,8 @@
 	"display": "standalone",
 	"icons": [
 		{
-			"sizes": "192x192",
-			"src": "jesse192.png",
+			"sizes": "180x180",
+			"src": "jesse180.png",
 			"type": "image/png"
 		},
 		{
