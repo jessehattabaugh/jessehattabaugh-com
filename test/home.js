@@ -21,7 +21,6 @@ const looksSameOpts = {
 };
 
 describe('the home page', () => {
-
 	it('looks right on mobile', async () => {
 		const browser = await puppeteer.launch();
 		const page = await browser.newPage();
@@ -139,5 +138,4 @@ describe('the home page', () => {
 			).to.be.true();
 		}
 	});
-
 });
