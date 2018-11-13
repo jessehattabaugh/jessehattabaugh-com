@@ -1,7 +1,7 @@
 console.log('Welcome to my website!');
 
 // registering the SW after DOM Load to protect the page load from the SW
-document.addEventListener('load', () => {
+window.addEventListener('load', () => {
 	if ('serviceWorker' in navigator) {
 		navigator.serviceWorker
 			.register('sw.js')
