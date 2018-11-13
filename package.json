@@ -40,7 +40,7 @@
 		"deploy": "npm run build && now && now alias",
 		"dev": "npm run clean && concurrently \"parcel watch src/*.html\" \"npm run serve\"",
 		"e2e": "lab --timeout 100000",
-		"format": "prettier --write **/*.{js,json,css,md,webmanifest}",
+		"format": "prettier --write **/*.{html,js,json,css,md,webmanifest}",
 		"kill": "killall -9 node && killall -9 npm",
 		"serve": "kill-port 1234 && serve --no-clipboard -l 1234 dist",
 		"start": "npm run build && npm run serve",

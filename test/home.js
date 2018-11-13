@@ -9,9 +9,6 @@ const puppeteer = require('puppeteer');
 const looksSame = require('looks-same');
 const fs = require('fs-extra');
 
-//let browser;
-//let page;
-
 const looksSameOpts = {
 	highlightColor: '#ff00ff',
 	ignoreAntialiasing: true,
