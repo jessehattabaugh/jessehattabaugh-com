@@ -1,32 +1,4 @@
 /* styles for all screens */
-
-*,
-*:before,
-*:after {
-	box-sizing: inherit;
-}
-
-html {
-	box-sizing: border-box;
-}
-
-label {
-	display: block;
-}
-
-.serif {
-	font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
-}
-
-.sans-serif {
-	font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande',
-		'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
-}
-
-.round {
-	border-radius: 50%;
-}
-
 #photo {
 	width: 100%;
 }
