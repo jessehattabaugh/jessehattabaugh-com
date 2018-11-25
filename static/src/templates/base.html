@@ -21,20 +21,26 @@
 			*:after {
 				box-sizing: inherit;
 			}
-
+			@import url('https://rsms.me/inter/inter-ui.css');
+			@supports (font-variation-settings: normal) {
+				html {
+					font-family: 'Inter UI var alt', sans-serif;
+				}
+			}
 			html {
 				box-sizing: border-box;
-				font-family: 'Lucida Sans', 'Lucida Sans Regular',
+				font-family: 'Inter UI', sans-serif;
+				/*font-family: 'Lucida Sans', 'Lucida Sans Regular',
 					'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana,
-					sans-serif;
+					sans-serif;*/
 			}
 
 			h1,
 			h2,
 			h1 :link,
 			h1 :visited {
-				font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman',
-					serif;
+				/*font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman',
+					serif;*/
 				color: red;
 				clear: left;
 			}
