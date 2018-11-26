@@ -1,10 +1,11 @@
 {
 	"alias": "jessehattabaugh.com",
-	"files": ["dist"],
+	"builds": [
+		{
+			"src": "package.json",
+			"use": "now-parcel"
+		}
+	],
 	"name": "jessehattabaugh",
-	"public": true,
-	"static": {
-		"public": "dist"
-	},
-	"type": "static"
+	"version": 2
 }
