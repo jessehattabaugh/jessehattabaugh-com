@@ -1,10 +1,17 @@
 {
 	"alias": "jessehattabaugh.com",
-	"files": ["dist"],
+	"builds": [
+		{
+			"src": "static/package.json",
+			"use": "@now/static-build"
+		}
+	],
 	"name": "jessehattabaugh",
-	"public": true,
-	"static": {
-		"public": "dist"
-	},
-	"type": "static"
+	"routes": [
+		{
+			"dest": "/static/$1",
+			"src": "/(.*)"
+		}
+	],
+	"version": 2
 }
