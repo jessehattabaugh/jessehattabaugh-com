@@ -2,8 +2,8 @@
 	"alias": "jessehattabaugh.com",
 	"builds": [
 		{
-			"src": "package.json",
-			"use": "now-parcel"
+			"src": "static/package.json",
+			"use": "@now/static-build"
 		}
 	],
 	"name": "jessehattabaugh",
