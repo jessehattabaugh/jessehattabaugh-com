@@ -4,8 +4,17 @@
 		{
 			"src": "static/package.json",
 			"use": "@now/static-build"
+		},
+		{
+			"src": "save",
+			"use": "@now/node"
 		}
 	],
+	"env": {
+		"DB_NAME": "@db-name",
+		"DB_PASSWORD": "@db-password",
+		"DB_USER": "@db-user"
+	},
 	"name": "jessehattabaugh",
 	"routes": [
 		{

@@ -1,6 +1,6 @@
 const Lab = require('lab');
 const lab = (exports.lab = Lab.script());
-const {describe, it, before, after} = lab;
+const {describe, it} = lab;
 
 const Code = require('code');
 const expect = Code.expect;
