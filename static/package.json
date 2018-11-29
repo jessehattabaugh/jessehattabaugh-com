@@ -1,5 +1,4 @@
 {
-	"browserslist": "> 1%",
 	"devDependencies": {
 		"parcel-bundler": "^1.10.3",
 		"posthtml-extend": "^0.3.0"
