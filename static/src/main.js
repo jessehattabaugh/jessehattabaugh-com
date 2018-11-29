@@ -18,14 +18,3 @@ window.addEventListener('load', () => {
 		console.info("The current browser doesn't support service workers");
 	}
 });
-
-async function getPromise() {
-	return new Promise((resolve) => setTimeout(resolve, 1000));
-}
-
-async function testAsyncAwait() {
-	await getPromise();
-	console.log('async/await works!');
-}
-
-testAsyncAwait();
