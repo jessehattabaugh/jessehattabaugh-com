@@ -16,6 +16,7 @@
 		"DB_USER": "@db-user"
 	},
 	"name": "jessehattabaugh",
+	"regions": "all",
 	"routes": [
 		{
 			"dest": "/static/$1",
