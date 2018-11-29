@@ -4,10 +4,24 @@
 		{
 			"src": "static/package.json",
 			"use": "@now/static-build"
+		},
+		{
+			"src": "save/index.js",
+			"use": "@now/node"
 		}
 	],
+	"env": {
+		"DB_NAME": "@db-name",
+		"DB_PASSWORD": "@db-password",
+		"DB_USER": "@db-user"
+	},
 	"name": "jessehattabaugh",
+	"regions": ["all"],
 	"routes": [
+		{
+			"dest": "/save.index.js",
+			"src": "/save"
+		},
 		{
 			"dest": "/static/$1",
 			"src": "/(.*)"
