@@ -14,7 +14,7 @@
 		"lab": "^18.0.0",
 		"looks-same": "^4.0.0",
 		"node-mocks-http": "^1.7.3",
-		"now": "^12.1.7",
+		"now": "^12.1.8",
 		"now-env": "^3.1.0",
 		"prettier": "^1.15.2",
 		"puppeteer": "^1.10.0",
