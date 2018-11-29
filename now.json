@@ -6,7 +6,7 @@
 			"use": "@now/static-build"
 		},
 		{
-			"src": "save/package.json",
+			"src": "save/index.js",
 			"use": "@now/node"
 		}
 	],
