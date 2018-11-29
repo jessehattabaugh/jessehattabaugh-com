@@ -7,7 +7,8 @@
 	"name": "jessehattabaugh-com-static",
 	"private": true,
 	"scripts": {
-		"now-build": "parcel build src/*.html"
+		"now-build": "parcel build src/*.html",
+		"watch": "parcel watch src/*.html"
 	},
 	"version": "0.0.0"
 }

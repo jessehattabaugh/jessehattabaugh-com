@@ -37,7 +37,7 @@
 	"scripts": {
 		"clean": "rimraf dist static/.cache shots/*.diff.png shots/*.curr.png",
 		"deploy": "now --public && now alias",
-		"dev": "npm run clean && cd static && concurrently \"parcel watch src/*.html\" \"npm run serve\"",
+		"dev": "npm run clean && concurrently \"cd static && npm run watch\" \"npm run serve\"",
 		"e2e": "lab --timeout 100000",
 		"format": "prettier --write **/*.{html,js,json,css,md,webmanifest}",
 		"kill": "killall -9 node && killall -9 npm",
