@@ -6,7 +6,7 @@
 			"use": "@now/static-build"
 		},
 		{
-			"src": "save",
+			"src": "save/package.json",
 			"use": "@now/node"
 		}
 	],
@@ -18,10 +18,6 @@
 	"name": "jessehattabaugh",
 	"regions": ["all"],
 	"routes": [
-		{
-			"dest": "/save/index.js",
-			"src": "/save"
-		},
 		{
 			"dest": "/static/$1",
 			"src": "/(.*)"
