@@ -1,3 +1,5 @@
+import 'babel-polyfill';
+
 console.log('Welcome to my website!');
 
 // registering the SW after DOM Load to protect the page load from the SW

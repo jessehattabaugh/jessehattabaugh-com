@@ -14,7 +14,7 @@
 		"lab": "^18.0.0",
 		"looks-same": "^4.0.0",
 		"node-mocks-http": "^1.7.3",
-		"now": "^12.1.7",
+		"now": "^12.1.8",
 		"now-env": "^3.1.0",
 		"prettier": "^1.15.2",
 		"puppeteer": "^1.10.0",
@@ -35,9 +35,9 @@
 		"url": "git+https://github.com/jessehattabaugh/jessehattabaugh-com.git"
 	},
 	"scripts": {
-		"clean": "rimraf dist static/.cache shots/*.diff.png shots/*.curr.png",
+		"clean": "rimraf static/dist static/.cache shots/*.diff.png shots/*.curr.png",
 		"deploy": "now --public && now alias",
-		"dev": "npm run clean && cd static && concurrently \"parcel watch src/*.html\" \"npm run serve\"",
+		"dev": "npm run clean && concurrently \"cd static && npm run watch\" \"npm run serve\"",
 		"e2e": "lab --timeout 100000",
 		"format": "prettier --write **/*.{html,js,json,css,md,webmanifest}",
 		"kill": "killall -9 node && killall -9 npm",
