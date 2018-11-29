@@ -24,8 +24,8 @@ To accept the differences, either rename the `*.curr.png` to `*.ref.png` or dele
 
 ## git hooks
 
-This project uses `husky` to excute scripts before certain git commands. 
+This project uses `husky` to excute scripts before certain git commands.
 
-Before `commit` `npm run format` is run. 
+Before `commit` `npm run format` is run.
 
 Before `push` `npm run e2e`.
