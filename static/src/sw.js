@@ -1,33 +1,26 @@
 import 'babel-polyfill';
 
 oninstall = (ev) => {
-	// set up cache
-	ev.waitUntil(
-		caches.open('v1').then((cache) => {
-			console.info('sw opened cache');
-			return cache.addAll(['/']);
-		}),
-	);
-	console.info('sw installed');
+	console.info('sw installing');
+	ev.waitUntil(warmCache());
 };
 
 onactivate = (ev) => {
+	console.info('sw activating');
+
+	// enable navigation preload if it's available
+	if (self.registration.navigationPreload) {
+		console.info('sw enabling navigation preload');
+		self.registration.navigationPreload.enable();
+	}
+
 	// todo: remove old caches
 	//clients.claim();
-	console.log('sw activated');
 };
 
 onfetch = (ev) => {
-	ev.respondWith(
-		caches.match(ev.request).then((response) => {
-			if (response) {
-				console.info('sw file found in cache');
-				return response;
-			}
-			return fetch(ev.request);
-		}),
-	);
-	//console.info("sw fetched");
+	console.info('sw fetching', ev.request.url);
+	ev.respondWith(cacheOrNetwork(ev));
 };
 
 onmessage = (ev) => console.log('sw message', ev);
@@ -35,5 +28,60 @@ onnotificationclick = (ev) => console.log('sw notification click', ev);
 onnotificationclose = (ev) => console.log('sw notification close', ev);
 onpush = (ev) => console.log('sw push:', ev);
 //onpushsubscriptionchange = (ev) => console.log('sw push subscription change', ev);
+
+async function getCache() {
+	console.info('sw getting cache');
+	return caches.open('v1');
+}
+
+async function warmCache() {
+	console.info('sw warming cache');
+	const cache = await getCache();
+	return cache.addAll(['/']);
+}
+
+async function cacheOrNetwork(ev) {
+	console.info('sw fetching from cache or network');
+	// first attempt to load from the cache
+	const cache = await getCache();
+	const cached = await cache.match(ev.request);
+	if (cached) {
+		console.info('sw found request in cache', ev.request.url);
+		// refresh the cache from the network
+		ev.waitUntil(fetchAndCache(ev));
+		return cached;
+	}
+
+	// nothing in the cache, try the network
+	const network = await fetchPreload(ev);
+	ev.waitUntil(cacheResponse(ev, network));
+	return network;
+}
+
+async function fetchAndCache(ev) {
+	console.info('sw fetching the page and caching the response');
+	const response = await fetchPreload(ev);
+	return cacheResponse(ev, response);
+}
+
+async function fetchPreload(ev) {
+	console.info('sw fetching from network', ev.request.url);
+
+	// attempt to fetch from the network
+	const requests = [fetch(ev.request)];
+
+	// if the browser supports navigation prefetch use that too
+	if (ev.preloadResponse) requests.push(ev.preloadResponse);
+
+	// return whichever response resolves first
+	return await Promise.race(requests);
+}
+
+async function cacheResponse(ev, res) {
+	console.info('sw cacheing response', ev.request.url);
+	const cache = await getCache();
+	if (res) return cache.put(ev.request, res.clone());
+	else console.warn(`sw can't cache`, ev.request.url);
+}
 
 console.info('sw evaluated');
