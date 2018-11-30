@@ -9,7 +9,7 @@ window.addEventListener('load', () => {
 			.register('sw.js')
 			.then((reg) => {
 				console.log('Registration successful, scope is:', reg.scope);
-				reg.onupdatefound = (ev) => console.log('sw update found', ev);
+				reg.onupdatefound = (ev) => console.log('sw update found');
 			})
 			.catch((er) => {
 				console.log('Service worker registration failed, error:', er);
