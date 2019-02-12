@@ -42,9 +42,9 @@ describe('the home page', () => {
 			console.info('comparing to previous screenshot');
 
 			const eql = await new Promise((resolve) => {
-				looksSame(currPath, refPath, looksSameOpts, (err, eql) => {
+				looksSame(currPath, refPath, looksSameOpts, (err, {equal}) => {
 					if (err) console.error(err);
-					resolve(eql);
+					resolve(equal);
 				});
 			});
 			if (!eql) {
@@ -101,9 +101,9 @@ describe('the home page', () => {
 			console.info('comparing to previous screenshot');
 
 			const eql = await new Promise((resolve) => {
-				looksSame(currPath, refPath, looksSameOpts, (err, eql) => {
+				looksSame(currPath, refPath, looksSameOpts, (err, {equal}) => {
 					if (err) console.error(err);
-					resolve(eql);
+					resolve(equal);
 				});
 			});
 			if (!eql) {
