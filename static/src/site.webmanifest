@@ -18,13 +18,13 @@
 	"name": "Jesse Hattabaugh",
 	"scope": "/",
 	"share_target": {
-		"action": "share",
+		"action": "share.html",
 		"params": {
 			"text": "text",
 			"title": "title",
 			"url": "url"
 		},
-		"url_template": "share?spec=old&text={text}&title={title}&url={url}"
+		"url_template": "share.html?spec=old&text={text}&title={title}&url={url}"
 	},
 	"short_name": "Jesse's Site",
 	"start_url": "/",

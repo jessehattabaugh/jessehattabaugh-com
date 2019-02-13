@@ -21,9 +21,11 @@
 		<script>
 			const params = new URL(location).searchParams;
 			const form = document.forms.share;
-			form.text.value = params.get('text');
 			form.title.value = params.get('title');
-			form.url.value = params.get('url');
+			form.text.value = params.get('text');
+			const url = params.get('url');
+			// sometimes url is null, and the url is in text instead, FML
+			form.url.value = url ? url : params.get('text');
 		</script>
 	</block>
 </extends>

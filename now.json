@@ -11,9 +11,9 @@
 		}
 	],
 	"env": {
-		"DB_NAME": "@db-name",
-		"DB_PASSWORD": "@db-password",
-		"DB_USER": "@db-user"
+		"DB_NAME": "@jessehattabaugh-com-db-name",
+		"DB_PASSWORD": "@jessehattabaugh-com-db-password",
+		"DB_USER": "@jessehattabaugh-com-db-user"
 	},
 	"name": "jessehattabaugh",
 	"regions": ["all"],
