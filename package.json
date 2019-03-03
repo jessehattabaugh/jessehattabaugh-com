@@ -35,16 +35,14 @@
 		"url": "git+https://github.com/jessehattabaugh/jessehattabaugh-com.git"
 	},
 	"scripts": {
-		"clean": "rimraf static/dist static/.cache shots/*.diff.png shots/*.curr.png",
+		"clean": "rimraf shots/*.diff.png shots/*.curr.png && cd home && npm run clean",
 		"deploy": "now --public && now alias",
-		"dev": "npm run clean && concurrently \"cd static && npm run watch\" \"npm run serve\"",
 		"e2e": "lab --timeout 100000",
 		"format": "prettier --write **/*.{html,js,json,css,md,webmanifest}",
 		"kill": "killall -9 node && killall -9 npm",
-		"now": "now",
-		"serve": "kill-port 1234 && serve --no-clipboard -l 1234 static/dist",
+		"serve": "kill-port 1234 && serve --no-clipboard -l 1234 home/public",
 		"stage": "now --public",
-		"start": "cd static && npm run now-build && cd .. && npm run serve",
+		"start": "cd home && npm run now-build && cd .. && npm run serve",
 		"test": "start-test 1234 e2e",
 		"lab": "lab"
 	},

@@ -1,0 +1,18 @@
+{
+	"author": "Jesse Hattabaugh <admin@jessehattabaugh.com> (jessehattabaugh.com)",
+	"description": "",
+	"devDependencies": {
+		"gatsby": "^2.1.19",
+		"react": "^16.8.3",
+		"react-dom": "^16.8.3"
+	},
+	"license": "UNLICENSED",
+	"main": "index.js",
+	"name": "home",
+	"scripts": {
+		"clean": "gatsby clean",
+		"start": "gatsby develop",
+		"now-build": "gatsby build"
+	},
+	"version": "0.0.0"
+}
