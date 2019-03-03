@@ -2,7 +2,7 @@
 	"alias": "jessehattabaugh.com",
 	"builds": [
 		{
-			"src": "static/package.json",
+			"src": "home/package.json",
 			"use": "@now/static-build"
 		},
 		{
@@ -23,7 +23,7 @@
 			"src": "/save"
 		},
 		{
-			"dest": "/static/$1",
+			"dest": "/home/$1",
 			"src": "/(.*)"
 		}
 	],
