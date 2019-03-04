@@ -1,5 +1,8 @@
 import React from 'react';
 
+import bigImg from '../jesse975.webp';
+import smallImg from '../jesse512.png';
+
 export default () => (
 	<>
 		<header>
@@ -11,15 +14,15 @@ export default () => (
 		<article>
 			<picture>
 				<source
-					srcset="jesse975.webp"
+					srcSet={bigImg}
 					media="(min-width: 512px)"
 					type="image/webp"
 				/>
 				<img
 					id="photo"
-					src="jesse512.png"
-					alt="Photo of Jesse Hattabaugh"
-					class="round"
+					src={smallImg}
+					alt="Jesse Hattabaugh"
+					className="round"
 				/>
 			</picture>
 
@@ -147,7 +150,7 @@ export default () => (
 				<h2>Work History</h2>
 
 				<h3>
-					StudyBlue - Lead Frontend Developer
+					StudyBlue - Lead Frontend Developer{' '}
 					<span>Nov 2016 - Dec 2017</span>
 				</h3>
 				<ul>
@@ -182,7 +185,7 @@ export default () => (
 				</ul>
 
 				<h3>
-					Planet Labs - Senior Frontend Developer
+					Planet Labs - Senior Frontend Developer{' '}
 					<span>Aug 2015 - Oct 2016</span>
 				</h3>
 				<ul>
@@ -206,7 +209,7 @@ export default () => (
 				</ul>
 
 				<h3>
-					Eveo - Senior Frontend Developer
+					Eveo - Senior Frontend Developer{' '}
 					<span>Oct 2012 - Jun 2015</span>
 				</h3>
 				<ul>
@@ -241,7 +244,7 @@ export default () => (
 				</ul>
 
 				<h3>
-					CubeTree - Ruby on Rails Developer
+					CubeTree - Ruby on Rails Developer{' '}
 					<span>Mar 2010 – Dec 2010</span>
 				</h3>
 				<ul>
@@ -265,7 +268,7 @@ export default () => (
 				</ul>
 
 				<h3>
-					CBS Interactive - Full Stack Developer
+					CBS Interactive - Full Stack Developer{' '}
 					<span>Aug 2008 – Oct 2009</span>
 				</h3>
 				<ul>
@@ -287,7 +290,7 @@ export default () => (
 				</ul>
 
 				<h3>
-					Fordela Inc - Full Stack Developer
+					Fordela Inc - Full Stack Developer{' '}
 					<span>May 2007 – May 2008</span>
 				</h3>
 				<ul>
@@ -308,7 +311,7 @@ export default () => (
 				</ul>
 
 				<h3>
-					Imagine That Design Studios - Full Stack Developer
+					Imagine That Design Studios - Full Stack Developer{' '}
 					<span>Aug 2006 – Mar 2007</span>
 				</h3>
 				<ul>

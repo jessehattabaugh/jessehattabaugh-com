@@ -6,7 +6,7 @@ export default () => {
 	const {url, setUrl} = useState('');
 
 	useEffect(() => {
-		const params = new URL(location).searchParams;
+		const params = new URL(window.location).searchParams;
 		setTitle(params.get('title'));
 		setText(params.get('text'));
 		// sometimes url is null, and the url is in text instead, FML
