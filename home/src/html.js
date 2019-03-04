@@ -67,7 +67,7 @@ gtag('config', 'UA-125406508-1');
 			/>
 
 			<marquee behavior="alternate" style={{display: 'none'}}>
-				<blink>I just don't give a fuck!</blink>
+				<blink>I just do not give a fuck!</blink>
 			</marquee>
 
 			{postBodyComponents}
