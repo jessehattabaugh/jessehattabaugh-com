@@ -1,14 +1,21 @@
 import React from 'react';
 
-export default () => (
-	<html {...this.props.htmlAttributes}>
+export default ({
+	body,
+	bodyAttributes,
+	headComponents,
+	htmlAttributes,
+	postBodyComponents,
+	preBodyComponents,
+}) => (
+	<html {...htmlAttributes}>
 		<head>
-			<meta charset="utf-8" />
+			<meta charSet="utf-8" />
 			<meta
 				name="viewport"
 				content="width=device-width, initial-scale=1"
 			/>
-			{this.props.headComponents}
+			{headComponents}
 			<link rel="manifest" href="site.webmanifest" />
 
 			<title>Jesse Hattabaugh</title>
@@ -51,19 +58,19 @@ gtag('config', 'UA-125406508-1');
 			/>
 		</head>
 
-		<body {...this.props.bodyAttributes}>
-			{this.props.preBodyComponents}
+		<body {...bodyAttributes}>
+			{preBodyComponents}
 			<main
 				key={`body`}
 				id="___gatsby"
-				dangerouslySetInnerHTML={{__html: this.props.body}}
+				dangerouslySetInnerHTML={{__html: body}}
 			/>
 
-			<marquee behavior="alternate" style="display: none;">
+			<marquee behavior="alternate" style={{display: 'none'}}>
 				<blink>I just don't give a fuck!</blink>
 			</marquee>
 
-			{this.props.postBodyComponents}
+			{postBodyComponents}
 		</body>
 	</html>
 );
