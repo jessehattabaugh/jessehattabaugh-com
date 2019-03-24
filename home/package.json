@@ -2,6 +2,7 @@
 	"author": "Jesse Hattabaugh <admin@jessehattabaugh.com> (jessehattabaugh.com)",
 	"description": "",
 	"devDependencies": {
+		"chokidar-cli": "^1.2.2",
 		"gatsby": "^2.1.19",
 		"react": "^16.8.3",
 		"react-dom": "^16.8.3"
@@ -11,8 +12,9 @@
 	"name": "home",
 	"scripts": {
 		"clean": "gatsby clean",
+		"now-build": "gatsby build",
 		"start": "gatsby develop",
-		"now-build": "gatsby build"
+		"watch": "npm run now-build && chokidar \"src/**/*\" -c \"npm run clean && npm run now-build\""
 	},
 	"version": "0.0.0"
 }
