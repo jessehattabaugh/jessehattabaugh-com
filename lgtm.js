@@ -5,7 +5,7 @@ const fs = require('fs-extra');
 module.exports = lgtm;
 
 const looksSameOpts = {
-	highlightColor: '#ff00ff',
+	highlightColor: '#00ff00',
 	ignoreAntialiasing: true,
 	ignoreCaret: true,
 	//strict: true,

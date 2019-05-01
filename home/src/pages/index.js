@@ -3,6 +3,8 @@ import React from 'react';
 import bigImg from '../jesse975.webp';
 import smallImg from '../jesse512.png';
 
+import {Link} from 'gatsby';
+
 export default () => (
 	<>
 		<header>
@@ -28,6 +30,8 @@ export default () => (
 
 			<section>
 				<h1>How'd'y do?</h1>
+
+				<Link to="/share">Share something with me!</Link>
 
 				<p>
 					I'm an engineer with 18 years of experience building
