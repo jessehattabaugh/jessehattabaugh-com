@@ -4,7 +4,7 @@ my website
 
 ## Development
 
-To start a local dev server with HMR: `npm run dev`
+To start a local dev server with HMR: `now dev`
 
 To deploy to a staging url: `npm run stage`
 

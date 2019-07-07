@@ -1,6 +1,5 @@
 {
 	"author": "Jesse Hattabaugh <webmaster@jessehattabaugh.com>",
-	"browserslist": "> 1%",
 	"bugs": {
 		"url": "https://github.com/jessehattabaugh/jessehattabaugh-com/issues"
 	},
@@ -36,21 +35,15 @@
 		"url": "git+https://github.com/jessehattabaugh/jessehattabaugh-com.git"
 	},
 	"scripts": {
+		"audit": "lighthouse-ci http://localhost:3000 --score=80",
 		"clean": "rimraf static/dist static/.cache shots/*.diff.png shots/*.curr.png **/package-lock.json",
 		"deploy": "now --public && now alias",
-		"dev": "npm run clean && npm install && concurrently \"cd static && npm run watch\" \"npm run serve\"",
 		"e2e": "lab --timeout 100000",
 		"format": "prettier --write **/*.{html,js,json,css,md,webmanifest}",
-		"kill": "killall -9 node && killall -9 npm",
-		"lab": "lab",
-		"lighthouse": "lighthouse-ci http://localhost:1234 --score=80",
-		"now": "now",
-		"preinstall": "cd static && npm install && cd ../save && npm install",
-		"serve": "kill-port 1234 && serve --no-clipboard -l 1234 static/dist",
 		"stage": "now --public",
-		"start": "cd static && npm run now-build && cd .. && npm run serve",
-		"test": "start-test 1234 test-all",
-		"test-all": "npm run e2e && npm run lighthouse"
+		"start": "now dev",
+		"test": "start-test 3000 test-all",
+		"test-all": "npm run e2e && npm run audit"
 	},
 	"version": "0.0.3"
 }

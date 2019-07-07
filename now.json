@@ -19,11 +19,15 @@
 	"regions": ["all"],
 	"routes": [
 		{
-			"dest": "/save/index.js",
+			"dest": "save/index.js",
 			"src": "/save"
 		},
 		{
-			"dest": "/static/$1",
+			"dest": "static/index.html",
+			"src": "/"
+		},
+		{
+			"dest": "static/$1",
 			"src": "/(.*)"
 		}
 	],
