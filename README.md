@@ -4,13 +4,7 @@ my website
 
 ## Development
 
-To start a local dev server with HMR: `npm run dev`
-
-To deploy to a staging url: `npm run stage`
-
-To format all the code with prettier: `npm run format`
-
-To remove all build products, caches, and test screenshots: `npm run clean`
+To start a local dev server with HMR: `npm start`
 
 ## Tests
 
