@@ -1,0 +1,9 @@
+[build]
+  command = "npm run build"
+  functions = "functions"
+  publish = "dist"
+
+[dev]
+  command = "npm run watch"
+  port = 1234
+  publish = "dist"

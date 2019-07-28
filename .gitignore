@@ -1,2 +1,5 @@
+.cache
+.netlify
+dist
 node_modules
 old

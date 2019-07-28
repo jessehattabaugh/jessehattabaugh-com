@@ -1,0 +1,31 @@
+<extends src="template.html">
+	<block name="main">
+		<h1>Thanks for sharing!</h1>
+		<form name="share" action="save">
+			<fieldset>
+				<h2>The link you're sharing</h2>
+				<label> Title: <input name="title" required /> </label>
+				<label> Url: <input type="url" name="url" required /> </label>
+				<label> Text: <textarea name="text"></textarea> </label>
+			</fieldset>
+			<fieldset>
+				<h2>Who are you?</h2>
+				<label> Name: <input name="name" autocomplete="name" /> </label>
+				<label>
+					Email:
+					<input type="email" name="email" autocomplete="email" />
+				</label>
+			</fieldset>
+			<input type="submit" />
+		</form>
+		<script>
+			const params = new URL(location).searchParams;
+			const form = document.forms.share;
+			form.title.value = params.get('title');
+			form.text.value = params.get('text');
+			const url = params.get('url');
+			// sometimes url is null, and the url is in text instead, FML
+			form.url.value = url ? url : params.get('text');
+		</script>
+	</block>
+</extends>
