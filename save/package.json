@@ -1,7 +1,0 @@
-{
-	"devDependencies": {
-		"mongodb": "^3.2.2"
-	},
-	"main": "index.js",
-	"name": "save"
-}
