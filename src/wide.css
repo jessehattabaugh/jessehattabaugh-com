@@ -1,0 +1,7 @@
+/* styles for (min-width: 512px) screens */
+
+#photo {
+	float: right;
+	max-width: 38.2%;
+	margin: 0 1em;
+}
