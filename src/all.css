@@ -1,0 +1,25 @@
+/* above the fold styles for all media */
+html {
+    box-sizing: border-box;
+    font-family: 'Lucida Sans', 'Lucida Sans Regular',
+        'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana,
+        sans-serif;
+}
+*,
+*:before,
+*:after {
+    box-sizing: inherit;
+}
+h1,
+h2,
+h1 :link,
+h1 :visited {
+    font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman',
+        serif;
+    color: red;
+    clear: left;
+}
+.round {
+    border-radius: 50%;
+    shape-outside: circle(50%);
+}
