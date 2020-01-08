@@ -25,6 +25,7 @@
 	},
 	"scripts": {
 		"audit": "lighthouse-ci http://localhost:5000 --score=60",
+		"build": "echo \"netlify is stupid\"",
 		"start": "serve public",
 		"stop": "kill-port 5000",
 		"test": "start-test 5000 audit"
