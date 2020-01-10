@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<link rel="manifest" href="site.webmanifest" />
+
+		<title>Jesse Hattabaugh</title>
+		<meta name="description" content="Personal website of Jesse Hattabaugh" />
+		
+		<link rel="shortcut icon" href="favicon.ico" type="image/x-icon" />
+
+		<meta name="theme-color" content="#F00" />
+
+		<link rel="preload" href="all.css" as="style" />
+		<link rel="preload" href="print.css" as="style" />
+		<link rel="preload" href="screen.css" as="style" />
+		<link rel="preload" href="wide.css" as="style" />
+
+		<link rel="stylesheet" href="all.css" />
+		<link rel="stylesheet" href="print.css" media="print" />
+		<link rel="stylesheet" href="screen.css" media="screen" />
+		<link
+			rel="stylesheet"
+			href="wide.css"
+			media="screen and (min-width: 512px)"
+		/>
+	</head>
+	<body>
+		<header>
+			<h1><a href="/">Jesse Hattabaugh </a>💻🚲☕🍄</h1>
+			<h2>Web Developer / Electric Bicycle Builder / Mycologist</h2>
+		</header>
+		<article>
+
+			<picture>
+				<source
+					srcset="jesse975.webp"
+					media="(min-width: 512px)"
+					type="image/webp"
+				/>
+				<img
+					id="photo"
+					src="jesse512.png"
+					alt="Photo of Jesse Hattabaugh"
+					class="round"
+				/>
+			</picture>
+
+			<h1>How'd'y do?</h1>
+			
+		</article>
+		<footer>&copy; 2020, Jesse Hattabaugh</footer>
+		<script src="main.js"></script>
+	</body>
+</html>
