@@ -1,0 +1,27 @@
+doctype html
+head
+	meta(charset='utf-8')
+	meta(name='viewport' content='width=device-width, initial-scale=1')
+	link(rel='manifest' href='site.webmanifest')
+	title Jesse Hattabaugh
+	meta(name='description' content='Personal website of Jesse Hattabaugh')
+	link(rel='shortcut icon' href='favicon.ico' type='image/x-icon')
+	meta(name='theme-color' content='#F00')
+	link(rel='preload' href='all.css' as='style')
+	link(rel='preload' href='print.css' as='style')
+	link(rel='preload' href='screen.css' as='style')
+	link(rel='preload' href='wide.css' as='style')
+	link(rel='stylesheet' href='all.css')
+	link(rel='stylesheet' href='print.css' media='print')
+	link(rel='stylesheet' href='screen.css' media='screen')
+	link(rel='stylesheet' href='wide.css' media='screen and (min-width: 512px)')
+header
+	h1
+		a(href='/') Jesse Hattabaugh | &#x1F4BB;&#x1F6B2;&#x2615;&#x1F344;
+	h2 Web Developer / Electric Bicycle Builder / Mycologist
+article
+	block content
+nav
+	a(href='resume.html') Resume
+footer &copy; 2020, Jesse Hattabaugh
+script(src='main.js')

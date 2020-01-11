@@ -6,8 +6,11 @@
 	},
 	"description": "Personal website of Jesse Hattabaugh",
 	"devDependencies": {
+		"chokidar-cli": "^2.1.0",
+		"concurrently": "^5.0.2",
 		"kill-port": "^1.6.0",
 		"lighthouse-ci": "^1.10.0",
+		"pug-cli": "^1.0.0-alpha6",
 		"rimraf": "^3.0.0",
 		"serve": "^11.3.0",
 		"start-server-and-test": "^1.10.6"
@@ -25,10 +28,12 @@
 	},
 	"scripts": {
 		"audit": "lighthouse-ci http://localhost:5000 --score=60",
-		"build": "echo \"netlify is stupid\"",
-		"start": "serve public",
+		"build": "pug pages --pretty --out public",
+		"serve": "serve public",
+		"start": "concurrently \"npm run watch\" \"npm run serve\"",
 		"stop": "kill-port 5000",
-		"test": "start-test 5000 audit"
+		"test": "start-test 5000 audit",
+		"watch": "npm run build && chokidar pages/*.pug -c \"npm run build\""
 	},
 	"version": "0.0.0"
 }

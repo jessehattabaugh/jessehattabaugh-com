@@ -1,0 +1,250 @@
+extends ../templates/base.pug
+
+block content
+	h2 This is my Resume
+
+	section
+		h1 How&apos;d&apos;y do?
+		p
+			| I&apos;m an engineer with 18 years of experience building
+			| applications on the web platform and it&apos;s related
+			| technologies. I&apos;ve worked deeply in every part of the stack
+			| from client facing web pages, to administrating database
+			| servers, to writing build scripts. I recently moved from San
+			| Francisco, to Portland and I&apos;m searching for new problems to
+			| apply my skills to.
+		strong
+			a(href='mailto:webmaster@jessehattabaugh.com') Get in touch!
+			
+	section#skills
+		h2 Skills
+		dl
+			dt Javascript
+			dd
+				ul
+					li Node.js
+					li ES6
+					li Object Composition
+					li Functional Reactive Programming
+
+			dt Build Tools
+			dd
+				ul
+					li Webpack
+					li NPM
+					li Babel
+					li Browserify
+					li Shell.js
+					li ESLint
+					li Gulp
+					li Sass
+					li Stylus
+					li Uglify
+
+			dt DOM APIs
+			dd
+				ul
+					li Fetch
+					li Promises
+					li Sockets
+					li Service Workers
+					li Workers
+					li Geolocation
+					li Canvas
+
+			dt View Libraries
+			dd
+				ul
+					li ReactJS
+					li Backbone
+					li jQuery
+					li Web Components
+					li Knockout
+					li Angular
+					li Virtual-DOM
+
+			dt CSS Layout
+			dd
+				ul
+					li Flexbox
+					li Media Queries
+					li Transforms
+					li Transitions
+					li Animations
+
+			dt Testing / CI
+			dd
+				ul
+					li Karma
+					li Mocha
+					li Chai
+					li PhantomJS
+					li Tape
+					li Enzyme
+					li SinonJS
+					li TravisCI
+					li Github
+
+			dt Backend Apps
+			dd
+				ul
+					li REST APIs
+					li Swagger
+					li AWS
+					li Lambda
+					li Heroku
+					li MongoDB
+					li Redis
+					li Firebase
+
+			dt Native Apps
+			dd
+				ul
+					li Phonegap
+					li Apple App Store
+					li Google Play Store
+
+	section#workHistory
+		h2 Work History
+
+		h3
+			| StudyBlue - Lead Frontend Developer
+			span Nov 2016 - Dec 2017
+		ul
+			li
+				| Led a team of frontend engineers to maintain the
+				| company&rsquo;s web-based flashcard application.
+			li
+				| Overhauled the app&rsquo;s legacy RequireJS-based build
+				| process to use Webpack.
+			li
+				| Improved site load time by enabling code-splitting,
+				| long-term caching, and CDN delivery.
+			li
+				| Mentored junior developers and conducted codereviews to
+				| improve code quality.
+			li
+				| Replaced the IntelliJ powered development environment
+				| with a livereloading process.
+			li
+				| Facilitated the integration of the site&rsquo;s first React
+				| component inside the existing Backbone app.
+			li
+				| Conducted interviews and evaluated code challenges for
+				| the company&rsquo;s open positions.
+		
+		h3
+			| Planet Labs - Senior Frontend Developer
+			span Aug 2015 - Oct 2016
+		ul
+			li
+				| Implemented features of the company&rsquo;s satellite imaging
+				| applications with ReactJS/Reflux.
+			li
+				| Developed build scripts to generate documentation for
+				| the company&rsquo;s public APIs.
+			li
+				| Participated in daily scrums, and a Github based
+				| workflow using pull-requests and rebasing.
+			li
+				| Made use of ES6 and modern Web APIs like Promises and
+				| Fetch by using Babel, and Polyfill.io.
+			li Published updates to the company&rsquo;s NPM packages.
+		
+		h3
+			| Eveo - Senior Frontend Developer
+			span Oct 2012 - Jun 2015
+		ul
+			li
+				| Developed interactive presentations and mobile apps for
+				| major pharmaceutical brands.
+			li
+				| Set up NPM build systems using Gulp, Browserify, Jade,
+				| and Stylus.
+			li
+				| Constructed hybrid web apps for using Phonegap,
+				| KnockoutJS, and AngularJS.
+			li
+				| Lead a team of developers to complete projects and meet
+				| client requirements.
+			li
+				| Unit tested business logic to ensure quality using Mocha
+				| and Should.js.
+			li
+				| Managed Git branching strategy, NPM build process, and
+				| Heroku deployments.
+			li
+				| Triaged bugs in Jira, communicated with stakeholders on
+				| Basecamp.
+		
+		h3
+			| CubeTree - Ruby on Rails Developer
+			span Mar 2010 &ndash; Dec 2010
+		ul
+			li
+				| Used Agile techniques to develop features for the
+				| company&apos;s Ruby on Rails app.
+			li
+				| Built front-end ui components with YUI and Web
+				| Standards.
+			li
+				| Used TDD to define business logic and prevent
+				| regressions in a weekly release cycle.
+			li Improved support for legacy browsers such as IE6.
+			li
+				| Retrofitted application for translation and
+				| localization.
+		
+		h3
+			| CBS Interactive - Full Stack Developer
+			span Aug 2008 &ndash; Oct 2009
+		ul
+			li
+				| Maintained high traffic MVC application (TV.com) built
+				| with PHP and MySQL.
+			li
+				| Developed front-end controls using MooTools and jQuery.
+			li
+				| Wrote cron scripts for importing third party data from
+				| REST APIs.
+			li
+				| Integrated Facebook Connect with existing authentication
+				| system.
+		
+		h3
+			| Fordela Inc - Full Stack Developer
+			span May 2007 &ndash; May 2008
+		ul
+			li
+				| Migrated the company&rsquo;s white label video platform to
+				| CakePHP.
+			li
+				| Utilized SVN source control system to collaborate with a
+				| team of developers.
+			li Developed feed features using RSS and Atom feeds.
+			li Used jQuery to implement Ajax features.
+			li
+				| Worked with backend services engineers to design RESTful
+				| APIs.
+		
+		h3
+			| Imagine That Design Studios - Full Stack Developer
+			span Aug 2006 &ndash; Mar 2007
+		ul
+			li
+				| Built a social networking system for the company&rsquo;s
+				| travel website.
+			li Programmed in PHP using the CakePHP MVC framework.
+			li Designed and implemented MySQL schemas.
+			li
+				| Used SSH and SFTP to perform miscellaneous sysadmin
+				| duties.
+
+	section#contact
+		h2 How to contact me
+		
+		h3
+			a(href='mailto:webmaster@jessehattabaugh.com')
+				| webmaster@jessehattabaugh.com
+		h3
+			a(href='tel:(415) 684-8486') (415) 684-8486
