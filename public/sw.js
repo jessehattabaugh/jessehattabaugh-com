@@ -1,10 +1,4 @@
-oninstall = (ev) => console.info('sw installed');
-onactivate = (ev) => console.log('sw activated');
-onfetch = (ev) => console.info("sw fetched");
-onmessage = (ev) => console.log('sw message', ev);
-onnotificationclick = (ev) => console.log('sw notification click', ev);
-onnotificationclose = (ev) => console.log('sw notification close', ev);
-onpush = (ev) => console.log('sw push:', ev);
-onpushsubscriptionchange = (ev) => console.log('sw push subscription change', ev);
-
-console.info('sw evaluated');
+parcelRequire=function(e,r,t,n){var i,o="function"==typeof parcelRequire&&parcelRequire,u="function"==typeof require&&require;function f(t,n){if(!r[t]){if(!e[t]){var i="function"==typeof parcelRequire&&parcelRequire;if(!n&&i)return i(t,!0);if(o)return o(t,!0);if(u&&"string"==typeof t)return u(t);var c=new Error("Cannot find module '"+t+"'");throw c.code="MODULE_NOT_FOUND",c}p.resolve=function(r){return e[t][1][r]||r},p.cache={};var l=r[t]=new f.Module(t);e[t][0].call(l.exports,p,l,l.exports,this)}return r[t].exports;function p(e){return f(p.resolve(e))}}f.isParcelRequire=!0,f.Module=function(e){this.id=e,this.bundle=f,this.exports={}},f.modules=e,f.cache=r,f.parent=o,f.register=function(r,t){e[r]=[function(e,r){r.exports=t},{}]};for(var c=0;c<t.length;c++)try{f(t[c])}catch(e){i||(i=e)}if(t.length){var l=f(t[t.length-1]);"object"==typeof exports&&"undefined"!=typeof module?module.exports=l:"function"==typeof define&&define.amd?define(function(){return l}):n&&(this[n]=l)}if(parcelRequire=f,i)throw i;return f}({"NqYy":[function(require,module,exports) {
+oninstall=function(n){return console.info("sw installed")},onactivate=function(n){return console.log("sw activated")},onfetch=function(n){return console.info("sw fetched")},onmessage=function(n){return console.log("sw message",n)},onnotificationclick=function(n){return console.log("sw notification click",n)},onnotificationclose=function(n){return console.log("sw notification close",n)},onpush=function(n){return console.log("sw push:",n)},onpushsubscriptionchange=function(n){return console.log("sw push subscription change",n)},console.info("sw evaluated");
+},{}]},{},["NqYy"], null)
+//# sourceMappingURL=/sw.js.map
