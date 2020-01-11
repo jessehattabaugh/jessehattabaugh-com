@@ -26,7 +26,7 @@
 	},
 	"scripts": {
 		"audit": "lighthouse-ci http://localhost:1234 --score=30",
-		"build": "parcel build src/index.html",
+		"build": "parcel build src/index.html --no-cache",
 		"clean": "rimraf .parcel-cache dist",
 		"start": "parcel src/index.html",
 		"stop": "kill-port 1234",
