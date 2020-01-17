@@ -11,7 +11,9 @@
 		"parcel": "latest",
 		"posthtml-extend": "^0.3.0",
 		"rimraf": "^3.0.0",
-		"start-server-and-test": "^1.10.6"
+		"serve": "^11.3.0",
+		"start-server-and-test": "^1.10.6",
+		"workbox-cli": "^4.3.1"
 	},
 	"homepage": "https://github.com/jessehattabaugh/jessehattabaugh-com#readme",
 	"keywords": [
@@ -25,12 +27,15 @@
 		"url": "git+https://github.com/jessehattabaugh/jessehattabaugh-com.git"
 	},
 	"scripts": {
-		"audit": "lighthouse-ci http://localhost:1234/index.html --score=60",
+		"audit": "lighthouse-ci http://localhost:5000 --score=90",
+		"build": "npm run clean && parcel build src/*.html --no-content-hash --no-source-maps --no-cache && npm run workbox",
 		"clean": "rimraf .cache dist",
-		"build": "npm run clean && parcel build src/*.html",
-		"start": "npm run clean && parcel serve src/*.html",
-		"stop": "kill-port 1234",
-		"test": "cross-env DEBUG=start-server-and-test start-test http://localhost:1234/index.html audit"
+		"dev": "npm run build && parcel serve src/*.html --port=5000 --open --no-hmr --no-cache",
+		"start": "npm run build && serve dist",
+		"stop": "kill-port 5000",
+		"test": "start-test 5000 audit",
+		"testDebug": "cross-env DEBUG=start-server-and-test && npm t",
+		"workbox": "workbox injectManifest workbox-config.js"
 	},
 	"version": "0.0.0"
 }
