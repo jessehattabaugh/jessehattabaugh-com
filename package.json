@@ -8,6 +8,7 @@
 	"devDependencies": {
 		"kill-port": "^1.6.0",
 		"lighthouse-ci": "^1.10.0",
+		"parcel-bundler": "^1.12.4",
 		"rimraf": "^3.0.0",
 		"serve": "^11.3.0",
 		"start-server-and-test": "^1.10.6"
@@ -25,8 +26,9 @@
 	},
 	"scripts": {
 		"audit": "lighthouse-ci http://localhost:5000 --score=60",
-		"build": "echo \"netlify is stupid\"",
-		"start": "serve public",
+		"clean": "rimraf .cache public",
+		"build": "npm run clean && parcel build src/*.html --out-dir public",
+		"start": "npm run stop && npm run build && serve public",
 		"stop": "kill-port 5000",
 		"test": "start-test 5000 audit"
 	},
