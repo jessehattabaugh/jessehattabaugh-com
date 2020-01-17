@@ -6,11 +6,12 @@
 	},
 	"description": "Personal website of Jesse Hattabaugh",
 	"devDependencies": {
+		"cross-env": "^6.0.3",
 		"kill-port": "^1.6.0",
 		"lighthouse-ci": "^1.10.0",
-		"parcel-bundler": "^1.12.4",
+		"parcel": "latest",
+		"posthtml-extend": "^0.3.0",
 		"rimraf": "^3.0.0",
-		"serve": "^11.3.0",
 		"start-server-and-test": "^1.10.6"
 	},
 	"homepage": "https://github.com/jessehattabaugh/jessehattabaugh-com#readme",
@@ -25,12 +26,12 @@
 		"url": "git+https://github.com/jessehattabaugh/jessehattabaugh-com.git"
 	},
 	"scripts": {
-		"audit": "lighthouse-ci http://localhost:5000 --score=60",
-		"clean": "rimraf .cache public",
-		"build": "npm run clean && parcel build src/*.html --out-dir public",
-		"start": "npm run stop && npm run build && serve public",
-		"stop": "kill-port 5000",
-		"test": "start-test 5000 audit"
+		"audit": "lighthouse-ci http://localhost:1234/index.html --score=60",
+		"clean": "rimraf .cache dist",
+		"build": "npm run clean && parcel build src/*.html",
+		"start": "parcel serve src/*.html",
+		"stop": "kill-port 1234",
+		"test": "cross-env DEBUG=start-server-and-test start-test http://localhost:1234/index.html audit"
 	},
 	"version": "0.0.0"
 }
