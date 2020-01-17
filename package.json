@@ -1,6 +1,5 @@
 {
 	"author": "Jesse Hattabaugh",
-	"browserslist": "> 1%",
 	"bugs": {
 		"url": "https://github.com/jessehattabaugh/jessehattabaugh-com/issues"
 	},
@@ -29,7 +28,7 @@
 		"audit": "lighthouse-ci http://localhost:1234/index.html --score=60",
 		"clean": "rimraf .cache dist",
 		"build": "npm run clean && parcel build src/*.html",
-		"start": "parcel serve src/*.html",
+		"start": "npm run clean && parcel serve src/*.html",
 		"stop": "kill-port 1234",
 		"test": "cross-env DEBUG=start-server-and-test start-test http://localhost:1234/index.html audit"
 	},
