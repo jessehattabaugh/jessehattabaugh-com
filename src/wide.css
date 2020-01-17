@@ -5,3 +5,7 @@
 	max-width: 38.2%;
 	margin: 0 1em;
 }
+
+#photo::before {
+	content: '💀';
+}
