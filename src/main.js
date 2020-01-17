@@ -3,7 +3,7 @@ window.addEventListener('load', () => {
 		navigator.serviceWorker
 			.register('sw.js')
 			.then((reg) => {
-				console.info('Registration successful, scope is:', reg.scope);
+				console.debug('Registration successful, scope is:', reg.scope);
 				reg.onupdatefound = (ev) => console.log('sw update found', ev);
 			})
 			.catch((er) => {
@@ -14,4 +14,4 @@ window.addEventListener('load', () => {
 	}
 });
 
-console.info('main script evaluated');
+console.debug('main script evaluated');
