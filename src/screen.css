@@ -1,4 +1,9 @@
 /* styles for screens */
+
 #photo {
 	width: 100%;
+}
+
+label {
+	display: block;
 }

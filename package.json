@@ -8,6 +8,7 @@
 		"cross-env": "^6.0.3",
 		"kill-port": "^1.6.0",
 		"lighthouse-ci": "^1.10.0",
+		"netlify-cli": "^2.30.0",
 		"parcel": "latest",
 		"posthtml-extend": "^0.3.0",
 		"rimraf": "^3.0.0",
@@ -27,13 +28,13 @@
 		"url": "git+https://github.com/jessehattabaugh/jessehattabaugh-com.git"
 	},
 	"scripts": {
-		"audit": "lighthouse-ci http://localhost:5000 --score=90",
-		"build": "npm run clean && parcel build src/*.html --no-content-hash --no-source-maps --no-cache && npm run workbox",
-		"clean": "rimraf .cache dist",
-		"dev": "npm run build && parcel serve src/*.html --port=5000 --open --no-hmr --no-cache",
-		"start": "npm run build && serve dist",
-		"stop": "kill-port 5000",
-		"test": "start-test 5000 audit",
+		"audit": "lighthouse-ci http://localhost:1234/index.html --score=70",
+		"build": "npm run clean && parcel build src/*.html && npm run workbox",
+		"clean": "rimraf dist",
+		"dev": "netlify dev",
+		"start": "parcel serve src/*.html",
+		"stop": "kill-port 1234",
+		"test": "start-test http://localhost:1234/index.html audit",
 		"testDebug": "cross-env DEBUG=start-server-and-test && npm t",
 		"workbox": "workbox injectManifest workbox-config.js"
 	},
