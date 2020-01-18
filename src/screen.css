@@ -8,11 +8,32 @@ label {
 	display: block;
 }
 
-[type='submit'] {
-	font-size: 1em;
+button {
 	background: #f00;
 	color: white;
 	display: block;
+	font-size: 1em;
 	margin: 1em auto;
 	padding: 1em;
+	border: none;
+	border-radius: 25%;
+}
+
+fieldset {
+	background: antiquewhite;
+	border-radius: 1em;
+	border: none;
+	margin: 1em;
+	padding: 1em;
+	position: relative;
+}
+
+fieldset h2 {
+	position: absolute;
+	top: -1.5em;
+    left: 0.5em;
+}
+
+input, textarea {
+	width: 100%;
 }

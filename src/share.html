@@ -4,9 +4,14 @@
 	</block>
 	<block name="main">
 		<h1>Share with Jesse</h1>
-		<form name="share" method="POST" enctype="application/x-www-form-urlencoded" data-netlify="true">
+		<form
+			data-netlify="true"
+			enctype="application/x-www-form-urlencoded"
+			method="POST"
+			name="share"
+		>
 			<fieldset>
-				<h2>You are sharing: </h2>
+				<h2>You are sharing:</h2>
 				<label> Title: <input name="title" required /> </label>
 				<label> Url: <input type="url" name="url" /> </label>
 				<label> Text: <textarea name="text"></textarea> </label>
@@ -19,7 +24,7 @@
 					<input type="email" name="email" autocomplete="email" />
 				</label>
 			</fieldset>
-			<input type="submit" value="Share" />
+			<button type="submit">Share</button>
 		</form>
 		<script>
 			const params = new URL(location).searchParams;
