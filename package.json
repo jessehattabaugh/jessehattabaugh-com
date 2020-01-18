@@ -13,8 +13,7 @@
 		"posthtml-extend": "^0.3.0",
 		"rimraf": "^3.0.0",
 		"serve": "^11.3.0",
-		"start-server-and-test": "^1.10.6",
-		"workbox-cli": "^4.3.1"
+		"start-server-and-test": "^1.10.6"
 	},
 	"homepage": "https://github.com/jessehattabaugh/jessehattabaugh-com#readme",
 	"keywords": [
@@ -29,14 +28,13 @@
 	},
 	"scripts": {
 		"audit": "lighthouse-ci http://localhost:1234/index.html --score=70",
-		"build": "npm run clean && parcel build src/*.html && npm run workbox",
+		"build": "npm run clean && parcel build src/*.html",
 		"clean": "rimraf dist",
 		"dev": "netlify dev",
 		"start": "parcel serve src/*.html",
 		"stop": "kill-port 1234",
 		"test": "start-test http://localhost:1234/index.html audit",
 		"testDebug": "cross-env DEBUG=start-server-and-test && npm t",
-		"workbox": "workbox injectManifest workbox-config.js"
 	},
 	"version": "0.0.0"
 }
