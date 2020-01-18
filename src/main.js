@@ -14,4 +14,4 @@ window.addEventListener('load', () => {
 	}
 });
 
-console.debug('💀main script evaluated');
+console.debug('main script evaluated');
