@@ -3,12 +3,12 @@
 		Share
 	</block>
 	<block name="main">
-		<h1>Thanks for sharing!</h1>
-		<form name="share" method="POST" data-netlify="true" data-netlify-recaptcha="true" netlify-honeypot="share">
+		<h1>Share with Jesse</h1>
+		<form name="share" method="POST" enctype="application/x-www-form-urlencoded" data-netlify="true">
 			<fieldset>
-				<h2>Here's what you're sharing: </h2>
+				<h2>You are sharing: </h2>
 				<label> Title: <input name="title" required /> </label>
-				<label> Url: <input type="url" name="url" required /> </label>
+				<label> Url: <input type="url" name="url" /> </label>
 				<label> Text: <textarea name="text"></textarea> </label>
 			</fieldset>
 			<fieldset>
@@ -19,11 +19,6 @@
 					<input type="email" name="email" autocomplete="email" />
 				</label>
 			</fieldset>
-			<div data-netlify-recaptcha="true"></div>
-			<label style="display: none;">
-				If you are human ignore this field
-				<input name="share">
-			</label>
 			<input type="submit" value="Share" />
 		</form>
 		<script>

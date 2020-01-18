@@ -7,3 +7,12 @@
 label {
 	display: block;
 }
+
+[type='submit'] {
+	font-size: 1em;
+	background: #f00;
+	color: white;
+	display: block;
+	margin: 1em auto;
+	padding: 1em;
+}
