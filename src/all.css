@@ -1,25 +1,135 @@
-/* above the fold styles for all media */
-html {
-    box-sizing: border-box;
-    font-family: 'Lucida Sans', 'Lucida Sans Regular',
-        'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana,
-        sans-serif;
-}
 *,
 *:before,
 *:after {
-    box-sizing: inherit;
+	box-sizing: inherit;
+}
+* > :first-child {
+	margin-top: 0;
+}
+
+html {
+	box-sizing: border-box;
+	font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande',
+		'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+}
+html,
+body {
+	margin: 0;
+	padding: 0;
+	height: 100%;
+	width: 100%;
+}
+body {
+	display: flex;
+	flex-direction: column;
+	padding: 1em;
+}
+main {
+	flex: auto;
+}
+nav {
+	border-bottom: 1px solid black;
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: flex-end;
+	margin-bottom: 1em;
 }
 h1,
 h2,
-h1 :link,
-h1 :visited {
-    font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman',
-        serif;
-    color: red;
-    clear: left;
+h3,
+h4,
+h5,
+h6,
+nav,
+button {
+	font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
+	clear: left;
 }
+
+h1,
+h1 :link,
+h1 :visited,
+nav :link,
+nav :visited {
+	color: red;
+	text-decoration: none;
+}
+
+a:hover {
+	text-decoration: underline;
+}
+
+nav a {
+	font-size: 1.5em;
+	padding: 4%;
+	vertical-align: middle;
+}
+
+button {
+	background: red;
+	border-radius: 1em;
+	border: none;
+	color: white;
+	display: block;
+	font-size: 1em;
+	font-weight: bold;
+	margin: 1em auto;
+	padding: 1em;
+	transition: 1s all;
+	border: 0.2em outset red;
+}
+button:hover {
+	border: 0.2em inset red;
+}
+
+label {
+	display: block;
+}
+
+fieldset {
+	border-radius: 1em;
+	border: 1px inset;
+	margin: 1em 0;
+	padding: 1em;
+	position: relative;
+}
+
+input,
+textarea {
+	width: 100%;
+	margin-bottom: 1em;
+}
+
+dt::after {
+	content: ':';
+}
+
+dd {
+	margin-inline-start: 0;
+}
+
+footer {
+	border-top: 1px solid black;
+	margin-top: 1em;
+	padding-top: 1em;
+	overflow: hidden;
+}
+
+footer address {
+	display: inline;
+}
+
 .round {
-    border-radius: 50%;
-    shape-outside: circle(50%);
+	border-radius: 50%;
+	box-shadow: black 0.5em 0.5em 1em 0em, red 0 0 20em 0em;
+	shape-outside: circle(50%);
+}
+
+#photo {
+	width: 100%;
+}
+
+#copyright {
+	display: block;
+	text-align: right;
 }

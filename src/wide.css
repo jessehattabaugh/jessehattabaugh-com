@@ -5,3 +5,18 @@
 	max-width: 38.2%;
 	margin: 0 1em;
 }
+
+nav a {
+	padding: 1em;
+}
+
+dt {
+	text-align: right;
+	width: 10%;
+	float: left;
+	margin-right: 1em;
+}
+
+input, textarea {
+	font-size: 2em;
+}
