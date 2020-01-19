@@ -16,14 +16,14 @@ button {
 	margin: 1em auto;
 	padding: 1em;
 	border: none;
-	border-radius: 25%;
+	border-radius: 1em;
 }
 
 fieldset {
 	background: antiquewhite;
 	border-radius: 1em;
 	border: none;
-	margin: 1em;
+	margin: 1em 0;
 	padding: 1em;
 	position: relative;
 }
