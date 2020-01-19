@@ -3,7 +3,7 @@
 		Share
 	</block>
 	<block name="main">
-		<h1>Share with Jesse</h1>
+		<h2>Share with Jesse</h2>
 		<form
 			data-netlify="true"
 			enctype="application/x-www-form-urlencoded"
@@ -11,14 +11,26 @@
 			name="share"
 			netlify
 		>
+			<label>
+				Title: <input name="title" required placeholder="What is it?" />
+			</label>
+			<label>
+				Url:
+				<input
+					type="url"
+					name="url"
+					placeholder="https://example.com"
+				/>
+			</label>
+			<label>
+				Text:
+				<textarea
+					name="text"
+					placeholder="Why are you sharing it?"
+				></textarea>
+			</label>
 			<fieldset>
-				<h2>You are sharing:</h2>
-				<label> Title: <input name="title" required /> </label>
-				<label> Url: <input type="url" name="url" /> </label>
-				<label> Text: <textarea name="text"></textarea> </label>
-			</fieldset>
-			<fieldset>
-				<h2>Who are you?</h2>
+				<h3>Who are you?</h3>
 				<label> Name: <input name="name" autocomplete="name" /> </label>
 				<label>
 					Email:
