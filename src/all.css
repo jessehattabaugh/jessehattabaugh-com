@@ -14,7 +14,7 @@ body {
 	margin: 1em;
 }
 nav {
-	border-bottom: 1px solid black;
+	border-bottom: 0.1em solid red;
 	display: flex;
 	flex-wrap: wrap;
 	justify-content: flex-end;
@@ -60,7 +60,7 @@ button {
 	font-size: 1em;
 	font-weight: bold;
 	margin: 1em auto;
-	padding: 1em;
+	padding: 1em 2em;
 	transition: 1s all;
 }
 button:hover {
@@ -93,7 +93,7 @@ dd {
 }
 
 footer {
-	border-top: 1px solid black;
+	border-top: 0.1em solid red;
 	margin-top: 1em;
 }
 
@@ -105,6 +105,10 @@ footer address {
 	border-radius: 50%;
 	box-shadow: black 0.5em 0.5em 1em 0em, red 0 0 20em 0em;
 	shape-outside: circle(50%);
+}
+
+.dark-message {
+	display: none;
 }
 
 #photo {
