@@ -1,0 +1,15 @@
+/* prefers-color-scheme: dark */
+
+body {
+	background-color: black;
+	color: white;
+}
+
+.dark-message {
+	display: block;
+	color: red;
+}
+
+:link, :visited {
+	color: red;
+}
