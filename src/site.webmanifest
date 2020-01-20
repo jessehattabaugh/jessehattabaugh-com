@@ -20,7 +20,7 @@
     "name": "Jesse Hattabaugh",
     "scope": "/",
     "share_target": {
-        "action": "share.html",
+        "action": "share.html#shareForm",
         "enctype": "application/x-www-form-urlencoded",
         "method": "GET",
         "params": {
