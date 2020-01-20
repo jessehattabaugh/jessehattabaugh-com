@@ -103,7 +103,7 @@ footer address {
 
 .round {
 	border-radius: 50%;
-	box-shadow: black 0.5em 0.5em 1em 0em, red 0 0 20em 0em;
+	box-shadow: black 0.5em 0.5em 1em 0em, red 0 -0.2em 0em 0.5em;
 	shape-outside: circle(50%);
 }
 
