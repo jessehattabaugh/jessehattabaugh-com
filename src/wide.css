@@ -2,8 +2,8 @@
 
 #photo {
 	float: right;
+	margin: 1em;
 	max-width: 38.2%;
-	margin: 0 1em;
 }
 
 nav a {
@@ -11,8 +11,8 @@ nav a {
 }
 
 dt {
+	float: left;
+	margin-right: 1.5em;
 	text-align: right;
 	width: 10%;
-	float: left;
-	margin-right: 1em;
 }
