@@ -3,29 +3,14 @@
 *:after {
 	box-sizing: inherit;
 }
-* > :first-child {
-	margin-top: 0;
-}
 
 html {
 	box-sizing: border-box;
 	font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande',
 		'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
 }
-html,
 body {
-	margin: 0;
-	padding: 0;
-	height: 100%;
-	width: 100%;
-}
-body {
-	display: flex;
-	flex-direction: column;
-	padding: 1em;
-}
-main {
-	flex: auto;
+	margin: 1em;
 }
 nav {
 	border-bottom: 1px solid black;
@@ -68,7 +53,7 @@ nav a {
 button {
 	background: red;
 	border-radius: 1em;
-	border: none;
+	border: 0.2em outset red;
 	color: white;
 	display: block;
 	font-size: 1em;
@@ -76,7 +61,6 @@ button {
 	margin: 1em auto;
 	padding: 1em;
 	transition: 1s all;
-	border: 0.2em outset red;
 }
 button:hover {
 	border: 0.2em inset red;
@@ -87,18 +71,16 @@ label {
 }
 
 fieldset {
-	border-radius: 1em;
-	border: 1px inset;
-	margin: 1em 0;
-	padding: 1em;
-	position: relative;
+	border: none;
+	padding: 0;
+	margin: 0;
 }
 
 input,
 textarea {
 	width: 100%;
-	margin: 1em 0;
-	font-size: 2em;
+	margin: 0.5em 0;
+	font-size: 1em;
 }
 
 dt::after {
