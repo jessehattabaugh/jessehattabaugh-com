@@ -1,35 +1,35 @@
 {
-    "background_color": "#F00",
-    "description": "Personal website of Jesse Hattabaugh",
-    "display": "standalone",
-    "icons": [
-        {
-            "purpose": "any maskable",
-            "sizes": "192x192",
-            "src": "jesse192.png",
-            "type": "image/png"
-        },
-        {
-            "purpose": "any maskable",
-            "sizes": "512x512",
-            "src": "jesse512.png",
-            "type": "image/png"
-        }
-    ],
-    "lang": "en-US",
-    "name": "Jesse Hattabaugh",
-    "scope": "/",
-    "share_target": {
-        "action": "share.html#shareForm",
-        "enctype": "application/x-www-form-urlencoded",
-        "method": "GET",
-        "params": {
-            "text": "text",
-            "title": "title",
-            "url": "url"
-        }
-    },
-    "short_name": "Jesse's Site",
-    "start_url": "/",
-    "theme_color": "#A52A2A"
+	"background_color": "#F00",
+	"description": "Personal website of Jesse Hattabaugh",
+	"display": "standalone",
+	"icons": [
+		{
+			"purpose": "any maskable",
+			"sizes": "192x192",
+			"src": "jesse192.png",
+			"type": "image/png"
+		},
+		{
+			"purpose": "any maskable",
+			"sizes": "512x512",
+			"src": "jesse512.png",
+			"type": "image/png"
+		}
+	],
+	"lang": "en-US",
+	"name": "Jesse Hattabaugh",
+	"scope": "/",
+	"share_target": {
+		"action": "share.html#sharing",
+		"enctype": "application/x-www-form-urlencoded",
+		"method": "GET",
+		"params": {
+			"text": "text",
+			"title": "title",
+			"url": "url"
+		}
+	},
+	"short_name": "Jesse's Site",
+	"start_url": "/",
+	"theme_color": "#A52A2A"
 }
