@@ -2,8 +2,15 @@ importScripts(
 	'https://storage.googleapis.com/workbox-cdn/releases/4.3.1/workbox-sw.js',
 );
 
-// precache all the static files w/ workbox-cli injectManifest
-workbox.precaching.precacheAndRoute([]);
+workbox.precaching.cleanupOutdatedCaches();
+
+// handle the start_url with a stale while revalidate strategy so the app refreshes
+workbox.routing.registerRoute(
+	new RegExp('/'),
+	new workbox.strategies.StaleWhileRevalidate({
+		cacheName: 'start_url',
+	}),
+);
 
 // handle POSTS to the share form with backgroundSync
 workbox.routing.registerRoute(
@@ -17,3 +24,6 @@ workbox.routing.registerRoute(
 	}),
 	'POST',
 );
+
+// precache all the static files w/ workbox-cli injectManifest
+workbox.precaching.precacheAndRoute([]);
