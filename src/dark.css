@@ -13,3 +13,8 @@ body {
 :link, :visited {
 	color: red;
 }
+
+input, textarea {
+	background: black;
+	color: white;
+}

@@ -4,9 +4,9 @@ importScripts(
 
 workbox.precaching.cleanupOutdatedCaches();
 
-// handle the start_url with a stale while revalidate strategy so the app refreshes
+// html pages should serve potentially stale cached content first but check the network for updates each time
 workbox.routing.registerRoute(
-	new RegExp('/'),
+	new RegExp('/*.html'),
 	new workbox.strategies.StaleWhileRevalidate({
 		cacheName: 'start_url',
 	}),
