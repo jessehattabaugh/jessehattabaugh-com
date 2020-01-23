@@ -4,7 +4,7 @@ window.addEventListener('load', () => {
 			.register('sw.js')
 			.then((reg) => {
 				console.debug('Registration successful, scope is:', reg.scope);
-				reg.onupdatefound = (ev) => console.log('sw update found', ev);
+				reg.onupdatefound = (ev) => console.debug('sw update found', ev);
 			})
 			.catch((er) => {
 				console.error('Service worker registration failed, error:', er);
@@ -16,40 +16,41 @@ window.addEventListener('load', () => {
 
 // set up the dark mode toggle
 const darkToggle = document.getElementById('darkToggle');
-if (window.matchMedia('prefers-color-scheme: dark')) {
+const darkToggleStylesheetLink = document.getElementById(
+	'darkToggleStylesheetLink',
+);
+const prefersColorSchemeDarkLink = document.getElementById(
+	'prefersColorSchemeDarkLink',
+);
+
+if (isDark()) {
 	darkToggle.checked = true;
+	darkToggleStylesheetLink.disabled = false;
+	console.debug('enabled dark style 😎');
+} else {
+	prefersColorSchemeDarkLink.disabled = true;
+	console.debug('disabled dark styles 🌒');
 }
+
 darkToggle.addEventListener('click', (event) => {
-	console.debug('darkToggle clicked', event.target.checked);
-	const prefersColorSchemeDarkLink = document.getElementById(
-		'prefersColorSchemeDarkLink',
-	);
 	if (event.target.checked) {
 		prefersColorSchemeDarkLink.disabled = false;
-		const oldStyle = document.getElementById('darkToggleStylesheetLink');
-		if (oldStyle) {
-			oldStyle.disabled = false;
-			console.debug('existing style enabled');
-		} else {
-			const newStyle = document.createElement('link');
-			newStyle.setAttribute('rel', 'stylesheet');
-			newStyle.setAttribute('type', 'text/css');
-			newStyle.setAttribute('href', prefersColorSchemeDarkLink.href);
-			newStyle.setAttribute('media', 'screen');
-			newStyle.setAttribute('id', 'darkToggleStylesheetLink');
-			newStyle.setAttribute('class', 'dark-stylesheet-link');
-			document.getElementsByTagName('head')[0].appendChild(newStyle);
-			console.debug('newStyle appended');
-		}
+		darkToggleStylesheetLink.disabled = false;
+		localStorage.setItem('prefersColorScheme', 'dark');
+		console.debug('set color scheme to dark 🌑');
 	} else {
-		console.debug('removing dark styles');
-		[...document.querySelectorAll('.dark-stylesheet-link')].forEach(
-			(link) => {
-				link.disabled = true;
-				console.debug('disabled dark link', link);
-			},
-		);
+		prefersColorSchemeDarkLink.disabled = true;
+		darkToggleStylesheetLink.disabled = true;
+		localStorage.setItem('prefersColorScheme', 'light');
+		console.debug('set color scheme to light 🌞');
 	}
 });
+
+function isDark() {
+	const localScheme = localStorage.getItem('prefersColorScheme');
+	const isDarkMedia = window.matchMedia('prefers-color-scheme: dark').matches;
+	console.debug(`local: ${localScheme}, media: ${isDarkMedia}`);
+	return isDarkMedia || localScheme === 'dark';
+}
 
 console.debug('main script evaluated');
