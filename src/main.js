@@ -4,7 +4,8 @@ window.addEventListener('load', () => {
 			.register('sw.js')
 			.then((reg) => {
 				console.debug('Registration successful, scope is:', reg.scope);
-				reg.onupdatefound = (ev) => console.debug('sw update found', ev);
+				reg.onupdatefound = (ev) =>
+					console.debug('sw update found', ev);
 			})
 			.catch((er) => {
 				console.error('Service worker registration failed, error:', er);
@@ -47,10 +48,14 @@ darkToggle.addEventListener('click', (event) => {
 });
 
 function isDark() {
-	const localScheme = localStorage.getItem('prefersColorScheme');
-	const isDarkMedia = window.matchMedia('prefers-color-scheme: dark').matches;
-	console.debug(`local: ${localScheme}, media: ${isDarkMedia}`);
-	return isDarkMedia || localScheme === 'dark';
+	const prefersColorScheme = localStorage.getItem('prefersColorScheme');
+	const isDarkMedia = window.matchMedia(
+		'screen and (prefers-color-scheme: dark)',
+	).matches;
+	console.debug(`local: ${prefersColorScheme}, media: ${isDarkMedia}`);
+	return (
+		prefersColorScheme === 'dark' ||
+		(prefersColorScheme !== 'light' && isDarkMedia)
+	);
 }
-
 console.debug('main script evaluated');
