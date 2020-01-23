@@ -14,7 +14,9 @@ body {
 	color: red;
 }
 
-input, textarea {
+input:not([type]),
+input[type=text],
+textarea  {
 	background: black;
 	color: white;
 }
