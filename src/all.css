@@ -140,8 +140,8 @@ footer address {
 	position: absolute;
 }
 #darkToggle [type="checkbox"] ~ label:before {
-	content: '🌑';
+	content: '🔦';
 }
 #darkToggle input[type="checkbox"]:checked ~ label:before {
-	content: '🌞';
+	content: '💡';
 }
