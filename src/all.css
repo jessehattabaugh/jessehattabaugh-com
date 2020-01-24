@@ -7,7 +7,7 @@
 
 html {
 	box-sizing: border-box;
-	font-family: 'Roboto', sans-serif;
+	font-family: 'Source Sans Pro', sans-serif;
 }
 body {
 	margin: 1em;
@@ -28,7 +28,7 @@ h5,
 h6,
 nav,
 button {
-	font-family: 'Pacifico', cursive;
+	font-family: 'Satisfy', cursive;
 	clear: left;
 }
 
