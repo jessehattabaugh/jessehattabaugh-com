@@ -16,7 +16,7 @@ window.addEventListener('load', () => {
 });
 
 // set up the dark mode toggle
-const darkToggle = document.getElementById('darkToggle');
+const darkCheckbox = document.querySelector('#darkToggle input');
 const darkToggleStylesheetLink = document.getElementById(
 	'darkToggleStylesheetLink',
 );
@@ -25,7 +25,7 @@ const prefersColorSchemeDarkLink = document.getElementById(
 );
 
 if (isDark()) {
-	darkToggle.checked = true;
+	darkCheckbox.checked = true;
 	darkToggleStylesheetLink.disabled = false;
 	console.debug('enabled dark style 😎');
 } else {
@@ -33,7 +33,7 @@ if (isDark()) {
 	console.debug('disabled dark styles 🌒');
 }
 
-darkToggle.addEventListener('click', (event) => {
+darkCheckbox.addEventListener('click', (event) => {
 	if (event.target.checked) {
 		prefersColorSchemeDarkLink.disabled = false;
 		darkToggleStylesheetLink.disabled = false;
