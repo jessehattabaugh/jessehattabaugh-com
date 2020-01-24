@@ -116,8 +116,9 @@ footer address {
 }
 
 #photo {
-	width: 90%;
-	margin: 10%;
+	width: calc(100% - 2em);
+	margin: 1em;
+
 }
 
 #copyright {
