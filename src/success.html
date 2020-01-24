@@ -10,28 +10,29 @@
 				html,
 				component,
 				useState,
-				useMemo,
-				useCallback,
 				useEffect,
-				useLayoutEffect,
-				useReducer,
-				useRef,
-				useContext,
 			} from 'https://cdn.pika.dev/haunted';
 
 			customElements.define('share-list', component(ShareList));
 
 			function ShareList() {
 				const [items, setItems] = useState([]);
+
 				useEffect(async () => {
-					const res = await fetch('https://catfact.ninja/breeds?limit=10');
-					const {data} = await res.json();
+					const res = await fetch('.netlify/functions/shares');
+					const data = await res.json();
 					setItems(data);
 					console.log('⚡', data);
-				});
+				}, []);
+				
 				return html`
 					<ol>
-						${items.map((item) => html`<li>${item.breed}</li>`)}
+						${items.map(
+							(item) =>
+								html`
+									<li>${item.breed}</li>
+								`,
+						)}
 					</ol>
 				`;
 			}
