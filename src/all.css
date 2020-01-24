@@ -127,13 +127,12 @@ footer address {
 	text-align: right;
 }
 #darkToggle {
-	position: absolute;
+	position: fixed;
 	top: 1em;
 	right: 1em;
 }
 #darkToggle label {
-	width: 2em;
-	height: 1em;
+	font-size: 1em;
 }
 #darkToggle input[type=checkbox] {
 	visibility: hidden;
