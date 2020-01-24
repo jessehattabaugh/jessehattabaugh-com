@@ -41,13 +41,25 @@
 			<button type="submit">Share</button>
 		</form>
 		<script>
-			const params = new URL(location).searchParams;
 			const form = document.forms.share;
+
+			// prepopulate form with query params
+			const params = new URL(location).searchParams;
 			form.title.value = params.get('title');
 			form.text.value = params.get('text');
-			const url = params.get('url');
-			// sometimes url is null, and the url is in text instead, FML
-			form.url.value = url ? url : params.get('text');
+			form.url.value = params.get('url');
+
+			// load previously used name and email
+			form.name.value = localStorage.getItem('name');
+			form.email.value = localStorage.getItem('email');
+
+			// save the name and email in local storage till next time
+			form.onsubmit = (event) => {
+				console.debug('saving name and email', event.target);
+				localStorage.setItem('name', event.target.name.value);
+				localStorage.setItem('email', event.target.email.value);
+			};
+
 			console.debug('share.html script executed');
 		</script>
 	</block>

@@ -15,7 +15,9 @@ body {
 }
 
 input:not([type]),
+input[type=email],
 input[type=text],
+input[type=url],
 textarea  {
 	background: black;
 	color: white;

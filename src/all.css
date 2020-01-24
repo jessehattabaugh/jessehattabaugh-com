@@ -78,7 +78,9 @@ fieldset {
 }
 
 input:not([type]),
+input[type=email],
 input[type=text],
+input[type=url],
 textarea {
 	font-size: 1em;
 	margin: 0.5em 0;
