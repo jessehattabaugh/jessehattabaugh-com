@@ -6,11 +6,17 @@
 		<style>
 			.share-item {
 				border: 1px inset;
-				margin: 1em;
-				outline: 1px dashed hotpink;
+				margin: 1em 0;
+				padding: 1em;
 			}
 			gravatar-wc img {
 				border-radius: 50%;
+				vertical-align: middle;
+			}
+			share-list ol {
+				padding: 0;
+				margin: 0;
+				list-style: none;
 			}
 		</style>
 	</block>
@@ -57,6 +63,7 @@
 												<gravatar-wc
 													default="monsterid"
 													email="${item.email}"
+													size="32"
 												></gravatar-wc>
 												${item.name}
 											</cite>
