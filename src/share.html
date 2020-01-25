@@ -7,7 +7,7 @@
 		<form
 			action="success.html"
 			data-netlify="true"
-			enctype="application/x-www-form-urlencoded"
+			enctype="multipart/form-data"
 			id="shareForm"
 			method="POST"
 			name="share"
@@ -52,13 +52,24 @@
 				</label>
 			</fieldset>
 			<label
-				>📷 Image: <input name="image" type="file" accept="image/*;capture=camera" capture
+				>📷 Image:
+				<input
+					name="image"
+					type="file"
+					accept="image/*;capture=camera"
+					capture
 			/></label>
 			<label
-				>🎥 Video: <input name="video" type="file" accept="video/*;capture=camera" capture
+				>🎥 Video:
+				<input
+					name="video"
+					type="file"
+					accept="video/*;capture=camera"
+					capture
 			/></label>
 			<label
-				>🎤 Audio: <input name="audio" type="file" accept="audio/*" capture
+				>🎤 Audio:
+				<input name="audio" type="file" accept="audio/*" capture
 			/></label>
 			<button type="submit">Share</button>
 		</form>
