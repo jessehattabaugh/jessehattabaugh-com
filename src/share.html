@@ -33,12 +33,33 @@
 			</label>
 			<fieldset>
 				<h3>Who are you?</h3>
-				<label> Name: <input name="name" autocomplete="name" placeholder="Your Name" /> </label>
+				<label>
+					Name:
+					<input
+						name="name"
+						autocomplete="name"
+						placeholder="Your Name"
+					/>
+				</label>
 				<label>
 					Email:
-					<input type="email" name="email" autocomplete="email" placeholder="your@email.com" />
+					<input
+						type="email"
+						name="email"
+						autocomplete="email"
+						placeholder="your@email.com"
+					/>
 				</label>
 			</fieldset>
+			<label
+				>Image: <input name="image" type="file" accept="image/*" capture
+			/></label>
+			<label
+				>Video: <input name="video" type="file" accept="video/*" capture
+			/></label>
+			<label
+				>Audio: <input name="audio" type="file" accept="audio/*" capture
+			/></label>
 			<button type="submit">Share</button>
 		</form>
 		<script>
