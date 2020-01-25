@@ -31,8 +31,12 @@
 				useState,
 				useEffect,
 			} from 'https://cdn.pika.dev/haunted';
+			import { format } from 'https://cdn.pika.dev/timeago.js/^4.0.2';
 
-			customElements.define('share-list', component(ShareList, { useShadowDOM: false }));
+			customElements.define(
+				'share-list',
+				component(ShareList, { useShadowDOM: false }),
+			);
 
 			function ShareList() {
 				const [items, setItems] = useState([]);
@@ -53,19 +57,25 @@
 										<article>
 											<h3>
 												<a
-													href="${item.url}"
+													href="${item.data.url}"
 													target="_blank"
-													>${item.title}</a
+													>${item.data.title}</a
 												>
 											</h3>
+											<h4>
+												${format(
+													item.created_at,
+													'en-us',
+												)}
+											</h4>
 											<p>${item.text}</p>
 											<cite>
 												<gravatar-wc
 													default="monsterid"
-													email="${item.email}"
+													email="${item.data.email}"
 													size="32"
 												></gravatar-wc>
-												${item.name}
+												${item.data.name}
 											</cite>
 										</article>
 									</li>
