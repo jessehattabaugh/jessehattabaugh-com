@@ -6,6 +6,7 @@
 	"description": "Personal website of Jesse Hattabaugh",
 	"devDependencies": {
 		"cross-env": "^6.0.3",
+		"dotenv-cli": "^3.1.0",
 		"kill-port": "^1.6.0",
 		"lighthouse-ci": "^1.10.0",
 		"netlify-cli": "^2.30.0",
@@ -31,7 +32,7 @@
 		"audit": "lighthouse-ci http://localhost:1234/index.html --score=70",
 		"build": "npm run clean && parcel build src/*.html && npm run workbox",
 		"clean": "rimraf dist",
-		"dev": "netlify dev",
+		"dev": "dotenv netlify dev",
 		"start": "parcel serve src/*.html",
 		"stop": "kill-port 1234",
 		"test": "start-test http://localhost:1234/index.html audit",
