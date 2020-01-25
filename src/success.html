@@ -26,14 +26,20 @@
 				}, []);
 				
 				return html`
-					<ol>
+					<section>
 						${items.map(
 							(item) =>
 								html`
-									<li>${item.breed}</li>
+									<article>
+										<h3><a href="${item.url}" target="_blank">${item.title}</a></h3>
+										<p>${item.text}</p>
+										<blockquote>
+											${item.name}	
+										</blockquote
+									</article>
 								`,
 						)}
-					</ol>
+					</section>
 				`;
 			}
 		</script>
