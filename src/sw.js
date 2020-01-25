@@ -14,7 +14,7 @@ workbox.routing.registerRoute(
 
 // handle POSTS to the share form with backgroundSync
 workbox.routing.registerRoute(
-	/share.html/,
+	/success.html/,
 	new workbox.strategies.NetworkOnly({
 		plugins: [
 			new workbox.backgroundSync.Plugin('shareQueue', {
