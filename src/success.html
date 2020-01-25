@@ -2,9 +2,22 @@
 	<block name="title">
 		Success
 	</block>
+	<block name="head">
+		<style>
+			.share-item {
+				border: 1px inset;
+				margin: 1em;
+				outline: 1px dashed hotpink;
+			}
+			gravatar-wc img {
+				border-radius: 50%;
+			}
+		</style>
+	</block>
 	<block name="main">
 		<h2>Thanks for Sharing!</h2>
 		<share-list></share-list>
+		<script src="https://unpkg.com/gravatar-wc/dist/gravatar-wc.js"></script>
 		<script type="module">
 			import {
 				html,
@@ -13,7 +26,7 @@
 				useEffect,
 			} from 'https://cdn.pika.dev/haunted';
 
-			customElements.define('share-list', component(ShareList));
+			customElements.define('share-list', component(ShareList, { useShadowDOM: false }));
 
 			function ShareList() {
 				const [items, setItems] = useState([]);
@@ -24,22 +37,34 @@
 					setItems(data);
 					console.log('⚡', data);
 				}, []);
-				
+
 				return html`
-					<section>
+					<ol>
 						${items.map(
 							(item) =>
 								html`
-									<article>
-										<h3><a href="${item.url}" target="_blank">${item.title}</a></h3>
-										<p>${item.text}</p>
-										<blockquote>
-											${item.name}	
-										</blockquote
-									</article>
+									<li class="share-item">
+										<article>
+											<h3>
+												<a
+													href="${item.url}"
+													target="_blank"
+													>${item.title}</a
+												>
+											</h3>
+											<p>${item.text}</p>
+											<cite>
+												<gravatar-wc
+													default="monsterid"
+													email="${item.email}"
+												></gravatar-wc>
+												${item.name}
+											</cite>
+										</article>
+									</li>
 								`,
 						)}
-					</section>
+					</ol>
 				`;
 			}
 		</script>
