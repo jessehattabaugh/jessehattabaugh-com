@@ -1,16 +1,11 @@
 export default Index;
 
-import Link from 'next/link';
+import Layout from './shared/Layout';
 
 function Index() {
 	return (
-		<main>
-			<h1>Jesse Hattabaugh's Website</h1>
-			<nav>
-				<Link href="/resume">
-					<a title="Let's Work Together!">Resume</a>
-				</Link>
-			</nav>
-		</main>
+		<Layout>
+			<h2>Welcome to my site!</h2>
+		</Layout>
 	);
 }
