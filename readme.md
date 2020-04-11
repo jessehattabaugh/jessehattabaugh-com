@@ -10,8 +10,6 @@ After cloning the repo run `npm install`.
 
 To start the local development server first run `npm start`.
 
-Might need to run `npx netlify init` once.
-
 ## Tests
 
 To test that the local version of the site is functioning run `npm test`.

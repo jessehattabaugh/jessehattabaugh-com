@@ -5,17 +5,9 @@
 	},
 	"description": "Personal website of Jesse Hattabaugh",
 	"devDependencies": {
-		"cross-env": "^6.0.3",
-		"dotenv-cli": "^3.1.0",
-		"kill-port": "^1.6.0",
-		"lighthouse-ci": "^1.10.0",
-		"netlify-cli": "^2.30.0",
-		"node-fetch": "^2.6.0",
-		"parcel": "latest",
-		"posthtml-extend": "^0.3.0",
-		"rimraf": "^3.0.0",
-		"start-server-and-test": "^1.10.6",
-		"workbox-cli": "^4.3.1"
+		"next": "^9.3.4",
+		"react": "^16.13.1",
+		"react-dom": "^16.13.1"
 	},
 	"homepage": "https://github.com/jessehattabaugh/jessehattabaugh-com#readme",
 	"keywords": [
@@ -29,15 +21,7 @@
 		"url": "git+https://github.com/jessehattabaugh/jessehattabaugh-com.git"
 	},
 	"scripts": {
-		"audit": "lighthouse-ci http://localhost:1234/index.html --score=70",
-		"build": "npm run clean && parcel build src/*.html && npm run workbox",
-		"clean": "rimraf dist",
-		"dev": "dotenv netlify dev",
-		"start": "parcel serve src/*.html",
-		"stop": "kill-port 1234",
-		"test": "start-test http://localhost:1234/index.html audit",
-		"testDebug": "cross-env DEBUG=start-server-and-test && npm t",
-		"workbox": "workbox injectManifest workbox-config.js"
+		"start": "next"
 	},
 	"version": "0.0.0"
 }
