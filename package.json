@@ -5,9 +5,11 @@
 	},
 	"description": "Personal website of Jesse Hattabaugh",
 	"devDependencies": {
+		"lighthouse-ci": "^1.10.4",
 		"next": "^9.5.2",
 		"react": "^17.0.0-rc.0",
-		"react-dom": "^17.0.0-rc.0"
+		"react-dom": "^17.0.0-rc.0",
+		"start-server-and-test": "^1.11.3"
 	},
 	"homepage": "https://github.com/jessehattabaugh/jessehattabaugh-com#readme",
 	"keywords": [
@@ -21,7 +23,9 @@
 		"url": "git+https://github.com/jessehattabaugh/jessehattabaugh-com.git"
 	},
 	"scripts": {
-		"start": "next"
+		"lighthouse": "lighthouse-ci http://localhost:3000 --score=20",
+		"start": "next",
+		"test": "start-test http://localhost:3000 lighthouse"
 	},
 	"version": "0.0.0"
 }
