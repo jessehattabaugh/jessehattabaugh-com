@@ -1,0 +1,164 @@
+{
+    "name": "Jesse Hattabaugh",
+    "email": "arkanciscan@gmail.com",
+    "phone": "(415) 828-1535",
+    "summary": "I'm an engineer with 18 years of experience building applications on the web platform and it's related technologies. I've worked deeply in every part of the stack from client facing web pages, to administrating database servers, to writing build scripts. I recently moved from San Francisco, to Portland and I'm searching for new problems to apply my skills to.",
+    "skills": [
+        "Javascript",
+        "Node.js",
+        "ES6",
+        "Object Composition",
+        "Functional Reactive Programming",
+        "Build Tools",
+        "Webpack",
+        "NPM",
+        "Babel",
+        "Browserify",
+        "Shell.js",
+        "ESLint",
+        "Gulp",
+        "Sass",
+        "Stylus",
+        "Uglify",
+        "DOM APIs",
+        "Fetch",
+        "Promises",
+        "Sockets",
+        "Service Workers",
+        "Workers",
+        "Geolocation",
+        "Canvas",
+        "View Libraries",
+        "ReactJS",
+        "Backbone",
+        "jQuery",
+        "Web Components",
+        "Knockout",
+        "Angular",
+        "Virtual-DOM",
+        "CSS Layout",
+        "Flexbox",
+        "Media Queries",
+        "Transforms",
+        "Transitions",
+        "Animations",
+        "Testing / CI",
+        "Karma",
+        "Mocha",
+        "Chai",
+        "PhantomJS",
+        "Tape",
+        "Enzyme",
+        "SinonJS",
+        "TravisCI",
+        "Github",
+        "Backend Apps",
+        "REST APIs",
+        "Swagger",
+        "AWS",
+        "Lambda",
+        "Heroku",
+        "MongoDB",
+        "Redis",
+        "Firebase",
+        "Native Apps",
+        "Phonegap",
+        "Apple App Store",
+        "Google Play Store"
+    ],
+    "employment": [
+        {
+            "company": "StudyBlue",
+            "position": "Lead Frontend Developer",
+            "start": "Nov 2016",
+            "end": "Dec 2017",
+            "accomplishments": [
+                "Led a team of frontend engineers to maintain the company’s web-based flashcard application.",
+                "Overhauled the app’s legacy RequireJS-based build process to use Webpack.",
+                "Improved site load time by enabling code-splitting, long-term caching, and CDN delivery.",
+                "Mentored junior developers and conducted codereviews to improve code quality.",
+                "Replaced the IntelliJ powered development environment with a livereloading process.",
+                "Facilitated the integration of the site’s first React component inside the existing Backbone app.",
+                "Conducted interviews and evaluated code challenges for the company’s open positions."
+            ]
+        },
+        {
+            "company": "Planet Labs",
+            "position": "Senior Frontend Developer",
+            "start": "Aug 2015",
+            "end": "Oct 2016",
+            "accomplishments": [
+                "Implemented features of the company’s satellite imaging applications with ReactJS/Reflux.",
+                "Developed build scripts to generate documentation for the company’s public APIs.",
+                "Participated in daily scrums, and a Github based workflow using pull-requests and rebasing.",
+                "Made use of ES6 and modern Web APIs like Promises and Fetch by using Babel, and Polyfill.io.",
+                "Published updates to the company’s NPM packages."
+            ]
+        },
+        {
+            "company": "Eveo",
+            "position": "Senior Frontend Developer",
+            "start": "Oct 2012",
+            "end": "Jun 2015",
+            "accomplishments": [
+                "Developed interactive presentations and mobile apps for major pharmaceutical brands.",
+                "Set up NPM build systems using Gulp, Browserify, Jade, and Stylus.",
+                "Constructed hybrid web apps for using Phonegap, KnockoutJS, and AngularJS.",
+                "Lead a team of developers to complete projects and meet client requirements.",
+                "Unit tested business logic to ensure quality using Mocha and Should.js.",
+                "Managed Git branching strategy, NPM build process, and Heroku deployments.",
+                "Triaged bugs in Jira, communicated with stakeholders on Basecamp."
+            ]
+        },
+        {
+            "company": "CubeTree",
+            "position": "Full Stack Developer",
+            "start": "Mar 2010",
+            "end": "Dec 2010",
+            "accomplishments": [
+                "Used Agile techniques to develop features for the company's Ruby on Rails app.",
+                "Built front-end ui components with YUI and Web Standards.",
+                "Used TDD to define business logic and prevent regressions in a weekly release cycle.",
+                "Improved support for legacy browsers such as IE6.",
+                "Retrofitted application for translation and localization."
+            ]
+        },
+        {
+            "company": "CBS Interactive",
+            "position": "Full Stack Developer",
+            "start": "Aug 2008",
+            "end": "Oct 2009",
+            "accomplishments": [
+                "Maintained high traffic MVC application (TV.com) built with PHP and MySQL.",
+                "Developed front-end controls using MooTools and jQuery.",
+                "Wrote cron scripts for importing third party data from REST APIs.",
+                "Integrated Facebook Connect with existing authentication system."
+            ]
+        },
+        {
+            "company": "Fordella Inc",
+            "position": "Full Stack Developer",
+            "start": "May 2007",
+            "end": "May 2008",
+            "accomplishments": [
+                "Migrated the company’s white label video platform to CakePHP.",
+                "Utilized SVN source control system to collaborate with a team of developers.",
+                "Developed feed features using RSS and Atom feeds.",
+                "Used jQuery to implement Ajax features.",
+                "Worked with backend services engineers to design RESTful APIs."
+            ]
+        },
+        {
+            "company": "Imagine That Design Studios",
+            "position": "Full Stack Developer",
+            "start": "Aug 2006",
+            "end": "Mar 2007",
+            "accomplishments": [
+                "Built a social networking system for the company’s travel website.",
+                "Programmed in PHP using the CakePHP MVC framework.",
+                "Designed and implemented MySQL schemas.",
+                "Used SSH and SFTP to perform miscellaneous sysadmin duties."
+            ]
+        }
+    ]
+}
