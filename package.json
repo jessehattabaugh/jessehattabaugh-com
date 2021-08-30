@@ -5,11 +5,14 @@
 	},
 	"description": "Personal website of Jesse Hattabaugh",
 	"devDependencies": {
-		"lighthouse-ci": "^1.11.0",
-		"next": "^9.5.5",
-		"react": "^17.0.1",
-		"react-dom": "^17.0.1",
-		"start-server-and-test": "^1.11.5"
+		"eslint": "7.32.0",
+		"eslint-config-next": "11.1.0",
+		"kill-port": "^1.6.1",
+		"lighthouse-ci": "^1.13.0",
+		"next": "^11.1.0",
+		"react": "^17.0.2",
+		"react-dom": "^17.0.2",
+		"start-server-and-test": "^1.13.1"
 	},
 	"homepage": "https://github.com/jessehattabaugh/jessehattabaugh-com#readme",
 	"keywords": [
@@ -23,9 +26,10 @@
 		"url": "git+https://github.com/jessehattabaugh/jessehattabaugh-com.git"
 	},
 	"scripts": {
-		"lighthouse": "lighthouse-ci http://localhost:3000 --score=20",
-		"start": "next",
-		"test": "start-test http://localhost:3000 lighthouse"
+		"start": "next dev",
+		"lighthouse": "lighthouse-ci http://localhost:3000 --score=80",
+		"prod": "kill-port 3000 && next build && next start",
+		"test": "start-test prod http://localhost:3000 lighthouse"
 	},
 	"version": "0.0.0"
 }

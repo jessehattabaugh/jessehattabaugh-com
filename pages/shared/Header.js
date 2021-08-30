@@ -7,7 +7,7 @@ function Header() {
 		<header>
 			<Link href="/">
 				<a title="Return Home">
-					<h1>Jesse Hattabaugh's Site</h1>
+					<h1>Jesse Hattabaugh&apos;s Site</h1>
 				</a>
 			</Link>
 
