@@ -13,3 +13,7 @@ To start the local development server run `npm start` then open [http://localhos
 ## Tests
 
 To test that the local version of the site is functioning run `npm test`.
+
+## Deployment
+
+This site is hosted on fleek.co

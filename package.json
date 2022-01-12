@@ -1,15 +1,11 @@
 {
-	"author": "Jesse Hattabaugh",
+	"author": "Jesse Hattabaugh<jessehattabaugh@protonmail.com>",
 	"bugs": {
 		"url": "https://github.com/jessehattabaugh/jessehattabaugh-com/issues"
 	},
 	"description": "Personal website of Jesse Hattabaugh",
 	"devDependencies": {
-		"lighthouse-ci": "^1.11.0",
-		"next": "^9.5.5",
-		"react": "^17.0.1",
-		"react-dom": "^17.0.1",
-		"start-server-and-test": "^1.11.5"
+		"serve": "^13.0.2"
 	},
 	"homepage": "https://github.com/jessehattabaugh/jessehattabaugh-com#readme",
 	"keywords": [
@@ -23,9 +19,8 @@
 		"url": "git+https://github.com/jessehattabaugh/jessehattabaugh-com.git"
 	},
 	"scripts": {
-		"lighthouse": "lighthouse-ci http://localhost:3000 --score=20",
-		"start": "next",
-		"test": "start-test http://localhost:3000 lighthouse"
+		"start": "serve www",
+		"test": "npx cowsay no tests"
 	},
 	"version": "0.0.0"
 }

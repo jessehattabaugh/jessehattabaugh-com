@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<title>Jesse's Site</title>
+		<meta
+			name="description"
+			content="personal website of Jesse Hattabaugh"
+		/>
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<link rel="manifest" href="manifest.json" />
+		<link rel="apple-touch-icon" href="jesse192.png" />
+		<style>
+			html,
+			body {
+				box-sizing: border-box;
+				font-family: 'Open Sans', sans-serif;
+				height: 100%;
+			}
+			*,
+			*::before,
+			*::after {
+				box-sizing: inherit;
+				margin: 0;
+			}
+			body {
+				background: red;
+				transition: all 1s;
+			}
+			h1,
+			h1 :link,
+			h1 :visited,
+			nav :link,
+			nav :visited {
+				color: red;
+				text-decoration: none;
+			}
+			a:hover {
+				text-decoration: underline;
+			}
+			p {
+				margin-bottom: 1em;
+			}
+			dt::after {
+				content: ':';
+			}
+			dd {
+				margin-inline-start: 0;
+			}
+			main {
+				margin: 1em;
+			}
+			img {
+				width: 100%;
+			}
+			footer {
+				clear: both;
+				height: 100%;
+			}
+			.round {
+				border-radius: 50%;
+				box-shadow: black 0.5em 0.5em 1em 0em, red 0 -0.2em 0em 0.5em;
+				shape-outside: circle(50%);
+			}
+		</style>
+		<link rel="stylesheet" href="screen.css" media="screen" />
+		<link rel="stylesheet" href="print.css" media="print" />
+		<link
+			rel="stylesheet"
+			href="wide.css"
+			media="screen and (min-width: 512px)"
+		/>
+		<link
+			rel="stylesheet"
+			href="dark.css"
+			media="screen and (prefers-color-scheme: dark)"
+		/>
+		<meta name="theme-color" content="#ff0000" />
+	</head>
+	<body>
+		<header>
+			<h1>
+				<a href="/">Jesse Hattabaugh</a
+				><b style="white-space: nowrap">🍄💻🚲☕</b>
+			</h1>
+		</header>
+		<nav>
+			<a href="#contact">Contact</a>
+		</nav>
+		<main>
+			<article>
+				<picture>
+					<source
+						media="(min-width: 512px)"
+						srcset="jesse975.webp"
+						type="image/webp"
+					/>
+					<source
+						media="(max-width: 192px)"
+						srcset="jesse192.png"
+						type="image/png"
+					/>
+					<img
+						alt="Photo of Jesse Hattabaugh"
+						class="round"
+						src="jesse512.png"
+						width="512"
+					/>
+				</picture>
+
+				<h2>Welcome to my site!</h2>
+
+				<p>
+					This site is a Progressive Web App, so you can install it to
+					your homescreen and it will work offline.
+				</p>
+
+				<p>
+					Also note that this site respects your dark mode
+					preferences.
+				</p>
+			</article>
+		</main>
+
+		<footer id="contact">
+			<h2>Contact Me</h2>
+
+			<dl>
+				<dt>Email</dt>
+				<dd>
+					<address>
+						<a
+							style="word-wrap: break-word"
+							href="mailto:some@email.com"
+							>some@email.com</a
+						>
+					</address>
+				</dd>
+				<dt>SMS</dt>
+				<dd><a href="sms:+12223334444">(222) 333-4444</a></dd>
+			</dl>
+
+			<span
+				>&copy; 2022
+				<address>
+					<a href="mailto:some@email.com">Jesse Hattabaugh</a>
+				</address></span
+			>
+		</footer>
+
+		<script type="module">
+			console.debug('👋🌎 scripts loaded');
+		</script>
+		<script async src="async.js" type="module"></script>
+		<script nomodule>
+			console.error('🧓 upgrade your browser boomer!');
+		</script>
+		<noscript>🐱‍💻 Turn on JavaScript you wierdo!</noscript>
+	</body>
+</html>

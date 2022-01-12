@@ -1,0 +1,6 @@
+{
+	"build": {
+		"image": "node:slim",
+		"publicDir": "www"
+	}
+}

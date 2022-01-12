@@ -1,0 +1,14 @@
+/* styles for (min-width: 512px) screens */
+
+img {
+	max-width: 38.2%;
+	float: left;
+	margin: 1em;
+}
+
+dt {
+	float: left;
+	margin-right: 1.5em;
+	text-align: right;
+	width: 10%;
+}
