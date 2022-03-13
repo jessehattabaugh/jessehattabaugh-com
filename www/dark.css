@@ -10,11 +10,6 @@ body {
 	color: #ff0000;
 }
 
-:link,
-:visited {
-	color: #ff0000;
-}
-
 input:not([type]),
 input[type='email'],
 input[type='text'],
