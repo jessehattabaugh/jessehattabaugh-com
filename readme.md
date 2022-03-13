@@ -16,4 +16,4 @@ To test that the local version of the site is functioning run `npm test`.
 
 ## Deployment
 
-This site is hosted on fleek.co
+This site is hosted on fleek.co. Deoployment happens automaticlly after merges to `main`.
