@@ -4,6 +4,13 @@
 		"es2021": true,
 		"worker": true
 	},
-	"extends": "eslint:recommended",
-	"sourceType": "module"
+	"extends": ["eslint:recommended", "prettier"],
+	"parserOptions": {
+		"ecmaVersion": "latest",
+		"sourceType": "module"
+	},
+	"root": true,
+	"rules": {
+		"no-unused-vars": "warn"
+	}
 }
