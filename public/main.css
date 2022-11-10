@@ -1,91 +1,24 @@
-@keyframes scrollingBackground {
-	0%,
-	100% {
-		background-position: 0 0;
-	}
-
-	50% {
-		background-position: 100% 0;
-	}
-}
-
 html,
 body {
+	background-color: #000000;
 	box-sizing: border-box;
-	font-family: 'Open Sans', sans-serif;
+	color: #ffffff;
+	font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
 	height: 100%;
 }
-
 *,
 *::before,
 *::after {
 	box-sizing: inherit;
-	margin: 0;
 }
-
-body {
-	background-image: radial-gradient(
-			80% 80% at 50% 100%,
-			rgba(66, 153, 225, 0) 51%,
-			rgba(66, 153, 225, 0.33) 52%,
-			#4299e1 54%,
-			#43a7b7 56%,
-			#48bb78 60%,
-			#7ec548 61.67%,
-			#ecc94b 65%,
-			#ecb544 66.33%,
-			#ed8936 69%,
-			#f67b36 70.67%,
-			#f56565 74%,
-			rgba(242, 87, 193, 0.67) 75.33%,
-			rgba(66, 153, 225, 0) 78%
-		),
-		radial-gradient(
-			50% 50% at 50% 100%,
-			rgba(66, 153, 225, 0) 51%,
-			rgba(66, 153, 225, 0.33) 52%,
-			#4299e1 54%,
-			#43a7b7 56%,
-			#48bb78 60%,
-			#7ec548 61.67%,
-			#ecc94b 65%,
-			#ecb544 66.33%,
-			#ed8936 69%,
-			#f67b36 70.67%,
-			#f56565 74%,
-			rgba(242, 87, 193, 0.67) 75.33%,
-			rgba(66, 153, 225, 0) 78%
-		),
-		linear-gradient(
-			180deg,
-			#f7fafc 0%,
-			#deebf5 6.8%,
-			#c4ddf0 13.6%,
-			#a8cfed 20.4%,
-			#63b3ed 34%
-		);
-	transition: all 1s;
-}
-
-:link,
-:visited {
-	animation: scrollingBackground 6s
-		cubic-bezier(0.65, 0.05, 0.36, 1) infinite;
-	background: linear-gradient(
-		to right,
-		w red,
-		white,
-		blue,
-		white,
-		red
-	);
-	-webkit-background-clip: text;
-	background-clip: text;
-	background-size: 500% 100%;
-	color: transparent;
+a:active,
+a:focus,
+a:link,
+a:visited {
+	color: #f00;
 	text-decoration: none;
 }
-:hover {
+a:hover {
 	text-decoration: underline;
 }
 h1,
@@ -94,30 +27,5 @@ h3,
 h4,
 h5,
 h6 {
-	font-size: 300%;
-}
-p {
-	margin-bottom: 1em;
-}
-dt::after {
-	content: ':';
-}
-dd {
-	margin-inline-start: 0;
-}
-main {
-	margin: 1em;
-}
-img {
-	width: 100%;
-}
-footer {
-	clear: both;
-	height: 100%;
-}
-.round {
-	border-radius: 50%;
-	box-shadow: black 0.5em 0.5em 1em 0em,
-		red 0 -0.2em 0em 0.5em;
-	shape-outside: circle(50%);
+	color: #f00;
 }

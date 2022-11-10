@@ -1,23 +1,30 @@
-/**
- * @type {import('@enhance/types').EnhanceElemFn}
- */
+/** @type {import('@enhance/types').EnhanceElemFn} */
 export default function ({ html }) {
-	return html` <style>
-			:host {
-				flex: none;
+	return html`<style>
+			dt {
+				float: left;
+				margin-right: 1.5em;
+				text-align: right;
+				width: 10%;
+			}
+			dt::after {
+				content: ':';
+			}
+			dd {
+				margin-inline-start: 0;
+			}
+			footer {
+				clear: both;
+				height: 100%;
 			}
 		</style>
 		<footer id="contact">
-			<h2>Contact Me</h2>
+			<h3>Contact Me</h3>
 			<dl>
 				<dt>Email</dt>
 				<dd>
 					<address>
-						<a
-							style="word-wrap: break-word"
-							href="mailto:some@email.com"
-							>some@email.com</a
-						>
+						<a href="mailto:some@email.com">some@email.com</a>
 					</address>
 				</dd>
 				<dt>SMS</dt>
