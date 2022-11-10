@@ -3,24 +3,27 @@
 	"bugs": {
 		"url": "https://github.com/jessehattabaugh/jessehattabaugh-com/issues"
 	},
-	"description": "Personal website of Jesse Hattabaugh",
+	"description": "Jesse's Site",
 	"devDependencies": {
-		"serve": "^13.0.2"
+		"@architect/architect": "latest",
+		"@architect/sandbox": "latest",
+		"@enhance/arc-plugin-enhance": "latest",
+		"@enhance/types": "latest",
+		"eslint": "latest",
+		"eslint-config-prettier": "latest"
 	},
 	"homepage": "https://github.com/jessehattabaugh/jessehattabaugh-com#readme",
-	"keywords": [
-		"Jesse",
-		"Hattabaugh"
-	],
 	"license": "UNLICENSED",
 	"name": "jessehattabaugh-com",
+	"private": true,
 	"repository": {
 		"type": "git",
 		"url": "git+https://github.com/jessehattabaugh/jessehattabaugh-com.git"
 	},
 	"scripts": {
-		"start": "serve www",
-		"test": "npx cowsay no tests"
+		"deploy": "arc deploy",
+		"start": "arc sandbox"
 	},
+	"type": "module",
 	"version": "0.0.0"
 }
