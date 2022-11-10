@@ -1,0 +1,40 @@
+{
+	"background_color": "#ff0000",
+	"display": "standalone",
+	"icons": [
+		{
+			"purpose": "any maskable",
+			"sizes": "192x192",
+			"src": "/_public/jesse192.png",
+			"type": "image/png"
+		},
+		{
+			"purpose": "any maskable",
+			"sizes": "512x512",
+			"src": "/_public/jesse512.png",
+			"type": "image/png"
+		}
+	],
+	"name": "Jesse's Site",
+	"share_target": {
+		"action": "/share",
+		"method": "POST",
+		"enctype": "multipart/form-data",
+		"params": {
+			"text": "text",
+			"title": "title",
+			"url": "url",
+			"files": [
+				{
+					"name": "photo",
+					"accept": [
+						"image/jpeg",
+						".jpg"
+					]
+				}
+			]
+		}
+	},
+	"start_url": "/?start",
+	"theme_color": "#ff0000"
+}
