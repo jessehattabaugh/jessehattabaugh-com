@@ -1,3 +1,4 @@
 node_modules
+.enhance
 public/styles.css
 public/bundles
