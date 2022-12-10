@@ -1,6 +1,6 @@
 # jessehattabaugh-com
 
-Personal website of Jesse Hattabaugh https://www.jessehattabaugh.com
+Personal website of Jesse Hattabaugh <https://www.jessehattabaugh.com>
 
 ## Installation
 
@@ -8,12 +8,8 @@ After cloning the repo run `npm install`.
 
 ## Development
 
-To start the local development server run `npm start` then open [http://localhost:3000](http://localhost:3000) in a browser.
-
-## Tests
-
-To test that the local version of the site is functioning run `npm test`.
+To start the local development server run `npm start` then open [http://localhost:3333](http://localhost:3333) in a browser.
 
 ## Deployment
 
-This site is hosted on fleek.co. Deoployment happens automaticlly after merges to `main`.
+Todo: move the dns hosting for jessehattabaugh.com to route53
