@@ -11,8 +11,8 @@
 		"@enhance/types": "latest",
 		"eslint": "latest",
 		"eslint-config-prettier": "latest",
-		"workbox-routing": "^6.5.4",
-		"workbox-strategies": "^6.5.4"
+		"workbox-routing": "latest",
+		"workbox-strategies": "latest"
 	},
 	"homepage": "https://github.com/jessehattabaugh/jessehattabaugh-com#readme",
 	"license": "UNLICENSED",
