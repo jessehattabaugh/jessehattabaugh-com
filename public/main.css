@@ -6,10 +6,22 @@ body {
 	font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
 	height: 100%;
 }
+body {
+	display: flex;
+	flex-direction: column;
+}
+main {
+	flex: 1;
+}
+body > * {
+	padding: 1em;
+}
 *,
 *::before,
 *::after {
 	box-sizing: inherit;
+	margin: 0;
+	padding: 0;
 }
 a:active,
 a:focus,

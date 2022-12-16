@@ -8,7 +8,7 @@ export default function Head(state) {
 			<head>
 				<meta charset="utf-8" />
 				<meta name="viewport" content="width=device-width, initial-scale=1" />
-				<title>JesseHattabaugh.com/${path}</title>
+				<title>JesseHattabaugh.com${path}</title>
 				<meta name="description" content="Personal site of Jesse Hattabaugh" />
 				<link rel="icon" href="/_public/favicon.ico" />
 				<link rel="manifest" href="/_public/manifest.json" />
@@ -21,6 +21,6 @@ export default function Head(state) {
 				<script nomodule>
 					console.error('Time to upgrade your browser boomer! 🧓');
 				</script>
-				<script async type="module" src="/_public/bundles/async.mjs"></script>
+				<script async type="module" src="/_public/pages/async.mjs"></script>
 			</head>`;
 }

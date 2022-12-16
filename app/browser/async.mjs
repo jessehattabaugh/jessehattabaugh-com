@@ -1,7 +1,7 @@
 if ('serviceWorker' in navigator) {
 	window.addEventListener('load', async () => {
 		try {
-			await navigator.serviceWorker.register('/_public/bundles/sw.mjs', {
+			await navigator.serviceWorker.register('/_public/pages/sw.mjs', {
 				scope: '/',
 			});
 			console.debug('👨‍🏭® service worker registered');
