@@ -4,6 +4,7 @@ export default function ({ html }) {
 			dt {
 				float: left;
 				margin-right: 1.5em;
+				padding: 0.5em;
 				text-align: right;
 				width: 10%;
 			}
@@ -12,6 +13,10 @@ export default function ({ html }) {
 			}
 			dd {
 				margin-inline-start: 0;
+			}
+			a {
+				display: inline-block;
+				padding: 0.5em;
 			}
 			footer {
 				clear: both;
