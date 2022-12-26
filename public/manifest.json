@@ -18,18 +18,8 @@
 	"name": "Jesse's Site",
 	"share_target": {
 		"action": "/share",
-		"enctype": "multipart/form-data",
-		"method": "POST",
+		"method": "GET",
 		"params": {
-			"files": [
-				{
-					"accept": [
-						"image/jpeg",
-						".jpg"
-					],
-					"name": "photo"
-				}
-			],
 			"text": "text",
 			"title": "title",
 			"url": "url"
