@@ -1,45 +1,26 @@
 /** @type {import('@enhance/types').EnhanceElemFn} */
 export default function ({ html }) {
 	return html`<style>
-			dt {
-				float: left;
-				margin-right: 1.5em;
-				padding: 0.5em;
-				text-align: right;
-				width: 10%;
-			}
-			dt::after {
-				content: ':';
-			}
-			dd {
-				margin-inline-start: 0;
-			}
 			a {
-				display: inline-block;
-				padding: 0.5em;
+				display: block;
 			}
 			footer {
 				clear: both;
 				height: 100%;
 			}
+			.photo {
+				width: 4em;
+				float: left;
+				margin: 0.5em;
+			}
 		</style>
-		<footer id="contact">
-			<h3>Contact Me</h3>
-			<dl>
-				<dt>Email</dt>
-				<dd>
-					<address>
-						<a href="mailto:some@email.com">some@email.com</a>
-					</address>
-				</dd>
-				<dt>SMS</dt>
-				<dd><a href="sms:+12223334444">(222) 333-4444</a></dd>
-			</dl>
-			<span
-				>&copy; 2022
-				<address>
-					<a href="mailto:some@email.com">Jesse Hattabaugh</a>
-				</address></span
+		<footer id="contact" class="vcard">
+			<img alt="Jesse Hattabaugh" class="photo" src="/_public/jesse192.png" width="192" />
+			<h3 class="fn">Jesse Hattabaugh</h3>
+			<a href="mailto:webmaster@jessehattabaugh.com" class="email"
+				>webmaster@jessehattabaugh.com</a
 			>
+			<a href="tel:+15038939375" class="tel">(503) 893-9375</a>
+			<div>&copy; 2023</div>
 		</footer>`;
 }

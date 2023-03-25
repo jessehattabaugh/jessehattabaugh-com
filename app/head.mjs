@@ -22,5 +22,6 @@ export default function Head(state) {
 					console.error('Time to upgrade your browser boomer! 🧓');
 				</script>
 				<script async type="module" src="/_public/pages/async.mjs"></script>
+				<link rel="profile" href="http://microformats.org/profile/hcard">
 			</head>`;
 }
