@@ -1,21 +1,31 @@
 /** @type {import('@enhance/types').EnhanceElemFn} */
 export default function ({ html }) {
 	return html`<style>
-			a {
-				display: block;
-			}
 			footer {
 				clear: both;
 				height: 100%;
+				text-align: right;
 			}
-			.photo {
-				width: 4em;
-				float: left;
+			a {
+				display: block;
+				margin-bottom: 1em;
+				font-size: 0.9em;
+			}
+			img {
+				float: right;
+				height: 4.25em;
 				margin: 0.5em;
+				width: 4.25em;
 			}
 		</style>
 		<footer id="contact" class="vcard">
-			<img alt="Jesse Hattabaugh" class="photo" src="/_public/jesse192.png" width="192" />
+			<img
+				alt="Jesse Hattabaugh"
+				class="photo"
+				height="192"
+				src="/_public/jesse192.png"
+				width="192"
+			/>
 			<h3 class="fn">Jesse Hattabaugh</h3>
 			<a href="mailto:webmaster@jessehattabaugh.com" class="email"
 				>webmaster@jessehattabaugh.com</a

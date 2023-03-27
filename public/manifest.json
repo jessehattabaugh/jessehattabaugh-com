@@ -18,6 +18,7 @@
 	"name": "Jesse's Site",
 	"share_target": {
 		"action": "/share",
+		"enctype": "application/x-www-form-urlencoded",
 		"method": "GET",
 		"params": {
 			"text": "text",
@@ -25,6 +26,6 @@
 			"url": "url"
 		}
 	},
-	"start_url": "/?start",
+	"start_url": "/?start_url",
 	"theme_color": "#ff0000"
 }

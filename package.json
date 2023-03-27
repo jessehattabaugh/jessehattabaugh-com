@@ -1,29 +1,22 @@
 {
-	"author": "Jesse Hattabaugh<jessehattabaugh@protonmail.com>",
-	"bugs": {
-		"url": "https://github.com/jessehattabaugh/jessehattabaugh-com/issues"
-	},
-	"description": "Jesse's Site",
 	"devDependencies": {
 		"@architect/architect": "latest",
+		"@architect/eslint-config": "latest",
 		"@architect/sandbox": "latest",
 		"@enhance/arc-plugin-enhance": "latest",
 		"@enhance/types": "latest",
 		"eslint": "latest",
-		"eslint-config-prettier": "latest",
-		"workbox-routing": "latest",
-		"workbox-strategies": "latest"
+		"eslint-config-prettier": "latest"
 	},
-	"homepage": "https://github.com/jessehattabaugh/jessehattabaugh-com#readme",
-	"license": "UNLICENSED",
+	"engines": {
+		"node": "~16",
+		"npm": "~8"
+	},
 	"name": "jessehattabaugh-com",
 	"private": true,
-	"repository": {
-		"type": "git",
-		"url": "git+https://github.com/jessehattabaugh/jessehattabaugh-com.git"
-	},
 	"scripts": {
-		"deploy": "arc deploy",
+		"production": "arc deploy --production",
+		"staging": "arc deploy",
 		"start": "arc sandbox"
 	},
 	"type": "module",

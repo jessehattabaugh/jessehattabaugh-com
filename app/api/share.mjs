@@ -3,6 +3,7 @@ export async function post(req) {
 	console.log('🌋', req.body);
 	const { test, title, url } = req.body;
 	if (test || title || url) {
+		// send the share somewhere
 		return { location: '/thanks' };
 	} else {
 		return {

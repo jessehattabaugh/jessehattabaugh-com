@@ -1,4 +1,5 @@
-node_modules
 .enhance
-public/styles.css
-public/pages
+node_modules
+public/browser
+sam.json
+sam.yaml
