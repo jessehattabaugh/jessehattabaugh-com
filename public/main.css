@@ -3,19 +3,28 @@ body {
 	background-color: #000000;
 	box-sizing: border-box;
 	color: #ffffff;
-	font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+	font-family: Inter, Roboto, 'Helvetica Neue', 'Arial Nova', 'Nimbus Sans', Arial, sans-serif;
 	height: 100%;
 }
+
 body {
 	display: flex;
 	flex-direction: column;
 }
+
 main {
+	align-items: center;
+	display: flex;
+	flex-direction: column;
 	flex: 1;
+	height: 100%;
+	justify-content: center;
 }
+
 body > * {
 	padding: 1em;
 }
+
 *,
 *::before,
 *::after {
@@ -23,17 +32,19 @@ body > * {
 	margin: 0;
 	padding: 0;
 }
+
 a:active,
 a:focus,
 a:link,
 a:visited {
 	color: #f00;
 	text-decoration: none;
-	
 }
+
 a:hover {
 	text-decoration: underline;
 }
+
 h1,
 h2,
 h3,
@@ -41,4 +52,9 @@ h4,
 h5,
 h6 {
 	color: #f00;
+	font-family: 'Segoe Print', 'Bradley Hand', Chilanka, TSCu_Comic, casual, cursive;
+}
+
+p {
+	margin-bottom: 1em;
 }

@@ -5,10 +5,12 @@ export default function ({ html }) {
 				border-radius: 50%;
 				box-shadow: black 0.5em 0.5em 1em 0em, red 0 -0.2em 0em 0.5em;
 				float: left;
-				margin: 1em;
-				max-width: 38.2%;
+				height: 30vw;
+				margin-right: 5%;
+				margin-bottom: 5%;
+				max-width: 512px;
 				shape-outside: circle(50%);
-				width: 100%;
+				width: 30vw;
 			}
 		</style>
 		<picture>
@@ -16,7 +18,7 @@ export default function ({ html }) {
 			<source media="(max-width: 192px)" srcset="/_public/jesse192.png" type="image/png" />
 			<img
 				alt="Photo of Jesse Hattabaugh"
-				class="round"
+				height="512"
 				src="/_public/jesse512.png"
 				width="512"
 			/>

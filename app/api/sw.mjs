@@ -1,4 +1,5 @@
-/** @type {import('@enhance/types').EnhanceApiFn} */
+/** This file must be served from the root of the site in order to cache files in the root.
+ * @type {import('@enhance/types').EnhanceApiFn} */
 export async function get() {
 	return {
 		body: `importScripts(
