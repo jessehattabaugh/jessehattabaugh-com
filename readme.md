@@ -4,7 +4,7 @@ Personal website of Jesse Hattabaugh <https://www.jessehattabaugh.com>
 
 ## Installation
 
-After cloning the repo run `npm install`.
+After cloning this repo use [nvm](https://github.com/nvm-sh/nvm#installing-and-updating) to install nodejs by running `nvm use`. Then run `npm install`.
 
 ## Development
 
@@ -12,14 +12,22 @@ To start the local development server run `npm start` then open [http://localhos
 
 ## Deployment
 
-I followed [the architect instructions to deploy to AWS with CloudFront](https://arc.codes/docs/en/guides/domains/registrars/route53-and-cloudfront)
+DNS for jessehattabaugh.com is Route 53.
 
-Staging: https://q4mdjvrxu0.execute-api.us-east-1.amazonaws.com
-Production: https://rba5mrs9pb.execute-api.us-east-1.amazonaws.com
+AWS is configured according to [the architect instructions to deploy to AWS with CloudFront](https://arc.codes/docs/en/guides/domains/registrars/route53-and-cloudfront). The one change was that I enabled http3.
 
-Staging API Gateway domain name: https://d-wkx1pw21j6.execute-api.us-east-1.amazonaws.com
-Production API Gateway: https://rba5mrs9pb.execute-api.us-east-1.amazonaws.com/
+### Staging
 
-DNS is on Route53
+To deploy staging run `npm run staging`.
 
-Oh, and CloudFront is serving HTTP3
+- [The public staging url](https://staging.jessehattabaugh.com)
+- [The internal AWS staging url](https://q4mdjvrxu0.execute-api.us-east-1.amazonaws.com)
+- [Staging API Gateway url](https://d-wkx1pw21j6.execute-api.us-east-1.amazonaws.com)
+
+### Production
+
+To deploy production run `npm run production`.
+
+- [The public production url](https://jessehattabaugh.com)
+- [The internal AWS staging url](https://rba5mrs9pb.execute-api.us-east-1.amazonaws.com)
+- [Production API Gateway url](https://rba5mrs9pb.execute-api.us-east-1.amazonaws.com/)

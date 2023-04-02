@@ -3,7 +3,7 @@ export default function ({ html }) {
 	return html`<style>
 			img {
 				border-radius: 50%;
-				box-shadow: black 0.5em 0.5em 1em 0em, red 0 -0.2em 0em 0.5em;
+				box-shadow: black 0.5em 0.5em 1em 0em, currentColor 0 -0.2em 0em 0.5em;
 				float: left;
 				height: 30vw;
 				margin-right: 5%;

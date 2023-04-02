@@ -1,30 +1,18 @@
-html,
-body {
-	background-color: #000000;
-	box-sizing: border-box;
-	color: #ffffff;
-	font-family: Inter, Roboto, 'Helvetica Neue', 'Arial Nova', 'Nimbus Sans', Arial, sans-serif;
-	height: 100%;
+@import url('https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&display=swap');
+
+:root {
+	--background-color: black;
+	--color: white;
+	--dead-relatives: 3; /* widows and orphans */
+	--error: orange;
+	--font-family-heading: 'Comic Neue', 'Comic Sans MS', 'Chalkboard SE', 'Segoe Print', 'Bradley Hand', Chilanka, TSCu_Comic, casual, cursive;
+	--font-family: Inter, Roboto, 'Helvetica Neue', 'Arial Nova', 'Nimbus Sans', Arial, sans-serif;
+	--theme: red;
+	--unit: 1em;
 }
 
-body {
-	display: flex;
-	flex-direction: column;
-}
 
-main {
-	align-items: center;
-	display: flex;
-	flex-direction: column;
-	flex: 1;
-	height: 100%;
-	justify-content: center;
-}
-
-body > * {
-	padding: 1em;
-}
-
+/* resets */
 *,
 *::before,
 *::after {
@@ -33,11 +21,44 @@ body > * {
 	padding: 0;
 }
 
+html {
+	animation: colorwheel 60s linear infinite;
+	box-sizing: border-box;
+	color: red;
+	height: 100%;
+}
+@keyframes colorwheel {
+	33.3% { color: lime; }
+	66.7% { color: aqua; }
+}
+
+body {
+	background-color: var(--background-color);
+	background-image: linear-gradient(to bottom, var(--background-color), currentColor 666%);
+	display: flex;
+	flex-direction: column;
+	font-family: var(--font-family);
+	height: inherit;
+}
+
+body > * {
+	padding: var(--unit);
+}
+
+main {
+	align-items: center;
+	display: flex;
+	flex-direction: column;
+	flex: 1;
+	height: inherit;
+	justify-content: center;
+}
+
 a:active,
 a:focus,
 a:link,
 a:visited {
-	color: #f00;
+	color: currentColor;
 	text-decoration: none;
 }
 
@@ -51,10 +72,15 @@ h3,
 h4,
 h5,
 h6 {
-	color: #f00;
-	font-family: 'Segoe Print', 'Bradley Hand', Chilanka, TSCu_Comic, casual, cursive;
+	color: currentColor;
+	font-family: var(--font-family-heading);
+	page-break-after: avoid;
+	margin-bottom: 0.5em;
 }
 
 p {
-	margin-bottom: 1em;
+	color: var(--color);
+	margin-bottom: var(--unit);
+	orphans: var(--dead-relatives);
+	widows:  var(--dead-relatives);
 }
