@@ -16,6 +16,7 @@
 *,
 *::before,
 *::after {
+	appearance: unset;
 	box-sizing: inherit;
 	margin: 0;
 	padding: 0;
@@ -23,9 +24,12 @@
 
 html {
 	animation: colorwheel 60s linear infinite;
+	backface-visibility: hidden;
 	box-sizing: border-box;
 	color: red;
 	height: 100%;
+	perspective: 1000;
+	transform: translateZ(0);
 }
 @keyframes colorwheel {
 	33.3% { color: lime; }
