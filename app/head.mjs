@@ -16,7 +16,7 @@ export default function Head(state) {
 				<meta name="theme-color" content="#ff0000" />
 				<link rel="stylesheet" href="/_public/main.css" />
 				<noscript>
-					<blink>Enable JavaScript you weirdo! 🦄</blink>
+					<marquee>Enable JavaScript you weirdo! 🦄</marquee>
 				</noscript>
 				<script nomodule>
 					console.error('Time to upgrade your browser boomer! 🧓');

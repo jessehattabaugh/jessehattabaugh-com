@@ -2,11 +2,13 @@
 	"devDependencies": {
 		"@architect/architect": "latest",
 		"@architect/eslint-config": "latest",
+		"@architect/functions": "latest",
 		"@architect/sandbox": "latest",
 		"@enhance/arc-plugin-enhance": "latest",
 		"@enhance/types": "latest",
 		"eslint": "latest",
-		"eslint-config-prettier": "latest"
+		"eslint-config-prettier": "latest",
+		"uuid": "^9.0.0"
 	},
 	"engines": {
 		"node": "~16",

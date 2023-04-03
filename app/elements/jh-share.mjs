@@ -3,8 +3,8 @@ export default function ({ html, state }) {
 	const { title, text, url, error } = state.store;
 	return html`<style>
 			:host {
-				width: 100%;
 				max-width: 40em;
+				width: 100%;
 			}
 			label {
 				display: block;
@@ -13,13 +13,11 @@ export default function ({ html, state }) {
 			input,
 			textarea {
 				background-color: transparent;
-				border-color: currentColor;
-				border-radius: 0.75em;
-				border-style: solid;
-				border-width: 0.25em;
+				border-radius: 0.5em;
+				border: solid currentColor;
+				box-shadow: 0 0 0.5em currentColor;
 				color: inherit;
 				display: block;
-				outline: 1em currentColor;
 				padding: 0.75em;
 				width: 100%;
 			}
@@ -27,12 +25,16 @@ export default function ({ html, state }) {
 				height: 20vw;
 			}
 			[type='submit'] {
+				box-shadow: inset 0 0 0.5em currentColor;
 				padding: 0.75em;
 				width: 100%;
 			}
+			.error {
+				color: var(--color-error);
+			}
 		</style>
-		<form action="/share">
-			${error}
+		<form action="/share" method="post">
+			<div class="error">${error}</div>
 			<label>title<input name="title" type="text" value="${title}" /></label>
 			<label>text<textarea name="text" type="text">${text}</textarea></label>
 			<label>url<input name="url" type="url" value="${url}" /></label>

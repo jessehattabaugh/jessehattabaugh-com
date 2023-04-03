@@ -10,4 +10,15 @@ runtime nodejs16.x
 enhance/arc-plugin-enhance
 
 @static
-fingerprint false
+compression true
+fingerprint true
+prune true
+
+@tables
+shares
+	createdAt String
+	encrypt true
+	shareId *String
+	text String
+	title String
+	url String
