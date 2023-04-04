@@ -17,6 +17,7 @@
 	"name": "jessehattabaugh-com",
 	"private": true,
 	"scripts": {
+		"clean": "git clean -fdx",
 		"production": "arc deploy --production",
 		"staging": "arc deploy",
 		"start": "arc sandbox"

@@ -16,7 +16,7 @@ prune true
 
 @tables
 shares
-	createdAt String
+	createdAt **Number
 	encrypt true
 	shareId *String
 	text String
