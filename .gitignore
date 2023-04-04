@@ -1,5 +1,6 @@
 .enhance
 node_modules
 public/browser
+public/static.json
 sam.json
 sam.yaml

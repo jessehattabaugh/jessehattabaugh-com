@@ -2,15 +2,27 @@
 
 :root {
 	--background-color: black;
-	--color: white;
+	--color-blue: aqua;
 	--color-error: orange;
-	--mourners: 3; /* widows and orphans */
+	--color-green: chartreuse;
+	--color-red: red;
+	--color: white;
 	--font-family-heading: 'Comic Neue', 'Comic Sans MS', 'Chalkboard SE', 'Segoe Print', 'Bradley Hand', Chilanka, TSCu_Comic, casual, cursive;
 	--font-family: Inter, Roboto, 'Helvetica Neue', 'Arial Nova', 'Nimbus Sans', Arial, sans-serif;
+	--mourners: 3; /* widows and orphans */
 	--theme: red;
 	--unit: 1em;
 }
 
+@media (prefers-color-scheme: light) {
+	:root {
+		--background-color: white;
+		--color-red: darkRed;
+		--color: black;
+		--color-blue: teal;
+		--color-green: green;
+	}
+}
 
 /* resets */
 *,
@@ -24,21 +36,18 @@
 
 html {
 	animation: colorwheel 30s linear infinite;
-	backface-visibility: hidden;
 	box-sizing: border-box;
-	color: red;
+	color: var(--color-red);
 	height: 100%;
-	perspective: 1000;
-	transform: translateZ(0);
 }
 @keyframes colorwheel {
-	33.3% { color: cyan; }
-	66.7% { color: chartreuse; }
+	33.3% { color: var(--color-blue); }
+	66.7% { color: var(--color-green); }
 }
 
 body {
 	background-color: var(--background-color);
-	background-image: linear-gradient(to bottom, var(--background-color), currentColor 666%);
+	background-image: linear-gradient(to bottom, var(--background-color), currentColor 200%);
 	display: flex;
 	flex-direction: column;
 	font-family: var(--font-family);
@@ -63,7 +72,7 @@ a:focus,
 a:link,
 a:visited {
 	animation: colorwheel 30s linear infinite;
-	color: red;
+	color: var(--color-red);
 	text-decoration: none;
 }
 
@@ -89,3 +98,4 @@ p {
 	orphans: var(--mourners);
 	widows:  var(--mourners);
 }
+
