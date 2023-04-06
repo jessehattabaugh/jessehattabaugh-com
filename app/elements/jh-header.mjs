@@ -2,6 +2,9 @@
 export default function ({ html }) {
 	return html`
 		<style>
+			header {
+				margin: 1em;
+			}
 			h1 {
 				margin-bottom: 0.5em;
 			}

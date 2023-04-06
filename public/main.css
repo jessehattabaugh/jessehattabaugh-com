@@ -28,8 +28,14 @@
 *::after {
 	appearance: unset;
 	box-sizing: inherit;
+	list-style: none;
 	margin: 0;
 	padding: 0;
+}
+
+@keyframes colorwheel {
+	33.3% { color: var(--color-blue); }
+	66.7% { color: var(--color-green); }
 }
 
 html {
@@ -38,15 +44,11 @@ html {
 	color: var(--color-red);
 	height: 100%;
 }
-@keyframes colorwheel {
-	33.3% { color: var(--color-blue); }
-	66.7% { color: var(--color-green); }
-}
 
 body {
+	background-attachment: fixed;
 	background-color: var(--background-color);
 	background-image: linear-gradient(to bottom, var(--background-color), currentColor 200%);
-	display: flex;
 	flex-direction: column;
 	font-family: var(--font-family);
 	height: inherit;
@@ -57,12 +59,7 @@ body > * {
 }
 
 main {
-	align-items: center;
-	display: flex;
-	flex-direction: column;
-	flex: 1;
-	height: inherit;
-	justify-content: center;
+	margin: 1em;
 }
 
 a:active,
@@ -73,6 +70,7 @@ a:visited {
 	color: var(--color-red);
 	text-decoration: none;
 }
+
 
 a:hover {
 	text-decoration: underline;
@@ -97,3 +95,12 @@ p {
 	widows:  var(--mourners);
 }
 
+@media (prefers-reduced-motion: reduce) {
+	html,
+	a:active,
+	a:focus,
+	a:link,
+	a:visited {
+		animation: none;
+	}
+}

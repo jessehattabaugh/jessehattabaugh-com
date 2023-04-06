@@ -3,7 +3,6 @@ export default function ({ html }) {
 	return html`<style>
 			footer {
 				clear: both;
-				height: 100%;
 				text-align: right;
 			}
 			a {
