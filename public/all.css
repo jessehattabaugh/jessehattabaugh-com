@@ -1,13 +1,20 @@
+/* styles for any display medium */
+@font-face {
+	font-family: 'comicSans';
+	src: url('/_public/fonts/comicSans.woff2') format('woff2'),
+		 url('/_public/fonts/comicSans.woff') format('woff'),
+		 url('/_public/fonts/comicSans.ttf') format('truetype'),
+		 url('/_public/fonts/comicSans.otf') format('opentype'),
+		 url('/_public/fonts/comicSans.eot') format('embedded-opentype'),
+		 url('/_public/fonts/comicSans.svg') format('svg');
+  }
+
 :root {
 	--background-color: black;
-	--color-blue: aqua;
 	--color-error: orange;
-	--color-green: chartreuse;
-	--color-red: red;
 	--color: white;
-	--font-family-heading: 'Comic Sans MS', 'Chalkboard SE', 'Segoe Print', 'Bradley Hand', Chilanka, TSCu_Comic, casual, cursive;
+	--font-family-heading: comicSans, 'Comic Sans MS', 'Chalkboard SE', 'Segoe Print', 'Bradley Hand', Chilanka, TSCu_Comic, casual, cursive;
 	--font-family: Inter, Roboto, 'Helvetica Neue', 'Arial Nova', 'Nimbus Sans', Arial, sans-serif;
-	--mourners: 3; /* widows and orphans */
 	--theme: red;
 	--unit: 1em;
 }
@@ -15,10 +22,7 @@
 @media (prefers-color-scheme: light) {
 	:root {
 		--background-color: white;
-		--color-red: darkRed;
 		--color: black;
-		--color-blue: teal;
-		--color-green: green;
 	}
 }
 
@@ -33,15 +37,8 @@
 	padding: 0;
 }
 
-@keyframes colorwheel {
-	33.3% { color: var(--color-blue); }
-	66.7% { color: var(--color-green); }
-}
-
 html {
-	animation: colorwheel 30s linear infinite;
 	box-sizing: border-box;
-	color: var(--color-red);
 	height: 100%;
 }
 
@@ -58,19 +55,12 @@ body > * {
 	padding: var(--unit);
 }
 
-main {
-	margin: 1em;
-}
-
 a:active,
 a:focus,
 a:link,
 a:visited {
-	animation: colorwheel 30s linear infinite;
-	color: var(--color-red);
 	text-decoration: none;
 }
-
 
 a:hover {
 	text-decoration: underline;
@@ -84,23 +74,10 @@ h5,
 h6 {
 	color: currentColor;
 	font-family: var(--font-family-heading);
-	page-break-after: avoid;
 	margin-bottom: 0.5em;
 }
 
 p {
 	color: var(--color);
 	margin-bottom: var(--unit);
-	orphans: var(--mourners);
-	widows:  var(--mourners);
-}
-
-@media (prefers-reduced-motion: reduce) {
-	html,
-	a:active,
-	a:focus,
-	a:link,
-	a:visited {
-		animation: none;
-	}
 }

@@ -10,6 +10,7 @@ export default function ({ html }) {
 				height: 30vw;
 				margin-bottom: 5%;
 				margin-right: 5%;
+				max-height: 512px;
 				max-width: 512px;
 				shape-outside: circle(50%);
 				width: 30vw;

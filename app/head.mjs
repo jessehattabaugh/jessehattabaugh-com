@@ -14,7 +14,16 @@ export default function Head(state) {
 				<link rel="manifest" href="/_public/manifest.json" />
 				<link rel="apple-touch-icon" href="/_public/jesse192.png" />
 				<meta name="theme-color" content="#ff0000" />
-				<link rel="stylesheet" href="/_public/main.css" />
+				<link
+					as="font"
+					crossorigin="anonymous"
+					href="/_public/fonts/comicSans.woff2"
+					rel="preload"
+					type="font/woff2"
+				/>
+				<link rel="stylesheet" href="/_public/all.css" media="all" />
+				<link rel="stylesheet" href="/_public/screen.css" media="screen" />
+				<link rel="stylesheet" href="/_public/print.css" media="print" />
 				<noscript>
 					<marquee>Enable JavaScript you weirdo! 🦄</marquee>
 				</noscript>
@@ -22,6 +31,7 @@ export default function Head(state) {
 					console.error('Time to upgrade your browser boomer! 🧓');
 				</script>
 				<script async type="module" src="/_public/browser/async.js"></script>
-				<link rel="profile" href="http://microformats.org/profile/hcard">
-			</head>`;
+				<link rel="profile" href="http://microformats.org/profile/hcard" />
+			</head>
+		</html>`;
 }

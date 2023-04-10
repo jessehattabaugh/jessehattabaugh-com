@@ -1,0 +1,42 @@
+/* what it looks like on illuminated rectangles */
+:root {
+	--color-blue: aqua;
+	--color-green: chartreuse;
+	--color-red: red;
+}
+
+@media (prefers-color-scheme: light) {
+	:root {
+		--color-red: darkRed;
+		--color-blue: teal;
+		--color-green: green;
+	}
+}
+
+@keyframes colorwheel {
+	33.3% { color: var(--color-blue); }
+	66.7% { color: var(--color-green); }
+}
+
+html {
+	animation: colorwheel 30s linear infinite;
+	color: var(--color-red);
+}
+
+a:active,
+a:focus,
+a:link,
+a:visited {
+	animation: colorwheel 30s linear infinite;
+	color: var(--color-red);
+}
+
+@media (prefers-reduced-motion: reduce) {
+	html,
+	a:active,
+	a:focus,
+	a:link,
+	a:visited {
+		animation: none;
+	}
+}
