@@ -3,10 +3,10 @@ export default function ({ html }) {
 	return html`
 		<style>
 			header {
-				margin: 1em;
+				margin: 0 var(--unit);
 			}
 			h1 {
-				margin-bottom: 0.5em;
+				margin-bottom: calc(var(--unit) / 2);
 			}
 		</style>
 		<header>

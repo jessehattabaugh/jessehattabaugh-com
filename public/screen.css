@@ -7,9 +7,9 @@
 
 @media (prefers-color-scheme: light) {
 	:root {
-		--color-red: darkRed;
 		--color-blue: teal;
 		--color-green: green;
+		--color-red: darkRed;
 	}
 }
 
@@ -32,11 +32,11 @@ a:visited {
 }
 
 @media (prefers-reduced-motion: reduce) {
-	html,
 	a:active,
 	a:focus,
 	a:link,
-	a:visited {
+	a:visited,
+	html {
 		animation: none;
 	}
 }

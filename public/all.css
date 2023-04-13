@@ -13,8 +13,6 @@
 	--background-color: black;
 	--color-error: orange;
 	--color: white;
-	--font-family-heading: comicSans, 'Comic Sans MS', 'Chalkboard SE', 'Segoe Print', 'Bradley Hand', Chilanka, TSCu_Comic, casual, cursive;
-	--font-family: Inter, Roboto, 'Helvetica Neue', 'Arial Nova', 'Nimbus Sans', Arial, sans-serif;
 	--theme: red;
 	--unit: 1em;
 }
@@ -26,12 +24,12 @@
 	}
 }
 
-/* resets */
 *,
 *::before,
 *::after {
 	appearance: unset;
 	box-sizing: inherit;
+	line-height: calc(var(--unit) + var(--unit) / 2);
 	list-style: none;
 	margin: 0;
 	padding: 0;
@@ -47,12 +45,14 @@ body {
 	background-color: var(--background-color);
 	background-image: linear-gradient(to bottom, var(--background-color), currentColor 200%);
 	flex-direction: column;
-	font-family: var(--font-family);
+	font-family: Inter, Roboto, 'Helvetica Neue', 'Arial Nova', 'Nimbus Sans', Arial, sans-serif;;
 	height: inherit;
 }
 
 body > * {
+	max-width: 50em;
 	padding: var(--unit);
+    margin: 0 auto;
 }
 
 a:active,
@@ -73,8 +73,9 @@ h4,
 h5,
 h6 {
 	color: currentColor;
-	font-family: var(--font-family-heading);
+	font-family: comicSans, 'Comic Sans MS', 'Chalkboard SE', 'Segoe Print', 'Bradley Hand', Chilanka, TSCu_Comic, casual, cursive;
 	margin-bottom: 0.5em;
+	text-wrap: balance;
 }
 
 p {
