@@ -13,7 +13,7 @@ export default function ({ html, state }) {
 			input,
 			textarea {
 				background-color: transparent;
-				border-radius: 0.5em;
+				border-radius: 0.25em;
 				border: solid currentColor;
 				box-shadow: 0 0 0.5em currentColor;
 				color: inherit;
@@ -25,6 +25,7 @@ export default function ({ html, state }) {
 				height: 20vw;
 			}
 			[type='submit'] {
+				border-radius: 1em;
 				box-shadow: inset 0 0 0.5em currentColor;
 				padding: 0.75em;
 				width: 100%;
