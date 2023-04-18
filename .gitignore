@@ -1,5 +1,6 @@
 .enhance
 node_modules
+prefs.arc
 public/browser
 public/static.json
 sam.json
