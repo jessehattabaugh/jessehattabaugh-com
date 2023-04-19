@@ -3,9 +3,12 @@ export default function ({ html, state }) {
 	const { error } = state.attrs;
 	return html`<jh-header></jh-header>
 		<main>
-			<h1>Server error</h1>
-			<h2>There was a problem. Please try again.</h2>
-			<p>${error && error}</p>
+			<h2>Server error</h2>
+			<p>There was a problem. Please try again.</p>
+			<dl>
+				<dt>error</dt>
+				<dd>${error && error}</dd>
+			</dl>
 		</main>
 		<jh-footer></jh-footer>`;
 }
