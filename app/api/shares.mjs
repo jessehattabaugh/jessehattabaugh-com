@@ -4,12 +4,17 @@ import arc from '@architect/functions';
 export async function get(request) {
 	const { session } = request;
 	const { isAuthorized } = session;
+	const Limit = 100;
+	const options = isAuthorized
+		? { Limit }
+		: {
+				FilterExpression: 'isAuthorized = :auth_value',
+				ExpressionAttributeValues: { ':auth_value': true },
+				Limit,
+		  };
 	try {
 		const db = await arc.tables();
-		const result = await db.shares.scan({
-			FilterExpression: 'attribute_exists(isAuthorized)',
-			Limit: 100,
-		});
+		const result = await db.shares.scan(options);
 		const { Items: shares } = result;
 		return { json: { isAuthorized, shares } };
 	} catch (error) {
