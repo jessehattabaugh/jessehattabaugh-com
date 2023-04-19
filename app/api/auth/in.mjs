@@ -1,5 +1,5 @@
 
-/** 
+/**
  * @type {import('@enhance/types').EnhanceApiFn} */
 export async function get(request) {
 	const { session } = request;
@@ -13,9 +13,24 @@ export async function get(request) {
 export async function post({ body }) {
 	const { AUTH_SECRET } = process.env;
 	const { secret } = body;
-	const isAuthorized = secret === AUTH_SECRET;
-	return {
-		location: '/auth/in',
-		session: { isAuthorized },
-	};
+	if (secret) {
+		const isAuthorized = secret === AUTH_SECRET;
+		if (isAuthorized) {
+			return {
+				location: '/auth/in',
+				session: { isAuthorized },
+			};
+		} else {
+			return {
+				location: '/auth/in',
+				session: { error: '' },
+			};
+		}
+	} else {
+		return {
+			location: '/auth/in',
+			session: { error: 'Must submit a secret' },
+		};
+	}
+
 }
