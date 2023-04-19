@@ -1,0 +1,11 @@
+<jh-header></jh-header>
+<main>
+	<jh-auth></jh-auth>
+	<h2>Authorization</h2>
+	<p>Provide the secret password to authorize this device</p>
+	<form method="post" action="/auth/in">
+		<label>password<input name="secret" type="password" autocomplete="current-password" required /></label>
+		<button type="submit">Submit</button>
+	</form>
+</main>
+<jh-footer></jh-footer>

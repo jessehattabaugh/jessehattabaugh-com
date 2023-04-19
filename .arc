@@ -18,6 +18,7 @@ prune true
 shares
 	createdAt **Number
 	encrypt true
+	isAuthorized Boolean
 	shareId *String
 	text String
 	title String

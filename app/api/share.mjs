@@ -3,6 +3,8 @@ import { v4 as uuid } from 'uuid';
 
 /** @type {import('@enhance/types').EnhanceApiFn} */
 export async function post(req) {
+	const { session } = req;
+	const { isAuthorized } = session;
 	const { text, title, url } = req.body;
 	if (text || title || url) {
 		// send the share somewhere
@@ -10,7 +12,14 @@ export async function post(req) {
 			const db = await arc.tables();
 			const shareId = uuid();
 			const createdAt = Date.now();
-			const result = await db.shares.put({ shareId, createdAt, text, title, url });
+			const result = await db.shares.put({
+				createdAt,
+				isAuthorized,
+				shareId,
+				text,
+				title,
+				url,
+			});
 			console.log('💌', 'share saved', result);
 			return { location: '/thanks' };
 		} catch (error) {
