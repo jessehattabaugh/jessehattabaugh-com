@@ -4,8 +4,8 @@ export default function ({ html, state }) {
 	const { isAuthorized } = store;
 	switch (isAuthorized) {
 		case true:
-			return html`<a href="/auth/out">Unauthorize</a>`;
+			return html`<a href="/logout">Unauthorize</a>`;
 		default:
-			return html`<a href="/auth/in">Authorize</a>`;
+			return html`<a href="/auth">Authorize</a>`;
 	}
 }

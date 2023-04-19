@@ -2,7 +2,7 @@
  * @type {import('@enhance/types').EnhanceApiFn} */
 export async function get() {
 	return {
-		location: '/auth/in',
+		location: '/auth',
 		session: { isAuthorized: false },
 	};
 }
