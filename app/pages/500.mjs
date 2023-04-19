@@ -3,12 +3,13 @@ export default function ({ html, state }) {
 	const { error } = state.attrs;
 	return html`<jh-header></jh-header>
 		<main>
-			<h2>Server error</h2>
+			<h2>Oops! Server error</h2>
 			<p>There was a problem. Please try again.</p>
-			<dl>
+			${error &&
+			`<dl>
 				<dt>error</dt>
-				<dd>${error && error}</dd>
-			</dl>
+				<dd>${error}</dd>
+			</dl>`}
 		</main>
 		<jh-footer></jh-footer>`;
 }

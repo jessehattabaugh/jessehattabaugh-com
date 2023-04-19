@@ -4,11 +4,13 @@ export default function ({ html, state }) {
 	const { index } = attrs;
 	const { isAuthorized, title, createdAt, text, url } = store.shares[index];
 	// console.debug('🧼', { title, createdAt, text, url });
-	return html`<article>
-		<h3>${title}</h3>
-		<h4>${new Date(createdAt).toLocaleDateString()}</h4>
+	return html`<article style="margin-bottom: calc(var(--unit) * 2) ">
+		<h3>${!isAuthorized ? '(unauthorized) ' : ''}${title}</h3>
+		<dl>
+			<dt>created at</dt>
+			<dd>${new Date(createdAt).toLocaleDateString()}</dd>
+		</dl>
 		<section>${text}</section>
 		<a href="${url}">${url}</a>
-		<h5>${isAuthorized ? 'authorized' : 'unauthorized'}</h5>
 	</article>`;
 }
