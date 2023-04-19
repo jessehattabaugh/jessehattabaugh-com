@@ -21,7 +21,9 @@ export async function post(req) {
 				url,
 			});
 			console.log('💌', 'share saved', result);
-			return { location: '/thanks' };
+			return {
+				location: '/thanks',
+			};
 		} catch (error) {
 			console.error(`📢`, error);
 			return {
@@ -41,6 +43,6 @@ export async function post(req) {
 /** @type {import('@enhance/types').EnhanceApiFn} */
 export async function get(req) {
 	const { text, title, url } = req.query;
-	const { error, ...session } = req.session;
-	return { json: { text, title, url, error }, session };
+	const { error, isAuthorized } = req.session;
+	return { json: { isAuthorized, text, title, url, error } };
 }

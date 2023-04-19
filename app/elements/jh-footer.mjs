@@ -30,6 +30,6 @@ export default function ({ html }) {
 				>webmaster@jessehattabaugh.com</a
 			>
 			<a href="tel:+15038939375" class="tel">(503) 893-9375</a>
-			<center>&copy; 2023</center>
+			<center>&copy; 2023 <jh-auth></jh-auth></center>
 		</footer>`;
 }
