@@ -5,9 +5,7 @@ export default function ({ html, state }) {
 	switch (isAuthorized) {
 		case true:
 			return html`<a href="/auth/out">Unauthorize</a>`;
-		case false:
-			return html`<a href="/auth/in">Authorize</a>`;
 		default:
-			return html`isAuthorized is ${isAuthorized}: ${typeof isAuthorized}⁉️`;
+			return html`<a href="/auth/in">Authorize</a>`;
 	}
 }
