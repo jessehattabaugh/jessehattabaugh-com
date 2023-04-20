@@ -34,11 +34,12 @@ export default function ({ html, state }) {
 				color: var(--color-error);
 			}
 		</style>
-		<form action="/share" method="post">
+		<form action="/share" enctype="multipart/form-data" method="post">
 			<div class="error">${error}</div>
 			<label>title<input name="title" type="text" value="${title}" /></label>
 			<label>text<textarea name="text" type="text">${text}</textarea></label>
 			<label>url<input name="url" type="url" value="${url}" /></label>
+			<label>image<input accept="image/*" name="image" type="file" /></label>
 			<input type="submit" value="share" />
 		</form>`;
 }
