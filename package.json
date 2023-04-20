@@ -4,9 +4,9 @@
 		"@architect/eslint-config": "latest",
 		"@architect/functions": "latest",
 		"@architect/sandbox": "latest",
-		"@aws-sdk/client-s3": "latest",
 		"@enhance/arc-plugin-enhance": "latest",
 		"@enhance/types": "latest",
+		"aws-sdk": "latest",
 		"eslint": "latest",
 		"eslint-config-prettier": "latest",
 		"lambda-multipart-parser": "latest"

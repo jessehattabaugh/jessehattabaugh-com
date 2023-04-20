@@ -1,7 +1,7 @@
 import crypto from 'crypto';
 
 import arc from '@architect/functions';
-import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
+import aws from 'aws-sdk';
 import lms from 'lambda-multipart-parser';
 
 /** @type {import('@enhance/types').EnhanceApiFn} */
@@ -13,29 +13,30 @@ export async function post(req) {
 	// @ts-ignore
 	const form = await lms.parse({ ...req, body: req.rawBody });
 	const { text, title, url } = form;
-	const [image] = form.files;
+	console.log('💿', form.files);
+	const [imageFile] = form.files;
 
-	if (text || title || url || image) {
+	let image;
+	if (imageFile) {
+		const { content: Body, filename } = imageFile;
+		image = `.shared/${crypto.randomUUID()}${filename}`;
+
+		// upload the file to the architect static bucket
+		const { ARC_STATIC_BUCKET: Bucket, AWS_REGION: region } = process.env;
+		const client = new aws.S3({ region });
+		const params = { Bucket, Key: image, Body };
+		await client.putObject(params).promise();
+	}
+
+	if (image || text || title || url) {
 		try {
 			const db = await arc.tables();
 			const shareId = crypto.randomUUID();
 			const createdAt = Date.now();
 
-			let imageKey;
-			if (image) {
-				console.log('💿', image);
-				const { content: Body, filename } = image;
-				const { ARC_STATIC_BUCKET: Bucket, AWS_REGION: region } = process.env;
-				imageKey = `.shared/${shareId}/${filename}`;
-				const client = new S3Client({ region });
-				const params = { Bucket, Key: imageKey, Body };
-				const command = new PutObjectCommand(params);
-				await client.send(command);
-			}
-
 			const result = await db.shares.put({
 				createdAt,
-				image: imageKey,
+				image,
 				isAuthorized,
 				shareId,
 				text,
