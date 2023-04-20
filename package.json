@@ -9,7 +9,8 @@
 		"aws-sdk": "latest",
 		"eslint": "latest",
 		"eslint-config-prettier": "latest",
-		"lambda-multipart-parser": "latest"
+		"lambda-multipart-parser": "latest",
+		"uuid": "latest"
 	},
 	"engines": {
 		"node": "~16",
