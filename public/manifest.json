@@ -18,12 +18,20 @@
 	"name": "Jesse's Site",
 	"share_target": {
 		"action": "/share",
-		"enctype": "application/x-www-form-urlencoded",
+		"enctype": "multipart/form-data",
 		"method": "POST",
 		"params": {
 			"text": "text",
 			"title": "title",
-			"url": "url"
+			"url": "url",
+			"files": [
+				{
+					"name": "image",
+					"accept": [
+						"image/*"
+					]
+				}
+			]
 		}
 	},
 	"start_url": "/?start_url",
