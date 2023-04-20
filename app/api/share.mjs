@@ -1,8 +1,7 @@
-import crypto from 'crypto';
-
 import arc from '@architect/functions';
 import aws from 'aws-sdk';
 import lms from 'lambda-multipart-parser';
+import { v4 as uuid } from 'uuid';
 
 /** @type {import('@enhance/types').EnhanceApiFn} */
 export async function post(req) {
@@ -19,7 +18,7 @@ export async function post(req) {
 	let image;
 	if (imageFile) {
 		const { content: Body, filename } = imageFile;
-		image = `.shared/${crypto.randomUUID()}${filename}`;
+		image = `.shared/${uuid()}${filename}`;
 
 		// upload the file to the architect static bucket
 		const { ARC_STATIC_BUCKET: Bucket, AWS_REGION: region } = process.env;
@@ -31,7 +30,7 @@ export async function post(req) {
 	if (image || text || title || url) {
 		try {
 			const db = await arc.tables();
-			const shareId = crypto.randomUUID();
+			const shareId = uuid();
 			const createdAt = Date.now();
 
 			const result = await db.shares.put({
