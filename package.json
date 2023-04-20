@@ -4,11 +4,12 @@
 		"@architect/eslint-config": "latest",
 		"@architect/functions": "latest",
 		"@architect/sandbox": "latest",
+		"@aws-sdk/client-s3": "latest",
 		"@enhance/arc-plugin-enhance": "latest",
 		"@enhance/types": "latest",
 		"eslint": "latest",
 		"eslint-config-prettier": "latest",
-		"uuid": "^9.0.0"
+		"lambda-multipart-parser": "latest"
 	},
 	"engines": {
 		"node": "~16",
