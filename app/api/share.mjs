@@ -1,7 +1,7 @@
 import arc from '@architect/functions';
-import aws from 'aws-sdk';
+import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
 import lms from 'lambda-multipart-parser';
-import { v4 as uuid } from 'uuid';
+import crypto from 'crypto';
 
 /** @type {import('@enhance/types').EnhanceApiFn} */
 export async function post(req) {
@@ -18,19 +18,19 @@ export async function post(req) {
 	let image;
 	if (imageFile) {
 		const { content: Body, filename } = imageFile;
-		image = `.shared/${uuid()}${filename}`;
+		image = `.shared/${crypto.randomUUID()}${filename}`;
 
 		// upload the file to the architect static bucket
 		const { ARC_STATIC_BUCKET: Bucket, AWS_REGION: region } = process.env;
-		const client = new aws.S3({ region });
-		const params = { Bucket, Key: image, Body };
-		await client.putObject(params).promise();
+		const client = new S3Client({ region });
+		const command = new PutObjectCommand({ Bucket, Key: image, Body });
+		await client.send(command);
 	}
 
 	if (image || text || title || url) {
 		try {
 			const db = await arc.tables();
-			const shareId = uuid();
+			const shareId = crypto.randomUUID();
 			const createdAt = Date.now();
 
 			const result = await db.shares.put({
