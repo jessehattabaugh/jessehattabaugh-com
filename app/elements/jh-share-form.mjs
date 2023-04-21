@@ -36,10 +36,12 @@ export default function ({ html, state }) {
 		</style>
 		<form action="/share" enctype="multipart/form-data" method="post">
 			<div class="error">${error}</div>
-			<label>title<input name="title" type="text" value="${title}" /></label>
-			<label>text<textarea name="text" type="text">${text}</textarea></label>
-			<label>url<input name="url" type="url" value="${url}" /></label>
-			<label>image<input accept="image/*" name="image" type="file" /></label>
+			<label>title <input name="title" type="text" value="${title}" /></label>
+			<label>text <textarea name="text" type="text">${text}</textarea></label>
+			<label>url <input name="url" type="url" value="${url}" /></label>
+			<label
+				>image <input accept="image/*" autocomplete="off" name="image" type="file"
+			/></label>
 			<input type="submit" value="share" />
 		</form>`;
 }
