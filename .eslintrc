@@ -6,7 +6,7 @@
 		"serviceworker": true,
 		"worker": true
 	},
-	"extends": ["@architect/eslint-config", "eslint:recommended", "prettier"],
+	"extends": ["eslint:recommended", "prettier"],
 	"parserOptions": {
 		"ecmaFeatures": {
 			"impliedStrict": true

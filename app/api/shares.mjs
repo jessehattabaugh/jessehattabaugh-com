@@ -8,9 +8,10 @@ export async function get(request) {
 	const options = isAuthorized
 		? { Limit }
 		: {
-				FilterExpression: 'isAuthorized = :auth_value',
-				ExpressionAttributeValues: { ':auth_value': true },
+				ExpressionAttributeValues: { ':true': true },
+				FilterExpression: 'isAuthorized = :true',
 				Limit,
+				ScanIndexForward: false, // reverse createdAt order
 		  };
 	try {
 		const db = await arc.tables();
