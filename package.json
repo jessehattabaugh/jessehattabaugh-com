@@ -1,7 +1,7 @@
 {
 	"devDependencies": {
 		"@architect/architect": "latest",
-		"@architect/eslint-config": "latest",
+		"@architect/asap": "^5.1.1",
 		"@architect/functions": "latest",
 		"@architect/sandbox": "latest",
 		"@aws-sdk/client-s3": "^3.317.0",

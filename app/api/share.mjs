@@ -18,7 +18,7 @@ export async function post(req) {
 	let image;
 	if (imageFile) {
 		const { content: Body, filename } = imageFile;
-		image = `.shared/${crypto.randomUUID()}${filename}`;
+		image = 'images/' + crypto.randomUUID() + filename;
 
 		// upload the file to the architect static bucket
 		const { ARC_STATIC_BUCKET: Bucket, AWS_REGION: region } = process.env;
