@@ -28,7 +28,15 @@
 				{
 					"name": "image",
 					"accept": [
-						"image/*"
+						".gif",
+						".jpeg",
+						".jpg",
+						".png",
+						".webp",
+						"image/gif",
+						"image/jpeg",
+						"image/png",
+						"image/webp"
 					]
 				}
 			]
