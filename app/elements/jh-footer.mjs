@@ -31,7 +31,7 @@ export default function ({ html }) {
 			>
 			<a href="tel:+15038939375" class="tel">(503) 893-9375</a>
 			<a href="/resume">Resume</a>
-			<a href="/shareWithMe">Something to share?</a>
-			<center>&copy; 2023 </center>
+			<a href="/share">Something to share?</a>
+			<center>&copy; 2023</center>
 		</footer>`;
 }

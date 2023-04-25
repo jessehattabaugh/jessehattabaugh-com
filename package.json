@@ -19,9 +19,10 @@
 	"private": true,
 	"scripts": {
 		"clean": "git clean -fdx",
+		"kill": "npx kill-port 3333",
 		"production": "arc deploy --production",
 		"staging": "arc deploy",
-		"start": "arc sandbox"
+		"start": "npm run kill && arc sandbox"
 	},
 	"type": "module",
 	"version": "0.0.0"
