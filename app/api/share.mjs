@@ -52,20 +52,14 @@ export async function post(req) {
 			console.error(`📢`, error);
 			return {
 				session: { error },
-				location: '/share',
+				location: '/shareWithMe',
 			};
 		}
 	}
 	// console.log('🌋', req);
 	return {
 		session: { error: 'you have to share something' },
-		location: '/share',
+		location: '/shareWithMe',
 	};
 }
 
-/** @type {import('@enhance/types').EnhanceApiFn} */
-export async function get(req) {
-	const { text, title, url } = req.query;
-	const { error, isAuthorized } = req.session;
-	return { json: { isAuthorized, text, title, url, error } };
-}
