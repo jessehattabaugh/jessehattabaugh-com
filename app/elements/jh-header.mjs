@@ -8,6 +8,10 @@ export default function ({ html }) {
 			h1 {
 				margin-bottom: calc(var(--unit) / 2);
 			}
+			nav {
+				display: flex;
+				justify-content: space-around;
+			}
 		</style>
 		<header>
 			<h1><a href="/">JesseHattabaugh.com</a></h1>
