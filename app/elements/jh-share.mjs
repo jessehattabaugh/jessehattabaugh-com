@@ -7,6 +7,7 @@ export default function ({ html, state }) {
 	return html`<article style="margin-bottom: calc(var(--unit) * 2) ">
 		${title && `<h3>${url ? `<a href="${url}">${title}</a>` : title}</h3>`}
 		${text && `<section>${text}</section>`}
+		${image && `<img style="max-width: 100%" src="${image}" />`}
 		<dl>
 			<dt>by</dt>
 			<dd>${isAuthorized ? `Jesse Hattabaugh` : `unknown`}</dd>
@@ -16,6 +17,5 @@ export default function ({ html, state }) {
 				${new Date(createdAt).toLocaleTimeString()}
 			</dd>
 		</dl>
-		${image && `<img style="max-width: 100%" src="${image}" />`}
 	</article>`;
 }

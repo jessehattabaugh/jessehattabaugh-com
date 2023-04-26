@@ -12,7 +12,9 @@ export default function ({ html }) {
 		<header>
 			<h1><a href="/">JesseHattabaugh.com</a></h1>
 			<nav>
-				<a href="/shares">Shares</a>
+				<a href="/shares">Blog</a>
+				<a href="/resume">Resume</a>
+				<a href="/share">Share</a>
 			</nav>
 		</header>
 	`;

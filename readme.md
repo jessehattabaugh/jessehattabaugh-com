@@ -18,7 +18,7 @@ AWS is configured according to [the architect instructions to deploy to AWS with
 
 ### Staging
 
-To deploy staging run `npm run staging`.
+To deploy staging run `npm run stage`.
 
 - [The public staging url](https://staging.jessehattabaugh.com)
 - [The internal AWS staging url](https://q4mdjvrxu0.execute-api.us-east-1.amazonaws.com)
@@ -26,7 +26,7 @@ To deploy staging run `npm run staging`.
 
 ### Production
 
-To deploy production run `npm run production`.
+To deploy production run `npm run prod`.
 
 - [The public production url](https://jessehattabaugh.com)
 - [The internal AWS staging url](https://rba5mrs9pb.execute-api.us-east-1.amazonaws.com)
