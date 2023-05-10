@@ -1,7 +1,7 @@
 if ('serviceWorker' in navigator) {
 	window.addEventListener('load', async () => {
 		try {
-			await navigator.serviceWorker.register('sw', {
+			await navigator.serviceWorker.register('/sw', {
 				scope: '/',
 			});
 			console.debug('👨‍🏭® service worker registered');
