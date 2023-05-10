@@ -30,7 +30,9 @@ export default function Head(state) {
 				<script nomodule>
 					console.error('Time to upgrade your browser boomer! 🧓');
 				</script>
-				<script async type="module" src="/_public/browser/async.js"></script>
+				<script async type="module" src="/_public/browser/async.mjs"></script>
+
+				<!-- the footer of every page contains an hcard, this should inform parsers -->
 				<link rel="profile" href="http://microformats.org/profile/hcard" />
 			</head>
 		</html>`;
