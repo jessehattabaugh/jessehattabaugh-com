@@ -6,6 +6,7 @@
 		"@architect/sandbox": "latest",
 		"@aws-sdk/client-s3": "latest",
 		"@enhance/arc-plugin-enhance": "latest",
+		"@enhance/element": "latest",
 		"@enhance/types": "latest",
 		"eslint": "latest",
 		"eslint-config-prettier": "latest",
