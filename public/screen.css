@@ -1,5 +1,8 @@
 /* what it looks like on illuminated rectangles */
 :root {
+	--color: white;
+	--background-color: black;
+	--background-image-gradient: linear-gradient(to bottom, var(--background-color), currentColor 200%);
 	--color-blue: aqua;
 	--color-green: chartreuse;
 	--color-red: red;
@@ -7,6 +10,8 @@
 
 @media (prefers-color-scheme: light) {
 	:root {
+		--background-color: white;
+		--color: black;
 		--color-blue: teal;
 		--color-green: green;
 		--color-red: darkRed;
@@ -23,12 +28,37 @@ html {
 	color: var(--color-red);
 }
 
+body {
+	background-attachment: fixed;
+	background-color: var(--background-color);
+	background-image: var(--background-image-gradient);
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+	-webkit-background-clip: text;
+	-webkit-text-fill-color: transparent;
+	background-clip: text;
+	background-image: linear-gradient(to bottom, currentColor, transparent 150%);
+	background-position: -100%;
+	background-size: 200%;
+	color: currentColor;
+}
+
 a:active,
 a:focus,
 a:link,
 a:visited {
 	animation: colorwheel 30s linear infinite;
 	color: var(--color-red);
+}
+
+p {
+	color: var(--color);
 }
 
 @media (prefers-reduced-motion: reduce) {
