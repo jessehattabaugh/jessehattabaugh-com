@@ -1,33 +1,27 @@
-
 # jessehattabaugh-com
 
 Personal website of Jesse Hattabaugh <https://www.jessehattabaugh.com>
 
 
-#
-# Installation
+## Installation
 
 After cloning this repo use [nvm](https://github.com/nvm-sh/nvm
 #installing-and-updating) to install nodejs by running `nvm use`. Then run `npm install`.
 
 
-#
-# Development
+## Development
 
 To start the local development server run `npm start` then open [http://localhost:3333](http://localhost:3333) in a browser.
 
 
-#
-# Deployment
+## Deployment
 
 DNS for jessehattabaugh.com is Route 53.
 
 AWS is configured according to [the architect instructions to deploy to AWS with CloudFront](https://arc.codes/docs/en/guides/domains/registrars/route53-and-cloudfront). The one change was that I enabled http3.
 
 
-#
-#
-# Staging
+### Staging
 
 To deploy staging run `npm run stage`.
 
@@ -36,9 +30,7 @@ To deploy staging run `npm run stage`.
 - [Staging API Gateway url](https://d-wkx1pw21j6.execute-api.us-east-1.amazonaws.com)
 
 
-#
-#
-# Production
+### Production
 
 To deploy production run `npm run prod`.
 
