@@ -1,4 +1,20 @@
 <main>
 	<h1>scanner</h1>
-	<p>This is a proof of concept to show that a web app can serve as a pretty good QR Code scanner.</p>
+	<p>
+		This is a proof of concept to show that a web app can serve as a pretty good QR Code
+		scanner.
+	</p>
+	<video id="mediaOutput"></video>
+	<script type="module">
+		if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+			console.debug('📷👍 getUserMedia supported!');
+			const mediaOutput = document.getElementById('mediaOutput');
+
+			const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+			mediaOutput.srcObject = stream;
+			mediaOutput.play();
+		} else {
+			console.error('📷⛔ getUserMedia is not supported by your browser');
+		}
+	</script>
 </main>
