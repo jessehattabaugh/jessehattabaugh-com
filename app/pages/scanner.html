@@ -4,17 +4,21 @@
 		This is a proof of concept to show that a web app can serve as a pretty good QR Code
 		scanner.
 	</p>
-	<video id="mediaOutput"></video>
+	<div id="reader" width="600px"></div>
 	<script type="module">
-		if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-			console.debug('📷👍 getUserMedia supported!');
-			const mediaOutput = document.getElementById('mediaOutput');
-
-			const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-			mediaOutput.srcObject = stream;
-			mediaOutput.play();
-		} else {
-			console.error('📷⛔ getUserMedia is not supported by your browser');
-		}
+		import { Html5QrcodeScanner } from 'https://cdn.skypack.dev/html5-qrcode';
+		const html5QrcodeScanner = new Html5QrcodeScanner(
+			'reader',
+			{ fps: 10, qrbox: { width: 250, height: 250 } },
+			true,
+		);
+		html5QrcodeScanner.render(
+			(decodedText, decodedResult) => {
+				console.log(`Code matched = ${decodedText}`, decodedResult);
+			},
+			(error) => {
+				//console.warn(`Code scan error = ${error}`);
+			},
+		);
 	</script>
 </main>
