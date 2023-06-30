@@ -2,9 +2,10 @@
 jessehattabaugh-com
 
 @aws
-architecture arm64
+architecture x86_64
+layers arn:aws:lambda:us-east-1:455488262213:layer:DenoRuntime:40
 region us-east-1
-runtime nodejs18.x
+runtime provided.al2
 
 @plugins
 enhance/arc-plugin-enhance

@@ -1,0 +1,35 @@
+{
+	"compilerOptions": {
+		"allowJs": true,
+		"checkJs": true,
+		"lib": ["deno.window", "dom", "esnext", "webworker"],
+		"noImplicitAny": true,
+		"strict": true
+	},
+	"fmt": {
+		"indentWidth": 4,
+		"lineWidth": 100,
+		"proseWrap": "preserve",
+		"semiColons": true,
+		"singleQuote": true,
+		"useTabs": true
+	},
+	"imports": {
+		"@architect/asap": "npm:@architect/asap",
+		"@architect/functions": "npm:@architect/functions",
+		"@architect/sandbox": "npm:@architect/sandbox",
+		"@aws-sdk/client-s3": "npm:@aws-sdk/client-s3",
+		"@enhance/arc-plugin-enhance": "npm:@enhance/arc-plugin-enhance",
+		"@enhance/element": "npm:@enhance/element",
+		"@enhance/types": "npm:@enhance/types",
+		"lambda-multipart-parser": "npm:lambda-multipart-parser"
+	},
+	"lock": false,
+	"tasks": {
+		"clean": "git clean -fdx",
+		"kill": "deno run -A npm:kill-port 3333",
+		"prod": "deno run -A npm:@architect/architect deploy --production",
+		"stage": "deno run -A npm:@architect/architect deploy",
+		"start": "deno task kill && deno run -A npm:@architect/architect sandbox"
+	}
+}

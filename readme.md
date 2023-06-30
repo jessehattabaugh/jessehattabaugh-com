@@ -4,11 +4,11 @@ Personal website of Jesse Hattabaugh <https://www.jessehattabaugh.com>
 
 ## Installation
 
-After cloning this repo use [nvm](https://github.com/nvm-sh/nvm#installing-and-updating) to install nodejs by running `nvm use`. Then run `npm install`.
+After cloning this repo use [dvm](https://github.com/justjavac/dvm#installation) to install deno by running `dvm use`.
 
 ## Development
 
-To start the local development server run `npm start` then open [http://localhost:3333](http://localhost:3333) in a browser.
+To start the local development server run `deno task start` then open [http://localhost:3333](http://localhost:3333) in a browser.
 
 ## Deployment
 
@@ -18,7 +18,7 @@ AWS is configured according to [the architect instructions to deploy to AWS with
 
 ### Staging
 
-To deploy staging run `npm run stage`.
+To deploy staging run `deno task stage`.
 
 -   [The public staging url](https://staging.jessehattabaugh.com)
 -   [The internal AWS staging url](https://q4mdjvrxu0.execute-api.us-east-1.amazonaws.com)
@@ -26,7 +26,7 @@ To deploy staging run `npm run stage`.
 
 ### Production
 
-To deploy production run `npm run prod`.
+To deploy production run `deno task prod`.
 
 -   [The public production url](https://jessehattabaugh.com)
 -   [The internal AWS staging url](https://rba5mrs9pb.execute-api.us-east-1.amazonaws.com)

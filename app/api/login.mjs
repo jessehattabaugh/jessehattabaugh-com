@@ -1,6 +1,6 @@
 /** authorizes the session if the user submitted a secret password that matches the AUTH_SECRET env var
  * @type {import('@enhance/types').EnhanceApiFn} */
-export async function post(request) {
+export function post(request) {
 	const { AUTH_SECRET } = process.env;
 	const { body } = request;
 	const { secret } = body;

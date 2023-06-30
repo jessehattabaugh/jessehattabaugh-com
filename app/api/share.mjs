@@ -1,7 +1,7 @@
 import arc from '@architect/functions';
 import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
 import lms from 'lambda-multipart-parser';
-import crypto from 'crypto';
+import crypto from 'node:crypto';
 
 /** @type {import('@enhance/types').EnhanceApiFn} */
 export async function post(req) {
@@ -9,7 +9,6 @@ export async function post(req) {
 	const { isAuthorized = false } = session;
 
 	// @see https://begin.com/blog/posts/2023-02-08-upload-files-in-forms-part-1#decoding-the-multipart-form-data
-	// @ts-ignore
 	const form = await lms.parse({ ...req, body: req.rawBody });
 	const { text = '', title = '', url = '' } = form;
 	console.log('💿', form.files);
@@ -65,7 +64,7 @@ export async function post(req) {
 
 /** move data from session to state.store
  * @type {import('@enhance/types').EnhanceApiFn} */
-export async function get(req) {
+export function get(req) {
 	const { text = '', title = '', url = '' } = req.query;
 	const { error, isAuthorized } = req.session;
 	return { json: { error, isAuthorized, text, title, url } };

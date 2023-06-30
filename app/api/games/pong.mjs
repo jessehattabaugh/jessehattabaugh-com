@@ -1,6 +1,6 @@
 /**
  * @type {import('@enhance/types').EnhanceApiFn} */
-export async function get() {
+export function get() {
 	return {
 		json: {},
 	};

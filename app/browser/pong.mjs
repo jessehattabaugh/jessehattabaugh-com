@@ -1,5 +1,5 @@
-import enhance from '@enhance/element';
-import render from '../elements/jh-pong.mjs';
+import enhance from "@enhance/element";
+import render from "../elements/jh-pong.mjs";
 
 /** @type {HTMLDivElement}} */
 let theBall;
@@ -40,10 +40,10 @@ let computerPosition = 50;
  */
 function keyDowned(event) {
 	const { key } = event;
-	if (['ArrowUp', 'w'].includes(key)) {
+	if (["ArrowUp", "w"].includes(key)) {
 		playerSpeed = -1;
 	}
-	if (['ArrowDown', 's'].includes(key)) {
+	if (["ArrowDown", "s"].includes(key)) {
 		playerSpeed = 1;
 	}
 }
@@ -113,7 +113,7 @@ function framed() {
 	}
 
 	// loop
-	frameRequestId = window.requestAnimationFrame(framed);
+	frameRequestId = requestAnimationFrame(framed);
 }
 
 /**
@@ -124,13 +124,12 @@ function framed() {
  * @see https://developer.mozilla.org/en-US/docs/Web/API/window/requestAnimationFrame
  */
 function connected() {
-	console.log('🎮', { this: this });
+	console.log("🎮", { this: this });
 	({ computerPaddle, theTable, playerPaddle, theBall } = this.children);
-	// @ts-ignore
 	({ computerScore, playerScore } = theTable.children);
-	window.addEventListener('keydown', keyDowned);
-	window.addEventListener('keyup', keyUpped);
-	frameRequestId = window.requestAnimationFrame(framed);
+	addEventListener("keydown", keyDowned);
+	addEventListener("keyup", keyUpped);
+	frameRequestId = requestAnimationFrame(framed);
 }
 
 /**
@@ -141,9 +140,9 @@ function connected() {
  * @see https://developer.mozilla.org/en-US/docs/Web/API/window/cancelAnimationFrame
  */
 function disconnected() {
-	window.removeEventListener('keydown', keyDowned);
-	window.removeEventListener('keyup', keyUpped);
-	window.cancelAnimationFrame(frameRequestId);
+	removeEventListener("keydown", keyDowned);
+	removeEventListener("keyup", keyUpped);
+	cancelAnimationFrame(frameRequestId);
 }
 
-enhance('jh-pong', { connected, disconnected, render });
+enhance("jh-pong", { connected, disconnected, render });
