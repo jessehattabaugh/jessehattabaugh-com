@@ -3,10 +3,17 @@ export default function ({ html }) {
 	return html`
 		<style>
 			header {
-				margin: 0 var(--unit);
+				backdrop-filter: blur(var(--unit-half));
+				background-color: rgba(var(--rgb-background), 0.5);
+				border-bottom: var(--border);
+				box-shadow: 0 0 var(--unit) rgba(var(--rgb-black), 0.5);
+				left: 0;
+				padding: var(--unit-half);
+				position: sticky;
+				top: 0;
 			}
 			h1 {
-				margin-bottom: calc(var(--unit) / 2);
+				margin: 0;
 			}
 			nav {
 				display: flex;

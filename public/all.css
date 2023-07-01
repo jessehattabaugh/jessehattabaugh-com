@@ -10,6 +10,9 @@
   }
 
 :root {
+	--rgb-black: 0, 0, 0;
+	--rgb-white: 255, 255, 255;
+	--unit-half: calc(var(--unit) / 2);
 	--unit: 1em;
 }
 
@@ -32,13 +35,15 @@ html {
 body {
 	flex-direction: column;
 	font-family: Inter, Roboto, 'Helvetica Neue', 'Arial Nova', 'Nimbus Sans', Arial, sans-serif;;
-	height: inherit;
 }
 
 body > * {
-	max-width: calc(var(--unit) * 50);
-	padding: var(--unit);
 	margin: 0 auto;
+	max-width: calc(var(--unit) * 50);
+}
+
+main {
+	padding: var(--unit);
 }
 
 a:active,
