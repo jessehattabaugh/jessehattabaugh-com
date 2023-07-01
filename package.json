@@ -5,6 +5,7 @@
 		"@architect/functions": "latest",
 		"@architect/sandbox": "latest",
 		"@aws-sdk/client-s3": "latest",
+		"@aws-sdk/node-http-handler": "latest",
 		"@enhance/arc-plugin-enhance": "latest",
 		"@enhance/element": "latest",
 		"@enhance/types": "latest",
