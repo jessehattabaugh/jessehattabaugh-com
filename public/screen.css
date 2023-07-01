@@ -1,20 +1,24 @@
 /* what it looks like on illuminated rectangles */
 :root {
-	--color: white;
-	--background-color: black;
+	--background-color: rgb(var(--rgb-background));
 	--background-image-gradient: linear-gradient(to bottom, var(--background-color), currentColor 200%);
+	--border: 1px solid rgba(var(--rgb-color), 0.25);
 	--color-blue: aqua;
 	--color-green: chartreuse;
 	--color-red: red;
+	--color: rgb(var(--rgb-white));
+	--rgb-background: var(--rgb-black);
+	--rgb-color: var(--rgb-white);
 }
 
 @media (prefers-color-scheme: light) {
 	:root {
-		--background-color: white;
-		--color: black;
 		--color-blue: teal;
 		--color-green: green;
 		--color-red: darkRed;
+		--color: rgb(var(--rgb-black));
+		--rgb-background: var(--rgb-white);
+		--rgb-color: var(--rgb-white);
 	}
 }
 
