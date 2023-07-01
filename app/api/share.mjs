@@ -9,7 +9,7 @@ export async function post(req) {
 	const { isAuthorized = false } = session;
 
 	// @see https://begin.com/blog/posts/2023-02-08-upload-files-in-forms-part-1#decoding-the-multipart-form-data
-	// @ts-ignore
+	// @ts-ignore - EnhanceAPIRequest doesn't match APIGAtewayProxyEvent
 	const form = await lms.parse({ ...req, body: req.rawBody });
 	const { text = '', title = '', url = '' } = form;
 	console.log('💿', form.files);
@@ -23,6 +23,7 @@ export async function post(req) {
 		// upload the file to the architect static bucket
 		const { ARC_STATIC_BUCKET: Bucket, AWS_REGION: region } = process.env;
 		const client = new S3Client({ region });
+		//console.log('🍄', { Bucket, Key: image, Body });
 		const command = new PutObjectCommand({ Bucket, Key: image, Body });
 		await client.send(command);
 	}
