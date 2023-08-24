@@ -11,7 +11,8 @@
 		"@enhance/types": "latest",
 		"eslint": "latest",
 		"eslint-config-prettier": "latest",
-		"lambda-multipart-parser": "latest"
+		"lambda-multipart-parser": "latest",
+		"lit": "latest"
 	},
 	"engines": {
 		"node": "~18",
