@@ -20,7 +20,7 @@ export default function ({ html }) {
 				justify-content: space-around;
 			}
 		</style>
-		<header>
+		<header class="no-print">
 			<h1><a href="/">JesseHattabaugh.com</a></h1>
 			<nav>
 				<a href="/shares">Blog</a>

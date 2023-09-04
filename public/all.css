@@ -22,7 +22,6 @@
 	appearance: unset;
 	box-sizing: inherit;
 	line-height: calc(var(--unit) + var(--unit) / 2);
-	list-style: none;
 	margin: 0;
 	padding: 0;
 }
@@ -57,6 +56,14 @@ a:hover {
 	text-decoration: underline;
 }
 
+/** prevent anchors from appearing under the sticky header */
+a[name] {
+	padding-top: 5em;
+	margin-top: -5em;
+	display: inline-block;
+	vertical-align: top;
+}
+
 h1,
 h2,
 h3,
@@ -67,7 +74,9 @@ h6 {
 	margin-bottom: calc(var(--unit) / 2);
 	text-wrap: balance;
 }
-
 p {
 	margin-bottom: var(--unit);
+}
+summary > * {
+	display: inline;;
 }

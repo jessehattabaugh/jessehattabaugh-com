@@ -10,7 +10,6 @@
 	--rgb-background: var(--rgb-black);
 	--rgb-color: var(--rgb-white);
 }
-
 @media (prefers-color-scheme: light) {
 	:root {
 		--color-blue: teal;
@@ -21,23 +20,19 @@
 		--rgb-color: var(--rgb-white);
 	}
 }
-
 @keyframes colorwheel {
 	33.3% { color: var(--color-blue); }
 	66.7% { color: var(--color-green); }
 }
-
 html {
 	animation: colorwheel 30s linear infinite;
 	color: var(--color-red);
 }
-
 body {
 	background-attachment: fixed;
 	background-color: var(--background-color);
 	background-image: var(--background-image-gradient);
 }
-
 h1,
 h2,
 h3,
@@ -52,7 +47,6 @@ h6 {
 	background-size: 200%;
 	color: currentColor;
 }
-
 a:active,
 a:focus,
 a:link,
@@ -60,11 +54,13 @@ a:visited {
 	animation: colorwheel 30s linear infinite;
 	color: var(--color-red);
 }
-
+a:target {
+	font-weight: bold;
+	text-decoration: underline;
+}
 p {
 	color: var(--color);
 }
-
 @media (prefers-reduced-motion: reduce) {
 	a:active,
 	a:focus,
