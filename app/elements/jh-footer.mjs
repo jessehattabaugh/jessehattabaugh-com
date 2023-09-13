@@ -37,6 +37,6 @@ export default function ({ html }) {
 			</div>
 			<div>&copy; 2023</div>
 			<bgsound loop="infinite" src="/_public/audio/JessiesGirl.mid"></bgsound>
-			<audio controls loop src="/_public/audio/JessiesGirl.mp3"></audio>
+			<!--<audio controls loop src="/_public/audio/JessiesGirl.mp3"></audio>-->
 		</footer>`;
 }
