@@ -33,14 +33,16 @@ html {
 
 body {
 	font-family: Inter, Roboto, 'Helvetica Neue', 'Arial Nova', 'Nimbus Sans', Arial, sans-serif;
+	font-family: Inter, Roboto, 'Helvetica Neue', 'Arial Nova', 'Nimbus Sans', Arial, sans-serif;
 }
 
 article {
 	margin: var(--unit) auto;
-	max-width: calc(100% - var(--unit-double));
+	max-width: calc(100% - var(--unit-double)); /* adds padding */
 	width: calc(var(--unit) * 50);
 }
 
+a,
 a,
 a:active,
 a:focus,
@@ -63,10 +65,12 @@ h6 {
 	text-wrap: balance;
 }
 
+
 p {
 	margin-bottom: var(--unit);
 }
 
+
 summary > * {
-	display: inline;;
+	display: inline;
 }
