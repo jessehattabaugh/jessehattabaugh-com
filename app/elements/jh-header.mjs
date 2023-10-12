@@ -23,9 +23,9 @@ export default function ({ html }) {
 		<header class="no-print">
 			<h1><a href="/">JesseHattabaugh.com</a></h1>
 			<nav>
-				<a href="/shares">Blog</a>
+				<a href="/shares">Shares</a>
 				<a href="/resume">Resume</a>
-				<a href="/share">Share</a>
+				<a href="/games">Games</a>
 			</nav>
 		</header>
 	`;

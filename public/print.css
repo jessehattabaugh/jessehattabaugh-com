@@ -12,7 +12,7 @@ h6 {
 }
 p {
 	orphans: var(--mourners);
-	widows:  var(--mourners);
+	widows: var(--mourners);
 }
 .no-print {
 	display: none;

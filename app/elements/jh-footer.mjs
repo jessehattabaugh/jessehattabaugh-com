@@ -18,6 +18,7 @@ export default function ({ html }) {
 				width: 4em;
 			}
 		</style>
+		<button href="/share">Share</button>
 		<footer id="contact" class="vcard">
 			<img
 				alt="Jesse Hattabaugh"

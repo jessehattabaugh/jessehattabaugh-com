@@ -4,7 +4,6 @@
 	src: url('/_public/fonts/comicSans.woff2') format('woff2'),
 		 url('/_public/fonts/comicSans.woff') format('woff'),
 		 url('/_public/fonts/comicSans.ttf') format('truetype'),
-		 url('/_public/fonts/comicSans.otf') format('opentype'),
 		 url('/_public/fonts/comicSans.eot') format('embedded-opentype'),
 		 url('/_public/fonts/comicSans.svg') format('svg');
   }
@@ -12,6 +11,7 @@
 :root {
 	--rgb-black: 0, 0, 0;
 	--rgb-white: 255, 255, 255;
+	--unit-double: calc(var(--unit) * 2);
 	--unit-half: calc(var(--unit) / 2);
 	--unit: 1em;
 }
@@ -21,7 +21,7 @@
 *::after {
 	appearance: unset;
 	box-sizing: inherit;
-	line-height: calc(var(--unit) + var(--unit) / 2);
+	line-height: calc(var(--unit) + var(--unit-half));
 	margin: 0;
 	padding: 0;
 }
@@ -32,36 +32,24 @@ html {
 }
 
 body {
-	flex-direction: column;
-	font-family: Inter, Roboto, 'Helvetica Neue', 'Arial Nova', 'Nimbus Sans', Arial, sans-serif;;
+	font-family: Inter, Roboto, 'Helvetica Neue', 'Arial Nova', 'Nimbus Sans', Arial, sans-serif;
 }
 
-body > * {
-	margin: 0 auto;
-	max-width: calc(var(--unit) * 50);
+article {
+	margin: var(--unit) auto;
+	max-width: calc(100% - var(--unit-double));
+	width: calc(var(--unit) * 50);
 }
 
-main {
-	padding: var(--unit);
-}
-
+a,
 a:active,
 a:focus,
 a:link,
 a:visited {
 	text-decoration: none;
 }
-
 a:hover {
 	text-decoration: underline;
-}
-
-/** prevent anchors from appearing under the sticky header */
-a[name] {
-	padding-top: 5em;
-	margin-top: -5em;
-	display: inline-block;
-	vertical-align: top;
 }
 
 h1,
@@ -74,9 +62,11 @@ h6 {
 	margin-bottom: calc(var(--unit) / 2);
 	text-wrap: balance;
 }
+
 p {
 	margin-bottom: var(--unit);
 }
+
 summary > * {
 	display: inline;;
 }

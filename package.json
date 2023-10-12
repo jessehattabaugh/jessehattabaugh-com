@@ -11,6 +11,7 @@
 		"@enhance/types": "latest",
 		"eslint": "latest",
 		"eslint-config-prettier": "latest",
+		"htmx.org": "latest",
 		"lambda-multipart-parser": "latest"
 	},
 	"engines": {

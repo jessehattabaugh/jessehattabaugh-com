@@ -1,3 +1,5 @@
+//import 'htmx.org';
+//import './htmx.js';
 if ('serviceWorker' in navigator) {
 	window.addEventListener('load', async () => {
 		try {
