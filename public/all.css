@@ -4,7 +4,6 @@
 	src: url('/_public/fonts/comicSans.woff2') format('woff2'),
 		 url('/_public/fonts/comicSans.woff') format('woff'),
 		 url('/_public/fonts/comicSans.ttf') format('truetype'),
-		 url('/_public/fonts/comicSans.otf') format('opentype'),
 		 url('/_public/fonts/comicSans.eot') format('embedded-opentype'),
 		 url('/_public/fonts/comicSans.svg') format('svg');
   }
