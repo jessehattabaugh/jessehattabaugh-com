@@ -6,6 +6,12 @@ Personal website of Jesse Hattabaugh <https://www.jessehattabaugh.com>
 
 After cloning this repo use [nvm](https://github.com/nvm-sh/nvm#installing-and-updating) to install nodejs by running `nvm use`. Then run `npm install`.
 
+## Tests
+
+To run the [playwright](https://playwright.dev/docs/intro) tests run `npm test`.
+
+To update the snapshots after making changes run `npm run update`.
+
 ## Development
 
 To start the local development server run `npm start` then open [http://localhost:3333](http://localhost:3333) in a browser.

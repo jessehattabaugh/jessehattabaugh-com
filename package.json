@@ -25,7 +25,8 @@
 		"prod": "arc deploy --production",
 		"stage": "arc deploy",
 		"start": "npm run kill && arc sandbox",
-		"test": "npx playwright test"
+		"test": "npx playwright test",
+		"update": "npx playwright test --update-snapshots"
 	},
 	"type": "module"
 }

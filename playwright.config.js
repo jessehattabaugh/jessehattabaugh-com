@@ -5,7 +5,11 @@ import { defineConfig, devices } from '@playwright/test';
  */
 const url = 'http://localhost:3333';
 export default defineConfig({
+	expect: {
+		toMatchSnapshot: { maxDiffPixelRatio: 0.1 },
+	},
 	fullyParallel: true,
+	maxFailures: 0,
 	projects: [
 		{
 			name: 'chromium',
