@@ -10,6 +10,7 @@
 		"@enhance/element": "latest",
 		"@enhance/types": "latest",
 		"@playwright/test": "latest",
+		"dotenv": "latest",
 		"eslint": "latest",
 		"eslint-config-prettier": "latest",
 		"lambda-multipart-parser": "latest"
@@ -25,8 +26,10 @@
 		"prod": "arc deploy --production",
 		"stage": "arc deploy",
 		"start": "npm run kill && arc sandbox",
-		"test": "npx playwright test",
-		"update": "npx playwright test --update-snapshots"
+		"test": "npm run kill && npx playwright test",
+		"test:codegen": "npm start & npx playwright codegen",
+		"test:ui": "npx playwright test --ui",
+		"test:update": "npx playwright test --update-snapshots"
 	},
 	"type": "module"
 }

@@ -10,7 +10,11 @@ After cloning this repo use [nvm](https://github.com/nvm-sh/nvm#installing-and-u
 
 To run the [playwright](https://playwright.dev/docs/intro) tests run `npm test`.
 
-To update the snapshots after making changes run `npm run update`.
+To record new tests run `npm run test:codegen`.
+
+To run the tests in the playwright ui run `npm run test:ui`.
+
+To update the snapshots after making changes run `npm run test:update`.
 
 ## Development
 

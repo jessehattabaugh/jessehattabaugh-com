@@ -12,4 +12,5 @@ test.describe('index', () => {
 	test('snapshot', async ({ page }) => {
 		expect(await page.screenshot()).toMatchSnapshot();
 	});
+	
 });

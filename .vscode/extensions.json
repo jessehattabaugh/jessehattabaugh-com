@@ -7,6 +7,7 @@
 		"dbaeumer.vscode-eslint",
 		"tobermory.es6-string-html",
 		"editorconfig.editorconfig",
-		"mikestead.dotenv"
+		"mikestead.dotenv",
+		"ms-playwright.playwright"
 	]
 }

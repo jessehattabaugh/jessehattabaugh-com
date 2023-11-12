@@ -23,7 +23,7 @@ export default defineConfig({
 		trace: 'on-first-retry',
 	},
 	webServer: {
-		command: 'npm run start',
+		command: 'npm start',
 		url,
 	},
 });
