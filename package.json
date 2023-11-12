@@ -9,6 +9,7 @@
 		"@enhance/arc-plugin-enhance": "latest",
 		"@enhance/element": "latest",
 		"@enhance/types": "latest",
+		"@playwright/test": "latest",
 		"eslint": "latest",
 		"eslint-config-prettier": "latest",
 		"lambda-multipart-parser": "latest"
@@ -23,7 +24,8 @@
 		"kill": "npx kill-port 3333",
 		"prod": "arc deploy --production",
 		"stage": "arc deploy",
-		"start": "npm run kill && arc sandbox"
+		"start": "npm run kill && arc sandbox",
+		"test": "npx playwright test"
 	},
 	"type": "module"
 }
