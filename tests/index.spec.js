@@ -10,7 +10,7 @@ test.describe('index', () => {
 	});
 
 	test('snapshot', async ({ page }) => {
-		expect(await page.screenshot()).toMatchSnapshot();
+		expect(await page.screenshot({ fullPage: true })).toMatchSnapshot();
 	});
-	
+
 });
