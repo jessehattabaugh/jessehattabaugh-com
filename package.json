@@ -20,7 +20,7 @@
 	},
 	"private": true,
 	"scripts": {
-		"clean": "git clean -fdx",
+		"clean": "npx cli-confirm 'have you commited your changes?' && git clean -fdx",
 		"kill": "npx kill-port 3333",
 		"prod": "arc deploy --production",
 		"stage": "arc deploy",
