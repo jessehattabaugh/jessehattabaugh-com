@@ -1,5 +1,5 @@
-import enhance from '@enhance/element';
-import render from '../elements/jh-pong.mjs';
+//import enhance from '@enhance/element';
+//import render from '../../app/elements/jh-pong.mjs';
 
 /** @type {HTMLDivElement}} */
 let theBall;
@@ -146,4 +146,4 @@ function disconnected() {
 	window.cancelAnimationFrame(frameRequestId);
 }
 
-enhance('jh-pong', { connected, disconnected, render });
+//enhance('jh-pong', { connected, disconnected, render });

@@ -1,0 +1,43 @@
+<extends src="base.html">
+	<block name="main">
+		<style>
+			.hero img {
+				border-radius: 50%;
+				box-shadow: black 0.5em 0.5em 1em 0em, currentColor 0 -0.2em 0em 0.5em;
+				float: left;
+				height: 30vw;
+				margin-bottom: 5%;
+				margin-right: 5%;
+				max-height: 512px;
+				max-width: 512px;
+				shape-outside: circle(50%);
+				width: 30vw;
+			}
+		</style>
+		<picture class="hero">
+			<source media="(min-width: 512px)" srcset="jesse975.webp" type="image/webp" />
+			<source media="(max-width: 192px)" srcset="jesse192.png" type="image/png" />
+			<img alt="Photo of Jesse Hattabaugh" height="512" src="jesse512.png" width="512" />
+		</picture>
+
+		<h2>Welcome to my site!</h2>
+
+		<p>I'm a web developer from Portland Oregon. I like to work on old cars, ride bicycles, play
+			video games, and grow pumpkins and mushrooms.</p>
+
+		<h3>About this site</h3>
+
+		<p>This world wide website is hosted on <a href="https://aws.amazon.com/">AWS</a> using <a
+				href="https://enhance.dev/">Enhance</a> and <a href="https://arc.codes/">Architect</a>. The code can be
+			found on <a href="https://github.com/jessehattabaugh/jessehattabaugh-com/">GitHub</a>.</p>
+
+		<h4>Install my app</h4>
+
+		<p>This site is a <a href="https://web.dev/progressive-web-apps/">Progressive Web App</a> so your browser can
+			<a>install
+				this site to your homescreen</a>. Then you do you will be able to <a href="/share">share things with
+				me</a>
+			using <a href="https://web.dev/articles/web-share">your browser's "share" function</a>.
+		</p>
+	</block>
+</extends>

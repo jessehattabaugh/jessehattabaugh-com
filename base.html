@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+	<title>JesseHattabaugh.com${path}</title>
+	<meta name="description" content="Personal site of Jesse Hattabaugh" />
+	<link rel="icon" href="favicon.ico" />
+	<link rel="manifest" href="manifest.json" />
+	<link rel="apple-touch-icon" href="jesse192.png" />
+	<meta name="theme-color" content="#ff0000" />
+	<link as="font" crossorigin="anonymous" href="fonts/comicSans.woff2" rel="preload" type="font/woff2" />
+	<link rel="stylesheet" href="all.css" media="all" />
+	<link rel="stylesheet" href="screen.css" media="screen" />
+	<link rel="stylesheet" href="print.css" media="print" />
+	<noscript>
+		<marquee>Enable JavaScript you weirdo! 🦄</marquee>
+	</noscript>
+	<script nomodule>
+		console.error('Time to upgrade your browser boomer! 🧓');
+	</script>
+	<script async type="module" src="async.js"></script>
+
+	<!-- the footer of every page contains an hcard, this should inform parsers -->
+	<link rel="profile" href="http://microformats.org/profile/hcard" />
+</head>
+
+<body>
+	<header class="no-print">
+		<h1><a href="/">JesseHattabaugh.com</a></h1>
+		<nav>
+			<a href="/shares">Blog</a>
+			<a href="/resume">Resume</a>
+			<a href="/share">Share</a>
+		</nav>
+	</header>
+	<main>
+		<block name="main"></block>
+	</main>
+	<footer id="contact" class="vcard">
+		<img alt="Jesse Hattabaugh" class="photo" height="192" src="jesse192.png" width="192" />
+		<h3 class="fn">Jesse Hattabaugh</h3>
+		<div>
+			<a href="mailto:webmaster@jessehattabaugh.com" class="email">webmaster@jessehattabaugh.com</a>
+		</div>
+		<div>
+			<a href="tel:+15038939375" class="tel">(503) 893-9375</a>
+		</div>
+		<div>&copy; 2023</div>
+		<bgsound loop="infinite" src="audio/JessiesGirl.mid"></bgsound>
+		<!--<audio controls loop src="audio/JessiesGirl.mp3"></audio>-->
+	</footer>
+</body>
+
+</html>

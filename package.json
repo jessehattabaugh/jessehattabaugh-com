@@ -1,12 +1,19 @@
 {
+	"browserslist": "> 0.5%, last 2 versions, not dead",
 	"devDependencies": {
+		"@parcel/packager-raw-url": "^2.11.0",
+		"@parcel/transformer-webmanifest": "^2.11.0",
 		"eslint": "latest",
-		"eslint-config-prettier": "latest"
+		"eslint-config-prettier": "latest",
+		"parcel": "latest",
+		"posthtml-extend": "latest"
 	},
 	"private": true,
 	"scripts": {
+		"build": "parcel build 'www/*.html'",
 		"clean": "git clean -fdx",
-		"kill": "npx kill-port 3333"
+		"kill": "npx kill-port 1234",
+		"start": "parcel 'www/*.html' --open --lazy"
 	},
 	"type": "module"
 }

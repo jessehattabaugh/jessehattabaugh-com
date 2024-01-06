@@ -1,11 +1,11 @@
 /* styles for any display medium */
 @font-face {
 	font-family: 'comicSans';
-	src: url('/_public/fonts/comicSans.woff2') format('woff2'),
-		 url('/_public/fonts/comicSans.woff') format('woff'),
-		 url('/_public/fonts/comicSans.ttf') format('truetype'),
-		 url('/_public/fonts/comicSans.eot') format('embedded-opentype'),
-		 url('/_public/fonts/comicSans.svg') format('svg');
+	src: url('fonts/comicSans.woff2') format('woff2'),
+		 url('fonts/comicSans.woff') format('woff'),
+		 url('fonts/comicSans.ttf') format('truetype'),
+		 url('fonts/comicSans.eot') format('embedded-opentype'),
+		 url('fonts/comicSans.svg') format('svg');
   }
 
 :root {
@@ -78,4 +78,43 @@ p {
 }
 summary > * {
 	display: inline;;
+}
+
+header {
+	backdrop-filter: blur(var(--unit-half));
+	background-color: rgba(var(--rgb-background), 0.5);
+	border-bottom: var(--border);
+	box-shadow: 0 0 var(--unit) rgba(var(--rgb-black), 0.5);
+	left: 0;
+	padding: var(--unit-half);
+	position: sticky;
+	top: 0;
+}
+
+header h1 {
+	margin: 0;
+}
+
+header nav {
+	display: flex;
+	justify-content: space-around;
+}
+
+footer {
+	clear: both;
+	text-align: right;
+	padding: 1em;
+}
+
+footer a {
+	display: inline-block;
+	font-size: smaller;
+}
+
+footer img {
+	border-radius: 25%;
+	float: right;
+	height: 4em;
+	margin: 0.5em;
+	width: 4em;
 }
