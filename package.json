@@ -1,29 +1,12 @@
 {
 	"devDependencies": {
-		"@architect/architect": "latest",
-		"@architect/asap": "latest",
-		"@architect/functions": "latest",
-		"@architect/sandbox": "latest",
-		"@aws-sdk/client-s3": "latest",
-		"@aws-sdk/node-http-handler": "latest",
-		"@enhance/arc-plugin-enhance": "latest",
-		"@enhance/element": "latest",
-		"@enhance/types": "latest",
 		"eslint": "latest",
-		"eslint-config-prettier": "latest",
-		"lambda-multipart-parser": "latest"
-	},
-	"engines": {
-		"node": "~20",
-		"npm": "~10"
+		"eslint-config-prettier": "latest"
 	},
 	"private": true,
 	"scripts": {
 		"clean": "git clean -fdx",
-		"kill": "npx kill-port 3333",
-		"prod": "arc deploy --production",
-		"stage": "arc deploy",
-		"start": "npm run kill && arc sandbox"
+		"kill": "npx kill-port 3333"
 	},
 	"type": "module"
 }

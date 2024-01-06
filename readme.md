@@ -8,26 +8,5 @@ After cloning this repo use [nvm](https://github.com/nvm-sh/nvm#installing-and-u
 
 ## Development
 
-To start the local development server run `npm start` then open [http://localhost:3333](http://localhost:3333) in a browser.
 
-## Deployment
 
-DNS for jessehattabaugh.com is Route 53.
-
-AWS is configured according to [the architect instructions to deploy to AWS with CloudFront](https://arc.codes/docs/en/guides/domains/registrars/route53-and-cloudfront). The one change was that I enabled http3.
-
-### Staging
-
-To deploy staging run `npm run stage`.
-
--   [The public staging url](https://staging.jessehattabaugh.com)
--   [The internal AWS staging url](https://q4mdjvrxu0.execute-api.us-east-1.amazonaws.com)
--   [Staging API Gateway url](https://d-wkx1pw21j6.execute-api.us-east-1.amazonaws.com)
-
-### Production
-
-To deploy production run `npm run prod`.
-
--   [The public production url](https://jessehattabaugh.com)
--   [The internal AWS staging url](https://rba5mrs9pb.execute-api.us-east-1.amazonaws.com)
--   [Production API Gateway url](https://rba5mrs9pb.execute-api.us-east-1.amazonaws.com/)
