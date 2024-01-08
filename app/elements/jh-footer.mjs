@@ -35,7 +35,7 @@ export default function ({ html }) {
 			<div>
 				<a href="tel:+15038939375" class="tel">(503) 893-9375</a>
 			</div>
-			<div>&copy; 2023</div>
+			<div>&copy; 2024</div>
 			<bgsound loop="infinite" src="/_public/audio/JessiesGirl.mid"></bgsound>
 			<!--<audio controls loop src="/_public/audio/JessiesGirl.mp3"></audio>-->
 		</footer>`;
