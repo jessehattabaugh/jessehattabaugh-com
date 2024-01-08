@@ -24,16 +24,15 @@ export default function Head(state) {
 				<link rel="stylesheet" href="/_public/all.css" media="all" />
 				<link rel="stylesheet" href="/_public/screen.css" media="screen" />
 				<link rel="stylesheet" href="/_public/print.css" media="print" />
-				<noscript>
-					<marquee>Enable JavaScript you weirdo! 🦄</marquee>
-				</noscript>
 				<script nomodule>
 					console.error('Time to upgrade your browser boomer! 🧓');
 				</script>
 				<script async type="module" src="/_public/browser/async.mjs"></script>
+				<script src="https://unpkg.com/htmx.org@1.9.10" integrity="sha384-D1Kt99CQMDuVetoL1lrYwg5t+9QdHe7NLX/SoJYkXDFfX37iInKRy5xLSi8nO7UC" crossorigin="anonymous"></script>
+				<script src="https://unpkg.com/htmx.org/dist/ext/head-support.js"></script>
 
 				<!-- the footer of every page contains an hcard, this should inform parsers -->
 				<link rel="profile" href="http://microformats.org/profile/hcard" />
 			</head>
-		</html>`;
+			<body hx-boost="true" hx-ext="head-support">`;
 }
