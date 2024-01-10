@@ -34,5 +34,8 @@ export default function Head(state) {
 				<!-- the footer of every page contains an hcard, this should inform parsers -->
 				<link rel="profile" href="http://microformats.org/profile/hcard" />
 			</head>
-			<body hx-boost="true" hx-ext="head-support">`;
+			<body hx-boost="true" hx-ext="head-support">
+				<noscript>
+					<marquee>Enable JavaScript you weirdo! 🦄</marquee>
+				</noscript>`;
 }
