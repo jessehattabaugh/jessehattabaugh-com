@@ -14,9 +14,8 @@ export default function ({ html, state }) {
 			textarea {
 				background-color: transparent;
 				border-radius: 0.25em;
-				border: solid currentColor;
-				box-shadow: 0 0 0.5em currentColor;
-				color: inherit;
+				border: solid var(--color-accent);
+				box-shadow: 0 0 0.5em var(--color-accent);
 				display: block;
 				padding: 0.75em;
 				width: 100%;
@@ -26,7 +25,7 @@ export default function ({ html, state }) {
 			}
 			[type='submit'] {
 				border-radius: 1em;
-				box-shadow: inset 0 0 0.5em currentColor;
+				box-shadow: inset 0 0 0.5em var(--color-accent);
 				padding: 0.75em;
 				width: 100%;
 			}

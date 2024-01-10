@@ -33,11 +33,11 @@ export default function ({ html }) {
 				width: calc(var(--hund) / 2);
 			}
 			#playerScore {
-				border-right: 0.1em dashed currentColor;
+				border-right: 0.1em dashed var(--color-accent);
 			}
 			#computerPaddle,
 			#playerPaddle {
-				background-color: currentColor;
+				background-color: var(--color-accent);
 				height: var(--paddleHeight);
 				left: 0%;
 				position: absolute;
@@ -50,7 +50,7 @@ export default function ({ html }) {
 				left: calc(var(--hund) - var(--paddleWidth));
 			}
 			#theBall {
-				background-color: currentColor;
+				background-color: var(--color-accent);
 				height: var(--ballSize);
 				left: var(--half);
 				position: absolute;
