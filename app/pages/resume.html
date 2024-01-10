@@ -3,38 +3,47 @@
 	h2 {
 		margin-top: 2em;
 	}
+
 	dd {
 		margin-bottom: 1em;
 	}
+
 	no-wrap {
 		white-space: nowrap;
 	}
+
 	.p-contact {
 		margin-left: 1em;
 		margin-bottom: 1em;
 	}
-	.p-contact > *,
+
+	.p-contact>*,
 	no-wrap {
 		overflow: hidden;
 		text-overflow: ellipsis;
 		white-space: nowrap;
 	}
+
 	.p-experience {
 		break-inside: avoid;
 		list-style: none;
 		margin-bottom: 2em;
 	}
-	.p-location + .p-name::before,
-	.dt-start + .dt-end::before {
+
+	.p-location+.p-name::before,
+	.dt-start+.dt-end::before {
 		content: '-';
 		margin: 0.5em;
 	}
+
 	.p-skill {
 		color: var(--color);
 	}
+
 	.p-skill:not(:last-of-type)::after {
 		content: ', ';
 	}
+
 	.p-experience img {
 		float: left;
 		margin: 1em;
@@ -46,18 +55,21 @@
 		shape-outside: circle(50%);
 		clear: both;
 	}
+
 	@media screen and (min-width: 768px) {
 		.p-contact {
 			float: right;
 			max-width: 19em;
 			width: 50%;
 		}
-		.h-resume > .p-name {
+
+		.h-resume>.p-name {
 			float: right;
 			margin: 0 1em;
 			text-orientation: mixed;
 			writing-mode: vertical-rl;
 		}
+
 		.h-calendar {
 			display: flex;
 			flex-wrap: no-wrap;
@@ -65,6 +77,7 @@
 			scroll-behavior: smooth;
 			scroll-snap-type: x mandatory;
 		}
+
 		.p-experience {
 			flex: 0 0 auto;
 			max-width: 100%;
@@ -77,18 +90,23 @@
 	<h1 class="p-name">Resume of <no-wrap>Jesse Hattabaugh</no-wrap>, Webmaster</h1>
 
 	<address class="p-contact h-card">
-		<div class="adr">
-			<span class="locality">Portland</span>, <span class="region">Oregon</span>
-			<span class="postal-code">97211</span>
-		</div>
-		<div>
-			Email:
-			<a class="email" href="mailto:me@jessehattabaugh.com">me@jessehattabaugh.com</a>
-		</div>
-		<div>
-			GitHub: <a class="url" href="https://github.com/jessehattabaugh">jessehattabaugh</a>
-		</div>
-		<div>Phone: <a href="tel:+15038939375" class="tel">(503) 893-9375</a></div>
+		<dl>
+			<dt>Location:</dt>
+			<dd class="adr">
+				<span class="locality">Portland</span>, <span class="region">Oregon</span>
+				<span class="postal-code">97211</span>
+			</dd>
+			<dt>
+				Email:</dt>
+			<dd> <a class="email" href="mailto:me@jessehattabaugh.com">me@jessehattabaugh.com</a>
+			</dd>
+			<dt>
+				GitHub:</dt>
+			<dd><a class="url" href="https://github.com/jessehattabaugh">jessehattabaugh</a>
+			</dd>
+			<dt>Phone:</dt>
+			<dd><a class="tel" href="tel:+15038939375">(503) 893-9375</a></dd>
+		</dl>
 	</address>
 
 	<p class="p-summary">
@@ -104,7 +122,9 @@
 
 	<h2>Skills</h2>
 	<dl>
-		<dt><h3>Frontend Web Platform Features</h3></dt>
+		<dt>
+			<h3>Frontend Web Platform Features</h3>
+		</dt>
 		<dd>
 			<a class="p-skill" name="html">HTML</a>
 			<a class="p-skill" name="javascript">JavaScript</a>
@@ -113,7 +133,9 @@
 			<a class="p-skill" name="webcomponents">Web Components</a>
 			<a class="p-skill" name="pwa">Progressive Web Apps</a>
 		</dd>
-		<dt><h3>Backend Web Application Tools</h3></dt>
+		<dt>
+			<h3>Backend Web Application Tools</h3>
+		</dt>
 		<dd>
 			<a class="p-skill" name="aws">AWS</a>
 			<a class="p-skill" name="react">React</a>
@@ -134,7 +156,9 @@
 			<a class="p-skill" name="playwright">Playwright</a>
 			<a class="p-skill" name="k6">K6</a>
 		</dd>
-		<dt><h3>Software Development Tools</h3></dt>
+		<dt>
+			<h3>Software Development Tools</h3>
+		</dt>
 		<dd>
 			<a class="p-skill" name="agile">Agile</a>
 			<a class="p-skill" name="docker">Docker</a>
@@ -145,7 +169,9 @@
 		</dd>
 	</dl>
 	<details class="no-print">
-		<summary><h4>Skills I've Used in the Past</h4></summary>
+		<summary>
+			<h4>Skills I've Used in the Past</h4>
+		</summary>
 		<a class="p-skill" name="browserify">Browserify</a>
 		<a class="p-skill" name="jade">Jade</a>
 		<a class="p-skill" name="mysql">MySQL</a>
@@ -166,11 +192,7 @@
 	<ol class="h-calendar">
 		<li class="p-experience h-event">
 			<h3>
-				<span class="p-location"
-					><a href="https://www.autofi.com/"
-						>AutoFi</a
-					></span
-				>
+				<span class="p-location"><a href="https://www.autofi.com/">AutoFi</a></span>
 				<span class="p-name">Senior Web Developer</span>
 			</h3>
 			<h4>
@@ -191,12 +213,8 @@
 		</li>
 		<li class="p-experience h-event">
 			<h3>
-				<span class="p-location"
-					><a href="https://www.thekrogerco.com/"
-						>Kroger
-						Technology</a
-					></span
-				>
+				<span class="p-location"><a href="https://www.thekrogerco.com/">Kroger
+						Technology</a></span>
 				<span class="p-name">Fullstack React Developer</span>
 			</h3>
 			<h4>
@@ -216,21 +234,14 @@
 		</li>
 		<li class="p-experience h-event">
 			<h3>
-				<span class="p-location"
-					><a href="https://www.chegg.com/flashcards"
-						>StudyBlue</a
-					></span
-				>
+				<span class="p-location"><a href="https://www.chegg.com/flashcards">StudyBlue</a></span>
 				<span class="p-name">Lead Frontend Developer</span>
 			</h3>
 			<h4>
 				<span class="dt-start">Nov 2016</span>
 				<span class="dt-end">Dec 2017</span>
 			</h4>
-			<img
-							alt="studyblue logo"
-							src="/_public/resume/studyblue.jpg"
-						/>
+			<img alt="studyblue logo" src="/_public/resume/studyblue.jpg" />
 			<p class="p-summary">
 				Spearheaded the overhaul of the app's build process to use
 				<a href="#webpack">Webpack</a>, resulting in significant site load time
@@ -242,11 +253,7 @@
 		</li>
 		<li class="p-experience h-event">
 			<h3>
-				<span class="p-location"
-					><a href="https://www.planet.com/"
-						>Planet Labs</a
-					></span
-				>
+				<span class="p-location"><a href="https://www.planet.com/">Planet Labs</a></span>
 				<span class="p-name">Senior Frontend Developer</span>
 			</h3>
 			<h4>
@@ -265,11 +272,7 @@
 		</li>
 		<li class="p-experience h-event">
 			<h3>
-				<span class="p-location"
-					><a href="https://www.linkedin.com/company/eveo/"
-						>Eveo</a
-					></span
-				>
+				<span class="p-location"><a href="https://www.linkedin.com/company/eveo/">Eveo</a></span>
 				<span class="p-name">Frontend Developer</span>
 			</h3>
 			<h4>
@@ -290,9 +293,7 @@
 		</li>
 		<li class="p-experience h-event">
 			<h3>
-				<span class="p-location"
-					>CubeTree</span
-				>
+				<span class="p-location">CubeTree</span>
 				<span class="p-name">Ruby on Rails Developer</span>
 			</h3>
 			<h4>
@@ -312,9 +313,7 @@
 		</li>
 		<li class="p-experience h-event">
 			<h3>
-				<span class="p-location"
-					>CBS Interactive</span
-				>
+				<span class="p-location">CBS Interactive</span>
 				<span class="p-name">Full Stack Developer</span>
 			</h3>
 			<h4>
@@ -332,9 +331,7 @@
 		</li>
 		<li class="p-experience h-event no-print">
 			<h3>
-				<span class="p-location"
-					>Fordela</span
-				>
+				<span class="p-location">Fordela</span>
 				<span class="p-name">PHP Programmer</span>
 			</h3>
 			<h4>
@@ -352,10 +349,8 @@
 		</li>
 		<li class="p-experience h-event no-print">
 			<h3>
-				<span class="p-location"
-					>Tango
-					Diva</span
-				>
+				<span class="p-location">Tango
+					Diva</span>
 				<span class="p-name">Full Stack Developer</span>
 			</h3>
 			<h4>

@@ -13,6 +13,8 @@
 	--rgb-white: 255, 255, 255;
 	--unit-half: calc(var(--unit) / 2);
 	--unit: 1em;
+	box-sizing: border-box;
+	height: 100%;
 }
 
 *,
@@ -23,11 +25,6 @@
 	line-height: calc(var(--unit) + var(--unit) / 2);
 	margin: 0;
 	padding: 0;
-}
-
-html {
-	box-sizing: border-box;
-	height: 100%;
 }
 
 body {
@@ -55,14 +52,6 @@ a:hover {
 	text-decoration: underline;
 }
 
-/** prevent anchors from appearing under the sticky header */
-a[name] {
-	padding-top: 5em;
-	margin-top: -5em;
-	display: inline-block;
-	vertical-align: top;
-}
-
 h1,
 h2,
 h3,
@@ -73,9 +62,11 @@ h6 {
 	margin-bottom: calc(var(--unit) / 2);
 	text-wrap: balance;
 }
+
 p {
 	margin-bottom: var(--unit);
 }
+
 summary > * {
 	display: inline;;
 }
