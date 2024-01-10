@@ -9,6 +9,7 @@
 		"@enhance/arc-plugin-enhance": "latest",
 		"@enhance/element": "latest",
 		"@enhance/types": "latest",
+		"@types/node": "latest",
 		"eslint": "latest",
 		"eslint-config-prettier": "latest",
 		"lambda-multipart-parser": "latest"
