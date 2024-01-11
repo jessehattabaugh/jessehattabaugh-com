@@ -14,23 +14,35 @@ export default function ({ html, state }) {
 			textarea {
 				background-color: transparent;
 				border-radius: 0.25em;
-				border: solid var(--color-accent);
-				box-shadow: 0 0 0.5em var(--color-accent);
+				border: solid currentColor;
+				box-shadow: 0 0 0.5em currentColor;
 				display: block;
 				padding: 0.75em;
 				width: 100%;
+				color: currentColor;
 			}
 			textarea {
 				height: 20vw;
 			}
 			[type='submit'] {
 				border-radius: 1em;
-				box-shadow: inset 0 0 0.5em var(--color-accent);
+				box-shadow: inset 0 0 0.5em currentColor;
 				padding: 0.75em;
 				width: 100%;
 			}
 			.error {
 				color: var(--color-error);
+			}
+			@supports (background: paint(something)) {
+				input,
+				textarea {
+					border-color: var(--color-accent);
+					box-shadow: 0 0 0.5em var(--color-accent);
+					color: var(--color-accent);
+				}
+				[type='submit'] {
+					box-shadow: inset 0 0 0.5em var(--color-accent);
+				}
 			}
 		</style>
 		<form action="/share" enctype="multipart/form-data" method="post">
