@@ -39,12 +39,12 @@ export default function ({ html, state }) {
 				}
 				input,
 				textarea {
-					border-color: var(--color-accent);
-					box-shadow: 0 0 0.5em var(--color-accent);
+					border-color: var(--color-one);
+					box-shadow: 0 0 0.5em var(--color-one);
 					color: var(--color);
 				}
 				[type='submit'] {
-					box-shadow: inset 0 0 0.5em var(--color-accent);
+					box-shadow: inset 0 0 0.5em var(--color-one);
 				}
 			}
 		</style>

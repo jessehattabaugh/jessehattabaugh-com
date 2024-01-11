@@ -1,5 +1,6 @@
 /* styles for any display medium */
 @font-face {
+	font-display: swap;
 	font-family: 'comicSans';
 	src: url('/_public/fonts/comicSans.woff2') format('woff2'),
 		 url('/_public/fonts/comicSans.woff') format('woff'),
