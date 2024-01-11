@@ -34,11 +34,14 @@ export default function ({ html, state }) {
 				color: var(--color-error);
 			}
 			@supports (background: paint(something)) {
+				label {
+					color: var(--color);
+				}
 				input,
 				textarea {
 					border-color: var(--color-accent);
 					box-shadow: 0 0 0.5em var(--color-accent);
-					color: var(--color-accent);
+					color: var(--color);
 				}
 				[type='submit'] {
 					box-shadow: inset 0 0 0.5em var(--color-accent);
