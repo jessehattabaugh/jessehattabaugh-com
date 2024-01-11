@@ -5,7 +5,7 @@ export default function ({ html }) {
 			}
 			img {
 				border-radius: 50%;
-				box-shadow: black 0.5em 0.5em 1em 0em, var(--color-accent) 0 -0.2em 0em 0.5em;
+				box-shadow: black 0.5em 0.5em 1em 0em, currentColor 0 -0.2em 0em 0.5em;
 				float: left;
 				height: 30vw;
 				margin-bottom: 5%;
@@ -14,6 +14,11 @@ export default function ({ html }) {
 				max-width: 512px;
 				shape-outside: circle(50%);
 				width: 30vw;
+			}
+			@supports (background: paint(something)) {
+				img {
+					box-shadow: black 0.5em 0.5em 1em 0em, var(--color-one) 0 -0.2em 0em 0.5em;
+				}
 			}
 		</style>
 		<picture>

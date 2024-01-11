@@ -1,48 +1,5 @@
 /* what it looks like on illuminated rectangles */
-html {
-	--animation-duration: 30s;
-	--color: white;
-	--color-background: black;
-	--color-blue: aqua;
-	--color-green: chartreuse;
-	--color-red: red;
-	--border: 1px solid rgba(var(--rgb-border), 0.25);
-	--rgb-background: var(--rgb-black);
-	--rgb-border: var(--rgb-white);
-	--gradient-background: linear-gradient(to bottom, var(--color-background), transparent 200%);
-	animation: colorShiftRule var(--animation-duration) linear infinite;
-	background-attachment: fixed;
-	background-color: currentColor;
-	background-image: var(--gradient-background);
-	color: var(--color-red);
-}
 
-@media (prefers-color-scheme: light) {
-	html {
-		--color: black;
-		--color-background: white;
-		--color-blue: teal;
-		--color-green: green;
-		--color-red: darkRed;
-		--rgb-background: var(--rgb-white);
-		--rgb-border: var(--rgb-black);
-	}
-}
-
-@keyframes colorShiftRule {
-	0% {
-		color: var(--color-red);
-	}
-	33.3% {
-		color: var(--color-blue);
-	}
-	66.7% {
-		color: var(--color-green);
-	}
-	100% {
-		color: var(--color-red);
-	}
-}
 
 h1,
 h2,
@@ -53,7 +10,7 @@ h6 {
 	-webkit-background-clip: text;
 	-webkit-text-fill-color: transparent;
 	background-clip: text;
-	background-image: linear-gradient(to bottom, currentColor, transparent 150%);
+	background-image: linear-gradient(to bottom, currentColor, var(--color) 200%);
 	background-position: -100%;
 	background-size: 200%;
 	color: currentColor;
@@ -65,7 +22,7 @@ a:focus,
 a:link,
 a:visited {
 	animation: colorShiftRule var(--animation-duration) linear infinite;
-	color: var(--color-red);
+	color: var(--color-one);
 }
 
 a:target {
@@ -80,62 +37,107 @@ span {
 	color: var(--color);
 }
 
+html {
+	--animation-duration: 30s;
+	--color: White;
+	--color-background: Black;
+	--color-three: Aqua;
+	--color-two: RebeccaPurple;
+	--color-one: Coral;
+	--border: 1px solid rgba(var(--rgb-border), 0.25);
+	--rgb-background: var(--rgb-black);
+	--rgb-border: var(--rgb-white);
+	--gradient-background: linear-gradient(to bottom, var(--color-background), transparent 300%);
+	animation: colorShiftRule var(--animation-duration) linear infinite;
+	background-attachment: fixed;
+	background-color: currentColor;
+	background-image: var(--gradient-background);
+	color: var(--color-one);
+}
+
+@keyframes colorShiftRule {
+	0% {
+		color: var(--color-one);
+	}
+	33.3% {
+		color: var(--color-two);
+	}
+	66.7% {
+		color: var(--color-three);
+	}
+	100% {
+		color: var(--color-one);
+	}
+}
+
+@media (prefers-color-scheme: light) {
+	html {
+		--color: Black;
+		--color-background: White;
+		--color-three: MediumTurquoise;
+		--color-two: Indigo;
+		--color-one: Tomato;
+		--rgb-background: var(--rgb-white);
+		--rgb-border: var(--rgb-black);
+	}
+}
+
 @supports (background: paint(something)) {
 	@property --color {
 		syntax: '<color>';
 		inherits: true;
-		initial-value: white;
+		initial-value: White;
 	}
-	@property --color-accent {
+	@property --color-one {
 		syntax: '<color>';
 		inherits: true;
-		initial-value: red;
+		initial-value: Coral;
 	}
 	@property --color-background {
 		syntax: '<color>';
 		inherits: true;
-		initial-value: black;
+		initial-value: Black;
 	}
-	@property --color-blue {
+	@property --color-three {
 		syntax: '<color>';
 		inherits: true;
-		initial-value: aqua;
+		initial-value: Aqua;
 	}
-	@property --color-green {
+	@property --color-two {
 		syntax: '<color>';
 		inherits: true;
-		initial-value: chartreuse;
+		initial-value: RebbecaPurple;
 	}
 	@keyframes colorShiftProperty {
 		33.3% {
-			--color-accent: var(--color-blue);
+			--color-one: var(--color-two);
 		}
 		66.7% {
-			--color-accent: var(--color-green);
+			--color-one: var(--color-three);
 		}
 	}
 	@keyframes colorAccentShiftRule {
 		0% {
-			color: var(--color-accent);
+			color: var(--color-one);
 		}
 		33.3% {
-			color: var(--color-accent);
+			color: var(--color-one);
 		}
 		66.7% {
-			color: var(--color-accent);
+			color: var(--color-one);
 		}
 		100% {
-			color: var(--color-accent);
+			color: var(--color-one);
 		}
 	}
 	html {
 		--gradient-background: linear-gradient(
 			to bottom,
 			var(--color-background),
-			var(--color-accent) 200%
+			var(--color-one) 200%
 		);
 		animation: colorShiftProperty var(--animation-duration) linear infinite;
-		color: var(--color-accent);
+		color: var(--color-one);
 	}
 	h1,
 	h2,
@@ -143,8 +145,8 @@ span {
 	h4,
 	h5,
 	h6 {
-		background-image: linear-gradient(to bottom, var(--color-accent), transparent 150%);
-		color: var(--color-accent);
+		color: var(--color-one);
+		background-image: linear-gradient(to bottom, var(--color-one), var(--color) 300%);
 	}
 	a,
 	a:active,
@@ -152,7 +154,7 @@ span {
 	a:link,
 	a:visited {
 		animation: colorAccentShiftRule var(--animation-duration) linear infinite;
-		color: var(--color-accent);
+		color: var(--color-one);
 	}
 }
 
