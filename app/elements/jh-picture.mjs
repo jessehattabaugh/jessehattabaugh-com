@@ -1,8 +1,6 @@
 /** @type {import('@enhance/types').EnhanceElemFn} */
 export default function ({ html }) {
 	return html`<style>
-			:host {
-			}
 			img {
 				border-radius: 50%;
 				box-shadow: black 0.5em 0.5em 1em 0em, currentColor 0 -0.2em 0em 0.5em;
@@ -22,6 +20,7 @@ export default function ({ html }) {
 			}
 		</style>
 		<picture>
+			<source media="(min-width: 512px)" srcset="/_public/jesse975.avif" type="image/avif" />
 			<source media="(min-width: 512px)" srcset="/_public/jesse975.webp" type="image/webp" />
 			<source media="(max-width: 192px)" srcset="/_public/jesse192.png" type="image/png" />
 			<img
