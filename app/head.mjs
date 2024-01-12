@@ -13,7 +13,7 @@ export default function Head(state) {
 				<link rel="icon" href="/_public/favicon.ico" />
 				<link rel="manifest" href="/_public/manifest.json" />
 				<link rel="apple-touch-icon" href="/_public/jesse192.png" />
-				<meta name="theme-color" content="#ff0000" />
+				<meta name="theme-color" content="#000000" />
 				<link
 					as="font"
 					crossorigin="anonymous"
