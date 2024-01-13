@@ -12,7 +12,6 @@ enhance/arc-plugin-enhance
 @static
 compression true
 fingerprint true
-ignore images
 prune true
 
 @tables
