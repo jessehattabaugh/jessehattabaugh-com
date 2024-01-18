@@ -28,21 +28,30 @@ export default function ({ html, state }) {
 				width: ${width}px;
 			}
 		</style>
-		<div id="${containerId}" hx-swap-oob="true">
+		<div
+			hx-on::load="this.scrollLeft = ${width}; this.scrollTop = ${height};"
+			hx-select="#${containerId} > *"
+			hx-target="this"
+			id="${containerId}"
+		>
 			${num
 				.map((_, i) => {
-					const x = i + parseInt(xOffset);
+					const x = i - 1 + xOffset;
 					return num
 						.map((__, j) => {
-							const y = j + parseInt(yOffset);
+							const y = j - 1 + yOffset;
 							return html`<img
+								loading="lazy"
 								src="https://picsum.photos/seed/${x.toString()},${y.toString()}/${width}/${height}"
-								style="left: ${(x * w).toString()}px; top: ${(y * h).toString()}px;"
+								style="left: ${(i * w).toString()}px; top: ${(j * h).toString()}px;"
 								${
 									// center image doesn't trigger intersection observer
 									i != 1 || j != 1
-										? `hx-trigger="intersect root:#${containerId} threshold:0.75"
-									  hx-get="${src}?xOffset=${x.toString()},yOffset=${y.toString()}"`
+										? `
+											hx-get="${src}"
+											hx-trigger="intersect root:#${containerId} threshold:0.75"
+											hx-vals='{"xOffset":"${x.toString()}", "yOffset":"${y.toString()}"}'
+										`
 										: ''
 								}
 							/>`;
@@ -50,14 +59,5 @@ export default function ({ html, state }) {
 						.join('');
 				})
 				.join('')}
-		</div>
-		<script>
-			const map = document.getElementById('${containerId}');
-			function scrollContainer(event) {
-				map.scrollLeft = ${width};
-				map.scrollTop = ${height};
-			}
-			document.addEventListener('DOMContentLoaded', scrollContainer);
-			map.addEventListener('htmx:beforeSwap', scrollContainer);
-		</script>`;
+		</div>`;
 }
