@@ -20,7 +20,8 @@ export default function ({ html }) {
 			}
 		</style>
 		<picture>
-			<!--<source media="(min-width: 512px)" srcset="/_public/jesse975.avif" type="image/avif" />-->
+			<source media="(min-width: 512px)" srcset="/_public/jesse975.jxl" type="image/jxl" />
+			<source media="(min-width: 512px)" srcset="/_public/jesse975.avif" type="image/avif" />
 			<source media="(min-width: 512px)" srcset="/_public/jesse975.webp" type="image/webp" />
 			<source media="(max-width: 192px)" srcset="/_public/jesse192.png" type="image/png" />
 			<img
