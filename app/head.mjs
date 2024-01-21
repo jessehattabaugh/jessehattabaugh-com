@@ -28,11 +28,9 @@ export default function Head(state) {
 					console.error('Time to upgrade your browser boomer! 🧓');
 				</script>
 				<script async type="module" src="/_public/browser/async.mjs"></script>
-				<script src="https://unpkg.com/htmx.org@1.9.10" integrity="sha384-D1Kt99CQMDuVetoL1lrYwg5t+9QdHe7NLX/SoJYkXDFfX37iInKRy5xLSi8nO7UC" crossorigin="anonymous" defer></script>
-				<script src="https://unpkg.com/htmx.org/dist/ext/head-support.js" defer></script>
 
 				<!-- the footer of every page contains an hcard, this should inform parsers -->
 				<link rel="profile" href="http://microformats.org/profile/hcard" />
 			</head>
-			<body hx-boost="true" hx-ext="head-support">`;
+			<body>`;
 }
