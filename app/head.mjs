@@ -27,6 +27,22 @@ export default function Head(state) {
 				<script nomodule>
 					console.error('Time to upgrade your browser boomer! 🧓');
 				</script>
+
+				<!-- script that runs for before load -->
+				<script>
+					// on load set the --color-one from localStorage
+					const root = document.documentElement;
+					const storedColor = localStorage.getItem('color-one');
+					if (storedColor) {
+						root.style.setProperty('--color-one', storedColor);
+					}
+					// on unload store the --color-one in localStorage
+					window.addEventListener('unload', () => {
+						const color = getComputedStyle(root).getPropertyValue('--color-one');
+						localStorage.setItem('color-one', color);
+					});
+				</script>
+
 				<!-- script that runs after load -->
 				<script defer>
 					if ('serviceWorker' in navigator) {
