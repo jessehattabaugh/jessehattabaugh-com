@@ -27,7 +27,21 @@ export default function Head(state) {
 				<script nomodule>
 					console.error('Time to upgrade your browser boomer! 🧓');
 				</script>
-				<script async type="module" src="/_public/browser/async.mjs"></script>
+				<!-- script that runs after load -->
+				<script defer>
+					if ('serviceWorker' in navigator) {
+						window.addEventListener('load', async () => {
+							try {
+								await navigator.serviceWorker.register('/sw', {
+									scope: '/',
+								});
+								console.debug('👨‍🏭® service worker registered');
+							} catch (exception) {
+								console.error('👨‍🏭⚠ service worker failed', exception);
+							}
+						});
+					}
+				</script>
 
 				<!-- the footer of every page contains an hcard, this should inform parsers -->
 				<link rel="profile" href="http://microformats.org/profile/hcard" />
