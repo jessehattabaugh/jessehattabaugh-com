@@ -5,20 +5,20 @@ import crypto from 'crypto';
 
 /** move data from session to state.store
  * @type {import('@enhance/types').EnhanceApiFn} */
-export async function get(req) {
-	const { text = '', title = '', url = '' } = req.query;
-	const { error, isAuthorized } = req.session;
+export async function get(request) {
+	const { text = '', title = '', url = '' } = request.query;
+	const { error, isAuthorized } = request.session;
 	return { json: { error, isAuthorized, text, title, url } };
 }
 
 /** @type {import('@enhance/types').EnhanceApiFn} */
-export async function post(req) {
-	const { session } = req;
+export async function post(request) {
+	const { session } = request;
 	const { isAuthorized = false } = session;
 
 	// @see https://begin.com/blog/posts/2023-02-08-upload-files-in-forms-part-1#decoding-the-multipart-form-data
 	// @ts-ignore - EnhanceAPIRequest doesn't match APIGAtewayProxyEvent
-	const form = await lms.parse({ ...req, body: req.rawBody });
+	const form = await lms.parse({ ...request, body: request.rawBody });
 	const { text = '', title = '', url = '' } = form;
 	console.log('💿', form.files);
 	const [imageFile] = form.files;
@@ -65,7 +65,7 @@ export async function post(req) {
 			};
 		}
 	}
-	// console.log('🌋', req);
+	// console.log('🌋', request);
 	return {
 		session: { error: 'you have to share something' },
 		location: '/shareWithMe',
