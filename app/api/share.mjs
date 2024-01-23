@@ -3,6 +3,14 @@ import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
 import lms from 'lambda-multipart-parser';
 import crypto from 'crypto';
 
+/** move data from session to state.store
+ * @type {import('@enhance/types').EnhanceApiFn} */
+export async function get(req) {
+	const { text = '', title = '', url = '' } = req.query;
+	const { error, isAuthorized } = req.session;
+	return { json: { error, isAuthorized, text, title, url } };
+}
+
 /** @type {import('@enhance/types').EnhanceApiFn} */
 export async function post(req) {
 	const { session } = req;
@@ -62,12 +70,4 @@ export async function post(req) {
 		session: { error: 'you have to share something' },
 		location: '/shareWithMe',
 	};
-}
-
-/** move data from session to state.store
- * @type {import('@enhance/types').EnhanceApiFn} */
-export async function get(req) {
-	const { text = '', title = '', url = '' } = req.query;
-	const { error, isAuthorized } = req.session;
-	return { json: { error, isAuthorized, text, title, url } };
 }
