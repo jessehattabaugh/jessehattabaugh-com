@@ -1,5 +1,21 @@
 /* what it looks like on illuminated rectangles */
-
+html {
+	--animation-duration: 30s;
+	--border: 1px solid rgba(var(--rgb-border), 0.25);
+	--color-background: Black;
+	--color-one: Coral;
+	--color-three: Aqua;
+	--color-two: RebeccaPurple;
+	--color: White;
+	--gradient-background: linear-gradient(to bottom, var(--color-background), transparent 300%);
+	--rgb-background: var(--rgb-black);
+	--rgb-border: var(--rgb-white);
+	animation: colorShiftRule var(--animation-duration) linear infinite;
+	background-attachment: fixed;
+	background-color: currentColor;
+	background-image: var(--gradient-background);
+	color: var(--color-one);
+}
 
 h1,
 h2,
@@ -37,22 +53,20 @@ span {
 	color: var(--color);
 }
 
-html {
-	--animation-duration: 30s;
-	--color: White;
-	--color-background: Black;
-	--color-three: Aqua;
-	--color-two: RebeccaPurple;
-	--color-one: Coral;
-	--border: 1px solid rgba(var(--rgb-border), 0.25);
-	--rgb-background: var(--rgb-black);
-	--rgb-border: var(--rgb-white);
-	--gradient-background: linear-gradient(to bottom, var(--color-background), transparent 300%);
-	animation: colorShiftRule var(--animation-duration) linear infinite;
-	background-attachment: fixed;
-	background-color: currentColor;
-	background-image: var(--gradient-background);
-	color: var(--color-one);
+@keyframes blink {
+	0% {
+		opacity: 0;
+	}
+	50% {
+		opacity: 1;
+	}
+	100% {
+		opacity: 0;
+	}
+}
+
+blink {
+	animation: blink 1s infinite;
 }
 
 @keyframes colorShiftRule {
@@ -108,6 +122,7 @@ html {
 		inherits: true;
 		initial-value: RebbecaPurple;
 	}
+
 	@keyframes colorShiftProperty {
 		33.3% {
 			--color-one: var(--color-two);
@@ -116,6 +131,7 @@ html {
 			--color-one: var(--color-three);
 		}
 	}
+
 	@keyframes colorAccentShiftRule {
 		0% {
 			color: var(--color-one);
@@ -130,6 +146,7 @@ html {
 			color: var(--color-one);
 		}
 	}
+
 	html {
 		--gradient-background: linear-gradient(
 			to bottom,
@@ -139,6 +156,7 @@ html {
 		animation: colorShiftProperty var(--animation-duration) linear infinite;
 		color: var(--color-one);
 	}
+
 	h1,
 	h2,
 	h3,
@@ -148,6 +166,7 @@ html {
 		color: var(--color-one);
 		background-image: linear-gradient(to bottom, var(--color-one), var(--color) 300%);
 	}
+
 	a,
 	a:active,
 	a:focus,
@@ -162,6 +181,7 @@ html {
 	html {
 		animation: none;
 	}
+
 	a,
 	a:active,
 	a:focus,
