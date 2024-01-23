@@ -98,20 +98,7 @@ export default function Head(state) {
 					summary > * {
 						display: inline;
 					}
-					@keyframes blink {
-						0% {
-							opacity: 0;
-						}
-						50% {
-							opacity: 1;
-						}
-						100% {
-							opacity: 0;
-						}
-					}
-					blink {
-						animation: blink 1s infinite;
-					}
+					
 				</style>
 				<link rel="stylesheet" href="/_public/screen.css" media="screen" />
 				<link rel="stylesheet" href="/_public/print.css" media="print" />
