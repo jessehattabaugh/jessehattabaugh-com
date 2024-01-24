@@ -42,6 +42,7 @@ export default function ({ html, state }) {
 					border-color: var(--color-one);
 					box-shadow: 0 0 0.5em var(--color-one);
 					color: var(--color);
+					field-sizing: content;
 				}
 				[type='submit'] {
 					box-shadow: inset 0 0 0.5em var(--color-one);
