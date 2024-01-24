@@ -48,7 +48,7 @@ export default function ({ html, state }) {
 				}
 			}
 		</style>
-		<form action="/share" enctype="multipart/form-data" method="post">
+		<form action="/shares" enctype="multipart/form-data" method="post">
 			<div class="error">${error}</div>
 			<label>title <input name="title" type="text" value="${title}" /></label>
 			<label>text <textarea name="text" type="text">${text}</textarea></label>
