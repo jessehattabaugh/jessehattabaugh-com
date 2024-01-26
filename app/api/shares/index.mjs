@@ -7,7 +7,7 @@ import crypto from 'crypto';
  * @type {import('@enhance/types').EnhanceApiFn} */
 export async function get(request) {
 	const { session } = request;
-	const { isAuthorized } = session;
+	const { isAuthorized, error } = session;
 	const Limit = 100;
 	const options = isAuthorized
 		? { Limit }
@@ -21,9 +21,9 @@ export async function get(request) {
 		const db = await arc.tables();
 		const result = await db.shares.scan(options);
 		const { Items: shares } = result;
-		return { json: { isAuthorized, shares } };
+		return { json: { error, isAuthorized, shares } };
 	} catch (error) {
-		console.error('🛟', error);
+		console.error('🛟 error loading shares', error);
 		return { json: { error } };
 	}
 }
@@ -38,7 +38,7 @@ export async function post(request) {
 	// @ts-ignore - EnhanceAPIRequest doesn't match APIGAtewayProxyEvent
 	const form = await lms.parse({ ...request, body: request.rawBody });
 	const { text = '', title = '', url = '' } = form;
-	console.log('💿', form.files);
+	console.debug('💿 files', form.files);
 	const [imageFile] = form.files;
 
 	let image = '';

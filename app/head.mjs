@@ -34,7 +34,8 @@ export default function Head(state) {
 							url('/_public/fonts/comicSans.svg') format('svg');
 					}
 
-					:root {
+					html {
+						--color-error: Red;
 						--rgb-black: 0, 0, 0;
 						--rgb-white: 255, 255, 255;
 						--unit-half: calc(var(--unit) / 2);
@@ -98,7 +99,10 @@ export default function Head(state) {
 					summary > * {
 						display: inline;
 					}
-					
+
+					.error {
+						color: var(--color-error);
+					}
 				</style>
 				<link rel="stylesheet" href="/_public/screen.css" media="screen" />
 				<link rel="stylesheet" href="/_public/print.css" media="print" />
