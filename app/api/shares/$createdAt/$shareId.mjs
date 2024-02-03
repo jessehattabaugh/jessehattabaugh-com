@@ -1,7 +1,8 @@
 import arc from '@architect/functions';
 
 /** delete a share
- * @type {import('@enhance/types').EnhanceApiFn} */
+ * @type {import('@enhance/types').EnhanceApiFn}
+ */
 export async function destroy(request) {
 	const { createdAt, shareId } = request.params;
 	const { isAuthorized } = request.session;
@@ -19,4 +20,11 @@ export async function destroy(request) {
 	}
 	console.error('🐞 not authorized');
 	return { json: { error: 'not authorized' }, location: '/shares' };
+}
+
+/** accept POST requests to delete a share
+ * @type {import('@enhance/types').EnhanceApiFn}
+ */
+export async function post(request) {
+	return destroy(request);
 }
