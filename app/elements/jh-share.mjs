@@ -27,39 +27,17 @@ export default function ({ html, state }) {
 				</dd>
 			</dl>
 			${isAuthorized
-				? html`<enhanced-form method="delete">
+				? html`<hx-fetch method="delete">
 						<form method="post" action="/shares/${createdAt}/${shareId}">
 							<input type="submit" value="delete" />
 						</form>
-				  </enhanced-form>`
+				  </hx-fetch>`
 				: ``}
 		</article>
 		${isAuthorized
 			? html`<script type="module">
-					const EnhancedForm = class extends HTMLElement {
-						constructor() {
-							super();
-							const method = this.getAttribute('method');
-							const form = this.querySelector('form');
-							form.addEventListener('submit', async (event) => {
-								event.preventDefault();
-								const action = form.getAttribute('action');
-								console.debug('🐕‍🦺 enhanced-form fetching', { action, method });
-								const response = await fetch(action, {
-									headers: { accept: 'application/json' },
-									method,
-								});
-								if (response.ok) {
-									console.debug('🥗enhanced-form success', response);
-									document.location.reload();
-									// TODO: allow for something other than reloading the page
-								} else {
-									console.error('🍒enhanced-form failure', response);
-								}
-							});
-						}
-					};
-					document.customElements.define('enhanced-form', EnhancedForm);
+					import { HXFetch } from '/_public/browser/hxe.mjs';
+					customElements.define('hx-fetch', HXFetch);
 			  </script>`
 			: ''}`;
 }
