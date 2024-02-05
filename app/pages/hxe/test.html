@@ -1,0 +1,23 @@
+<main>
+
+	<!-- this instance uses the default form inputs -->
+	<hx-fetch action="/hxe/test" id="testFetchGet" method="get"></hx-fetch>
+	<hx-status data-hx-targets="testFetchGet"></hx-status>
+
+	<!-- this instance inserts custom elements into the default slot -->
+	<hx-fetch action="/hxe/test" id="testFetchDelete" method="delete">
+		<input type="text" name="testInput" value="">
+		<input slot="submit" type="submit" />
+	</hx-fetch>
+	<hx-status data-hx-targets="testFetchDelete">
+		<span slot="loading">testLoading</span>
+		<span slot="success">testSuccess</span>
+		<span slot="error">testError</span>
+	</hx-status>
+
+	<!-- this instance specifies an href -->
+	<hx-fetch href="/hxe/test?foo=bar" id="testFetchPut" method="put">Click to put</hx-fetch>
+	<hx-status data-hx-targets="testFetchPut"></hx-status>
+
+	<script type="module" src="/_public/browser/hxe.mjs"></script>
+</main>

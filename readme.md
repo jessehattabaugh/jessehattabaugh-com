@@ -31,3 +31,15 @@ To deploy production run `npm run prod`.
 -   [The public production url](https://jessehattabaugh.com)
 -   [The internal AWS staging url](https://rba5mrs9pb.execute-api.us-east-1.amazonaws.com)
 -   [Production API Gateway url](https://rba5mrs9pb.execute-api.us-east-1.amazonaws.com/)
+
+## Tests
+
+Tests run against the deployed staging environment. Be sure to run `npm run stage` before running tests.
+
+To run the [playwright](https://playwright.dev/docs/intro) tests run `npm test`.
+
+To record new tests run `npm run test:codegen`.
+
+To run the tests in the playwright ui run `npm run test:ui`.
+
+To update the snapshots after making changes run `npm run test:update`.
