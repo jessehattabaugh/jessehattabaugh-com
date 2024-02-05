@@ -1,13 +1,21 @@
 /** @type {import('@enhance/types').EnhanceElemFn} */
 export default function ({ html, state }) {
-	const { action, href, method } = state.attrs;
+	const { action, href, method = 'GET' } = state.attrs;
+	const METHOD = method.toUpperCase();
+	const isGet = METHOD == 'GET';
+	const isPost = METHOD == 'POST';
+
+	// render a form
 	if (action) {
-		return html`<form method="post" action="${action}">
-			<input type="hidden" name="method" value="${method}" />
+		return html`<form ${isGet ? '' : `method="POST"`} action="${action}">
+			${isGet || isPost ? '' : html`<input type="hidden" name="method" value="${METHOD}" />`}
 			<slot></slot>
 			<slot name="submit"><button type="submit">${method}</button></slot>
 		</form>`;
-	} else if (href) {
+	}
+
+	// ... or render a link
+	else if (href) {
 		// add the method to the query params
 		const params = new URLSearchParams(href.split('?')[1]);
 		params.set('method', method);
