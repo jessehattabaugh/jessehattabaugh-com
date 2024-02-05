@@ -120,7 +120,7 @@ blink {
 	@property --color-two {
 		syntax: '<color>';
 		inherits: true;
-		initial-value: RebbecaPurple;
+		initial-value: RebeccaPurple;
 	}
 
 	@keyframes colorShiftProperty {
