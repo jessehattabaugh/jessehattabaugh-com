@@ -2,8 +2,11 @@
  * @param {import("@enhance/types").EnhanceApiReq} request
  */
 function testResponse(request) {
-	const { testInput } = request.body;
-	if (testInput === 'error') {
+	// get the mock value from the request body if the request is a POST, otherwise from the request params
+	const { method, body, query } = request;
+	const { mock } = method === 'POST' ? body : query;
+	//console.debug('🤡 testResponse', { mock, method, body, query });
+	if (mock === 'error') {
 		return { json: { error: 'mock error' }, status: 500 };
 	} else {
 		return { json: { success: true } };

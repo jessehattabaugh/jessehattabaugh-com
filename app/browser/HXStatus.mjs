@@ -7,7 +7,7 @@ export class HXStatus extends HTMLElement {
 		this.handleFetchStart = this.handleFetchStart.bind(this);
 		this.handleFetchSuccess = this.handleFetchSuccess.bind(this);
 		this.handleFetchError = this.handleFetchError.bind(this);
-		this.handleFetchEnd = this.handleFetchEnd.bind(this);
+		//this.handleFetchEnd = this.handleFetchEnd.bind(this);
 		// console.debug('🛠️ HXStatus constructed');
 	}
 
@@ -18,16 +18,16 @@ export class HXStatus extends HTMLElement {
 		document.addEventListener('hx-fetch-start', this.handleFetchStart);
 		document.addEventListener('hx-fetch-success', this.handleFetchSuccess);
 		document.addEventListener('hx-fetch-error', this.handleFetchError);
-		document.addEventListener('hx-fetch-end', this.handleFetchEnd);
-		console.debug('🔗 HXStatus event listeners added', { targets: this.targets });
+		//document.addEventListener('hx-fetch-end', this.handleFetchEnd);
+		//console.debug('🔗 HXStatus event listeners added', { targets: this.targets });
 	}
 
 	disconnectedCallback() {
 		document.removeEventListener('hx-fetch-start', this.handleFetchStart);
 		document.removeEventListener('hx-fetch-success', this.handleFetchSuccess);
 		document.removeEventListener('hx-fetch-error', this.handleFetchError);
-		document.removeEventListener('hx-fetch-end', this.handleFetchEnd);
-		console.debug('🧹 HXStatus event listeners removed', {});
+		//document.removeEventListener('hx-fetch-end', this.handleFetchEnd);
+		//console.debug('🧹 HXStatus event listeners removed', {});
 	}
 
 	/**
@@ -36,8 +36,10 @@ export class HXStatus extends HTMLElement {
 	 */
 	handleFetchStart(event) {
 		const { id } = event.detail;
-		console.debug('⏳ HXStatus handling fetch start', { id });
-		this.updateVisibility(id, 'loading');
+		if (this.targets.includes(id)) {
+			console.debug('⏳ HXStatus handling fetch start', { id });
+			this.updateVisibility(id, 'loading');
+		}
 	}
 
 	/**
@@ -46,8 +48,10 @@ export class HXStatus extends HTMLElement {
 	 */
 	handleFetchSuccess(event) {
 		const { id } = event.detail;
-		console.debug('✅ HXStatus handling fetch success', { id });
-		this.updateVisibility(id, 'success');
+		if (this.targets.includes(id)) {
+			console.debug('✅ HXStatus handling fetch success', { id });
+			this.updateVisibility(id, 'success');
+		}
 	}
 
 	/**
@@ -56,18 +60,22 @@ export class HXStatus extends HTMLElement {
 	 */
 	handleFetchError(event) {
 		const { id } = event.detail;
-		console.debug('❌ HXStatus handling fetch error', { id });
-		this.updateVisibility(id, 'error');
+		if (this.targets.includes(id)) {
+			console.debug('⛔ HXStatus handling fetch error', { id });
+			this.updateVisibility(id, 'error');
+		}
 	}
 
 	/**
 	 * Handles the end of a fetch operation. This might be optional depending on whether specific actions are needed on fetch end.
 	 * @param {CustomEvent} event - The event triggered on fetch end.
-	 */
+	 *
 	handleFetchEnd(event) {
 		const { id } = event.detail;
-		console.debug('🏁 HXStatus handling fetch end', { id });
-	}
+		if (this.targets.includes(id)) {
+			console.debug('🏁 HXStatus handling fetch end', { id });
+		}
+	}*/
 
 	/**
 	 * Updates the visibility of slots based on the current status.
@@ -75,7 +83,7 @@ export class HXStatus extends HTMLElement {
 	 * @param {string} status - The current fetch status.
 	 */
 	updateVisibility(id, status) {
-		if (this.targets.length === 0 || this.targets.includes(id)) {
+		if (this.targets.includes(id)) {
 			this.hideAllSlots();
 			/** @type {HTMLElement | null} */
 			const slot = this.querySelector(`[slot="${status}"]`);

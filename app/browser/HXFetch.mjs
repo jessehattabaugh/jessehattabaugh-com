@@ -17,17 +17,17 @@ export const HXFetch = class extends HTMLElement {
 	connectedCallback() {
 		if (this.child.tagName === 'FORM' && this.child.hasAttribute('action')) {
 			this.child.addEventListener('submit', this.handleEvent);
-			console.debug('📝 HXFetch submit event listener added for form');
+			//console.debug('📝 HXFetch submit event listener added for form');
 		} else if (this.child.tagName === 'A' && this.child.hasAttribute('href')) {
 			this.child.addEventListener('click', this.handleEvent);
-			console.debug('🔗 HXFetch click event listener added for anchor');
+			//console.debug('🔗 HXFetch click event listener added for anchor');
 		}
 	}
 
 	disconnectedCallback() {
 		this.child.removeEventListener('submit', this.handleEvent);
 		this.child.removeEventListener('click', this.handleEvent);
-		console.debug('🧹 HXFetch event listeners removed');
+		//console.debug('🧹 HXFetch event listeners removed');
 	}
 
 	/**
@@ -37,7 +37,7 @@ export const HXFetch = class extends HTMLElement {
 		event.preventDefault();
 
 		const id = this.getAttribute('id');
-		const method = this.getAttribute('method').toUpperCase() || 'GET';
+		const method = this.getAttribute('method')?.toUpperCase() || 'GET';
 
 		const action = this.child.getAttribute('action');
 		const href = this.child.getAttribute('href');
@@ -54,10 +54,10 @@ export const HXFetch = class extends HTMLElement {
 	/**
 	 * @param {string | null} id
 	 * @param {string} method
-	 * @param {string | URL | Request} url
+	 * @param {string} url
 	 * @param {FormData | null} formData
 	 */
-	async handleFetch(id = null, method = 'GET', url, formData = null) {
+	async handleFetch(id = null, method, url, formData = null) {
 		const args = { id, method, url, formData };
 		console.debug('🌐 HXFetch initiating fetch', { ...args, formData });
 		this.dispatchEvent(createCustomEvent('hx-fetch-start', { ...args, formData }));
@@ -72,6 +72,16 @@ export const HXFetch = class extends HTMLElement {
 		if (method === 'POST' && formData) {
 			fetchOptions.body = formData;
 			headers['Content-Type'] = 'application/x-www-form-urlencoded';
+		} else if (formData) {
+			// add the form data to the query string
+			const query = new URLSearchParams(new URL(url, document.baseURI).search);
+			// @ts-expect-error formData is iterable
+			const data = Array.from(formData.entries());
+			console.debug('🥗', { data, query, url });
+			for (const [key, value] of data) {
+				query.set(key, value);
+			}
+			url = `${url.split('?')[0]}?${query.toString()}`;
 		}
 
 		try {
@@ -91,11 +101,13 @@ export const HXFetch = class extends HTMLElement {
 				}
 				/** @todo allow users to cancel reload/redirect */
 			} else {
-				throw new Error(`Network response status was ${status}.`);
+				throw new Error(`❌ HXFetch fetch error`, { cause: response });
 			}
-		} catch (error) {
-			console.error('❌ HXFetch fetch error', { ...args, error });
-			this.dispatchEvent(createCustomEvent('hx-fetch-error', { ...args, error }));
+		} catch ({ message, cause }) {
+			const { status } = cause;
+			const data = await cause.json();
+			console.error(message, { ...args, status, data });
+			this.dispatchEvent(createCustomEvent('hx-fetch-error', { ...args, message }));
 		} finally {
 			console.debug('🔄 HXFetch fetch completed', { ...args });
 			this.dispatchEvent(createCustomEvent('hx-fetch-end', { ...args }));
