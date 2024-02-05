@@ -18,7 +18,7 @@ export default function ({ html, state }) {
 	else if (href) {
 		// add the method to the query params
 		const params = new URLSearchParams(href.split('?')[1]);
-		params.set('method', method);
+		params.set('method', METHOD);
 		const url = href.split('?')[0] + '?' + params.toString();
 
 		return html`<a href="${url}"><slot></slot></a>`;
