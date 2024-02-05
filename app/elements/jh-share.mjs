@@ -27,23 +27,15 @@ export default function ({ html, state }) {
 				</dd>
 			</dl>
 			${isAuthorized
-				? html`<hx-fetch-status data-hx-targets="delete${shareId}">
-							<div slot="loading" style="display: none;">Loading...</div>
-							<div slot="success" style="display: none;">Success!</div>
-							<div slot="error" style="display: none;">An error occurred.</div>
-						</hx-fetch-status>
-						<hx-fetch id="delete${shareId}" method="delete">
-							<form method="post" action="/shares/${createdAt}/${shareId}">
-								<input type="submit" value="delete" />
-							</form>
-						</hx-fetch>`
+				? html`<hx-fetch-status data-hx-targets="delete${shareId}"></hx-fetch-status>
+						<hx-fetch
+							action="/shares/${createdAt}/${shareId}"
+							id="delete${shareId}"
+							method="delete"
+						></hx-fetch>`
 				: ``}
 		</article>
 		${isAuthorized
-			? html`<script type="module">
-					import { HXFetch, HXFetchStatus } from '/_public/browser/hxe.mjs';
-					customElements.define('hx-fetch', HXFetch);
-					customElements.define('hx-fetch-status', HXFetchStatus);
-			  </script>`
+			? html`<script type="module" src="/_public/browser/hxe.mjs"></script>`
 			: ''}`;
 }
