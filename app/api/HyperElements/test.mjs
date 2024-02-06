@@ -1,11 +1,9 @@
-/**
- * @param {import("@enhance/types").EnhanceApiReq} request
- */
+/**  @param {import("@enhance/types").EnhanceApiReq} request */
 function testResponse(request) {
 	// get the mock value from the request body if the request is a POST, otherwise from the request params
 	const { method, body, query } = request;
 	const { mock } = method === 'POST' ? body : query;
-	//console.debug('🤡 testResponse', { mock, method, body, query });
+	// console.debug('🤡 /api/test testResponse', { mock, method, body, query });
 	if (mock === 'error') {
 		return { json: { error: 'mock error' }, status: 500 };
 	} else {
@@ -17,6 +15,7 @@ function testResponse(request) {
  * @type {import('@enhance/types').EnhanceApiFn}
  */
 export async function get(request) {
+	// console.debug('🔍 /api/test GET request');
 	return testResponse(request);
 }
 
@@ -24,6 +23,7 @@ export async function get(request) {
  * @type {import('@enhance/types').EnhanceApiFn}
  */
 export async function put(request) {
+	// console.debug('📤 /api/test PUT request');
 	return testResponse(request);
 }
 
@@ -31,6 +31,7 @@ export async function put(request) {
  * @type {import('@enhance/types').EnhanceApiFn}
  */
 export async function destroy(request) {
+	// console.debug('🗑 /api/test DELETE request');
 	return testResponse(request);
 }
 
@@ -38,6 +39,7 @@ export async function destroy(request) {
  * @type {import('@enhance/types').EnhanceApiFn}
  */
 export async function post(request) {
+	// console.debug('🏣 /api/test POST request');
 	const method = request.body.get('method').toUpperCase();
 	switch (method) {
 		case 'GET':

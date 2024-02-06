@@ -1,4 +1,7 @@
 /* what it looks like on illuminated rectangles */
+* {
+	scroll-margin-top: 100px;
+}
 html {
 	--animation-duration: 30s;
 	--border: 1px solid rgba(var(--rgb-border), 0.25);
@@ -49,9 +52,17 @@ a:target {
 dd,
 dt,
 p,
-span {
+span,
+pre,
+li {
 	color: var(--color);
 }
+
+pre {
+	margin: var(--unit);
+}
+
+
 
 @keyframes blink {
 	0% {
