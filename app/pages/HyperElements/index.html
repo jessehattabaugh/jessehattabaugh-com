@@ -9,7 +9,7 @@
 	</p>
 
 	<h2>The Elements</h2>
-	<dl>
+	<dl class="compact">
 		<dt><a href="#hyper-fetch"><code>&lt;hyper-fetch&gt;</code></a></dt>
 		<dd>
 			provides a fetch capabilitiy to forms and links
@@ -42,7 +42,7 @@
 	&lt;a href="/books/1?method=DELETE"&gt;delete book&lt;/a&gt;
 &lt;/hyper-link&gt;</code></pre>
 	<p>
-		You may want to download the code and host it yourself.
+		You may want to download the code and host it yourself. I make no guarantees about the availability of the file.
 	</p>
 
 	<h2><a name="hyper-link"><code>&lt;hyper-link&gt;</code></a></h2>
@@ -112,7 +112,7 @@
 class MyElement extends HyperFetch {
 	constructor() {
 		super();
-		this.method='PUT';
+		this.method='POST';
 		this.url='http://some.url';
 		this.handleClick = this.handleClick.bind(this);
 	}

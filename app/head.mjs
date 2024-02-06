@@ -102,10 +102,24 @@ export default function Head(state) {
 						margin-bottom: var(--unit);
 					}
 
+					dl,
 					dd,
 					ol,
 					ul {
 						margin-left: var(--unit);
+					}
+
+					.compact dt {
+						float: left;
+						margin-right: var(--unit);
+					}
+
+					.compact dt:after {
+						content: ':';
+					}
+
+					dd {
+						margin-bottom: var(--unit);
 					}
 
 					code {
