@@ -10,10 +10,6 @@
 
 	<h2>The Elements</h2>
 	<dl class="compact">
-		<dt><a href="#hyper-fetch"><code>&lt;hyper-fetch&gt;</code></a></dt>
-		<dd>
-			provides a fetch capabilitiy to forms and links
-		</dd>
 		<dt><a href="#hyper-link"><code>&lt;hyper-link&gt;</code></a></dt>
 		<dd>
 			enhances &lt;a&gt; elements to send fetch requests
@@ -25,6 +21,10 @@
 		<dt><a href="#hyper-status"><code>&lt;hyper-status&gt;</code></a></dt>
 		<dd>
 			displays the loading, success, and error states of fetch requests
+		</dd>
+		<dt><a href="#hyper-fetch"><code>&lt;hyper-fetch&gt;</code></a></dt>
+		<dd>
+			provides a fetch capabilitiy to forms and links
 		</dd>
 	</dl>
 
@@ -42,7 +42,7 @@
 	&lt;a href="/books/1?method=DELETE"&gt;delete book&lt;/a&gt;
 &lt;/hyper-link&gt;</code></pre>
 	<p>
-		You may want to download the code and host it yourself. I make no guarantees about the availability of the file.
+		You may want to download the code and host it yourself. I can make no guarantees about the availability of the file.
 	</p>
 
 	<h2><a name="hyper-link"><code>&lt;hyper-link&gt;</code></a></h2>
@@ -85,7 +85,8 @@
 		requests. You must include the <code>for</code> attribute and set it to the <code>id</code> of the element you
 		want to monitor. This can be a comma separated list of ids. To display the status, you can nest elements with
 		the <code>slot</code> attribute set to <code>loading</code>, <code>success</code>, or <code>error</code>. If
-		you don't include these elements, nothing will be displayed.
+		you don't include these elements, nothing will be displayed. Note that the slot elements will have their CSS
+		<code>display</code> rule set to <code>reset</code> when the status changes, but it's up to you to hide them first.
 	</p>
 
 	<h3>example</h3>
@@ -93,9 +94,9 @@
 	&lt;a href="/authors/2?method=DELETE"&gt;delete author&lt;/a&gt;
 &lt;/hyper-link&gt;</code>
 &lt;hyper-status for="deleteAuthor"&gt;
-	&lt;span slot="loading"&gt;deleting author...&lt;/span&gt;
-	&lt;span slot="success"&gt;author deleted!&lt;/span&gt;
-	&lt;span slot="error"&gt;error deleting author!&lt;/span&gt;
+	&lt;span slot="loading" style="display: none;"&gt;deleting author...&lt;/span&gt;
+	&lt;span slot="success" style="display: none;"&gt;author deleted!&lt;/span&gt;
+	&lt;span slot="error" style="display: none;"&gt;error deleting author!&lt;/span&gt;
 &lt;/hyper-status&gt;</code></pre>
 
 	<h2><a name="hyper-fetch"><code>&lt;hyper-fetch&gt;</code></a></h2>
