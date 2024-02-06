@@ -1,33 +1,33 @@
 /**
- * HXStatus custom element to show status indicators for fetch operations.
+ * HyperStatus custom element to show status indicators for fetch operations.
  */
-export class HXStatus extends HTMLElement {
+export class HyperStatus extends HTMLElement {
 	constructor() {
 		super();
 		this.handleFetchStart = this.handleFetchStart.bind(this);
 		this.handleFetchSuccess = this.handleFetchSuccess.bind(this);
 		this.handleFetchError = this.handleFetchError.bind(this);
 		//this.handleFetchEnd = this.handleFetchEnd.bind(this);
-		// console.debug('🛠️ HXStatus constructed');
+		// console.debug('🛠️ HyperStatus constructed');
 	}
 
 	connectedCallback() {
-		this.targets = (this.getAttribute('data-hx-targets') || '').split(',').map((id) => {
+		this.for = (this.getAttribute('for') || '').split(',').map((id) => {
 			return id.trim();
 		});
-		document.addEventListener('hx-fetch-start', this.handleFetchStart);
-		document.addEventListener('hx-fetch-success', this.handleFetchSuccess);
-		document.addEventListener('hx-fetch-error', this.handleFetchError);
-		//document.addEventListener('hx-fetch-end', this.handleFetchEnd);
-		//console.debug('🔗 HXStatus event listeners added', { targets: this.targets });
+		document.addEventListener('hyper-fetch-start', this.handleFetchStart);
+		document.addEventListener('hyper-fetch-success', this.handleFetchSuccess);
+		document.addEventListener('hyper-fetch-error', this.handleFetchError);
+		//document.addEventListener('hyper-fetch-end', this.handleFetchEnd);
+		//console.debug('🔗 HyperStatus event listeners added', { for: this.for });
 	}
 
 	disconnectedCallback() {
-		document.removeEventListener('hx-fetch-start', this.handleFetchStart);
-		document.removeEventListener('hx-fetch-success', this.handleFetchSuccess);
-		document.removeEventListener('hx-fetch-error', this.handleFetchError);
-		//document.removeEventListener('hx-fetch-end', this.handleFetchEnd);
-		//console.debug('🧹 HXStatus event listeners removed', {});
+		document.removeEventListener('hyper-fetch-start', this.handleFetchStart);
+		document.removeEventListener('hyper-fetch-success', this.handleFetchSuccess);
+		document.removeEventListener('hyper-fetch-error', this.handleFetchError);
+		//document.removeEventListener('hyper-fetch-end', this.handleFetchEnd);
+		//console.debug('🧹 HyperStatus event listeners removed', {});
 	}
 
 	/**
@@ -36,8 +36,8 @@ export class HXStatus extends HTMLElement {
 	 */
 	handleFetchStart(event) {
 		const { id } = event.detail;
-		if (this.targets.includes(id)) {
-			console.debug('⏳ HXStatus handling fetch start', { id });
+		if (this.for.includes(id)) {
+			// console.debug('⏳ HyperStatus handling fetch start', { id });
 			this.updateVisibility(id, 'loading');
 		}
 	}
@@ -48,8 +48,8 @@ export class HXStatus extends HTMLElement {
 	 */
 	handleFetchSuccess(event) {
 		const { id } = event.detail;
-		if (this.targets.includes(id)) {
-			console.debug('✅ HXStatus handling fetch success', { id });
+		if (this.for.includes(id)) {
+			// console.debug('✅ HyperStatus handling fetch success', { id });
 			this.updateVisibility(id, 'success');
 		}
 	}
@@ -60,8 +60,8 @@ export class HXStatus extends HTMLElement {
 	 */
 	handleFetchError(event) {
 		const { id } = event.detail;
-		if (this.targets.includes(id)) {
-			console.debug('⛔ HXStatus handling fetch error', { id });
+		if (this.for.includes(id)) {
+			// console.debug('⛔ HyperStatus handling fetch error', { id });
 			this.updateVisibility(id, 'error');
 		}
 	}
@@ -73,7 +73,7 @@ export class HXStatus extends HTMLElement {
 	handleFetchEnd(event) {
 		const { id } = event.detail;
 		if (this.targets.includes(id)) {
-			console.debug('🏁 HXStatus handling fetch end', { id });
+			console.debug('🏁 HyperStatus handling fetch end', { id });
 		}
 	}*/
 
@@ -83,14 +83,14 @@ export class HXStatus extends HTMLElement {
 	 * @param {string} status - The current fetch status.
 	 */
 	updateVisibility(id, status) {
-		if (this.targets.includes(id)) {
+		if (this.for.includes(id)) {
 			this.hideAllSlots();
 			/** @type {HTMLElement | null} */
 			const slot = this.querySelector(`[slot="${status}"]`);
 			if (slot) {
 				slot.style.display = 'revert';
 			}
-			console.debug('🔄 HXStatus updating visibility', { id, status });
+			// console.debug('🔄 HyperStatus updating visibility', { id, status });
 		}
 	}
 
@@ -105,6 +105,6 @@ export class HXStatus extends HTMLElement {
 				slot.style.display = 'none';
 			}
 		});
-		console.debug('🙈 HXStatus hiding all slots', {});
+		// console.debug('🙈 HyperStatus hiding all slots', {});
 	}
 }

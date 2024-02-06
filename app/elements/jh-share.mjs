@@ -27,15 +27,15 @@ export default function ({ html, state }) {
 				</dd>
 			</dl>
 			${isAuthorized
-				? html`<hx-fetch-status data-hx-targets="delete${shareId}"></hx-fetch-status>
-						<hx-fetch
+				? html` <hyper-form
 							action="/shares/${createdAt}/${shareId}"
 							id="delete${shareId}"
 							method="delete"
-						></hx-fetch>`
+						></hyper-form
+						><hyper-status for="delete${shareId}"></hyper-status>`
 				: ``}
 		</article>
 		${isAuthorized
-			? html`<script type="module" src="/_public/browser/hxe.mjs"></script>`
+			? html`<script type="module" src="/_public/browser/HyperElements.mjs"></script>`
 			: ''}`;
 }

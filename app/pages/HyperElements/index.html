@@ -1,0 +1,137 @@
+<jh-header></jh-header>
+<main>
+	<h1>HyperElements Documentation</h1>
+	<h2>Overview</h2>
+	<p>
+		HyperElements are a collection of CustomElements that allow you to declaratively enhance HTML. What if you could
+		send <code>DELETE</code>, or <code>PUT</code> requests from forms and links, and display the status of requests
+		without writing a single line of JavaScript? HyperElements make this possible.
+	</p>
+
+	<h2>The Elements</h2>
+	<dl>
+		<dt><a href="#hyper-fetch"><code>&lt;hyper-fetch&gt;</code></a></dt>
+		<dd>
+			provides a fetch capabilitiy to forms and links
+		</dd>
+		<dt><a href="#hyper-link"><code>&lt;hyper-link&gt;</code></a></dt>
+		<dd>
+			enhances &lt;a&gt; elements to send fetch requests
+		</dd>
+		<dt><a href="#hyper-form"><code>&lt;hyper-form&gt;</code></a></dt>
+		<dd>
+			enhances &lt;form&gt; elements to send fetch requests
+		</dd>
+		<dt><a href="#hyper-status"><code>&lt;hyper-status&gt;</code></a></dt>
+		<dd>
+			displays the loading, success, and error states of fetch requests
+		</dd>
+	</dl>
+
+	<h2>Usage</h2>
+	<p>
+		To use HyperElements, you need to include the <code>HyperElements.mjs</code> file in your project. You can do
+		this by adding the following line to your HTML file:
+	</p>
+	<pre><code>&lt;script src="https://jessehattabaugh.com/_public/browser/HyperElements.mjs"&gt;&lt;/script&gt;</code></pre>
+	<p>
+		Once you have included the HyperElements file, you can use the elements in your HTML. For example, to use the
+		<code>&lt;hyper-link&gt;</code> element, you would write:
+	</p>
+	<pre><code>&lt;hyper-link method="DELETE"&gt;
+	&lt;a href="/books/1?method=DELETE"&gt;delete book&lt;/a&gt;
+&lt;/hyper-link&gt;</code></pre>
+	<p>
+		You may want to download the code and host it yourself.
+	</p>
+
+	<h2><a name="hyper-link"><code>&lt;hyper-link&gt;</code></a></h2>
+	<p>
+		The <code>&lt;hyper-link&gt;</code> element enhances &lt;a&gt; elements to send fetch requests. The
+		<code>method</code> attribute specifies the HTTP method to use. You are expected to nest an &lt;a&gt; element
+		inside that has an <code>href</code> attribute. The <code>&lt;hyper-link&gt;</code> element will intercept the
+		click event and send a fetch request using the method specified in the <code>method</code> attribute. Note that
+		if JavaScript is disabled, clicking the link will perform a GET like normal. So, you may want to include the
+		method in the URL as a query parameter and handle that on the server.
+	</p>
+
+	<pre><code>&lt;hyper-link method="DELETE"&gt;
+	&lt;a href="/books/1?method=DELETE"&gt;delete book&lt;/a&gt;
+&lt;/hyper-link&gt;</code></pre>
+
+	<h2><a name="hyper-form"><code>&lt;hyper-form&gt;</code></a></h2>
+	<p>
+		The <code>&lt;hyper-form&gt;</code> element enhances &lt;form&gt; elements to send fetch requests. The
+		<code>method</code> attribute specifies the HTTP method to use. You are expected to nest a &lt;form&gt; element
+		that has an <code>action</code> attribute. The <code>&lt;hyper-form&gt;</code> element will intercept the submit
+		event and send a fetch request using the method specified in the <code>method</code> attribute. The &lt;form&gt;
+		can also have a <code>method</code> attribute, but it will be ignored. Note that if JavaScript is disabled,
+		submitting the form will perform a GET like normal. So, you may want to use a hidden input and handle that on
+		the server.
+	</p>
+
+	<h3>example</h3>
+	<pre><code>&lt;hyper-form method="PUT"&gt;
+	&lt;form action="/books/1" method="PUT"&gt;
+		&lt;input type="hidden" name="method" value="PUT"&gt;
+		&lt;input type="text" name="title" value="new title"&gt;
+		&lt;input type="submit" value="update book"&gt;
+	&lt;/form&gt;
+&lt;/hyper-form&gt;</code></pre>
+
+	<h2><a name="hyper-status"><code>&lt;hyper-status&gt;</code></a></h2>
+	<p>
+		The <code>&lt;hyper-status&gt;</code> element displays the loading, success, and error states of fetch
+		requests. You must include the <code>for</code> attribute and set it to the <code>id</code> of the element you
+		want to monitor. This can be a comma separated list of ids. To display the status, you can nest elements with
+		the <code>slot</code> attribute set to <code>loading</code>, <code>success</code>, or <code>error</code>. If
+		you don't include these elements, nothing will be displayed.
+	</p>
+
+	<h3>example</h3>
+	<pre><code><code>&lt;hyper-link id="deleteAuthor" method="DELETE"&gt;
+	&lt;a href="/authors/2?method=DELETE"&gt;delete author&lt;/a&gt;
+&lt;/hyper-link&gt;</code>
+&lt;hyper-status for="deleteAuthor"&gt;
+	&lt;span slot="loading"&gt;deleting author...&lt;/span&gt;
+	&lt;span slot="success"&gt;author deleted!&lt;/span&gt;
+	&lt;span slot="error"&gt;error deleting author!&lt;/span&gt;
+&lt;/hyper-status&gt;</code></pre>
+
+	<h2><a name="hyper-fetch"><code>&lt;hyper-fetch&gt;</code></a></h2>
+	<p>
+		The <code>&lt;hyper-fetch&gt;</code> element provides a fetch capability to forms and links. It is the base
+		element that the other elements extend. You can use it to create your own custom elements that send fetch
+		requests. The <code>method</code> attribute specifies the HTTP method to use. The <code>id</code> attribute is
+		added to events dispatched by the element.
+	</p>
+
+	<h3>example</h3>
+	<pre><code>import { HyperFetch } from 'https://jessehattabaugh.com/_public/browser/HyperElements.mjs';
+
+class MyElement extends HyperFetch {
+	constructor() {
+		super();
+		this.method='PUT';
+		this.url='http://some.url';
+		this.handleClick = this.handleClick.bind(this);
+	}
+	connectedCallback() {
+		this.addEventListener('click', this.handleClick);
+	}
+	async handleClick() {
+		const data = this.fetch(this.url);
+		console.log(data);
+	}
+}
+customElements.define('my-element', MyElement);
+	</code></pre>
+
+	<p>
+		You can then use the <code>&lt;my-element&gt;</code> element in your HTML like this:
+	</p>
+
+	<pre><code>&lt;my-element&gt;click me&lt;/my-element&gt;</code></pre>
+
+</main>
+<jh-footer></jh-footer>

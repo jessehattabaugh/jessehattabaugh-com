@@ -92,8 +92,24 @@ export default function Head(state) {
 						text-wrap: balance;
 					}
 
-					p {
+					h2 {
+						margin-top: calc(var(--unit) * 2);
+					}
+
+					p,
+					ol,
+					ul {
 						margin-bottom: var(--unit);
+					}
+
+					dd,
+					ol,
+					ul {
+						margin-left: var(--unit);
+					}
+
+					code {
+						font-family: ui-monospace, 'Cascadia Code', 'Source Code Pro', Menlo, Consolas, 'DejaVu Sans Mono', monospace;
 					}
 
 					summary > * {
@@ -150,5 +166,7 @@ export default function Head(state) {
 					<marquee behavior="alternate">
 						<blink>🤡Enable JavaScript you weirdo!🤡</blink>
 					</marquee>
-				</noscript>`;
+				</noscript>
+			</body>
+		</html>`;
 }
