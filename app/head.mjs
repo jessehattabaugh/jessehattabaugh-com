@@ -180,6 +180,8 @@ export default function Head(state) {
 					<marquee behavior="alternate">
 						<blink>🤡Enable JavaScript you weirdo!🤡</blink>
 					</marquee>
+					<bgsound loop="infinite" src="/_public/audio/JessiesGirl.mid"></bgsound>
+					<audio controls loop src="/_public/audio/JessiesGirl.mp3"></audio>
 				</noscript>
 			</body>
 		</html>`;
