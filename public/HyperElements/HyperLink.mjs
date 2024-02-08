@@ -36,7 +36,7 @@ export class HyperLink extends HyperFetch {
 		const isClick = event.type != 'click';
 
 		// only prefetch GET requests, other methods could be destructive
-		const isPrefetch = !isClick && method == 'GET';
+		const isPrefetch = event.type == 'mouseover' && method == 'GET';
 
 		// prevent the default page navigation
 		if (isClick) {
