@@ -36,6 +36,6 @@ export default function ({ html, state }) {
 				: ``}
 		</article>
 		${isAuthorized
-			? html`<script type="module" src="/_public/browser/HyperElements.mjs"></script>`
+			? html`<script type="module" src="/_public/HyperElements/index.mjs"></script>`
 			: ''}`;
 }
