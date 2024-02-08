@@ -26,7 +26,7 @@ export class HyperStatus extends HTMLElement {
 	}
 
 	/** Toggles slot visibility based on the event type and the id of the fetch operation.
-	 * @param {CustomEvent} event - The event triggered on fetch start, success, or error.
+	 * @param {CustomEvent<import('../../types').FetchDetails>} event - The event triggered on fetch start, success, or error.
 	 */
 	toggleStatusSlots(event) {
 		const { id } = event.detail;

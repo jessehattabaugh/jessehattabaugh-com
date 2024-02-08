@@ -20,7 +20,7 @@ export class HyperFetch extends HTMLElement {
 
 	/** CustomEvent factory
 	 * @param {string} name
-	 * @param {*} detail
+	 * @param {import('../../types').FetchDetails} detail
 	 */
 	createEvent(name, detail = {}) {
 		return new CustomEvent(name, {
@@ -35,9 +35,15 @@ export class HyperFetch extends HTMLElement {
 	 * @param {URL} url
 	 * @param {RequestInit} [options]
 	 * @param {boolean} [isPrefetch] - Indicates if the fetch is a prefetch.
+	 * @event hyper-fetch-start - Triggered when the fetch operation is initiated.
+	 * @event hyper-fetch-success - Triggered when the fetch operation is successful.
+	 * @event hyper-fetch-error - Triggered when the fetch operation fails.
+	 * @event hyper-fetch-end - Triggered when the fetch operation is completed.
 	 */
 	async fetch(url, options, isPrefetch = false) {
-		const args = { id: this.id, url, options, isPrefetch };
+		/** @type {import('../../types').FetchDetails} */
+		const args = { id: this.id, isPrefetch, options, url };
+
 		// console.debug('🌐 HXFetch initiating fetch', args);
 		const { signal } = this.controller;
 		const eventSuffix = isPrefetch ? '-prefetch' : '';
@@ -52,7 +58,8 @@ export class HyperFetch extends HTMLElement {
 					const data = contentType.includes('application/json')
 						? await response.json()
 						: await response.text();
-					const details = { ...args, status, data };
+					/** @type {import('../../types').FetchDetails} */
+					const details = { ...args, contentType, data, response, status };
 					// console.debug('✅ HXFetch fetch success', details);
 					this.dispatchEvent(
 						this.createEvent(`hyper-fetch-success${eventSuffix}`, details),
@@ -61,16 +68,16 @@ export class HyperFetch extends HTMLElement {
 					throw new Error(`❌ HXFetch fetch error`, { cause: response });
 				}
 			} catch ({ message, cause }) {
-				console.error(message, { ...args, cause });
-				this.dispatchEvent(
-					this.createEvent(`hyper-fetch-error${eventSuffix}`, { ...args, message }),
-				);
+				/** @type {import('../../types').FetchDetails} */
+				const details = { ...args, error: message };
+				console.error(message, details);
+				this.dispatchEvent(this.createEvent(`hyper-fetch-error${eventSuffix}`, details));
 			} finally {
 				// console.debug('🔄 HXFetch fetch completed', { ...args });
-				this.dispatchEvent(this.createEvent(`hyper-fetch-end${eventSuffix}`, { ...args }));
+				this.dispatchEvent(this.createEvent(`hyper-fetch-end${eventSuffix}`, args));
 			}
 		} else {
-			throw new Error('❌ No URL specified for fetch operation');
+			throw new Error('❓ No URL specified for fetch operation');
 		}
 	}
 }
