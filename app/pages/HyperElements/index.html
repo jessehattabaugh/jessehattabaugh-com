@@ -153,26 +153,10 @@ customElements.define('my-element', MyElement);
 		element.
 	</p>
 
-	<h3>example</h3>
-	<pre><code id="hyper-update-example"></code></pre>
-
-	<div class=".no-print">
-		<h3>demonstration</h3>
-		<blockquote>
-			<demo-books-list id="hyper-update-demonstration"></demo-books-list>
-		</blockquote>
-
-		<script>
-			const example=document.getElementById('hyper-update-example');
-			const demonstration=document.getElementById('hyper-update-demonstration');
-			const lines=demonstration.innerHTML.split('\n');
-			const normalizedHtml=lines.map(line => {
-				// remove the first two tabs
-				return line.replace(/^\t{2}/,'');
-			}).join('\n').trim();
-			example.textContent=normalizedHtml;
-		</script>
-	</div>
+	<demo-doc id="hyper-update">
+		<demo-books-list slot="code"></demo-books-list>
+	</demo-doc>
 </main>
 <jh-footer></jh-footer>
+<script type="module" src="/_public/browser/demo-doc.mjs"></script>
 <script type="module" src="/_public/HyperElements/index.mjs"></script>
