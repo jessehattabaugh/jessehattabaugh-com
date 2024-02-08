@@ -8,5 +8,5 @@
 		"target": "esnext"
 	},
 	"exclude": ["node_modules"],
-	"include": ["types.d.ts"]
+	"include": ["public/HyperElements/types.d.ts"]
 }

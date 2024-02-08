@@ -18,6 +18,10 @@
 		<dd>
 			enhances &lt;form&gt; elements to send fetch requests
 		</dd>
+		<dt><a href="#hyper-update"><code>&lt;hyper-update&gt;</code></a></dt>
+		<dd>
+			update its with content with the response from a fetch request
+		</dd>
 		<dt><a href="#hyper-status"><code>&lt;hyper-status&gt;</code></a></dt>
 		<dd>
 			displays the loading, success, and error states of fetch requests
@@ -33,7 +37,7 @@
 		To use HyperElements, you need to include the <code>HyperElements.mjs</code> file in your project. You can do
 		this by adding the following line to your HTML file:
 	</p>
-	<pre><code>&lt;script src="https://jessehattabaugh.com/_public/browser/HyperElements.mjs"&gt;&lt;/script&gt;</code></pre>
+	<pre><code>&lt;script src="https://jessehattabaugh.com/_public/HyperElements/index.mjs"&gt;&lt;/script&gt;</code></pre>
 	<p>
 		Once you have included the HyperElements file, you can use the elements in your HTML. For example, to use the
 		<code>&lt;hyper-link&gt;</code> element, you would write:
@@ -42,7 +46,8 @@
 	&lt;a href="/books/1?method=DELETE"&gt;delete book&lt;/a&gt;
 &lt;/hyper-link&gt;</code></pre>
 	<p>
-		You may want to download the code and host it yourself. I can make no guarantees about the availability of the file.
+		You may want to download the code and host it yourself. I can make no guarantees about the availability of the
+		file.
 	</p>
 
 	<h2><a name="hyper-link"><code>&lt;hyper-link&gt;</code></a></h2>
@@ -86,13 +91,14 @@
 		want to monitor. This can be a comma separated list of ids. To display the status, you can nest elements with
 		the <code>slot</code> attribute set to <code>loading</code>, <code>success</code>, or <code>error</code>. If
 		you don't include these elements, nothing will be displayed. Note that the slot elements will have their CSS
-		<code>display</code> rule set to <code>reset</code> when the status changes, but it's up to you to hide them first.
+		<code>display</code> rule set to <code>reset</code> when the status changes, but it's up to you to hide them
+		first.
 	</p>
 
 	<h3>example</h3>
-	<pre><code><code>&lt;hyper-link id="deleteAuthor" method="DELETE"&gt;
+	<pre><code>&lt;hyper-link id="deleteAuthor" method="DELETE"&gt;
 	&lt;a href="/authors/2?method=DELETE"&gt;delete author&lt;/a&gt;
-&lt;/hyper-link&gt;</code>
+&lt;/hyper-link&gt;
 &lt;hyper-status for="deleteAuthor"&gt;
 	&lt;span slot="loading" style="display: none;"&gt;deleting author...&lt;/span&gt;
 	&lt;span slot="success" style="display: none;"&gt;author deleted!&lt;/span&gt;
@@ -108,7 +114,7 @@
 	</p>
 
 	<h3>example</h3>
-	<pre><code>import { HyperFetch } from 'https://jessehattabaugh.com/_public/browser/HyperElements.mjs';
+	<pre><code>import { HyperFetch } from 'https://jessehattabaugh.com/_public/HyperElements/HyperFetch.mjs';
 
 class MyElement extends HyperFetch {
 	constructor() {
@@ -134,5 +140,39 @@ customElements.define('my-element', MyElement);
 
 	<pre><code>&lt;my-element&gt;click me&lt;/my-element&gt;</code></pre>
 
+	<h2><a name="hyper-update"><code>&lt;hyper-update&gt;</code></a></h2>
+	<p>
+		The <code>&lt;hyper-update&gt;</code> element provides a way to update the content of an element with the
+		response from a fetch request. The <code>for</code> attribute specifies the <code>id</code> of the
+		<code>&lt;hyper-fetch&gt;</code>
+		element to monitor. The <code>replace</code> attribute specifies the replacement method to use. The default is
+		<code>replace</code>.
+		You can also use <code>append</code> or <code>prepend</code>. The <code>selector</code> attribute specifies the
+		CSS selector to use to find the element to update. The default is the <code>id</code> of the
+		<code>&lt;hyper-update&gt;</code>
+		element.
+	</p>
+
+	<h3>example</h3>
+	<pre><code id="hyper-update-example"></code></pre>
+
+	<div class=".no-print">
+		<h3>demonstration</h3>
+		<blockquote>
+			<demo-books-list id="hyper-update-demonstration"></demo-books-list>
+		</blockquote>
+
+		<script>
+			const example=document.getElementById('hyper-update-example');
+			const demonstration=document.getElementById('hyper-update-demonstration');
+			const lines=demonstration.innerHTML.split('\n');
+			const normalizedHtml=lines.map(line => {
+				// remove the first two tabs
+				return line.replace(/^\t{2}/,'');
+			}).join('\n').trim();
+			example.textContent=normalizedHtml;
+		</script>
+	</div>
 </main>
 <jh-footer></jh-footer>
+<script type="module" src="/_public/HyperElements/index.mjs"></script>
