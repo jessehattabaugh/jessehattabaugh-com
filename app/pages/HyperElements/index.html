@@ -60,9 +60,14 @@
 		method in the URL as a query parameter and handle that on the server.
 	</p>
 
-	<pre><code>&lt;hyper-link method="DELETE"&gt;
-	&lt;a href="/books/1?method=DELETE"&gt;delete book&lt;/a&gt;
-&lt;/hyper-link&gt;</code></pre>
+	<demo-doc id="hyper-link">
+		<demo-books-delete slot="code"></demo-books-delete>
+		<hyper-status for="deleteBook" slot="extra">
+			<span slot="loading" style="display: none;">deleting book...</span>
+			<span slot="success" style="display: none;">book deleted!</span>
+			<span slot="error" style="display: none;">error deleting book!</span>
+		</hyper-status>
+	</demo-doc>
 
 	<h2><a name="hyper-form"><code>&lt;hyper-form&gt;</code></a></h2>
 	<p>
@@ -75,14 +80,14 @@
 		the server.
 	</p>
 
-	<h3>example</h3>
-	<pre><code>&lt;hyper-form method="PUT"&gt;
-	&lt;form action="/books/1" method="PUT"&gt;
-		&lt;input type="hidden" name="method" value="PUT"&gt;
-		&lt;input type="text" name="title" value="new title"&gt;
-		&lt;input type="submit" value="update book"&gt;
-	&lt;/form&gt;
-&lt;/hyper-form&gt;</code></pre>
+	<demo-doc id="hyper-form">
+		<demo-books-add slot="code"></demo-books-add>
+		<hyper-status for="addBook" slot="extra">
+			<span slot="loading" style="display: none;">adding book...</span>
+			<span slot="success" style="display: none;">book added!</span>
+			<span slot="error" style="display: none;">error adding book!</span>
+		</hyper-status>
+	</demo-doc>
 
 	<h2><a name="hyper-status"><code>&lt;hyper-status&gt;</code></a></h2>
 	<p>
@@ -95,15 +100,9 @@
 		first.
 	</p>
 
-	<h3>example</h3>
-	<pre><code>&lt;hyper-link id="deleteAuthor" method="DELETE"&gt;
-	&lt;a href="/authors/2?method=DELETE"&gt;delete author&lt;/a&gt;
-&lt;/hyper-link&gt;
-&lt;hyper-status for="deleteAuthor"&gt;
-	&lt;span slot="loading" style="display: none;"&gt;deleting author...&lt;/span&gt;
-	&lt;span slot="success" style="display: none;"&gt;author deleted!&lt;/span&gt;
-	&lt;span slot="error" style="display: none;"&gt;error deleting author!&lt;/span&gt;
-&lt;/hyper-status&gt;</code></pre>
+	<demo-doc id="hyper-status">
+		<demo-books-edit slot="code"></demo-books-edit>
+	</demo-doc>
 
 	<h2><a name="hyper-fetch"><code>&lt;hyper-fetch&gt;</code></a></h2>
 	<p>

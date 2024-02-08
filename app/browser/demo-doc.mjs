@@ -8,15 +8,7 @@ class DemoDoc extends HTMLElement {
 		const demonstrationSelector = `#${id}-demonstration [slot=code]`;
 		const example = document.getElementById(exampleId);
 		const demonstration = document.querySelector(demonstrationSelector);
-		const lines = demonstration.innerHTML.split('\n');
-		const normalizedHtml = lines
-			.map((line) => {
-				// remove the first two tabs
-				return line.replace(/^\t{2}/, '');
-			})
-			.join('\n')
-			.trim();
-		example.textContent = normalizedHtml;
+		example.textContent = demonstration.innerHTML;
 	}
 }
 
