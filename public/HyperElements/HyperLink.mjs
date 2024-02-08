@@ -29,23 +29,27 @@ export class HyperLink extends HyperFetch {
 	}
 
 	/**
-	 * @param {Event} event
+	 * @param {import('./types').FetchMouseEvent} event
 	 */
 	async handleEvent(event) {
 		const { id, url, method } = this;
-		const isClick = event.type === 'click';
+		const isClick = event.type != 'click';
+
+		// only prefetch GET requests, other methods could be destructive
+		const isPrefetch = !isClick && method == 'GET';
+
+		// prevent the default page navigation
 		if (isClick) {
 			event.preventDefault();
 		}
 
-		// fetch onclick or prefetch on mouseover but only if the method is GET
-		if (isClick || (!isClick && method === 'GET')) {
+		if (isClick || isPrefetch) {
 			const details = { id, url, method, isClick };
 			try {
-				await this.fetch(url, {}, !isClick);
+				await this.fetch(url, {}, isPrefetch);
 				// console.debug(`✅ HyperLink ${isPrefetch ? 'Prefetch' : 'Fetch'} successful`, details);
-			} catch ({ message }) {
-				console.error(message, details);
+			} catch ({ message, cause }) {
+				console.error(message, details, cause);
 			}
 		}
 	}

@@ -21,3 +21,7 @@ export type FetchDetails = {
 	status: ?number;
 	url: URL;
 };
+
+export interface FetchMouseEvent extends MouseEvent {
+	type: 'click' | 'mouseover';
+}
