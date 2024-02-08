@@ -32,22 +32,26 @@ export class HyperLink extends HyperFetch {
 	 * @param {import('./types').FetchMouseEvent} event
 	 */
 	async handleEvent(event) {
+		const { type, preventDefault } = event;
 		const { id, url, method } = this;
-		const isClick = event.type != 'click';
+		const isClick = type != 'click';
 
 		// only prefetch GET requests, other methods could be destructive
-		const isPrefetch = event.type == 'mouseover' && method == 'GET';
+		const isPrefetch = type == 'mouseover' && method == 'GET';
 
 		// prevent the default page navigation
 		if (isClick) {
-			event.preventDefault();
+			preventDefault();
 		}
 
 		if (isClick || isPrefetch) {
 			const details = { id, url, method, isClick };
 			try {
 				await this.fetch(url, {}, isPrefetch);
-				// console.debug(`✅ HyperLink ${isPrefetch ? 'Prefetch' : 'Fetch'} successful`, details);
+				console.debug(
+					`✅ HyperLink ${isPrefetch ? 'Prefetch' : 'Fetch'} successful`,
+					details,
+				);
 			} catch ({ message, cause }) {
 				console.error(message, details, cause);
 			}
