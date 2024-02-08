@@ -20,7 +20,7 @@ export class HyperFetch extends HTMLElement {
 
 	/** CustomEvent factory
 	 * @param {string} name
-	 * @param {import('../../types').FetchDetails} detail
+	 * @param {import('./types').FetchDetails} detail
 	 */
 	createEvent(name, detail = {}) {
 		return new CustomEvent(name, {
@@ -41,7 +41,7 @@ export class HyperFetch extends HTMLElement {
 	 * @event hyper-fetch-end - Triggered when the fetch operation is completed.
 	 */
 	async fetch(url, options, isPrefetch = false) {
-		/** @type {import('../../types').FetchDetails} */
+		/** @type {import('./types').FetchDetails} */
 		const args = { id: this.id, isPrefetch, options, url };
 
 		// console.debug('🌐 HXFetch initiating fetch', args);
@@ -58,7 +58,7 @@ export class HyperFetch extends HTMLElement {
 					const data = contentType.includes('application/json')
 						? await response.json()
 						: await response.text();
-					/** @type {import('../../types').FetchDetails} */
+					/** @type {import('./types').FetchDetails} */
 					const details = { ...args, contentType, data, response, status };
 					// console.debug('✅ HXFetch fetch success', details);
 					this.dispatchEvent(
@@ -68,7 +68,7 @@ export class HyperFetch extends HTMLElement {
 					throw new Error(`❌ HXFetch fetch error`, { cause: response });
 				}
 			} catch ({ message, cause }) {
-				/** @type {import('../../types').FetchDetails} */
+				/** @type {import('./types').FetchDetails} */
 				const details = { ...args, error: message };
 				console.error(message, details);
 				this.dispatchEvent(this.createEvent(`hyper-fetch-error${eventSuffix}`, details));

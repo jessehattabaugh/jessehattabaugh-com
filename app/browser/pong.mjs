@@ -1,5 +1,5 @@
 import enhance from '@enhance/element';
-import render from '../elements/jh-pong.mjs';
+import render from '../elements/jh/pong.mjs';
 
 /** @type {HTMLDivElement}} */
 let theBall;

@@ -23,7 +23,7 @@ export class HyperUpdate extends HyperStatus {
 	}
 
 	/**
-	 * @param {CustomEvent<import('../../types').FetchDetails>} event
+	 * @param {CustomEvent<import('./types').FetchDetails>} event
 	 */
 	async update(event) {
 		try {
