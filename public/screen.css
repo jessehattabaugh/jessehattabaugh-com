@@ -59,9 +59,16 @@ li {
 }
 
 pre {
-	margin: var(--unit);
+	background-color: rgba(0, 0, 0, 0.5);
+	border-radius: var(--unit-half);
+	border: 1px inset var(--color-one);
 }
 
+blockquote {
+	background-color: rgba(255, 255, 255, 0.5);
+	border-radius: var(--unit-half);
+	border: 1px outset var(--color);
+}
 
 
 @keyframes blink {
