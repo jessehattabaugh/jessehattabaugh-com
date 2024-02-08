@@ -77,7 +77,7 @@ export class HyperFetch extends HTMLElement {
 				this.dispatchEvent(this.createEvent(`hyper-fetch-end${eventSuffix}`, args));
 			}
 		} else {
-			throw new Error('❓ No URL specified for fetch operation');
+			throw new Error('❓ No URL specified for fetch operation', args);
 		}
 	}
 }
