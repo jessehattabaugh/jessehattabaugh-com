@@ -1,13 +1,13 @@
 {
 	"recommendations": [
-		"architect.architect",
 		"amatiasq.sort-imports",
-		"esbenp.prettier-vscode",
+		"architect.architect",
 		"christian-kohler.npm-intellisense",
 		"dbaeumer.vscode-eslint",
-		"tobermory.es6-string-html",
 		"editorconfig.editorconfig",
+		"esbenp.prettier-vscode",
 		"mikestead.dotenv",
-		"ms-playwright.playwright"
+		"ms-playwright.playwright",
+		"tobermory.es6-string-html"
 	]
 }

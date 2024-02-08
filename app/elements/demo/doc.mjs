@@ -9,6 +9,7 @@ export default function ({ html, state }) {
 			<h3>demonstration</h3>
 			<blockquote id="${id}-demonstration">
 				<slot name="code"></slot>
+				<slot name="extra"></slot>
 			</blockquote>
 		</div>`;
 }

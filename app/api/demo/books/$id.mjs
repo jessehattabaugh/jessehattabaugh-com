@@ -3,7 +3,7 @@ function testResponse(request) {
 	// get the mock value from the request body if the request is a POST, otherwise from the request params
 	const { method, body, query } = request;
 	const { mock } = method === 'POST' ? body : query;
-	// console.debug('🤡 /api/test testResponse', { mock, method, body, query });
+	console.debug('📗 /demo/book/$id testResponse', { mock, method, body, query });
 	if (mock === 'error') {
 		return { json: { error: 'mock error' }, status: 500 };
 	} else {
@@ -23,7 +23,7 @@ export async function get(request) {
  * @type {import('@enhance/types').EnhanceApiFn}
  */
 export async function put(request) {
-	// console.debug('📤 /api/test PUT request');
+	console.debug('📤 /demo/books/$id PUT request');
 	return testResponse(request);
 }
 
@@ -31,7 +31,7 @@ export async function put(request) {
  * @type {import('@enhance/types').EnhanceApiFn}
  */
 export async function destroy(request) {
-	// console.debug('🗑 /api/test DELETE request');
+	console.debug('🗑 /demo/books/$id DELETE request');
 	return testResponse(request);
 }
 
