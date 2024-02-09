@@ -27,7 +27,7 @@ export class HyperUpdate extends HyperStatus {
 	 */
 	async update(event) {
 		try {
-			const { id , select} = this;
+			const { id, select } = this;
 			const { detail } = event;
 			const { data, url } = detail;
 
@@ -37,7 +37,7 @@ export class HyperUpdate extends HyperStatus {
 			const newContent = doc.querySelector(select);
 
 			const cause = { data, doc, id, select, url };
-			console.debug('🔄 HyperContent update', cause, detail);
+			//console.debug('🔄 HyperUpdate update', cause, detail);
 
 			if (newContent) {
 				switch (this.how) {
@@ -76,8 +76,8 @@ export class HyperUpdate extends HyperStatus {
 				await document.documentTransition.prepare();
 				updateContent();
 				await document.documentTransition.start();
-			} catch (error) {
-				throw new Error('👹 HyperUpdate: Error transitioning view', error);
+			} catch (cause) {
+				throw new Error('👹 HyperUpdate: Error transitioning view', { cause });
 			}
 		} else {
 			// View Transitions API is not supported so update the content directly
