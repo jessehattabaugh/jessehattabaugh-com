@@ -11,7 +11,7 @@ export class HyperForm extends HyperFetch {
 		this.form = this.querySelector('form');
 		if (this.form) {
 			this.url = new URL(this.form.getAttribute('action'), document.baseURI);
-			console.debug('📝 Form found', this.url);
+			//console.debug('📝 HyperForm found', this.url);
 			this.form.addEventListener('submit', this.handleEvent);
 		}
 	}
