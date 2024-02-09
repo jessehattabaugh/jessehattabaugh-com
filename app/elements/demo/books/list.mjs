@@ -10,9 +10,10 @@ export default function ({ html, state }) {
 	<ul>
 		${books
 			.map((book) => {
-				return html`<li>${book}</li>`;
+				return html`<li>${book}</li>
+		`;
 			})
-			.join('')}
+			.join('').trim()}
 	</ul>
 	<hyper-link id="${page ? 'prevBooks' : 'nextBooks'}">
 		<a href="/demo/books?page=${parseInt(page) ? 0 : 1}"

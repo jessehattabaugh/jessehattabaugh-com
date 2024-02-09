@@ -1,34 +1,25 @@
+import {HyperTarget} from './HyperTarget.mjs';
+
 /**
- * HyperStatus custom element to show status indicators for fetch operations.
+ * custom element to show status indicators for fetch operations.
  */
-export class HyperStatus extends HTMLElement {
+export class HyperStatus extends HyperTarget {
 	constructor() {
 		super();
-		this.toggleStatusSlots = this.toggleStatusSlots.bind(this);
-		// console.debug('🛠️ HyperStatus constructed');
 	}
 
 	connectedCallback() {
-		this.for = (this.getAttribute('for') || '').split(',').map((id) => {
-			return id.trim();
-		});
-		document.addEventListener('hyper-fetch-start', this.toggleStatusSlots);
-		document.addEventListener('hyper-fetch-success', this.toggleStatusSlots);
-		document.addEventListener('hyper-fetch-error', this.toggleStatusSlots);
-		//console.debug('🔗 HyperStatus event listeners added', { for: this.for });
+		super.connectedCallback();
 	}
 
 	disconnectedCallback() {
-		document.removeEventListener('hyper-fetch-start', this.toggleStatusSlots);
-		document.removeEventListener('hyper-fetch-success', this.toggleStatusSlots);
-		document.removeEventListener('hyper-fetch-error', this.toggleStatusSlots);
-		//console.debug('🧹 HyperStatus event listeners removed', {});
+		super.disconnectedCallback();
 	}
 
 	/** Toggles slot visibility based on the event type and the id of the fetch operation.
 	 * @param {CustomEvent<import('../../../types').FetchDetails>} event - The event triggered on fetch start, success, or error.
 	 */
-	toggleStatusSlots(event) {
+	handleFetchEvent(event) {
 		const { id } = event.detail;
 		if (this.for.includes(id)) {
 			// get the type of event
