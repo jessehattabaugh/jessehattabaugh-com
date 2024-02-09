@@ -1,63 +1,57 @@
-import { HyperStatus } from './HyperStatus.mjs';
+import { HyperTarget } from './HyperTarget.mjs';
 /**
  * A custom element that updates it's content based on the response of a fetch operation.
  */
-export class HyperUpdate extends HyperStatus {
+export class HyperUpdate extends HyperTarget {
 	constructor() {
 		super();
-		this.update = this.update.bind(this);
 	}
 
 	connectedCallback() {
 		super.connectedCallback();
 		this.id = this.getAttribute('id');
-		this.record = this.getAttribute('record') || true;
-		this.how = this.getAttribute('how') || 'replace';
+
+		// the selector to update when fetch is recieved
 		this.select = this.getAttribute('select') || `#${this.id}`;
-		this.addEventListener('hyper-fetch-success', this.update);
 	}
 
 	disconnectedCallback() {
-		this.removeEventListener('hyper-fetch-success', this.update);
 		super.disconnectedCallback();
 	}
 
 	/**
 	 * @param {CustomEvent<import('./types').FetchDetails>} event
 	 */
-	async update(event) {
+	async handleFetchEvent(event) {
+		const { type, detail } = event;
+		if (type === 'hyper-fetch-success') {
+			await this.update(detail);
+			/** @todo push state to the History API and update the url */
+		}
+	}
+
+	/**
+	 * @param {import('./types').FetchDetails} event
+	 */
+	async update(detail) {
 		try {
 			const { id, select } = this;
-			const { detail } = event;
 			const { data, url } = detail;
 
-			// Parse the response and update the content
+			// parse the data and select the content to update
 			const parser = new DOMParser();
 			const doc = parser.parseFromString(data, 'text/html');
+			/** @todo handle JSON responses somehow */
 			const newContent = doc.querySelector(select);
 
 			const cause = { data, doc, id, select, url };
-			//console.debug('🔄 HyperUpdate update', cause, detail);
 
 			if (newContent) {
-				switch (this.how) {
-					case 'append':
-						await this.transitionView(() => {
-							return this.appendChild(newContent);
-						});
-						break;
-					case 'prepend':
-						await this.transitionView(() => {
-							this.insertBefore(newContent, this.firstChild);
-						});
-						break;
-					case 'replace':
-					default:
-						await this.transitionView(() => {
-							this.innerHTML = newContent.innerHTML;
-						});
-						break;
-				}
+				await this.transitionView(() => {
+					this.innerHTML = newContent.innerHTML;
+				});
+				console.debug('🔄 HyperUpdate update', cause, detail);
+				/** @todo allow content to be appended and prepended */
 			} else {
 				throw new Error('🤬 HyperUpdate: no content matches the selector.', { cause });
 			}
@@ -71,17 +65,13 @@ export class HyperUpdate extends HyperStatus {
 	 * @param {function} updateContent - A function that updates the content of the element.
 	 */
 	async transitionView(updateContent) {
-		try {
-			if ('startViewTransition' in document) {
-				document.startViewTransition(updateContent);
-				console.debug('🦜 HyperUpdate: View transition complete');
-			} else {
-				// View Transitions API is not supported so update the content directly
-				updateContent();
-				console.warn('🦆 HyperUpdate: content updated without View Transition');
-			}
-		} catch (cause) {
-			throw new Error('👹 HyperUpdate: Error transitioning view', { cause });
+		if ('startViewTransition' in document) {
+			document.startViewTransition(updateContent);
+			console.debug('🦜 HyperUpdate: View transition complete');
+		} else {
+			// View Transitions API is not supported so update the content directly
+			updateContent();
+			console.warn('🦆 HyperUpdate: content updated without View Transition');
 		}
 	}
 }
