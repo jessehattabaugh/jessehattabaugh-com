@@ -1,6 +1,5 @@
 /** @type {import('@enhance/types').EnhanceElemFn} */
 export default function ({ html }) {
-	// prettier-ignore
 	return html`<hyper-status for="editBook">
 	<span slot="loading" style="display: none;">updating book...</span>
 	<span slot="success" style="display: none;">book updated!</span>

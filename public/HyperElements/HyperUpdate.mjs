@@ -14,11 +14,11 @@ export class HyperUpdate extends HyperStatus {
 		this.record = this.getAttribute('record') || true;
 		this.how = this.getAttribute('how') || 'replace';
 		this.select = this.getAttribute('select') || `#${this.id}`;
-		this.addEventListener('hyper-fetch-end', this.update);
+		this.addEventListener('hyper-fetch-success', this.update);
 	}
 
 	disconnectedCallback() {
-		this.removeEventListener('hyper-fetch-end', this.update);
+		this.removeEventListener('hyper-fetch-success', this.update);
 		super.disconnectedCallback();
 	}
 
@@ -27,17 +27,17 @@ export class HyperUpdate extends HyperStatus {
 	 */
 	async update(event) {
 		try {
+			const { id , select} = this;
 			const { detail } = event;
 			const { data, url } = detail;
-			const { select } = this.select;
 
 			// Parse the response and update the content
 			const parser = new DOMParser();
 			const doc = parser.parseFromString(data, 'text/html');
 			const newContent = doc.querySelector(select);
 
-			const cause = { data, doc, select, url };
-			console.debug('🔄 HyperContent update', cause);
+			const cause = { data, doc, id, select, url };
+			console.debug('🔄 HyperContent update', cause, detail);
 
 			if (newContent) {
 				switch (this.how) {
