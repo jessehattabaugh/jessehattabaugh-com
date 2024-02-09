@@ -154,6 +154,10 @@ customElements.define('my-element', MyElement);
 
 	<demo-doc id="hyper-update">
 		<demo-books-list slot="code"></demo-books-list>
+		<hyper-status for="nextBooks, prevBooks" slot="extra">
+			<div slot="loading" style="display: none;">loading books...</div>
+			<div slot="error" style="display: none;">error loading books</div>
+		</hyper-status>
 	</demo-doc>
 </main>
 <jh-footer></jh-footer>

@@ -66,22 +66,22 @@ export class HyperUpdate extends HyperStatus {
 		}
 	}
 
-	/**
+	/** updates the content of the element with a View Transition if available
+	 * @see https://developer.mozilla.org/en-US/docs/Web/API/View_Transitions_API
 	 * @param {function} updateContent - A function that updates the content of the element.
 	 */
 	async transitionView(updateContent) {
-		// Use the View Transitions API if available
-		if ('documentTransition' in document) {
-			try {
-				await document.documentTransition.prepare();
+		try {
+			if ('startViewTransition' in document) {
+				document.startViewTransition(updateContent);
+				console.debug('🦜 HyperUpdate: View transition complete');
+			} else {
+				// View Transitions API is not supported so update the content directly
 				updateContent();
-				await document.documentTransition.start();
-			} catch (cause) {
-				throw new Error('👹 HyperUpdate: Error transitioning view', { cause });
+				console.warn('🦆 HyperUpdate: content updated without View Transition');
 			}
-		} else {
-			// View Transitions API is not supported so update the content directly
-			updateContent();
+		} catch (cause) {
+			throw new Error('👹 HyperUpdate: Error transitioning view', { cause });
 		}
 	}
 }
