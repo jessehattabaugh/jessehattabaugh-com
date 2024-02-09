@@ -60,7 +60,7 @@ export class HyperFetch extends HTMLElement {
 						: await response.text();
 					/** @type {import('./types').FetchDetails} */
 					const details = { ...args, contentType, data, response, status };
-					// console.debug('✅ HXFetch fetch success', details);
+					console.debug('🐶 HXFetch fetch success', details);
 					this.dispatchEvent(
 						this.createEvent(`hyper-fetch-success${eventSuffix}`, details),
 					);

@@ -3,7 +3,7 @@ export default function Head(state) {
 	const { req } = state;
 	const { path } = req;
 
-	return `<!DOCTYPE html>
+	return /*html*/ `<!DOCTYPE html>
 		<html lang="en">
 			<head>
 				<meta charset="utf-8" />
