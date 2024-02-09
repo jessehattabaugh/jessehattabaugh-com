@@ -62,7 +62,7 @@
 
 	<demo-doc id="hyper-link">
 		<demo-books-delete slot="code"></demo-books-delete>
-		<hyper-status for="deleteBook" slot="extra">
+		<hyper-status from="deleteBook" slot="extra">
 			<span slot="loading" style="display: none;">deleting book...</span>
 			<span slot="success" style="display: none;">book deleted!</span>
 			<span slot="error" style="display: none;">error deleting book!</span>
@@ -72,9 +72,9 @@
 	<h2><a name="hyper-form"><code>&lt;hyper-form&gt;</code></a></h2>
 	<p>
 		The <code>&lt;hyper-form&gt;</code> element enhances &lt;form&gt; elements to send fetch requests. The
-		<code>method</code> attribute specifies the HTTP method to use. You are expected to nest a &lt;form&gt; element
+		<code>method</code> attribute specifies the HTTP method to use. You are expected to nest a <code>&lt;form&gt;</form> element
 		that has an <code>action</code> attribute. The <code>&lt;hyper-form&gt;</code> element will intercept the submit
-		event and send a fetch request using the method specified in the <code>method</code> attribute. The &lt;form&gt;
+		event and send a fetch request using the method specified in the <code>method</code> attribute. The <code>&lt;form&gt;</code>
 		can also have a <code>method</code> attribute, but it will be ignored. Note that if JavaScript is disabled,
 		submitting the form will perform a GET like normal. So, you may want to use a hidden input and handle that on
 		the server.
@@ -82,7 +82,7 @@
 
 	<demo-doc id="hyper-form">
 		<demo-books-add slot="code"></demo-books-add>
-		<hyper-status for="addBook" slot="extra">
+		<hyper-status from="addBook" slot="extra">
 			<span slot="loading" style="display: none;">adding book...</span>
 			<span slot="success" style="display: none;">book added!</span>
 			<span slot="error" style="display: none;">error adding book!</span>
@@ -92,7 +92,7 @@
 	<h2><a name="hyper-status"><code>&lt;hyper-status&gt;</code></a></h2>
 	<p>
 		The <code>&lt;hyper-status&gt;</code> element displays the loading, success, and error states of fetch
-		requests. You must include the <code>for</code> attribute and set it to the <code>id</code> of the element you
+		requests. You must include the <code>from</code> attribute and set it to the <code>id</code> of the element you
 		want to monitor. This can be a comma separated list of ids. To display the status, you can nest elements with
 		the <code>slot</code> attribute set to <code>loading</code>, <code>success</code>, or <code>error</code>. If
 		you don't include these elements, nothing will be displayed. Note that the slot elements will have their CSS
@@ -142,7 +142,7 @@ customElements.define('my-element', MyElement);
 	<h2><a name="hyper-update"><code>&lt;hyper-update&gt;</code></a></h2>
 	<p>
 		The <code>&lt;hyper-update&gt;</code> element provides a way to update the content of an element with the
-		response from a fetch request. The <code>for</code> attribute specifies the <code>id</code> of the
+		response from a fetch request. The <code>from</code> attribute specifies the <code>id</code> of the
 		<code>&lt;hyper-fetch&gt;</code> element to monitor. The <code>selector</code> attribute specifies the CSS
 		selector to use to find the element to update. The default is the <code>id</code> of the
 		<code>&lt;hyper-update&gt;</code> element.
@@ -150,7 +150,7 @@ customElements.define('my-element', MyElement);
 
 	<demo-doc id="hyper-update">
 		<demo-books-list slot="code"></demo-books-list>
-		<hyper-status for="nextBooks, prevBooks" slot="extra">
+		<hyper-status from="nextBooks, prevBooks" slot="extra">
 			<div slot="loading" style="display: none;">loading books...</div>
 			<div slot="error" style="display: none;">error loading books</div>
 		</hyper-status>

@@ -5,7 +5,7 @@ export default function ({ html, state }) {
 	// when this element is rendered by the docs page the store will not have books
 	const { books = ['Old Man and the Sea', 'Grapes of Wrath', 'Brave New World'], page } = store;
 	console.debug('📚 /demo/books/list.mjs', { books, page });
-	return html`<hyper-update id="bookList" for="nextBooks, prevBooks">
+	return html`<hyper-update id="bookList" from="nextBooks, prevBooks">
 	<ul>
 		${books
 			.map((book) => {
@@ -15,9 +15,7 @@ export default function ({ html, state }) {
 			.join('').trim()}
 	</ul>
 	<hyper-link id="${page ? 'prevBooks' : 'nextBooks'}">
-		<a href="/demo/books?page=${parseInt(page) ? 0 : 1}"
-			>${parseInt(page) ? 'Prev' : 'Next'}</a
-		>
+		<a href="/demo/books?page=${parseInt(page) ? 0 : 1}">${parseInt(page) ? 'Prev' : 'Next'}</a>
 	</hyper-link>
 </hyper-update>
 `;
