@@ -6,7 +6,6 @@ export default function ({ html, state }) {
 	const { books = ['Old Man and the Sea', 'Grapes of Wrath', 'Brave New World'], page } = store;
 	console.debug('📚 /demo/books/list.mjs', { books, page });
 	return html`<hyper-update id="bookList" for="nextBooks, prevBooks">
-
 	<ul>
 		${books
 			.map((book) => {
