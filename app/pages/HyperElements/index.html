@@ -18,17 +18,13 @@
 		<dd>
 			enhances &lt;form&gt; elements to send fetch requests
 		</dd>
-		<dt><a href="#hyper-update"><code>&lt;hyper-update&gt;</code></a></dt>
-		<dd>
-			update its with content with the response from a fetch request
-		</dd>
 		<dt><a href="#hyper-status"><code>&lt;hyper-status&gt;</code></a></dt>
 		<dd>
 			displays the loading, success, and error states of fetch requests
 		</dd>
-		<dt><a href="#hyper-fetch"><code>&lt;hyper-fetch&gt;</code></a></dt>
+		<dt><a href="#hyper-update"><code>&lt;hyper-update&gt;</code></a></dt>
 		<dd>
-			provides a fetch capabilitiy to forms and links
+			update its with content with the response from a fetch request
 		</dd>
 	</dl>
 
@@ -103,41 +99,6 @@
 	<demo-doc id="hyper-status">
 		<demo-books-edit slot="code"></demo-books-edit>
 	</demo-doc>
-
-	<h2><a name="hyper-fetch"><code>&lt;hyper-fetch&gt;</code></a></h2>
-	<p>
-		The <code>&lt;hyper-fetch&gt;</code> element provides a fetch capability to forms and links. It is the base
-		element that the other elements extend. You can use it to create your own custom elements that send fetch
-		requests. The <code>method</code> attribute specifies the HTTP method to use. The <code>id</code> attribute is
-		added to events dispatched by the element.
-	</p>
-
-	<h3>example</h3>
-	<pre><code>import { HyperFetch } from 'https://jessehattabaugh.com/_public/HyperElements/HyperFetch.mjs';
-
-class MyElement extends HyperFetch {
-	constructor() {
-		super();
-		this.method='POST';
-		this.url='http://some.url';
-		this.handleClick = this.handleClick.bind(this);
-	}
-	connectedCallback() {
-		this.addEventListener('click', this.handleClick);
-	}
-	async handleClick() {
-		const data = this.fetch(this.url);
-		console.log(data);
-	}
-}
-customElements.define('my-element', MyElement);
-	</code></pre>
-
-	<p>
-		You can then use the <code>&lt;my-element&gt;</code> element in your HTML like this:
-	</p>
-
-	<pre><code>&lt;my-element&gt;click me&lt;/my-element&gt;</code></pre>
 
 	<h2><a name="hyper-update"><code>&lt;hyper-update&gt;</code></a></h2>
 	<p>
