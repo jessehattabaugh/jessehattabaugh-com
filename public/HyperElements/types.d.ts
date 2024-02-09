@@ -11,6 +11,7 @@ declare global {
 }
 
 export type FetchDetails = {
+	cached: ?boolean;
 	contentType: ?string;
 	data: ?(string | any);
 	error: ?string;

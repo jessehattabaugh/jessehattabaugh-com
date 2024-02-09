@@ -50,10 +50,7 @@ export class HyperLink extends HyperFetch {
 				// @todo prevent duplicate fetches
 				// @todo don't prefetch a second time
 				await this.fetch(url, {}, isPrefetch);
-				console.debug(
-					`✅ HyperLink ${isPrefetch ? 'Prefetch' : 'Fetch'} successful`,
-					details,
-				);
+				// console.debug( `✅ HyperLink ${isPrefetch ? 'Prefetch' : 'Fetch'} successful`, details, );
 			} catch ({ message, cause }) {
 				console.error(message, details, cause);
 			}

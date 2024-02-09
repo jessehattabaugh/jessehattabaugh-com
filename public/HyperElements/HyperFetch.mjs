@@ -2,6 +2,9 @@
  * Base class for handling fetch operations with custom elements.
  */
 export class HyperFetch extends HTMLElement {
+	/** @type {Map<string, import('./types').FetchDetails} */
+	static fetchCache = new Map();
+
 	constructor() {
 		super();
 		this.fetch = this.fetch.bind(this);
@@ -47,30 +50,44 @@ export class HyperFetch extends HTMLElement {
 		// console.debug('🌐 HXFetch initiating fetch', args);
 		const { signal } = this.controller;
 		const eventSuffix = isPrefetch ? '-prefetch' : '';
+
+		this.dispatchEvent(this.createEvent(`hyper-fetch-start${eventSuffix}`, args));
 		if (url) {
-			this.dispatchEvent(this.createEvent(`hyper-fetch-start${eventSuffix}`, args));
 			try {
-				const response = await fetch(url, { ...options, signal, method: this.method });
-				const { ok, status } = response;
-				if (ok) {
-					// Check the content type to handle the response appropriately
-					const contentType = response.headers.get('Content-Type');
-					const data = contentType.includes('application/json')
-						? await response.json()
-						: await response.text();
-					/** @type {import('./types').FetchDetails} */
-					const details = { ...args, contentType, data, response, status };
-					console.debug('🐶 HXFetch fetch success', details);
+				const cached = HyperFetch.fetchCache.get(url.toString());
+				if (cached) {
 					this.dispatchEvent(
-						this.createEvent(`hyper-fetch-success${eventSuffix}`, details),
+						this.createEvent(`hyper-fetch-success${eventSuffix}`, cached),
 					);
+					console.debug('💰 HXFetch cache fetch success', cached);
 				} else {
-					throw new Error(`❌ HXFetch fetch error`, { cause: response });
+					const response = await fetch(url, { ...options, signal, method: this.method });
+					const { ok, status } = response;
+					if (ok) {
+						// Check the content type to handle the response appropriately
+						const contentType = response.headers.get('Content-Type');
+						const data = contentType.includes('application/json')
+							? await response.json()
+							: await response.text();
+
+						/** @type {import('./types').FetchDetails} */
+						const details = { ...args, contentType, data, response, status };
+						this.dispatchEvent(
+							this.createEvent(`hyper-fetch-success${eventSuffix}`, details),
+						);
+
+						details.cached = true;
+						HyperFetch.fetchCache.set(url.toString(), details);
+
+						console.debug('🐶 HXFetch network fetch success', details);
+					} else {
+						throw new Error(`❌ HXFetch fetch error`, { cause: response });
+					}
 				}
-			} catch ({ message, cause }) {
+			} catch (error) {
 				/** @type {import('./types').FetchDetails} */
-				const details = { ...args, error: message };
-				console.error(message, details);
+				const details = { ...args, error };
+				console.error(error.message, details);
 				this.dispatchEvent(this.createEvent(`hyper-fetch-error${eventSuffix}`, details));
 			} finally {
 				// console.debug('🔄 HXFetch fetch completed', { ...args });
