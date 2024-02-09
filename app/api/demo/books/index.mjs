@@ -1,11 +1,17 @@
 /**  @param {import("@enhance/types").EnhanceApiReq} request */
-function testResponse(request) {
+async function testResponse(request) {
 	const pages = [
 		['Old Man and the Sea', 'Grapes of Wrath', 'Brave New World'],
 		['The Handmaids Tale', 'Walden', 'Great Expectations'],
 	];
 	const { method, body, query } = request;
 	const { mock, page } = method === 'POST' ? body : query;
+
+	// wait two seconds to simulate a slow response
+	await new Promise((resolve) => {
+		setTimeout(resolve, 2000);
+	});
+
 	console.debug('📕 /demo/books testResponse', { body, mock, method, page, query });
 	if (mock === 'error') {
 		return { json: { error: 'mock error' }, status: 500 };

@@ -23,11 +23,13 @@ export class HyperUpdate extends HyperTarget {
 	 * @param {CustomEvent<import('./types').FetchDetails>} event
 	 */
 	async handleFetchEvent(event) {
-		const { type, detail } = event;
-		if (type === 'hyper-fetch-success') {
-			await this.update(detail);
-			/** @todo push state to the History API and update the url */
-		}
+		super.handleFetchEvent(event, async () => {
+			const { type, detail } = event;
+			if (type === 'hyper-fetch-success') {
+				await this.update(detail);
+				/** @todo push state to the History API and update the url */
+			}
+		});
 	}
 
 	/**
