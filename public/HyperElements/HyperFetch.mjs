@@ -38,7 +38,7 @@ export class HyperFetch extends HTMLElement {
 	 * @param {URL} url
 	 * @param {RequestInit} [options]
 	 * @param {boolean} [isPrefetch] - Indicates if the fetch is a prefetch.
-	 * @event hyper-fetch-start - Triggered when the fetch operation is initiated.
+	 * @event hyper-fetch-loading - Triggered when the fetch operation is initiated.
 	 * @event hyper-fetch-success - Triggered when the fetch operation is successful.
 	 * @event hyper-fetch-error - Triggered when the fetch operation fails.
 	 * @event hyper-fetch-end - Triggered when the fetch operation is completed.
@@ -51,7 +51,7 @@ export class HyperFetch extends HTMLElement {
 		const { signal } = this.controller;
 		const eventSuffix = isPrefetch ? '-prefetch' : '';
 
-		this.dispatchEvent(this.createEvent(`hyper-fetch-start${eventSuffix}`, args));
+		this.dispatchEvent(this.createEvent(`hyper-fetch-loading${eventSuffix}`, args));
 		if (url) {
 			try {
 				const cached = HyperFetch.fetchCache.get(url.toString());
@@ -59,7 +59,7 @@ export class HyperFetch extends HTMLElement {
 					this.dispatchEvent(
 						this.createEvent(`hyper-fetch-success${eventSuffix}`, cached),
 					);
-					//console.debug('💰 HXFetch cache fetch success', cached);
+					console.debug('💰 HXFetch cache fetch success', cached);
 				} else {
 					const response = await fetch(url, { ...options, signal, method: this.method });
 					const { ok, status } = response;
@@ -79,7 +79,7 @@ export class HyperFetch extends HTMLElement {
 						details.cached = true;
 						HyperFetch.fetchCache.set(url.toString(), details);
 
-						//console.debug('🐶 HXFetch network fetch success', details);
+						console.debug('🐶 HXFetch network fetch success', details);
 					} else {
 						throw new Error(`❌ HXFetch fetch error`, { cause: response });
 					}

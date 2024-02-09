@@ -1,9 +1,16 @@
 /**  @param {import("@enhance/types").EnhanceApiReq} request */
-function testResponse(request) {
+async function testResponse(request) {
 	// get the mock value from the request body if the request is a POST, otherwise from the request params
 	const { method, body, query } = request;
 	const { mock } = method === 'POST' ? body : query;
+
+	// wait two seconds to simulate a slow response
+	await new Promise((resolve) => {
+		setTimeout(resolve, 2000);
+	});
+
 	console.debug('📗 /demo/book/$id testResponse', { mock, method, body, query });
+
 	if (mock === 'error') {
 		return { json: { error: 'mock error' }, status: 500 };
 	} else {
