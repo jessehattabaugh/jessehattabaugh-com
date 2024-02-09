@@ -1,13 +1,16 @@
 /**  @param {import("@enhance/types").EnhanceApiReq} request */
 function testResponse(request) {
-	// get the mock value from the request body if the request is a POST, otherwise from the request params
+	const pages = [
+		['Old Man and the Sea', 'Grapes of Wrath', 'Brave New World'],
+		['The Handmaids Tale', 'Walden', 'Great Expectations'],
+	];
 	const { method, body, query } = request;
-	const { mock } = method === 'POST' ? body : query;
-	console.debug('📕 /demo/books testResponse', { mock, method, body, query });
+	const { mock, page } = method === 'POST' ? body : query;
+	console.debug('📕 /demo/books testResponse', { body, mock, method, page, query });
 	if (mock === 'error') {
 		return { json: { error: 'mock error' }, status: 500 };
 	} else {
-		return { json: { success: true } };
+		return { json: { books: pages[page], page, success: true } };
 	}
 }
 
