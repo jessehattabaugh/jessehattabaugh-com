@@ -1,7 +1,8 @@
 /* what it looks like on paper */
-:root {
-	--mourners: 3; /* widows and orphans */
+html {
+	--mourners: 3; /* widows and orphans, get it? */
 }
+
 h1,
 h2,
 h3,
@@ -10,10 +11,12 @@ h5,
 h6 {
 	page-break-after: avoid;
 }
+
 p {
 	orphans: var(--mourners);
-	widows:  var(--mourners);
+	widows: var(--mourners);
 }
+
 .no-print {
 	display: none;
 }
