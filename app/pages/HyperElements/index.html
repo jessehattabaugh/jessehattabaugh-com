@@ -18,12 +18,11 @@
 		non-standard attributes or hijacking DOM elements all over the page. This approach ensures better accessibility,
 		graceful degradation, and broad compatibility with various frontend frameworks.</p>
 
-	<p>By adhering to <a href="https://en.wikipedia.org/wiki/Law_of_Demeter">the Law of Demeter</a> for minimal
-		coupling, HyperElements avoids direct DOM manipulation, favoring event-based communication. This design choice
-		promotes predictability and simplicity in development, making HyperElements a strategic choice for developers
-		seeking to extend HTML functionality with a focus on accessibility and modular architecture.</p>
-
-
+	<p>Another advantage of HyperElements is that they adhere to <a
+			href="https://en.wikipedia.org/wiki/Law_of_Demeter">the principle of least knowledge</a> by not
+		manipulating external DOM, and favoring event-based communication, for minimal coupling. This design choice
+		promotes predictability and simplicity in development, making HyperElements a good choice for large projects
+		with many developers.</p>
 
 	<h2>Getting Started</h2>
 	<p>
@@ -96,7 +95,8 @@
 	<h2><a name="hyper-form"><code>&lt;hyper-form&gt;</code></a></h2>
 	<p>
 		The <code>&lt;hyper-form&gt;</code> element enhances &lt;form&gt; elements to send fetch requests. The
-		<code>method</code> attribute specifies the HTTP method to use. You are expected to nest a <code>&lt;form&gt;</code> element
+		<code>method</code> attribute specifies the HTTP method to use. You are expected to nest a
+		<code>&lt;form&gt;</code> element
 		that has an <code>action</code> attribute. The <code>&lt;hyper-form&gt;</code> element will intercept the submit
 		event and send a fetch request using the method specified in the <code>method</code> attribute. The
 		<code>&lt;form&gt;</code>
