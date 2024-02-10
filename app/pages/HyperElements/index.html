@@ -1,11 +1,57 @@
 <jh-header></jh-header>
 <main>
 	<h1>HyperElements Documentation</h1>
+
 	<h2>Overview</h2>
+
+	<p>HyperElements are a collection of <a
+			href="https://developer.mozilla.org/en-US/docs/Web/Web_Components/Using_custom_elements">Custom Elements</a>
+		designed to easily integrate dynamic behavior into web pages using HTML. This lightweight library allows you to
+		do things like sending DELETE or PUT requests, displaying the status of requests, and updating content based on
+		network responses directly from HTML elements, without requiring any JavaScript. Using ES6 modules with no
+		external dependencies, HyperElements delivers just the features you need with small filesizes.</p>
+
+	<p>Prioritizing Progressive Enhancement and accessibility, HyperElements function effectively even without
+		JavaScript, maintaining usability and accessibility standards. Unlike similar frameworks such as <a
+			href="https://unpoly.com/">Unpoly</a>, <a href="https://turbo.hotwired.dev/">Hotwire: Turbo</a>, and <a
+			href="https://htmx.org/">HTMX</a>, HyperElements enhance standard HTML elements rather than relying on
+		non-standard attributes or hijacking DOM elements all over the page. This approach ensures better accessibility,
+		graceful degradation, and broad compatibility with various frontend frameworks.</p>
+
+	<p>By adhering to <a href="https://en.wikipedia.org/wiki/Law_of_Demeter">the Law of Demeter</a> for minimal
+		coupling, HyperElements avoids direct DOM manipulation, favoring event-based communication. This design choice
+		promotes predictability and simplicity in development, making HyperElements a strategic choice for developers
+		seeking to extend HTML functionality with a focus on accessibility and modular architecture.</p>
+
+
+
+	<h2>Getting Started</h2>
 	<p>
-		HyperElements are a collection of CustomElements that allow you to declaratively enhance HTML. What if you could
-		send <code>DELETE</code>, or <code>PUT</code> requests from forms and links, and display the status of requests
-		without writing a single line of JavaScript? HyperElements make this possible.
+		To use HyperElements, you need to include the <code>HyperElements.mjs</code> file in your project. You can do
+		this by adding the following line to your HTML file:
+	</p>
+	<pre><code>&lt;script src="https://jessehattabaugh.com/_public/HyperElements/index.mjs"&gt;&lt;/script&gt;</code></pre>
+	<p>
+		Once you have included the HyperElements file, you can use the elements in your HTML. For example, to use the
+		<code>&lt;hyper-link&gt;</code> element, you would write:
+	</p>
+
+	<demo-doc id="first">
+		<demo-books-get slot="code"></demo-books-get>
+		<div slot="extra">
+			<hyper-status from="getBook">
+				<span slot="loading" style="display: none;">getting book...</span>
+				<span slot="success" style="display: none;">got book!</span>
+				<span slot="error" style="display: none;">error getting book!</span>
+			</hyper-status>
+			<hyper-update id="viewBook" from="getBook"></hyper-update>
+		</div>
+	</demo-doc>
+
+	<h3>Next steps</h3>
+	<p>
+		You may want to download the code and host it yourself. I can make no guarantees about the availability of the
+		file.
 	</p>
 
 	<h2>The Elements</h2>
@@ -27,24 +73,6 @@
 			update its with content with the response from a fetch request
 		</dd>
 	</dl>
-
-	<h2>Usage</h2>
-	<p>
-		To use HyperElements, you need to include the <code>HyperElements.mjs</code> file in your project. You can do
-		this by adding the following line to your HTML file:
-	</p>
-	<pre><code>&lt;script src="https://jessehattabaugh.com/_public/HyperElements/index.mjs"&gt;&lt;/script&gt;</code></pre>
-	<p>
-		Once you have included the HyperElements file, you can use the elements in your HTML. For example, to use the
-		<code>&lt;hyper-link&gt;</code> element, you would write:
-	</p>
-	<pre><code>&lt;hyper-link method="DELETE"&gt;
-	&lt;a href="/books/1?method=DELETE"&gt;delete book&lt;/a&gt;
-&lt;/hyper-link&gt;</code></pre>
-	<p>
-		You may want to download the code and host it yourself. I can make no guarantees about the availability of the
-		file.
-	</p>
 
 	<h2><a name="hyper-link"><code>&lt;hyper-link&gt;</code></a></h2>
 	<p>
@@ -68,9 +96,10 @@
 	<h2><a name="hyper-form"><code>&lt;hyper-form&gt;</code></a></h2>
 	<p>
 		The <code>&lt;hyper-form&gt;</code> element enhances &lt;form&gt; elements to send fetch requests. The
-		<code>method</code> attribute specifies the HTTP method to use. You are expected to nest a <code>&lt;form&gt;</form> element
+		<code>method</code> attribute specifies the HTTP method to use. You are expected to nest a <code>&lt;form&gt;</code> element
 		that has an <code>action</code> attribute. The <code>&lt;hyper-form&gt;</code> element will intercept the submit
-		event and send a fetch request using the method specified in the <code>method</code> attribute. The <code>&lt;form&gt;</code>
+		event and send a fetch request using the method specified in the <code>method</code> attribute. The
+		<code>&lt;form&gt;</code>
 		can also have a <code>method</code> attribute, but it will be ignored. Note that if JavaScript is disabled,
 		submitting the form will perform a GET like normal. So, you may want to use a hidden input and handle that on
 		the server.
@@ -98,6 +127,13 @@
 
 	<demo-doc id="hyper-status">
 		<demo-books-edit slot="code"></demo-books-edit>
+		<hyper-form id="editBook" method="PUT" slot="extra">
+			<form action="/demo/books/1" method="POST">
+				<input type="hidden" name="method" value="PUT">
+				<input type="text" name="title" value="old title">
+				<input type="submit" value="update book">
+			</form>
+		</hyper-form>
 	</demo-doc>
 
 	<h2><a name="hyper-update"><code>&lt;hyper-update&gt;</code></a></h2>
