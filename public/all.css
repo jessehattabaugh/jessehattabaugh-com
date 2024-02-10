@@ -1,22 +1,21 @@
 /* styles for any display medium */
+
 @font-face {
 	font-display: swap;
-	font-family: 'comicSans';
-	src: url('/_public/fonts/comicSans.woff2') format('woff2'),
-		url('/_public/fonts/comicSans.woff') format('woff'),
-		url('/_public/fonts/comicSans.ttf') format('truetype'),
-		url('/_public/fonts/comicSans.eot') format('embedded-opentype'),
-		url('/_public/fonts/comicSans.svg') format('svg');
+	font-family: ComicMono;
+	font-style: normal;
+	font-weight: normal;
+	src: url('/_public/ComicMono.woff2') format('woff2'),
+		url('/_public/ComicMono.woff') format('woff');
 }
 
-html {
-	--color-error: Red;
-	--rgb-black: 0, 0, 0;
-	--rgb-white: 255, 255, 255;
-	--unit-half: calc(var(--unit) / 2);
-	--unit: 1em;
-	box-sizing: border-box;
-	height: 100%;
+@font-face {
+	font-display: swap;
+	font-family: ComicMono;
+	font-style: normal;
+	font-weight: bold;
+	src: url('/_public/ComicMono-Bold.woff2') format('woff2'),
+		url('/_public/ComicMono-Bold.woff') format('woff');
 }
 
 *,
@@ -29,9 +28,28 @@ html {
 	padding: 0;
 }
 
+html {
+	--color-error: Red;
+	--font-body: Seravek, 'Gill Sans Nova', Ubuntu, Calibri, 'DejaVu Sans', source-sans-pro,
+		sans-serif;
+	--font-code: ComicMono, ui-monospace, 'Cascadia Code', 'Source Code Pro', Menlo, Consolas,
+		'DejaVu Sans Mono', monospace;
+	--font-heading: ComicMono, 'Comic Sans MS', 'Chalkboard SE', 'Segoe Print', 'Bradley Hand',
+		Chilanka, TSCu_Comic, casual, cursive;
+	--rgb-black: 0, 0, 0;
+	--rgb-white: 255, 255, 255;
+	--unit-half: calc(var(--unit) / 2);
+	--unit: 1em;
+	-webkit-font-smoothing: antialiased;
+	box-sizing: border-box;
+	height: 100%;
+}
+
 body {
 	flex-direction: column;
-	font-family: Inter, Roboto, 'Helvetica Neue', 'Arial Nova', 'Nimbus Sans', Arial, sans-serif;
+	font-family: var(--font-body);
+	text-rendering: optimizeLegibility;
+	text-wrap: pretty;
 }
 
 body > * {
@@ -60,56 +78,21 @@ h3,
 h4,
 h5,
 h6 {
-	font-family: comicSans, 'Comic Sans MS', 'Chalkboard SE', 'Segoe Print', 'Bradley Hand',
-		Chilanka, TSCu_Comic, casual, cursive;
-	margin-bottom: calc(var(--unit) / 2);
-	text-wrap: balance;
+	font-family: var(--font-heading);
+	font-weight: bold;
 	margin-top: calc(var(--unit) * 2);
+	text-wrap: balance;
 }
-
 
 p,
 ol,
-ul {
-	margin-bottom: var(--unit);
-}
-
-dl,
-dd,
-ol,
-ul {
-	margin-left: var(--unit);
-}
-
-.compact dt {
-	float: left;
-	margin-right: var(--unit);
-}
-
-.compact dt:after {
-	content: ':';
-}
-
-dd {
-	margin-bottom: var(--unit);
-}
-
-code {
-	font-family: ui-monospace, 'Cascadia Code', 'Source Code Pro', Menlo, Consolas,
-		'DejaVu Sans Mono', monospace;
-}
-
-summary > * {
-	display: inline;
-}
-
-.error {
-	color: var(--color-error);
+ul,
+blockquote,
+pre {
+	margin-top: var(--unit);
 }
 
 pre {
-	border-radius: var(--unit-half);
-	border: 1px inset var(--color-one);
 	overflow: auto;
 	padding: var(--unit);
 }
@@ -119,4 +102,38 @@ blockquote {
 	border: 1px outset var(--color);
 	overflow: auto;
 	padding: var(--unit);
+}
+
+dl,
+dd,
+ol,
+ul {
+	margin-left: var(--unit);
+}
+
+dd {
+	margin-bottom: var(--unit);
+}
+
+code {
+	font-family: var(--font-code);
+}
+
+summary > * {
+	display: inline;
+}
+
+/* classes */
+
+.error {
+	color: var(--color-error);
+}
+
+.compact dt {
+	float: left;
+	margin-right: var(--unit);
+}
+
+.compact dt:after {
+	content: ':';
 }

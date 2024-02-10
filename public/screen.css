@@ -18,6 +18,8 @@ html {
 	background-color: currentColor;
 	background-image: var(--gradient-background);
 	color: var(--color-one);
+	scrollbar-color: var(--color-one) transparent;
+	scrollbar-width: thin;
 }
 
 h1,
@@ -59,17 +61,16 @@ li {
 }
 
 pre {
-	background-color: rgba(0, 0, 0, 0.5);
+	background-color: rgba(0, 0, 0, 0.25);
 	border-radius: var(--unit-half);
 	border: 1px inset var(--color-one);
 }
 
 blockquote {
-	background-color: rgba(255, 255, 255, 0.5);
+	background-color: rgba(255, 255, 255, 0.25);
 	border-radius: var(--unit-half);
 	border: 1px outset var(--color);
 }
-
 
 @keyframes blink {
 	0% {
