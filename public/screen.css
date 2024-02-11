@@ -1,11 +1,8 @@
 /* what it looks like on illuminated rectangles */
-* {
-	scroll-margin-top: 100px;
-}
 html {
+	--border: 1px solid rgba(var(--rgb-border), 0.25);
 	--animation-duration: 30s;
 	--color-background: Black;
-	--color-current: Coral;
 	--color-one: Coral;
 	--color-three: Aqua;
 	--color-two: RebeccaPurple;
@@ -17,7 +14,8 @@ html {
 	background-attachment: fixed;
 	background-color: currentColor;
 	background-image: var(--gradient-background);
-	color: currentColor;
+	color: var(--color-one);
+	scroll-padding-top: 250px;
 	scrollbar-color: currentColor transparent;
 	scrollbar-width: thin;
 }
@@ -43,7 +41,7 @@ a:focus,
 a:link,
 a:visited {
 	animation: colorShiftRule var(--animation-duration) linear infinite;
-	color: currentColor;
+	color: var(--color-one);
 }
 
 a:target {
@@ -53,10 +51,10 @@ a:target {
 
 dd,
 dt,
+li,
 p,
-span,
 pre,
-li {
+span {
 	color: var(--color);
 }
 
@@ -163,6 +161,22 @@ blink {
 		}
 	}
 
+	/* some nonsense I have to do because of visited links */
+	@keyframes colorShiftRuleWithProperty {
+		0% {
+			color: var(--color-current);
+		}
+		33.3% {
+			color: var(--color-current);
+		}
+		66.7% {
+			color: var(--color-current);
+		}
+		100% {
+			color: var(--color-current);
+		}
+	}
+
 	html {
 		--gradient-background: linear-gradient(
 			to bottom,
@@ -189,8 +203,8 @@ blink {
 	a:focus,
 	a:link,
 	a:visited {
+		animation: colorShiftRuleWithProperty var(--animation-duration) linear infinite;
 		color: var(--color-current);
-		animation: none;
 	}
 
 	blockquote {
