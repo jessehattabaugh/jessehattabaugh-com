@@ -15,7 +15,7 @@ export default function ({ html }) {
 			}
 			@supports (background: paint(something)) {
 				img {
-					box-shadow: black 0.5em 0.5em 1em 0em, var(--color-one) 0 -0.2em 0em 0.5em;
+					box-shadow: black 0.5em 0.5em 1em 0em, var(--color-current) 0 -0.2em 0em 0.5em;
 				}
 			}
 		</style>

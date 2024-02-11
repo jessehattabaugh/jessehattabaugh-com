@@ -39,13 +39,13 @@ export default function ({ html, state }) {
 				}
 				input,
 				textarea {
-					border-color: var(--color-one);
-					box-shadow: 0 0 0.5em var(--color-one);
+					border-color: var(--color-current);
+					box-shadow: 0 0 0.5em var(--color-current);
 					color: var(--color);
 					field-sizing: content;
 				}
 				[type='submit'] {
-					box-shadow: inset 0 0 0.5em var(--color-one);
+					box-shadow: inset 0 0 0.5em var(--color-current);
 				}
 			}
 		</style>
