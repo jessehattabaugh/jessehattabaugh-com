@@ -1,157 +1,175 @@
 <jh-header></jh-header>
 <main>
-	<h1>HyperElements Documentation</h1>
+	<section>
+		<h1>HyperElements - HTML with Superpowers</h1>
 
-	<h2>Overview</h2>
+		<p>HyperElements are a collection of <a
+				href="https://developer.mozilla.org/en-US/docs/Web/Web_Components/Using_custom_elements">Custom
+				Elements</a>
+			designed to easily integrate dynamic behavior into web pages using HTML. This lightweight library allows you
+			to
+			do things like sending DELETE or PUT requests, displaying the status of requests, and updating content based
+			on
+			network responses directly from HTML elements, without requiring any JavaScript. Using ES6 modules with no
+			external dependencies, HyperElements delivers just the features you need with small filesizes.</p>
 
-	<p>HyperElements are a collection of <a
-			href="https://developer.mozilla.org/en-US/docs/Web/Web_Components/Using_custom_elements">Custom Elements</a>
-		designed to easily integrate dynamic behavior into web pages using HTML. This lightweight library allows you to
-		do things like sending DELETE or PUT requests, displaying the status of requests, and updating content based on
-		network responses directly from HTML elements, without requiring any JavaScript. Using ES6 modules with no
-		external dependencies, HyperElements delivers just the features you need with small filesizes.</p>
+		<p>Prioritizing Progressive Enhancement and accessibility, HyperElements function effectively even without
+			JavaScript, maintaining usability and accessibility standards. Unlike similar frameworks such as <a
+				href="https://unpoly.com/">Unpoly</a>, <a href="https://turbo.hotwired.dev/">Hotwire: Turbo</a>, and <a
+				href="https://htmx.org/">HTMX</a>, HyperElements enhance standard HTML elements rather than relying on
+			non-standard attributes or hijacking DOM elements all over the page. This approach ensures better
+			accessibility,
+			graceful degradation, and broad compatibility with various frontend frameworks.</p>
 
-	<p>Prioritizing Progressive Enhancement and accessibility, HyperElements function effectively even without
-		JavaScript, maintaining usability and accessibility standards. Unlike similar frameworks such as <a
-			href="https://unpoly.com/">Unpoly</a>, <a href="https://turbo.hotwired.dev/">Hotwire: Turbo</a>, and <a
-			href="https://htmx.org/">HTMX</a>, HyperElements enhance standard HTML elements rather than relying on
-		non-standard attributes or hijacking DOM elements all over the page. This approach ensures better accessibility,
-		graceful degradation, and broad compatibility with various frontend frameworks.</p>
+		<p>Another advantage of HyperElements is that they adhere to <a
+				href="https://en.wikipedia.org/wiki/Law_of_Demeter">the principle of least knowledge</a> by not
+			manipulating external DOM, and favoring event-based communication, for minimal coupling. This design choice
+			promotes predictability and simplicity in development, making HyperElements a good fit for larger projects
+			with many developers.</p>
+	</section>
 
-	<p>Another advantage of HyperElements is that they adhere to <a
-			href="https://en.wikipedia.org/wiki/Law_of_Demeter">the principle of least knowledge</a> by not
-		manipulating external DOM, and favoring event-based communication, for minimal coupling. This design choice
-		promotes predictability and simplicity in development, making HyperElements a good choice for large projects
-		with many developers.</p>
+	<section>
+		<h2>Getting Started</h2>
+		<p>
+			To use HyperElements, you need to include the <code>HyperElements.mjs</code> file in your project. You can
+			do
+			this by adding the following line to your HTML file:
+		</p>
+		<pre><code>&lt;script src="https://jessehattabaugh.com/_public/HyperElements/index.mjs"&gt;&lt;/script&gt;</code></pre>
+		<p>
+			Once you have included the HyperElements file, you can use the elements in your HTML. For example, to use
+			the
+			<code>&lt;hyper-link&gt;</code> element, you would write:
+		</p>
 
-	<h2>Getting Started</h2>
-	<p>
-		To use HyperElements, you need to include the <code>HyperElements.mjs</code> file in your project. You can do
-		this by adding the following line to your HTML file:
-	</p>
-	<pre><code>&lt;script src="https://jessehattabaugh.com/_public/HyperElements/index.mjs"&gt;&lt;/script&gt;</code></pre>
-	<p>
-		Once you have included the HyperElements file, you can use the elements in your HTML. For example, to use the
-		<code>&lt;hyper-link&gt;</code> element, you would write:
-	</p>
+		<demo-doc id="first">
+			<demo-books-get slot="code"></demo-books-get>
+			<div slot="extra">
+				<hyper-status from="getBook">
+					<span slot="loading" style="display: none;">getting book...</span>
+					<span slot="success" style="display: none;">got book!</span>
+					<span slot="error" style="display: none;">error getting book!</span>
+				</hyper-status>
+				<hyper-update id="viewBook" from="getBook"></hyper-update>
+			</div>
+		</demo-doc>
 
-	<demo-doc id="first">
-		<demo-books-get slot="code"></demo-books-get>
-		<div slot="extra">
-			<hyper-status from="getBook">
-				<span slot="loading" style="display: none;">getting book...</span>
-				<span slot="success" style="display: none;">got book!</span>
-				<span slot="error" style="display: none;">error getting book!</span>
+		<h3>Next steps</h3>
+		<p>
+			You may want to download the code and host it yourself. I can make no guarantees about the availability of
+			the
+			file.
+		</p>
+	</section>
+	<section>
+		<h2>The Elements</h2>
+		<dl class="compact">
+			<dt><a href="#hyper-link"><code>&lt;hyper-link&gt;</code></a></dt>
+			<dd>
+				enhances &lt;a&gt; elements to send fetch requests
+			</dd>
+			<dt><a href="#hyper-form"><code>&lt;hyper-form&gt;</code></a></dt>
+			<dd>
+				enhances &lt;form&gt; elements to send fetch requests
+			</dd>
+			<dt><a href="#hyper-status"><code>&lt;hyper-status&gt;</code></a></dt>
+			<dd>
+				displays the loading, success, and error states of fetch requests
+			</dd>
+			<dt><a href="#hyper-update"><code>&lt;hyper-update&gt;</code></a></dt>
+			<dd>
+				update its with content with the response from a fetch request
+			</dd>
+		</dl>
+	</section>
+	<section>
+		<h2><a name="hyper-link"><code>&lt;hyper-link&gt;</code></a></h2>
+		<p>
+			The <code>&lt;hyper-link&gt;</code> element enhances &lt;a&gt; elements to send fetch requests. The
+			<code>method</code> attribute specifies the HTTP method to use. You are expected to nest an &lt;a&gt;
+			element
+			inside that has an <code>href</code> attribute. The <code>&lt;hyper-link&gt;</code> element will intercept
+			the
+			click event and send a fetch request using the method specified in the <code>method</code> attribute. Note
+			that
+			if JavaScript is disabled, clicking the link will perform a GET like normal. So, you may want to include the
+			method in the URL as a query parameter and handle that on the server.
+		</p>
+
+		<demo-doc id="hyper-link">
+			<demo-books-delete slot="code"></demo-books-delete>
+			<hyper-status from="deleteBook" slot="extra">
+				<span slot="loading" style="display: none;">deleting book...</span>
+				<span slot="success" style="display: none;">book deleted!</span>
+				<span slot="error" style="display: none;">error deleting book!</span>
 			</hyper-status>
-			<hyper-update id="viewBook" from="getBook"></hyper-update>
-		</div>
-	</demo-doc>
+		</demo-doc>
+	</section>
+	<section>
+		<h2><a name="hyper-form"><code>&lt;hyper-form&gt;</code></a></h2>
+		<p><code>method</code> attribute specifies the HTTP method to use. You are expected to nest a
+			<code>&lt;form&gt;</code> element that has an <code>action</code> attribute. The
+			<code>&lt;hyper-form&gt;</code>
+			element will intercept the submit event and send a fetch request using the method specified in the
+			<code>method</code> attribute. The <code>&lt;form&gt;</code> can also have a <code>method</code> attribute,
+			but
+			it will be ignored. Note that if JavaScript is disabled, submitting the form will perform a GET like normal.
+			So,
+			you may want to use a hidden input and handle that on the server.
+		</p>
 
-	<h3>Next steps</h3>
-	<p>
-		You may want to download the code and host it yourself. I can make no guarantees about the availability of the
-		file.
-	</p>
+		<demo-doc id="hyper-form">
+			<demo-books-add slot="code"></demo-books-add>
+			<hyper-status from="addBook" slot="extra">
+				<span slot="loading" style="display: none;">adding book...</span>
+				<span slot="success" style="display: none;">book added!</span>
+				<span slot="error" style="display: none;">error adding book!</span>
+			</hyper-status>
+		</demo-doc>
+	</section>
+	<section>
+		<h2><a name="hyper-status"><code>&lt;hyper-status&gt;</code></a></h2>
+		<p>
+			The <code>&lt;hyper-status&gt;</code> element displays the loading, success, and error states of fetch
+			requests. You must include the <code>from</code> attribute and set it to the <code>id</code> of the element
+			you
+			want to monitor. This can be a comma separated list of ids. To display the status, you can nest elements
+			with
+			the <code>slot</code> attribute set to <code>loading</code>, <code>success</code>, or <code>error</code>. If
+			you don't include these elements, nothing will be displayed. Note that the slot elements will have their CSS
+			<code>display</code> rule set to <code>reset</code> when the status changes, but it's up to you to hide them
+			first.
+		</p>
 
-	<h2>The Elements</h2>
-	<dl class="compact">
-		<dt><a href="#hyper-link"><code>&lt;hyper-link&gt;</code></a></dt>
-		<dd>
-			enhances &lt;a&gt; elements to send fetch requests
-		</dd>
-		<dt><a href="#hyper-form"><code>&lt;hyper-form&gt;</code></a></dt>
-		<dd>
-			enhances &lt;form&gt; elements to send fetch requests
-		</dd>
-		<dt><a href="#hyper-status"><code>&lt;hyper-status&gt;</code></a></dt>
-		<dd>
-			displays the loading, success, and error states of fetch requests
-		</dd>
-		<dt><a href="#hyper-update"><code>&lt;hyper-update&gt;</code></a></dt>
-		<dd>
-			update its with content with the response from a fetch request
-		</dd>
-	</dl>
+		<demo-doc id="hyper-status">
+			<demo-books-edit slot="code"></demo-books-edit>
+			<hyper-form id="editBook" method="PUT" slot="extra">
+				<form action="/demo/books/1" method="POST">
+					<input type="hidden" name="method" value="PUT">
+					<input type="text" name="title" value="old title">
+					<input type="submit" value="update book">
+				</form>
+			</hyper-form>
+		</demo-doc>
+	</section>
+	<section>
+		<h2><a name="hyper-update"><code>&lt;hyper-update&gt;</code></a></h2>
+		<p>
+			The <code>&lt;hyper-update&gt;</code> element provides a way to update the content of an element with the
+			response from a fetch request. The <code>from</code> attribute specifies the <code>id</code> of the
+			<code>&lt;hyper-fetch&gt;</code> element to monitor. The <code>selector</code> attribute specifies the CSS
+			selector to use to find the element to update. The default is the <code>id</code> of the
+			<code>&lt;hyper-update&gt;</code> element.
+		</p>
 
-	<h2><a name="hyper-link"><code>&lt;hyper-link&gt;</code></a></h2>
-	<p>
-		The <code>&lt;hyper-link&gt;</code> element enhances &lt;a&gt; elements to send fetch requests. The
-		<code>method</code> attribute specifies the HTTP method to use. You are expected to nest an &lt;a&gt; element
-		inside that has an <code>href</code> attribute. The <code>&lt;hyper-link&gt;</code> element will intercept the
-		click event and send a fetch request using the method specified in the <code>method</code> attribute. Note that
-		if JavaScript is disabled, clicking the link will perform a GET like normal. So, you may want to include the
-		method in the URL as a query parameter and handle that on the server.
-	</p>
-
-	<demo-doc id="hyper-link">
-		<demo-books-delete slot="code"></demo-books-delete>
-		<hyper-status from="deleteBook" slot="extra">
-			<span slot="loading" style="display: none;">deleting book...</span>
-			<span slot="success" style="display: none;">book deleted!</span>
-			<span slot="error" style="display: none;">error deleting book!</span>
-		</hyper-status>
-	</demo-doc>
-
-	<h2><a name="hyper-form"><code>&lt;hyper-form&gt;</code></a></h2>
-	<p>
-		The <code>&lt;hyper-form&gt;</code> element enhances &lt;form&gt; elements to send fetch requests. The
-		<code>method</code> attribute specifies the HTTP method to use. You are expected to nest a
-		<code>&lt;form&gt;</code> element
-		that has an <code>action</code> attribute. The <code>&lt;hyper-form&gt;</code> element will intercept the submit
-		event and send a fetch request using the method specified in the <code>method</code> attribute. The
-		<code>&lt;form&gt;</code>
-		can also have a <code>method</code> attribute, but it will be ignored. Note that if JavaScript is disabled,
-		submitting the form will perform a GET like normal. So, you may want to use a hidden input and handle that on
-		the server.
-	</p>
-
-	<demo-doc id="hyper-form">
-		<demo-books-add slot="code"></demo-books-add>
-		<hyper-status from="addBook" slot="extra">
-			<span slot="loading" style="display: none;">adding book...</span>
-			<span slot="success" style="display: none;">book added!</span>
-			<span slot="error" style="display: none;">error adding book!</span>
-		</hyper-status>
-	</demo-doc>
-
-	<h2><a name="hyper-status"><code>&lt;hyper-status&gt;</code></a></h2>
-	<p>
-		The <code>&lt;hyper-status&gt;</code> element displays the loading, success, and error states of fetch
-		requests. You must include the <code>from</code> attribute and set it to the <code>id</code> of the element you
-		want to monitor. This can be a comma separated list of ids. To display the status, you can nest elements with
-		the <code>slot</code> attribute set to <code>loading</code>, <code>success</code>, or <code>error</code>. If
-		you don't include these elements, nothing will be displayed. Note that the slot elements will have their CSS
-		<code>display</code> rule set to <code>reset</code> when the status changes, but it's up to you to hide them
-		first.
-	</p>
-
-	<demo-doc id="hyper-status">
-		<demo-books-edit slot="code"></demo-books-edit>
-		<hyper-form id="editBook" method="PUT" slot="extra">
-			<form action="/demo/books/1" method="POST">
-				<input type="hidden" name="method" value="PUT">
-				<input type="text" name="title" value="old title">
-				<input type="submit" value="update book">
-			</form>
-		</hyper-form>
-	</demo-doc>
-
-	<h2><a name="hyper-update"><code>&lt;hyper-update&gt;</code></a></h2>
-	<p>
-		The <code>&lt;hyper-update&gt;</code> element provides a way to update the content of an element with the
-		response from a fetch request. The <code>from</code> attribute specifies the <code>id</code> of the
-		<code>&lt;hyper-fetch&gt;</code> element to monitor. The <code>selector</code> attribute specifies the CSS
-		selector to use to find the element to update. The default is the <code>id</code> of the
-		<code>&lt;hyper-update&gt;</code> element.
-	</p>
-
-	<demo-doc id="hyper-update">
-		<demo-books-list slot="code"></demo-books-list>
-		<hyper-status from="nextBooks, prevBooks" slot="extra">
-			<div slot="loading" style="display: none;">loading books...</div>
-			<div slot="error" style="display: none;">error loading books</div>
-		</hyper-status>
-	</demo-doc>
+		<demo-doc id="hyper-update">
+			<demo-books-list slot="code"></demo-books-list>
+			<hyper-status from="nextBooks, prevBooks" slot="extra">
+				<div slot="loading" style="display: none;">loading books...</div>
+				<div slot="error" style="display: none;">error loading books</div>
+			</hyper-status>
+		</demo-doc>
+	</section>
 </main>
 <jh-footer></jh-footer>
 <script type="module" src="/_public/browser/demo-doc.mjs"></script>
