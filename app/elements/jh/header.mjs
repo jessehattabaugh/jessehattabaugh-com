@@ -13,7 +13,7 @@ export default function ({ html }) {
 				top: 0;
 			}
 			h1 {
-				margin: 0;
+				padding: 0;
 			}
 			nav {
 				display: flex;
