@@ -5,6 +5,7 @@
 html {
 	--animation-duration: 30s;
 	--color-background: Black;
+	--color-current: Coral;
 	--color-one: Coral;
 	--color-three: Aqua;
 	--color-two: RebeccaPurple;
@@ -104,11 +105,12 @@ blink {
 
 @media (prefers-color-scheme: light) {
 	html {
-		--color: Black;
 		--color-background: White;
+		--color-current: Tomato;
+		--color-one: Tomato;
 		--color-three: MediumTurquoise;
 		--color-two: Indigo;
-		--color-one: Tomato;
+		--color: Black;
 		--rgb-background: var(--rgb-white);
 		--rgb-border: var(--rgb-black);
 	}
@@ -119,6 +121,11 @@ blink {
 		syntax: '<color>';
 		inherits: true;
 		initial-value: White;
+	}
+	@property --color-current {
+		syntax: '<color>';
+		inherits: true;
+		initial-value: Coral;
 	}
 	@property --color-one {
 		syntax: '<color>';
@@ -142,26 +149,17 @@ blink {
 	}
 
 	@keyframes colorShiftProperty {
-		33.3% {
-			--color-one: var(--color-two);
-		}
-		66.7% {
-			--color-one: var(--color-three);
-		}
-	}
-
-	@keyframes colorAccentShiftRule {
 		0% {
-			color: var(--color-one);
+			--color-current: var(--color-one);
 		}
 		33.3% {
-			color: var(--color-one);
+			--color-current: var(--color-two);
 		}
 		66.7% {
-			color: var(--color-one);
+			--color-current: var(--color-three);
 		}
 		100% {
-			color: var(--color-one);
+			--color-current: var(--color-one);
 		}
 	}
 
@@ -169,11 +167,11 @@ blink {
 		--gradient-background: linear-gradient(
 			to bottom,
 			var(--color-background),
-			var(--color-one) 200%
+			var(--color-current) 200%
 		);
 		animation: colorShiftProperty var(--animation-duration) linear infinite;
-		color: var(--color-one);
-		scrollbar-color: var(--color-one) transparent;
+		color: var(--color-current);
+		scrollbar-color: var(--color-current) transparent;
 	}
 
 	h1,
@@ -182,8 +180,8 @@ blink {
 	h4,
 	h5,
 	h6 {
-		color: var(--color-one);
-		background-image: linear-gradient(to bottom, var(--color-one), var(--color) 300%);
+		color: var(--color-current);
+		background-image: linear-gradient(to bottom, var(--color-current), var(--color) 300%);
 	}
 
 	a,
@@ -191,12 +189,12 @@ blink {
 	a:focus,
 	a:link,
 	a:visited {
-		animation: colorAccentShiftRule var(--animation-duration) linear infinite;
-		color: var(--color-one);
+		color: var(--color-current);
+		animation: none;
 	}
 
 	blockquote {
-		border-color: var(--color-one);
+		border-color: var(--color-current);
 	}
 }
 

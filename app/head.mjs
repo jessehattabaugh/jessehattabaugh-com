@@ -26,19 +26,21 @@ export default function Head(state) {
 
 			<!-- script that runs for before load -->
 			<script>
-				if (window.matchMedia('(prefers-reduced-motion: no-preference)').matches) {
+				/*if (window.matchMedia('(prefers-reduced-motion: no-preference)').matches) {
 					// on load set the --color-one from localStorage
 					const root = document.documentElement;
-					const storedColor = localStorage.getItem('color-one');
+					const storedColor = localStorage.getItem('colorCurrent');
 					if (storedColor) {
-						root.style.setProperty('--color-one', storedColor);
+						console.debug('🎨 setting color from localStorage', {storedColor});
+						root.style.setProperty('--color-current', storedColor);
 					}
-					// when the user leaves the page store the --color-one in localStorage
-					window.addEventListener('beforeunload', () => {
-						const color = getComputedStyle(root).getPropertyValue('--color-one');
-						localStorage.setItem('color-one', color);
+					// when the user leaves the page store the --color-current in localStorage
+					window.addEventListener('unload', () => {
+						const colorCurrent = getComputedStyle(root).getPropertyValue('--color-current');
+						localStorage.setItem('colorCurrent', colorCurrent);
+						console.debug('🎨 storing color in localStorage', {colorCurrent});
 					});
-				}
+				}*/
 			</script>
 
 			<!-- script that runs after load -->
