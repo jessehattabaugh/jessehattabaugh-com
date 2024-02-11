@@ -18,7 +18,7 @@
 }
 
 html {
-	--border: 1px solid rgba(var(--rgb-border), 0.25);
+	--border: 1px solid var(--rgb-border);
 	--color-error: Red;
 	--font-body: Seravek, 'Gill Sans Nova', Ubuntu, Calibri, 'DejaVu Sans', source-sans-pro,
 		sans-serif;
@@ -28,6 +28,7 @@ html {
 		Chilanka, TSCu_Comic, casual, cursive;
 	--rgb-black: 0, 0, 0;
 	--rgb-white: 255, 255, 255;
+	--rgb-border: rgb(var(--rgb-black));
 	--unit-half: calc(var(--unit) / 2);
 	--unit: 1em;
 	box-sizing: border-box;
