@@ -30,14 +30,16 @@ html {
 	--rgb-white: 255, 255, 255;
 	--unit-half: calc(var(--unit) / 2);
 	--unit: 1em;
-	-webkit-font-smoothing: antialiased;
 	box-sizing: border-box;
 	height: 100%;
 }
 
 body {
+	-moz-osx-font-smoothing: auto;
+	-webkit-font-smoothing: auto;
 	flex-direction: column;
 	font-family: var(--font-body);
+	font-smooth: auto;
 	text-rendering: optimizeLegibility;
 	text-wrap: pretty;
 }
