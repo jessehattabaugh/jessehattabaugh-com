@@ -1,8 +1,11 @@
 /** @type {import('@enhance/types').EnhanceElemFn} */
 export default function ({ html }) {
-	return html`<hyper-status from="editBook">
-	<span slot="loading" style="display: none;">updating book...</span>
-	<span slot="success" style="display: none;">book updated!</span>
-	<span slot="error" style="display: none;">error updating author!</span>
-</hyper-status>`;
+	return html`<hyper-form id="editBook" method="PUT">
+	<form action="/demo/books/1" method="POST">
+		<input type="hidden" name="method" value="PUT">
+		<label for="title">Title</label>
+		<input type="text" name="title">
+		<input type="submit" value="edit book">
+	</form>
+</hyper-form>`;
 }
