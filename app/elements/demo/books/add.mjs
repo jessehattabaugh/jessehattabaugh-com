@@ -1,11 +1,9 @@
 /** @type {import('@enhance/types').EnhanceElemFn} */
 export default function ({ html }) {
 	// prettier-ignore
-	return html`<hyper-form id="addBook">
-	<form action="/demo/books" method="POST">
-		<label for="title">Title</label>
-		<input type="text" name="title" value="new title">
-		<input type="submit" value="add book">
-	</form>
-</hyper-form>`;
+	return html`<hyper-status from="addBook">
+	<span slot="loading" style="display: none;">adding book...</span>
+	<span slot="success" style="display: none;">book added!</span>
+	<span slot="error" style="display: none;">error adding book!</span>
+</hyper-status>`;
 }

@@ -1,20 +1,36 @@
 /**  @param {import("@enhance/types").EnhanceApiReq} request */
 async function testResponse(request) {
 	// get the mock value from the request body if the request is a POST, otherwise from the request params
-	const { method, body, query } = request;
+	const { method, body, query, path } = request;
 	const { mock } = method === 'POST' ? body : query;
+
+	const { method: queryMethod, newTitle } = query;
+	const deleted = method == 'DELETE' || queryMethod == 'DELETE';
+
+	const { title, method: bodyMethod } = request.body;
+	const edited = method == 'PUT' || bodyMethod == 'PUT';
 
 	// wait two seconds to simulate a slow response
 	await new Promise((resolve) => {
-		setTimeout(resolve, 2000);
+		setTimeout(resolve, 500);
 	});
 
-	console.debug('📗 /demo/book/$id testResponse', { mock, method, body, query });
-
+	console.debug('📗 /demo/book/$id testResponse', {
+		body,
+		deleted,
+		path,
+		method,
+		mock,
+		query,
+		queryMethod,
+	});
 	if (mock === 'error') {
 		return { json: { error: 'mock error' }, status: 500 };
+	} else if (method === 'POST') {
+		// pass the edited title in the redirect url
+		return { location: path + '?newTitle=' + title };
 	} else {
-		return { json: { success: true } };
+		return { json: { success: true, deleted, edited, title: newTitle || 'Book 1' } };
 	}
 }
 
@@ -46,8 +62,9 @@ export async function destroy(request) {
  * @type {import('@enhance/types').EnhanceApiFn}
  */
 export async function post(request) {
-	// console.debug('🏣 /api/test POST request');
-	const method = request.body.get('method').toUpperCase();
+	const { method } = request.body;
+	console.debug('🏣 /api/test POST request', { method });
+
 	switch (method) {
 		case 'GET':
 			return get(request);
