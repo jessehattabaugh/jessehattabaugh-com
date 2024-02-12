@@ -15,7 +15,7 @@ export default function ({ html, state }) {
 			.join('').trim()}
 	</ul>
 	<hyper-link id="${page ? 'prevBooks' : 'nextBooks'}">
-		<a href="/demo/books?page=${parseInt(page) ? 0 : 1}">${parseInt(page) ? 'Prev' : 'Next'}</a>
+		<a href="/demo/books?page=${parseInt(page) ? 0 : 1}">${parseInt(page) ? 'Previous Page' : 'Next Page'}</a>
 	</hyper-link>
 </hyper-update>
 `;

@@ -1,88 +1,136 @@
 import { test, expect } from '@playwright/test';
 
-test.describe('with JavaScript', () => {
+test.describe('documentation', () => {
 	test.beforeEach(async ({ page }) => {
-		await page.goto('/HyperElements/test');
+		await page.goto('/HyperElements');
 	});
 
-	test('should display success message after form submission', async ({ page }) => {
-		await page.route('**/HyperElements/test*', (route) => {
-			const request = route.request();
-			expect(request.method(), 'makes a DELETE request').toBe('DELETE');
-			route.continue();
+	test('should display the page', async ({ page }) => {
+		await expect(page.locator('h1 >> text=HyperElements'), 'displays the title').toBeVisible();
+	});
+
+	test.describe('with JavaScript enabled', () => {
+		test.beforeEach(async ({ page }) => {
+			await page.evaluate(() => {
+				return Promise.all([
+					customElements.whenDefined('hyper-link'),
+					customElements.whenDefined('hyper-form'),
+					customElements.whenDefined('hyper-status'),
+					customElements.whenDefined('hyper-update'),
+				]);
+			});
 		});
-		await page.click('#form1 button[type="submit"]');
-		await expect(
-			page.locator('#status1 >> text=Success!'),
-			'displays default success message',
-		).toBeVisible();
-	});
 
-	test('should display error message after form submission', async ({ page }) => {
-		await page.route('**/HyperElements/test*', (route) => {
-			const request = route.request();
-			expect(request.method(), 'requests a GET').toBe('GET');
-			const { searchParams } = new URL(request.url());
-			expect(searchParams.get('mock'), 'query param contains form data').toBe('error');
-			route.continue();
+		test('Getting Started example', async ({ page }) => {
+			await page.click('a >> text=Get Book 1');
+			await expect(
+				page.locator('span >> text=getting book...'),
+				'displays loading message',
+			).toBeVisible();
+			await expect(
+				page.locator('span >> text=got book!'),
+				'displays success message',
+			).toBeVisible();
+			await expect(page.locator('h2 >> text=Book 1'), 'displays the book').toBeVisible();
 		});
-		await page.fill('#form2 input[name="mock"]', 'error');
-		await page.click('#form2 input[type="submit"]');
-		await expect(
-			page.locator('#status2 >> text=testError'),
-			'displays the custom error',
-		).toBeVisible();
-	});
 
-	test('should display success after clicking link', async ({ page }) => {
-		await page.route('**/HyperElements/test*', (route) => {
-			const request = route.request();
-			expect(request.method(), 'requests a PUT').toBe('PUT');
-			route.continue();
+		test('HyperLink example', async ({ page }) => {
+			await page.click('a >> text=delete book');
+			await expect(
+				page.locator('span >> text=deleting book...'),
+				'displays loading message',
+			).toBeVisible();
+			await expect(
+				page.locator('span >> text=book deleted!'),
+				'displays success message',
+			).toBeVisible();
 		});
-		await page.click('#link1');
-		await expect(page.locator('#status3 >> text=Success!'), 'displays Success!').toBeVisible();
-	});
-});
 
-test.describe('without JavaScript', () => {
-	test.use({ javaScriptEnabled: false });
-
-	test.beforeEach(async ({ page }) => {
-		await page.goto('/HyperElements/test');
-	});
-
-	test('should make a POST with a DELETE param', async ({ page }) => {
-		await page.route('**/HyperElements/test*', async (route) => {
-			const request = route.request();
-			expect(request.method(), 'makes a POST').toBe('POST');
-			const data = await request.postDataJSON();
-			expect(data, 'has a method property of DELETE').toHaveProperty('method', 'DELETE');
-			route.continue();
+		test('HyperForm example', async ({ page }) => {
+			await page.fill('#editBook [name="title"]', 'edited title');
+			await page.click('[type="submit"] >> text=edit book');
+			await expect(
+				page.locator('span >> text=editing book...'),
+				'displays loading message',
+			).toBeVisible();
+			await expect(
+				page.locator('span >> text=book edited!'),
+				'displays success message',
+			).toBeVisible();
 		});
-		await page.click('#form1 button[type="submit"]');
+
+		test('HyperStatus example', async ({ page }) => {
+			await page.fill('#addBook [name="title"]', 'test book');
+			await page.click('[type="submit"] >> text=add book');
+			await expect(
+				page.locator('[slot="loading"] >> text=adding book...'),
+				'displays loading message',
+			).toBeVisible();
+			await expect(
+				page.locator('[slot="success"] >> text=book added!'),
+				'displays success message',
+			).toBeVisible();
+		});
+
+		test('HyperUpdate example', async ({ page }) => {
+			await page.click('a >> text=Next Page');
+			await expect(
+				page.locator('li >> text=The Handmaids Tale'),
+				'displays new page of books',
+			).toBeVisible();
+			await page.click('a >> text=Previous Page');
+			await expect(
+				page.locator('li >> text=Old Man and the Sea'),
+				'displays previous page of books',
+			).toBeVisible();
+		});
 	});
 
-	test('should make a GET with form data in query params', async ({ page }) => {
-		await page.route('**/HyperElements/test*', async (route) => {
-			const request = route.request();
-			expect(request.method(), 'makes a GET').toBe('GET');
-			const { searchParams } = new URL(request.url());
-			expect(searchParams.get('mock'), 'query param contains form data').toBe('error');
-			route.continue();
-		});
-		await page.fill('#form2 input[name="mock"]', 'error');
-		await page.click('#form2 input[type="submit"]');
-	});
+	test.describe('with JavaScript disabled', async () => {
+		test.use({ javaScriptEnabled: false });
 
-	test('should make a GET with method PUT in query params', async ({ page }) => {
-		await page.route('**/HyperElements/test*', async (route) => {
-			const request = route.request();
-			expect(request.method(), 'makes a GET').toBe('GET');
-			const { searchParams } = new URL(request.url());
-			expect(searchParams.get('method'), 'querystring contains method=PUT').toBe('PUT');
-			route.continue();
+		test('Getting Started example', async ({ page }) => {
+			await page.click('a >> text=Get Book 1');
+			await expect(page.locator('h2 >> text=Book 1'), 'displays the book').toBeVisible();
 		});
-		await page.click('#link1');
+
+		test('HyperLink example', async ({ page }) => {
+			await page.click('a >> text=delete book');
+			await expect(
+				page.locator('span >> text=book deleted!'),
+				'displays success message',
+			).toBeVisible();
+		});
+
+		test('HyperForm example', async ({ page }) => {
+			await page.fill('#editBook [name="title"]', 'edited title');
+			await page.click('[type="submit"] >> text=edit book');
+			await expect(
+				page.locator('#viewBook h2 >> text=edited title'),
+				'displays the edited book title',
+			).toBeVisible();
+		});
+
+		test('HyperStatus example', async ({ page }) => {
+			await page.fill('#addBook [name="title"]', 'test book');
+			await page.click('[type="submit"] >> text=add book');
+			await expect(
+				page.locator('li >> text=test book'),
+				'displays the added book',
+			).toBeVisible();
+		});
+
+		test('HyperUpdate example', async ({ page }) => {
+			await page.click('a >> text=Next Page');
+			await expect(
+				page.locator('li >> text=The Handmaids Tale'),
+				'displays new page of books',
+			).toBeVisible();
+			await page.click('a >> text=Previous Page');
+			await expect(
+				page.locator('li >> text=Old Man and the Sea'),
+				'displays previous page of books',
+			).toBeVisible();
+		});
 	});
 });
