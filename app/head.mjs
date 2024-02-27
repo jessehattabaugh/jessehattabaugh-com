@@ -13,7 +13,7 @@ export default function Head(state) {
 			<meta name="description" content="Personal site of Jesse Hattabaugh" />
 			<link rel="icon" href="/_public/favicon.ico" />
 			<link rel="manifest" href="/_public/manifest.json" />
-			<link rel="apple-touch-icon" href="/_public/jesse192.png" />
+			<link rel="apple-touch-icon" href="/_public/images/jesse192.png" />
 			<meta name="theme-color" content="#000000" />
 			<link as="font" crossorigin="anonymous" href="/_public/comicSans.woff2" rel="preload" type="font/woff2" />
 			<link rel="stylesheet" href="/_public/all.css" />
