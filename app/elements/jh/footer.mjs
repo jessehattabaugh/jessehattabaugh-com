@@ -23,7 +23,7 @@ export default function ({ html }) {
 				alt="Jesse Hattabaugh"
 				class="photo"
 				height="192"
-				src="/_public/jesse192.png"
+				src="/_public/images/jesse192.png"
 				width="192"
 			/>
 			<h3 class="fn">Jesse Hattabaugh</h3>
