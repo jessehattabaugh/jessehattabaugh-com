@@ -18,6 +18,7 @@ export default function ({ html }) {
 				width: 4em;
 			}
 		</style>
+		<jh-nav></jh-nav>
 		<footer id="contact" class="vcard">
 			<img
 				alt="Jesse Hattabaugh"
