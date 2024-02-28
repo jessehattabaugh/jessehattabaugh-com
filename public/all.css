@@ -144,6 +144,10 @@ summary > * {
 	display: inline;
 }
 
+img {
+	max-width: 100%;
+}
+
 /* classes */
 
 .error {
