@@ -15,20 +15,10 @@ export default function ({ html }) {
 			h1 {
 				padding: 0;
 			}
-			nav {
-				display: flex;
-				justify-content: space-around;
-			}
 		</style>
 		<header class="no-print">
 			<h1><a href="/">JesseHattabaugh.com</a></h1>
-			<nav>
-				<a href="/about">About</a>
-				<a href="/ideas">Ideas</a>
-				<a href="/now">Now</a>
-				<a href="/resume">Resume</a>
-				<a href="/share">Share</a>
-			</nav>
+			<jh-nav></jh-nav>
 		</header>
 	`;
 }
