@@ -2,40 +2,70 @@
 export default function ({ html }) {
 	return html`<style>
 			footer {
+				backdrop-filter: blur(var(--unit-half));
+				background-color: rgba(var(--rgb-background), 0.5);
+				border-top: var(--border);
+				box-shadow: 0 0 var(--unit) rgba(black, 0.5);
 				clear: both;
-				text-align: right;
-				padding: 1em;
+
+				padding: 0.5em;
 			}
 			a {
 				display: inline-block;
-				font-size: smaller;
+				padding: 0.5em;
+				padding-left: 0;
 			}
 			img {
 				border-radius: 25%;
-				float: right;
-				height: 4em;
-				margin: 0.5em;
-				width: 4em;
+				height: 6em;
+				width: 6em;
+				padding: 1em;
+				float: left;
+			}
+			figure {
+			}
+			ul,
+			h6,
+			p {
+				padding: 0;
+			}
+			p {
+				padding-left: 1em;
+			}
+			nav {
+				padding: 0.5em;
+			}
+			li {
+				list-style: none;
+				text-align: center;
+			}
+			@media (min-width: 25em) {
+				.page-container {
+					display: flex;
+				}
+				.page-container > div {
+					min-width: 21em;
+				}
+				jh-nav {
+					flex-grow: 1;
+				}
+				jh-nav li {
+					display: inline-block;
+					min-width: 25%;
+				}
+				jh-nav li a {
+					width: 100%;
+					display: block;
+				}
 			}
 		</style>
-		<jh-nav></jh-nav>
-		<footer id="contact" class="vcard">
-			<img
-				alt="Jesse Hattabaugh"
-				class="photo"
-				height="192"
-				src="/_public/images/jesse192.png"
-				width="192"
-			/>
-			<h3 class="fn">Jesse Hattabaugh</h3>
-			<div>
-				<a href="mailto:webmaster@jessehattabaugh.com" class="email"
-					>webmaster@jessehattabaugh.com</a
-				>
+		<footer>
+			<div class="page-container">
+				<jh-nav></jh-nav>
+				<div>
+					<jh-contact></jh-contact>
+					<p>&copy; 1998 - 2024</p>
+				</div>
 			</div>
-			<div>
-				<a href="tel:+15038939375" class="tel">(503) 893-9375</a>
-			</div>
-			<div>&copy; 1998 - 2024</div>
 		</footer>`;
 }

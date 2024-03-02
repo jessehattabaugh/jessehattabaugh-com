@@ -2,7 +2,7 @@
 export default function ({ html }) {
 	return html`
 		<style>
-			header {
+			:root {
 				backdrop-filter: blur(var(--unit-half));
 				background-color: rgba(var(--rgb-background), 0.5);
 				border-bottom: var(--border);
@@ -15,10 +15,19 @@ export default function ({ html }) {
 			h1 {
 				padding: 0;
 			}
+			jh-nav ul {
+				display: flex;
+				justify-content: space-around;
+			}
+			jh-nav li {
+				list-style: none;
+			}
 		</style>
 		<header class="no-print">
-			<h1><a href="/">JesseHattabaugh.com</a></h1>
-			<jh-nav></jh-nav>
+			<div class="page-container">
+				<h1><a href="/">JesseHattabaugh.com</a></h1>
+				<jh-nav></jh-nav>
+			</div>
 		</header>
 	`;
 }
