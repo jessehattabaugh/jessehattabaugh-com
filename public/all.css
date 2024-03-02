@@ -38,19 +38,26 @@ html {
 body {
 	-moz-osx-font-smoothing: auto;
 	-webkit-font-smoothing: auto;
+	display: flex;
 	flex-direction: column;
 	font-family: var(--font-body);
 	font-smooth: auto;
+	min-height: 100%;
 	text-rendering: optimizeLegibility;
 	text-wrap: pretty;
 }
 
 body > * {
-	margin: 0 auto;
-	max-width: calc(var(--unit) * 50);
+	width: 100%;
 }
 
 main {
+	flex: 1;
+}
+
+main, .page-container {
+	margin: 0 auto;
+	max-width: calc(var(--unit) * 50);
 	padding: var(--unit);
 }
 
@@ -85,7 +92,6 @@ h3,
 h4,
 h5,
 h6,
-li,
 p,
 pre,
 summary {
@@ -171,3 +177,5 @@ img {
 .compact dd {
 	text-wrap: balance;
 }
+
+
