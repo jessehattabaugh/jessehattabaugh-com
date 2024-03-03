@@ -10,34 +10,27 @@ export default function ({ html }) {
 
 				padding: 0.5em;
 			}
-			a {
-				display: inline-block;
-				padding: 0.5em;
-				padding-left: 0;
-			}
-			img {
-				border-radius: 25%;
-				height: 6em;
-				width: 6em;
-				padding: 1em;
-				float: left;
-			}
-			figure {
-			}
 			ul,
 			h6,
-			p {
+			p,
+			dl,
+			dt,
+			dd {
 				padding: 0;
 			}
 			p {
 				padding-left: 1em;
 			}
-			nav {
+			jh-nav nav {
 				padding: 0.5em;
 			}
-			li {
+			jh-nav li {
 				list-style: none;
 				text-align: center;
+			}
+			jh-contact img {
+				max-width: 6em;
+				max-height: 6em;
 			}
 			@media (min-width: 25em) {
 				.page-container {
