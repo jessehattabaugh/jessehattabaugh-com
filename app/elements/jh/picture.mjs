@@ -8,8 +8,8 @@ export default function ({ html }) {
 				height: 30vw;
 				margin-bottom: 5%;
 				margin-right: 5%;
-				max-height: 512px;
-				max-width: 512px;
+				max-height: 450px;
+				max-width: 450px;
 				shape-outside: circle(50%);
 				width: 30vw;
 			}
@@ -19,16 +19,38 @@ export default function ({ html }) {
 				}
 			}
 		</style>
-		<picture>
-			<source media="(min-width: 512px)" srcset="/_public/images/jesse975.avif" type="image/avif" />
-			<source media="(min-width: 512px)" srcset="/_public/images/jesse975.webp" type="image/webp" />
-			<source media="(min-width: 512px)" srcset="/_public/images/jesse975.jxl" type="image/jxl" />
-			<source media="(max-width: 192px)" srcset="/_public/images/jesse192.png" type="image/png" />
-			<img
-				alt="Photo of Jesse Hattabaugh"
-				height="512"
-				src="/_public/images/jesse512.png"
-				width="512"
-			/>
-		</picture>`;
+		<h3>
+		<figure>
+			<picture>
+				<source
+					media="(min-width: 512px)"
+					srcset="/_public/images/jesse975.avif"
+					type="image/avif"
+				/>
+				<source
+					media="(min-width: 512px)"
+					srcset="/_public/images/jesse975.webp"
+					type="image/webp"
+				/>
+				<source
+					media="(min-width: 512px)"
+					srcset="/_public/images/jesse975.jxl"
+					type="image/jxl"
+				/>
+				<source
+					media="(max-width: 192px)"
+					srcset="/_public/images/jesse192.png"
+					type="image/png"
+				/>
+				<img
+					alt="Photo of Jesse Hattabaugh"
+					height="512"
+					src="/_public/images/jesse512.png"
+					width="512"
+				/>
+			</picture>
+			<figcaption>
+				<a class="fn url" href="https://jessehattabaugh.com">Jesse Hattabaugh</a>
+			</figcaption>
+		</figure></h3>`;
 }
