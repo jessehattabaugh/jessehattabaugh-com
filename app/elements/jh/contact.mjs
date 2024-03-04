@@ -1,22 +1,23 @@
 /** @type {import('@enhance/types').EnhanceElemFn} */
 export default function ({ html }) {
 	return html`<style>
+		/* style dl elements using grid so that dt elements appear to the left of coresponding dd elements */
 		dl {
+			display: grid;
+			grid-template-columns: max-content 1fr;
 		}
 		dt::after {
 			content: ':';
 		}
-		dt, dd {
-			display: inline-block;
-		}
-		dt{
-			outline: 1px dashed red;
-		}
-		dd {
-			outline: 1px dashed lime;
+		/* when the element's container is bigger than the dl requires, put the jh-picture and it's caption to the left of the contact info */
+		@media (min-width: 25em) {
+			.vcard {
+				display: grid;
+				grid-template-columns: 1fr 1fr;
+			}
 		}
 	</style>
-	<div class="vcard">
+	<div class="vcard p-contact h-card">
 		<jh-picture></jh-picture>
 		<dl>
 			<dt>Location</dt>

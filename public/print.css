@@ -1,4 +1,9 @@
 /* what it looks like on paper */
+@page {
+	size: Letter portrait;
+	margin: 0;
+}
+
 html {
 	--mourners: 3; /* widows and orphans, get it? */
 }

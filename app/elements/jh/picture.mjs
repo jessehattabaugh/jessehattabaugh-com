@@ -1,25 +1,26 @@
 /** @type {import('@enhance/types').EnhanceElemFn} */
 export default function ({ html }) {
 	return html`<style>
+			:host {
+				--box-shadow-photo: black 0.25em 0.25em 1em 0em;
+				--box-shadow-highlight: 0 0 0 0.3em;
+			}
 			img {
 				border-radius: 50%;
-				box-shadow: black 0.5em 0.5em 1em 0em, currentColor 0 -0.2em 0em 0.5em;
-				float: left;
-				height: 30vw;
-				margin-bottom: 5%;
-				margin-right: 5%;
-				max-height: 450px;
-				max-width: 450px;
+				box-shadow: var(--box-shadow-photo), currentColor var(--box-shadow-highlight);
+				height: 100%;
 				shape-outside: circle(50%);
-				width: 30vw;
+				width: 100%;
+			}
+			figure {
+				text-align: center;
 			}
 			@supports (background: paint(something)) {
 				img {
-					box-shadow: black 0.5em 0.5em 1em 0em, var(--color-current) 0 -0.2em 0em 0.5em;
+					box-shadow: var(--box-shadow-photo), var(--color-current) var(--box-shadow-highlight);
 				}
 			}
 		</style>
-		<h3>
 		<figure>
 			<picture>
 				<source
@@ -44,13 +45,14 @@ export default function ({ html }) {
 				/>
 				<img
 					alt="Photo of Jesse Hattabaugh"
+					class="photo"
 					height="512"
 					src="/_public/images/jesse512.png"
 					width="512"
 				/>
 			</picture>
 			<figcaption>
-				<a class="fn url" href="https://jessehattabaugh.com">Jesse Hattabaugh</a>
+				<h4><a class="fn url" href="https://jessehattabaugh.com">Jesse Hattabaugh</a></h4>
 			</figcaption>
-		</figure></h3>`;
+		</figure> `;
 }
