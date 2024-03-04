@@ -29,6 +29,7 @@ html {
 	--rgb-black: 0, 0, 0;
 	--rgb-white: 255, 255, 255;
 	--rgb-border: rgb(var(--rgb-black));
+	--width-page: calc(var(--unit) * 50);
 	--unit-half: calc(var(--unit) / 2);
 	--unit: 1em;
 	box-sizing: border-box;
@@ -55,9 +56,9 @@ main {
 	flex: 1;
 }
 
-main, .page-container {
+main {
 	margin: 0 auto;
-	max-width: calc(var(--unit) * 50);
+	max-width: var(--width-page);
 	padding: var(--unit);
 }
 
@@ -83,18 +84,18 @@ a:hover {
 	text-decoration: underline;
 }
 
-blockquote,
-dd,
-dt,
-h1,
-h2,
-h3,
-h4,
-h5,
-h6,
-p,
-pre,
-summary {
+main blockquote,
+main dd,
+main dt,
+main h1,
+main h2,
+main h3,
+main h4,
+main h5,
+main h6,
+main p,
+main pre,
+main summary {
 	padding-top: var(--unit);
 }
 
@@ -135,10 +136,10 @@ blockquote {
 	margin-top: var(--unit);
 }
 
-dl,
-dd,
-ol,
-ul {
+main dl,
+main dd,
+main ol,
+main ul {
 	padding-left: var(--unit);
 }
 
@@ -160,22 +161,13 @@ img {
 	color: var(--color-error);
 }
 
-.compact dt {
-	float: left;
-	margin-right: var(--unit);
-	clear: both;
+.vcard {
+	background: rgba(255, 255, 255, 0.1);
+	border-radius: 1em;
+	padding: 1em;
+	box-shadow: 0em 0em 1em 0em;
 }
-
-.compact dt * {
-	line-height: 1.1;
+.page-container {
+	margin: 0 auto;
+	max-width: var(--width-page);
 }
-
-.compact dt:after {
-	content: ':';
-}
-
-.compact dd {
-	text-wrap: balance;
-}
-
-
