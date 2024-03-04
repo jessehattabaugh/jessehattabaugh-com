@@ -11,6 +11,7 @@ export default function ({ html }) {
 				height: 100%;
 				shape-outside: circle(50%);
 				width: 100%;
+				max-width: 50vw;
 			}
 			figure {
 				text-align: center;
