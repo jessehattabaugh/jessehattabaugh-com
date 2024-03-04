@@ -4,18 +4,6 @@
 		white-space: nowrap;
 	}
 
-	.p-contact {
-		margin-left: 1em;
-		margin-bottom: 1em;
-	}
-
-	.p-contact>*,
-	no-wrap {
-		overflow: hidden;
-		text-overflow: ellipsis;
-		white-space: nowrap;
-	}
-
 	.p-experience {
 		break-inside: avoid;
 		list-style: none;
@@ -48,10 +36,10 @@
 	}
 
 	@media screen and (min-width: 768px) {
-		.p-contact {
+		.h-resume .p-contact {
 			float: right;
-			max-width: 19em;
 			width: 50%;
+			margin: 1em;
 		}
 
 		.h-resume>.p-name {
@@ -81,9 +69,7 @@
 	<section>
 		<h1 class="p-name">Resume of <no-wrap>Jesse Hattabaugh</no-wrap>, Webmaster</h1>
 
-		<address class="p-contact h-card">
-			<jh-contact></jh-contact>
-		</address>
+		<jh-contact></jh-contact>
 
 		<p class="p-summary">
 			Driven by a passion for the web platform, I aim to leverage my extensive experience to

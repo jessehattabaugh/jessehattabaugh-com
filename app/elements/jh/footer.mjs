@@ -7,37 +7,21 @@ export default function ({ html }) {
 				border-top: var(--border);
 				box-shadow: 0 0 var(--unit) rgba(black, 0.5);
 				clear: both;
-
-				padding: 0.5em;
-			}
-			ul,
-			h6,
-			p,
-			dl,
-			dt,
-			dd {
-				padding: 0;
-			}
-			p {
-				padding-left: 1em;
+				padding: var(--unit-half);
 			}
 			jh-nav nav {
-				padding: 0.5em;
+				padding: var(--unit-half);
 			}
 			jh-nav li {
 				list-style: none;
 				text-align: center;
 			}
-			jh-contact img {
+			.photo {
 				max-width: 6em;
-				max-height: 6em;
 			}
-			@media (min-width: 25em) {
+			@media (min-width: 20em) {
 				.page-container {
 					display: flex;
-				}
-				.page-container > div {
-					min-width: 21em;
 				}
 				jh-nav {
 					flex-grow: 1;
@@ -55,10 +39,9 @@ export default function ({ html }) {
 		<footer>
 			<div class="page-container">
 				<jh-nav></jh-nav>
-				<div>
-					<jh-contact></jh-contact>
-					<p>&copy; 1998 - 2024</p>
-				</div>
+				<jh-contact></jh-contact>
+
 			</div>
+			<center>&copy; 1998 - 2024</center>
 		</footer>`;
 }
