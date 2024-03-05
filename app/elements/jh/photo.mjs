@@ -18,7 +18,7 @@ export default function ({ html }) {
 				width: 100%;
 			}
 			@media (min-width: 469px) {
-				img {
+				figure {
 					float: left;
 					margin-bottom: var(--unit);
 					margin-right: var(--unit);
