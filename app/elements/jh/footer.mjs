@@ -2,12 +2,10 @@
 export default function ({ html }) {
 	return html`<style>
 			footer {
-				backdrop-filter: blur(var(--unit-half));
 				background-color: rgba(var(--rgb-background), 0.5);
 				border-top: var(--border);
 				box-shadow: 0 0 var(--unit) rgba(black, 0.5);
 				clear: both;
-				padding: var(--unit-half);
 			}
 
 			center {
@@ -19,13 +17,18 @@ export default function ({ html }) {
 				display: none;
 			}
 
+			jh-contact  {
+				min-width: 17em;
+			}
+
 			/* bigger than mobile */
-			@media (min-width: 450px) {
+			@media (min-width: 469px) {
 				article {
+					align-items: center;
 					display: flex;
 				}
 				jh-nav {
-					flex-grow: 1;
+					flex: 1;
 				}
 			}
 		</style>

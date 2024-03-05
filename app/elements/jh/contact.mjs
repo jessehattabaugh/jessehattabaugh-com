@@ -7,7 +7,9 @@ export default function ({ html }) {
 				grid-template-columns: max-content 1fr;
 			}
 			dt, dd {
-				padding: 0.25em;
+				padding: 0.2em;
+				overflow: hidden;
+				text-overflow: ellipsis;
 			}
 			dt::after {
 				content: ':';
