@@ -1,6 +1,6 @@
 /** @type {import('@enhance/types').EnhanceElemFn} */
 export default function ({ html }) {
-	return html`<nav class="no-print">
+	return html`<nav>
 		<ul>
 			<li><a href="/share">Share</a></li>
 			<li><a href="/about">About</a></li>
