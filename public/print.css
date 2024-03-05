@@ -5,6 +5,7 @@ html {
 	--mourners: 3; /* widows and orphans, get it? */
 }
 
+/* avoid page breaks in awkward places */
 dt,
 h1,
 h2,
@@ -25,12 +26,14 @@ p {
 	widows: var(--mourners);
 }
 
-/* elements to hide in print */
-.no-print, nav {
+/* things to hide in print */
+.no-print,
+nav {
 	display: none;
 }
 
-/* display the URL of external links */
+/* print the URL for external links */
+.print-url,
 a[href^="https://"]:after {
 	content: ' (' attr(href) ')';
 }
