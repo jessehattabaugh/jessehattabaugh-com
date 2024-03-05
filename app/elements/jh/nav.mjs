@@ -12,7 +12,7 @@ export default function ({ html }) {
 		a {
 			/* nice fat click target */
 			display: block;
-			padding: var(--unit);
+			padding: var(--unit-half);
 			width: 100%;
 		}
 	</style>

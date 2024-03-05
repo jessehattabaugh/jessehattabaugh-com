@@ -5,20 +5,31 @@ export default function ({ html }) {
 				--box-shadow-photo: black 0.25em 0.25em 1em 0em;
 				--box-shadow-highlight: 0 0 0 0.3em;
 			}
+			figure {
+				padding: var(--unit-half);
+			}
+			figcaption {
+				font-size: larger;
+			}
 			img {
 				border-radius: 50%;
 				box-shadow: var(--box-shadow-photo), currentColor var(--box-shadow-highlight);
 				height: 100%;
-				max-width: 50%;
-				shape-outside: circle(50%);
 				width: 100%;
 			}
-			figure {
-				text-align: center;
+			@media (min-width: 469px) {
+				img {
+					float: left;
+					margin-bottom: var(--unit);
+					margin-right: var(--unit);
+					max-width: 33%;
+					shape-outside: circle(50%);
+				}
 			}
 			@supports (background: paint(something)) {
 				img {
-					box-shadow: var(--box-shadow-photo), var(--color-current) var(--box-shadow-highlight);
+					box-shadow: var(--box-shadow-photo),
+						var(--color-current) var(--box-shadow-highlight);
 				}
 			}
 		</style>
@@ -53,7 +64,7 @@ export default function ({ html }) {
 				/>
 			</picture>
 			<figcaption>
-				<h4><a class="fn url no-wrap" href="https://jessehattabaugh.com">Jesse Hattabaugh</a></h4>
+				<a class="fn url no-wrap" href="https://jessehattabaugh.com">Jesse Hattabaugh</a>
 			</figcaption>
 		</figure> `;
 }
