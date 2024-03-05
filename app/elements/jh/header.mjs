@@ -23,7 +23,7 @@ export default function ({ html }) {
 				list-style: none;
 			}
 		</style>
-		<header class="no-print">
+		<header>
 			<div class="page-container">
 				<h1><a href="/">JesseHattabaugh.com</a></h1>
 				<jh-nav></jh-nav>

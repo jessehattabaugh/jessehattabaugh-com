@@ -1,20 +1,23 @@
-/* what it looks like on paper */
-@page {
-	size: Letter portrait;
-	margin: 0;
-}
-
+/** what it looks like on paper
+* @see: https://www.w3.org/TR/css-page-3/
+*/
 html {
 	--mourners: 3; /* widows and orphans, get it? */
 }
 
+dt,
 h1,
 h2,
 h3,
 h4,
 h5,
-h6 {
+h6,
+summary {
 	page-break-after: avoid;
+}
+
+footer {
+	page-break-inside: avoid;
 }
 
 p {
@@ -22,6 +25,17 @@ p {
 	widows: var(--mourners);
 }
 
-.no-print {
+/* elements to hide in print */
+.no-print, nav {
 	display: none;
+}
+
+/* display the URL of external links */
+a[href^="https://"]:after {
+	content: ' (' attr(href) ')';
+}
+
+@page {
+	size: Letter portrait;
+	margin: 0;
 }
