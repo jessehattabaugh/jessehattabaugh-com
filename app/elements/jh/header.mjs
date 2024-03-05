@@ -12,22 +12,12 @@ export default function ({ html }) {
 				position: sticky;
 				top: 0;
 			}
-			h1 {
-				padding: 0;
-			}
-			jh-nav ul {
-				display: flex;
-				justify-content: space-around;
-			}
-			jh-nav li {
-				list-style: none;
-			}
 		</style>
 		<header>
-			<div class="page-container">
+			<article>
 				<h1><a href="/">JesseHattabaugh.com</a></h1>
 				<jh-nav></jh-nav>
-			</div>
+			</article>
 		</header>
 	`;
 }

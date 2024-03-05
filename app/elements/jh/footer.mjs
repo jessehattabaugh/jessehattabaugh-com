@@ -9,39 +9,31 @@ export default function ({ html }) {
 				clear: both;
 				padding: var(--unit-half);
 			}
-			jh-nav nav {
+
+			center {
 				padding: var(--unit-half);
 			}
-			jh-nav li {
-				list-style: none;
-				text-align: center;
-			}
+
+			/* don't be vain */
 			.photo {
-				max-width: 6em;
+				display: none;
 			}
-			@media (min-width: 20em) {
-				.page-container {
+
+			/* bigger than mobile */
+			@media (min-width: 450px) {
+				article {
 					display: flex;
 				}
 				jh-nav {
 					flex-grow: 1;
 				}
-				jh-nav li {
-					display: inline-block;
-					min-width: 25%;
-				}
-				jh-nav li a {
-					width: 100%;
-					display: block;
-				}
 			}
 		</style>
 		<footer>
-			<div class="page-container">
+			<article>
 				<jh-nav></jh-nav>
 				<jh-contact></jh-contact>
-
-			</div>
+			</article>
 			<center>&copy; 1998 - 2024</center>
 		</footer>`;
 }
