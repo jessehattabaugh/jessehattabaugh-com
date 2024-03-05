@@ -29,7 +29,7 @@ html {
 	--rgb-black: 0, 0, 0;
 	--rgb-white: 255, 255, 255;
 	--rgb-border: rgb(var(--rgb-black));
-	--width-page: calc(var(--unit) * 50);
+	--width-page: 940px;
 	--unit-half: calc(var(--unit) / 2);
 	--unit: 1em;
 	box-sizing: border-box;
@@ -54,12 +54,14 @@ body > * {
 
 main {
 	flex: 1;
+	padding: var(--unit);
 }
 
+/* constrain the width of pages */
+article,
 main {
 	margin: 0 auto;
 	max-width: var(--width-page);
-	padding: var(--unit);
 }
 
 section {
@@ -165,12 +167,6 @@ img {
 }
 
 .vcard {
-	background: rgba(255, 255, 255, 0.1);
 	border-radius: 1em;
-	padding: 1em;
-	box-shadow: 0em 0em 1em 0em;
-}
-.page-container {
-	margin: 0 auto;
-	max-width: var(--width-page);
+	padding: var(--unit-half);
 }

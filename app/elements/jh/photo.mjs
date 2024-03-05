@@ -9,9 +9,9 @@ export default function ({ html }) {
 				border-radius: 50%;
 				box-shadow: var(--box-shadow-photo), currentColor var(--box-shadow-highlight);
 				height: 100%;
+				max-width: 50%;
 				shape-outside: circle(50%);
 				width: 100%;
-				max-width: 50vw;
 			}
 			figure {
 				text-align: center;
@@ -53,7 +53,7 @@ export default function ({ html }) {
 				/>
 			</picture>
 			<figcaption>
-				<h4><a class="fn url" href="https://jessehattabaugh.com">Jesse Hattabaugh</a></h4>
+				<h4><a class="fn url no-wrap" href="https://jessehattabaugh.com">Jesse Hattabaugh</a></h4>
 			</figcaption>
 		</figure> `;
 }
