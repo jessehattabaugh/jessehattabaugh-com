@@ -166,8 +166,3 @@ img {
 .error {
 	color: var(--color-error);
 }
-
-.vcard {
-	border-radius: 1em;
-	padding: var(--unit-half);
-}

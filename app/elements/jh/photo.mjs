@@ -6,7 +6,7 @@ export default function ({ html }) {
 				--box-shadow-highlight: 0 0 0 0.3em;
 			}
 			figure {
-				padding: var(--unit-half);
+				padding: var(--unit-half) 0;
 			}
 			figcaption {
 				font-size: larger;

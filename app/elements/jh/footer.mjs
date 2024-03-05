@@ -6,6 +6,7 @@ export default function ({ html }) {
 				border-top: var(--border);
 				box-shadow: 0 0 var(--unit) rgba(black, 0.5);
 				clear: both;
+				padding: var(--unit);
 			}
 
 			center {
