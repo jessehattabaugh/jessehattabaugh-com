@@ -9,8 +9,11 @@ export default function ({ html }) {
 				padding: var(--unit);
 			}
 
-			center {
+			small {
+				display: block;
+				font-size: smaller;
 				padding: var(--unit-half);
+				text-align: center;
 			}
 
 			/* don't be vain */
@@ -20,6 +23,12 @@ export default function ({ html }) {
 
 			jh-contact  {
 				min-width: 17em;
+			}
+
+			jh-contact figure {
+				float: none;
+				margin: 0;
+				padding: 0;
 			}
 
 			/* bigger than mobile */
@@ -38,6 +47,6 @@ export default function ({ html }) {
 				<jh-nav></jh-nav>
 				<jh-contact></jh-contact>
 			</article>
-			<center>&copy; 1998 - 2024</center>
+			<small>&copy; 1998 - 2024</small>
 		</footer>`;
 }
