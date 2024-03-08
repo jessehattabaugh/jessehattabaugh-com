@@ -2,17 +2,19 @@
 export default function ({ html }) {
 	return html`<style>
 		ul {
-			display: flex;
-			justify-content: space-evenly;
-			flex-wrap: wrap;
+			display: block;
+			text-wrap: pretty;
+			text-align: center;
 		}
 		li {
 			list-style: none;
+			display: inline-block;
+
 		}
 		a {
 			/* nice fat click target */
 			display: block;
-			padding: var(--unit-half);
+			padding: var(--unit-half) calc());
 			width: 100%;
 		}
 	</style>
