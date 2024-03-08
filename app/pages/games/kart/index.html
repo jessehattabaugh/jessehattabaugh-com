@@ -1,0 +1,22 @@
+<style>
+	main {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+	}
+
+	game-kart {
+		width: 100%;
+		max-width: 800px;
+		height: 600px;
+	}
+</style>
+<main>
+	<h1>Kart</h1>
+	<p>A racing game where you define the tracks and cars using HTML Custom Elements.</p>
+	<kart-game></kart-game>
+</main>
+<script type="module">
+	import {KartGame} from '/_public/games/kart/game.mjs';
+	customElements.define('kart-game', KartGame);
+</script>
