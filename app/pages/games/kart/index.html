@@ -1,22 +1,74 @@
 <style>
-	main {
-		display: flex;
-		flex-direction: column;
-		align-items: center;
+	kart-game {
+		outline: 1px dashed red;
+		display: block;
+		height: 500px;		perspective: 70px;
+		position: relative;
+		overflow: hidden;
+	}
+	kart-game > * {
+		outline: 1px dashed purple;
+
+	}
+	kart-player {
+		outline: 1px dashed orange;
+		display: block;
+		width: 32px;
+		height: 32px;
+		position: absolute;
+		top: 50%;
+		left: 50%;
+		transform: translate(-50%, -50%);
+		background-image: url('/_public/games/kart/characters/yoshi.png');
+		background-position: 0px 0px;
+		background-size: 384px 240px;
+		background-repeat: no-repeat;
 	}
 
-	game-kart {
-		width: 100%;
-		max-width: 800px;
-		height: 600px;
+	kart-ground {
+		outline: 1px dashed lime;
+
+		background-image: url('/_public/games/kart/tracks/mario-circuit.png');
+		display: block;
+		height: 1108px;
+		width: 1410px;
+		position: absolute;
+		left: 0;
+		top: 0;
+		transform-origin: center center;
+		transform: translate(-50%, -50%) rotateX(60deg);
+	}
+	img {
+		outline: 1px dashed blue;
 	}
 </style>
 <main>
 	<h1>Kart</h1>
 	<p>A racing game where you define the tracks and cars using HTML Custom Elements.</p>
-	<kart-game></kart-game>
+
+	<h3>Game</h3>
+	<kart-game>
+		<kart-ground></kart-ground>
+		<kart-player></kart-player>
+	</kart-game>
+
+	<h3>Ground</h3>
+	<p>This is the track element. It will be scaled and zoomed to create a three dimensional effect. It defaults to
+		displaying the center of the image.</p>
+
+
+	<h3>Player</h3>
+	<div style="display: relative;">
+		<kart-player></kart-player>
+	</div>
 </main>
 <script type="module">
-	import {KartGame} from '/_public/games/kart/game.mjs';
-	customElements.define('kart-game', KartGame);
+	import { Game } from '/_public/games/kart/game.mjs';
+	import { Ground } from '/_public/games/kart/ground.mjs';
+	import { Player } from '/_public/games/kart/player.mjs';
+
+	// defined in order of dependency
+	customElements.define('kart-player', Player);
+	customElements.define('kart-ground', Ground);
+	customElements.define('kart-game', Game);
 </script>
