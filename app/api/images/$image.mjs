@@ -7,12 +7,9 @@ import asap from '@architect/asap';
 export async function get(req) {
 	console.log('🏖️', { req });
 	try {
-		// @ts-ignore
 		return asap({ cacheControl: 'max-age=31536000' })(req);
 	} catch (error) {
 		console.error('🦀 asap error', error);
-		return {
-			statusCode: 404,
-		};
+		return { statusCode: 404 };
 	}
 }
