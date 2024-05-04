@@ -3,8 +3,8 @@
 @font-face {
 	font-display: swap;
 	font-family: comicSans;
-	src: url('/_public/comicSans.woff2') format('woff2'),
-		url('/_public/comicSans.woff') format('woff');
+	src: url('/_public/comicSans-subset.woff2') format('woff2'),
+		url('/_public/comicSans-subset.woff') format('woff');
 }
 
 *,
