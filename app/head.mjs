@@ -15,7 +15,7 @@ export default function Head(state) {
 			<link rel="manifest" href="/_public/manifest.json" />
 			<link rel="apple-touch-icon" href="/_public/images/jesse192.png" />
 			<meta name="theme-color" content="#000000" />
-			<link as="font" crossorigin="anonymous" href="/_public/comicSans.woff2" rel="preload" type="font/woff2" />
+			<link as="font" crossorigin="anonymous" href="/_public/comicSans-subset.woff2" rel="preload" type="font/woff2" />
 			<link rel="stylesheet" href="/_public/all.css" />
 			<link rel="stylesheet" href="/_public/screen.css" media="screen" />
 			<link rel="stylesheet" href="/_public/print.css" media="print" />

@@ -51,7 +51,22 @@ export default function ({ html }) {
 					type="image/jxl"
 				/>
 				<source
-					media="(max-width: 192px)"
+					media="(min-width: 256px)"
+					srcset="/_public/images/jesse512.avif"
+					type="image/avif"
+				/>
+				<source
+					media="(min-width: 256px)"
+					srcset="/_public/images/jesse512.webp"
+					type="image/webp"
+				/>
+				<source
+					media="(min-width: 256px)"
+					srcset="/_public/images/jesse512.jxl"
+					type="image/jxl"
+				/>
+				<source
+					media="(max-width: 96px)"
 					srcset="/_public/images/jesse192.png"
 					type="image/png"
 				/>
