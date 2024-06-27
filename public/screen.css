@@ -65,7 +65,7 @@ pre {
 }
 
 blockquote {
-	background-color: rgba(var(--rgb-white), 0.5);
+	background-color: rgba(var(--rgb-white), 0.1);
 	border-radius: var(--unit-half);
 	border: 1px outset currentColor;
 }

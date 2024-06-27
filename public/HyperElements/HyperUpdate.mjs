@@ -52,7 +52,7 @@ export class HyperUpdate extends HyperTarget {
 				await this.transitionView(() => {
 					this.innerHTML = newContent.innerHTML;
 				});
-				console.debug('🔄 HyperUpdate update', cause, detail);
+				//console.debug('🔄 HyperUpdate update', cause, detail);
 				/** @todo allow content to be appended and prepended */
 			} else {
 				throw new Error('🤬 HyperUpdate: no content matches the selector.', { cause });
@@ -69,7 +69,7 @@ export class HyperUpdate extends HyperTarget {
 	async transitionView(updateContent) {
 		if ('startViewTransition' in document) {
 			document.startViewTransition(updateContent);
-			console.debug('🦜 HyperUpdate: View transition complete');
+			//console.debug('🦜 HyperUpdate: View transition complete');
 		} else {
 			// View Transitions API is not supported so update the content directly
 			updateContent();
