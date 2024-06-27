@@ -12,9 +12,10 @@
 *::after {
 	appearance: unset;
 	box-sizing: inherit;
+	font-size: unset;
+	line-height: 1.4;
 	margin: 0;
 	padding: 0;
-	font-size: unset;
 }
 
 html {
@@ -43,6 +44,7 @@ body {
 	flex-direction: column;
 	font-family: var(--font-body);
 	font-smooth: auto;
+
 	min-height: 100%;
 	text-rendering: optimizeLegibility;
 	text-wrap: pretty;

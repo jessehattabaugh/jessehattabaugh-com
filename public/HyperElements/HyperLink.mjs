@@ -48,15 +48,15 @@ export class HyperLink extends HyperFetch {
 		if (isClick || isPrefetch) {
 			try {
 				await this.fetch(url, {}, isPrefetch);
-				console.debug(
+				/*console.debug(
 					`✅ HyperLink ${isPrefetch ? 'Prefetch' : 'Fetch'} successful`,
 					details,
-				);
+				);*/
 			} catch ({ message, cause }) {
 				console.error(message, details, cause);
 			}
 		} else {
-			console.debug(`🛑 HyperLink can't handle event`, details);
+			console.warn(`🛑 HyperLink can't handle event`, details);
 		}
 	}
 }

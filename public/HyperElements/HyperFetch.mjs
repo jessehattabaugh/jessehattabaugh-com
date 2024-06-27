@@ -47,7 +47,7 @@ export class HyperFetch extends HTMLElement {
 		/** @type {import('./types').FetchDetails} */
 		const args = { id: this.id, isPrefetch, options, url };
 
-		// console.debug('🌐 HXFetch initiating fetch', args);
+		// console.debug('🌐 HyperFetch initiating fetch', args);
 		const { signal } = this.controller;
 		const eventSuffix = isPrefetch ? '-prefetch' : '';
 
@@ -59,7 +59,7 @@ export class HyperFetch extends HTMLElement {
 					this.dispatchEvent(
 						this.createEvent(`hyper-fetch-success${eventSuffix}`, cached),
 					);
-					console.debug('💰 HXFetch cache fetch success', cached);
+					//console.debug('💰 HyperFetch cache fetch success', cached);
 				} else {
 					const response = await fetch(url, { ...options, signal, method: this.method });
 					const { ok, status } = response;
@@ -79,9 +79,9 @@ export class HyperFetch extends HTMLElement {
 						details.cached = true;
 						HyperFetch.fetchCache.set(url.toString(), details);
 
-						console.debug('🐶 HXFetch network fetch success', details);
+						//console.debug('🐶 HyperFetch network fetch success', details);
 					} else {
-						throw new Error(`❌ HXFetch fetch error`, { cause: response });
+						throw new Error(`❌ HyperFetch fetch error`, { cause: response });
 					}
 				}
 			} catch ({ message, cause }) {
@@ -90,7 +90,7 @@ export class HyperFetch extends HTMLElement {
 				this.dispatchEvent(this.createEvent(`hyper-fetch-error${eventSuffix}`, details));
 				throw new Error(message, { cause });
 			} finally {
-				// console.debug('🔄 HXFetch fetch completed', { ...args });
+				// console.debug('🔄 HyperFetch fetch completed', { ...args });
 				this.dispatchEvent(this.createEvent(`hyper-fetch-end${eventSuffix}`, args));
 			}
 		} else {

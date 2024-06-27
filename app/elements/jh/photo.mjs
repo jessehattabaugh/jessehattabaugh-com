@@ -78,8 +78,5 @@ export default function ({ html }) {
 					width="512"
 				/>
 			</picture>
-			<figcaption>
-				<a class="fn url no-wrap" href="https://jessehattabaugh.com">Jesse Hattabaugh</a>
-			</figcaption>
 		</figure> `;
 }

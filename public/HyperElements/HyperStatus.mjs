@@ -25,7 +25,7 @@ export class HyperStatus extends HyperTarget {
 
 			// get the type of event
 			const [, , type] = event.type.split('-');
-			console.debug('⌛ HyperStatus handling event', { id, type });
+			//console.debug('⌛ HyperStatus handling event', { id, type });
 
 			// hide all status slots
 			['loading', 'success', 'error'].forEach((status) => {
@@ -42,9 +42,9 @@ export class HyperStatus extends HyperTarget {
 			const slot = this.querySelector(`[slot="${type}"]`);
 			if (slot) {
 				slot.style.display = 'revert';
-				console.debug('🔊 HyperStatus showed', { id, type });
+				//console.debug('🔊 HyperStatus showed', { id, type });
 			} else {
-				console.debug('🤷 HyperStatus no slot for type', { id, type });
+				console.warn('🤷 HyperStatus no slot for type', { id, type });
 			}
 		});
 	}

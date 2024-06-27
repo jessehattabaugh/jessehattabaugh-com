@@ -34,10 +34,10 @@ export class HyperTarget extends HTMLElement {
 		const { from } = this;
 		const { id } = event.detail;
 		if (this.from.includes(id)) {
-			console.debug('🎯 HyperTarget handling event', { from, id });
+			//console.debug('🎯 HyperTarget handling event', { from, id });
 			callback();
 		} else {
-			console.debug('🙉 HyperTarget ignoring event', { from, id });
+			//console.debug('🙉 HyperTarget ignoring event', { from, id });
 		}
 	}
 }
