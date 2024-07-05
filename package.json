@@ -10,6 +10,7 @@
 		"@enhance/element": "latest",
 		"@enhance/ssr": "latest",
 		"@enhance/types": "latest",
+		"@eslint/compat": "latest",
 		"@eslint/eslintrc": "latest",
 		"@eslint/js": "latest",
 		"@playwright/test": "latest",
@@ -18,7 +19,7 @@
 		"@types/node": "latest",
 		"eslint": "latest",
 		"eslint-config-prettier": "latest",
-		"globals": "latest",
+		"globals": "^15.8.0",
 		"lambda-multipart-parser": "latest",
 		"playwright": "latest"
 	},
