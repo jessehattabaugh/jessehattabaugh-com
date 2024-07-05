@@ -19,7 +19,7 @@
 		"@types/node": "latest",
 		"eslint": "latest",
 		"eslint-config-prettier": "latest",
-		"globals": "^15.8.0",
+		"globals": "latest",
 		"lambda-multipart-parser": "latest",
 		"playwright": "latest"
 	},
