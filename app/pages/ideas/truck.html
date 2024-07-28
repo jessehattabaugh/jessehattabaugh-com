@@ -31,6 +31,20 @@
 		to pick the parts with the right specs to make it work well so I don't waste money on parts that don't work well
 		together.</p>
 
+	<h3>The Truck</h3>
+
+	<p>Here are the relevant specs of the truck:</p>
+
+	<dl>
+		<dt>Rear Differential Ratio:</dt>
+		<dd>4.875:1</dd>
+		<dt>Wheel (and tire) Diameter:</dt>
+		<dd>25"</dd>
+		<dt>Weight:</dt>
+		<dd>2000lbs</dd>
+	</dl>
+
+
 	<h3>Required Parts</h3>
 
 	<p>Here's a list of the parts I think I'll need to make this work:</p>
@@ -52,21 +66,34 @@
 
 	<h3>Pump Motor</h3>
 
-	<p>Most important of all is the pump/motor. This is the heart of the system, and it's specs will impact almost
-		everything else. The rate of flow will determine how quickly the pressure in the accumulator will be depleted.
-		It's maximum RPM will limit the ultimate speed of the truck. It's displacement, pressure limit, and gearing will
-		determine how much torque it can produce.</p>
+	<p>The heart of the system is the pump/motor, and it's specs will impact almost everything else. The rate of flow
+		will determine how quickly the pressure in the accumulator will be depleted. It's maximum RPM will limit the
+		ultimate speed of the truck. It's displacement, pressure limit, and gearing will determine how much torque it
+		can produce.</p>
+
+	<p>I think the <a href="https://www.grainger.com/product/PARKER-Hydraulic-Motor-TF-30E837">Parker TF-30E837</a> has
+		the right specs for the job. It's rated for 3000psi of pressure, which is more than most accumulators can take.
+		It displaces only 4.9 cu in/rev, while still making 1948 in-lbs of torque. It's maximum RPM is 693. So it's
+		maximum flow rate at max-RPM is 14.7 GPM</p>
+
+	<h3>Crossmember</h3>
+
+	<p>Since there is no transmission, I will need to fabricate a crossmember to support the driveshaft. Since the
+		pump-motor will be spinning at a different speed than the driveshaft, I will need a chain drive to connect them,
+		and a clutch to disengage the pump-motor when I want to coast. The crossmember will need to be strong enough to
+		support the weight of the driveshaft, and the torque of the pump-motor. It will also need to be adjustable so
+		that I can tension the chain drive.</p>
 
 	<h3>Chain Drive</h3>
 
-	<p>I think I will forego a transmission, and just weld a crossmember where the nose cone of the transmission would
-		have been and connect the drive shaft to the pump/motor with a chain drive. This will give me some flexibility
-		to choose a gear ratio that works best once the system is in place.</p>
+	<p>The chain can be some kind of roller chain like motorcycle chain since it will have similar loads and RPM.
+		Sprocket and cogs will need to be matched to the pump/motor and clutch splines.</p>
 
 	<h3>Clutch</h3>
 
 	<p>Since each revolution of the motor will consume fluid from the accumulator, I will want a clutch so that I can
-		coast without using fluid. This will give the system time to replenish pressure.</p>
+		coast without using fluid. This will give the system time to replenish pressure. As a side benefit clutches can
+		sometimes slip to prevent overtorquing. This could protect the chain for example. </p>
 
 	<h3>Accumulator</h3>
 
@@ -74,6 +101,13 @@
 		styles. The larger the capacity the longer the truck will be able to accelerate without the pressure dropping.
 		The higher the maximum pressure the more torque the motor will be able to generate. The size of the inlets and
 		outlets will determine how efficiently fluid can flow through the system.</p>
+
+	<p>I think the <a href="https://www.grainger.com/product/PARKER-Bladder-Accumulator-2-4VV77">Parker
+			BA10B3T01P2GRG</a> will do. It's rated for 3000psi of pressure, which is more than most pumps can take. It
+		has a maximum flow rate of 220 gallons per minute which is MUCH more than the pump-motor needs at full RPM. It's
+		20" tall, and 12" in diameter, so it should fit in the bed of the truck. It's 1" NPT, which is
+		a common size for hydraulic fittings. The most important quality in an accumulator will be it's
+	</p>
 
 	<h3>Engine/Pump</h3>
 
