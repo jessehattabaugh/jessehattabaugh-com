@@ -21,7 +21,7 @@ export default function ({ html }) {
 	<nav>
 		<ul>
 			<li><a href="/about">About</a></li>
-			<li><a href="/colophon">Colophon</a></li>
+			<li><a href="/about/site">Colophon</a></li>
 			<li><a href="/contact">Contact</a></li>
 			<li><a href="/ideas">Ideas</a></li>
 			<li><a href="/now">Now</a></li>
