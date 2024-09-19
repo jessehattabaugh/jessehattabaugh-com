@@ -28,13 +28,15 @@ p {
 
 /* things to hide in print */
 .no-print,
-nav {
+jh-header,
+jh-nav {
 	display: none;
 }
 
 /* print the URL for external links */
 .print-url,
-a[href^="https://"]:after {
+a[href^="https://"]:after
+{
 	content: ' (' attr(href) ')';
 }
 
