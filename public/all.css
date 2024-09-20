@@ -44,7 +44,6 @@ body {
 	flex-direction: column;
 	font-family: var(--font-body);
 	font-smooth: auto;
-
 	min-height: 100%;
 	text-rendering: optimizeLegibility;
 	text-wrap: pretty;
@@ -54,11 +53,6 @@ body > * {
 	width: 100%;
 }
 
-main {
-	flex: 1;
-	padding: var(--unit);
-}
-
 /* constrain the width of pages */
 article,
 main {
@@ -66,15 +60,24 @@ main {
 	max-width: var(--width-page);
 }
 
-section {
-	padding-bottom: var(--unit);
+main {
+	flex: 1;
+	padding: var(--unit);
 }
 
-section:not(:last-child):after {
-	content: '';
+/* indent some block elements in main only */
+main :is(dl, dd, ol, ul, blockquote) {
+	padding-left: var(--unit);
+}
+
+/* margins above block elements in main only */
+main :is(section, h1, h2, h3, h4, h5, h6, dl, ol, ul, li, p) {
+	margin-top: var(--unit);
+}
+
+section:not(:last-child) {
 	border-bottom: var(--border);
-	display: block;
-	padding-top: calc(var(--unit) * 3);
+	padding-bottom: var(--unit);
 }
 
 a:active,
@@ -88,22 +91,6 @@ a:hover {
 	text-decoration: underline;
 }
 
-main blockquote,
-main dd,
-main dt,
-main h1,
-main h2,
-main h3,
-main h4,
-main h5,
-main h6,
-main li,
-main p,
-main pre,
-main summary {
-	padding-top: var(--unit);
-}
-
 h1,
 h2,
 h3,
@@ -113,6 +100,7 @@ h6 {
 	font-family: var(--font-heading);
 	font-weight: bold;
 	text-wrap: balance;
+	clear: both;
 }
 
 h1 {
@@ -141,11 +129,8 @@ blockquote {
 	margin-top: var(--unit);
 }
 
-main dl,
-main dd,
-main ol,
-main ul {
-	padding-left: var(--unit);
+dt {
+	font-weight: bold;
 }
 
 code {

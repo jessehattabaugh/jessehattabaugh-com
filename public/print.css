@@ -1,6 +1,12 @@
 /** what it looks like on paper
 * @see: https://www.w3.org/TR/css-page-3/
 */
+
+@page {
+	size: Letter portrait;
+	margin: 2em;
+}
+
 html {
 	--mourners: 3; /* widows and orphans, get it? */
 }
@@ -26,6 +32,13 @@ p {
 	widows: var(--mourners);
 }
 
+a:active,
+a:focus,
+a:link,
+a:visited {
+	color: inherit;
+}
+
 /* things to hide in print */
 .no-print,
 jh-header,
@@ -38,9 +51,6 @@ jh-nav {
 a[href^="https://"]:after
 {
 	content: ' (' attr(href) ')';
+	font-size: smaller;
 }
 
-@page {
-	size: Letter portrait;
-	margin: 0;
-}
