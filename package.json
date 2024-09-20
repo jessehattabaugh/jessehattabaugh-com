@@ -8,7 +8,7 @@
 		"@aws-sdk/node-http-handler": "latest",
 		"@enhance/arc-plugin-enhance": "latest",
 		"@enhance/element": "latest",
-		"@enhance/ssr": "^3.5.1",
+		"@enhance/ssr": "latest",
 		"@enhance/types": "latest",
 		"@playwright/test": "latest",
 		"@types/node": "latest",
