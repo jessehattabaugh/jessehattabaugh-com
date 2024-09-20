@@ -5,7 +5,8 @@
 		list-style: none;
 	}
 
-	.p-location+.p-name::before,
+	/* dashes between experience names and locations, and between start and end dates */
+	.p-name+.p-location::before,
 	.dt-start+.dt-end::before {
 		content: '-';
 		margin: 0.5em;
@@ -57,7 +58,7 @@
 </style>
 <main class="h-resume">
 	<section>
-		<h1 class="p-name"><a class="fn url no-wrap" href="https://jessehattabaugh.com">Jesse Hattabaugh</a></h1>
+		<h1 class="p-name">Resume of <a class="fn url" href="https://jessehattabaugh.com">Jesse Hattabaugh</a></h1>
 
 		<jh-contact></jh-contact>
 
@@ -76,70 +77,93 @@
 	<section>
 		<h2>Skills</h2>
 		<dl>
-			<dt>
-				<h3>Frontend Web Platform Features</h3>
-			</dt>
+			<dt>Software Development Tools</dt>
 			<dd>
-				<a class="p-skill" name="html">HTML</a>
-				<a class="p-skill" name="javascript">JavaScript</a>
-				<a class="p-skill" name="typescript">TypeScript</a>
-				<a class="p-skill" name="css">CSS</a>
-				<a class="p-skill" name="webcomponents">Web Components</a>
-				<a class="p-skill" name="pwa">Progressive Web Apps</a>
-			</dd>
-			<dt>
-				<h3>Backend Web Application Tools</h3>
-			</dt>
-			<dd>
-				<a class="p-skill" name="aws">AWS</a>
-				<a class="p-skill" name="react">React</a>
-				<a class="p-skill" name="nodejs">Node.js</a>
-				<a class="p-skill" name="graphql">GraphQL</a>
-				<a class="p-skill" name="nextjs">NextJS</a>
-				<a class="p-skill" name="express">Express</a>
-				<a class="p-skill" name="rest">REST APIs</a>
-				<a class="p-skill" name="dynamodb">DynamoDB</a>
-			</dd>
-			<dt>
-				<h3><a class="p-skill" name="testing">Automated Testing</a></h3>
-			</dt>
-			<dd>
-				<a class="p-skill" name="cypress">Cypress</a>
-				<a class="p-skill" name="jest">Jest</a>
-				<a class="p-skill" name="storybook">Storybook</a>
-				<a class="p-skill" name="playwright">Playwright</a>
-				<a class="p-skill" name="k6">K6</a>
-			</dd>
-			<dt>
-				<h3>Software Development Tools</h3>
-			</dt>
-			<dd>
-				<a class="p-skill" name="agile">Agile</a>
+				<a class="p-skill" name="agile">Agile Methodologies</a>
 				<a class="p-skill" name="docker">Docker</a>
 				<a class="p-skill" name="git">Git</a>
 				<a class="p-skill" name="jira">Jira</a>
-				<a class="p-skill" name="vscode">VSCode</a>
+				<a class="p-skill" name="vscode">Visual Studio Code</a>
 				<a class="p-skill" name="github">GitHub</a>
+			</dd>
+			<dt>Frontend Web Platform Features</dt>
+			<dd>
+				<a class="p-skill" name="a11y">Accessibility</a>
+				<a class="p-skill" name="css">CSS</a>
+				<a class="p-skill" name="html">HTML</a>
+				<a class="p-skill" name="javascript">JavaScript</a>
+				<a class="p-skill" name="pwa">Progressive Web Apps</a>
+				<a class="p-skill" name="react">React</a>
+				<a class="p-skill" name="webcomponents">Web Components</a>
+				<a class="p-skill" name="webperf">Performance Profiling</a>
+			</dd>
+			<dt>Backend Web Application Tools</dt>
+			<dd>
+				<a class="p-skill" name="aws">AWS</a>
+				<a class="p-skill" name="cloudfront">CloudFront</a>
+				<a class="p-skill" name="dynamodb">DynamoDB</a>
+				<a class="p-skill" name="express">Express</a>
+				<a class="p-skill" name="graphql">GraphQL</a>
+				<a class="p-skill" name="lambda">Lambda</a>
+				<a class="p-skill" name="mongodb">MongoDB</a>
+				<a class="p-skill" name="nextjs">NextJS</a>
+				<a class="p-skill" name="nodejs">Node.js</a>
+				<a class="p-skill" name="postgresql">PostgreSQL</a>
+				<a class="p-skill" name="postman">Postman</a>
+				<a class="p-skill" name="redis">Redis</a>
+				<a class="p-skill" name="rest">REST APIs</a>
+				<a class="p-skill" name="route53">Route 53</a>
+				<a class="p-skill" name="s3">S3</a>
+				<a class="p-skill" name="serverless">Serverless</a>
+			</dd>
+			<dt><a class="p-skill" name="testing">Automated Testing</a></dt>
+			<dd>
+				<a class="p-skill" name="cypress">Cypress</a>
+				<a class="p-skill" name="jest">Jest</a>
+				<a class="p-skill" name="k6">K6</a>
+				<a class="p-skill" name="mocha">Mocha</a>
+				<a class="p-skill" name="playwright">Playwright</a>
+				<a class="p-skill" name="puppeteer">Puppeteer</a>
+				<a class="p-skill" name="selenium">Selenium</a>
+				<a class="p-skill" name="storybook">Storybook</a>
+				<a class="p-skill" name="testing-library">Testing Library</a>
+			</dd>
+			<dt>Build Tools</dt>
+			<dd>
+				<a class="p-skill" name="babel">Babel</a>
+				<a class="p-skill" name="docker">Docker</a>
+				<a class="p-skill" name="eslint">ESlint</a>
+				<a class="p-skill" name="gulp">Gulp</a>
+				<a class="p-skill" name="typescript">TypeScript</a>
+				<a class="p-skill" name="webpack">Webpack</a>
 			</dd>
 		</dl>
 		<details class="no-print">
 			<summary>
-				<h4>Skills I've Used in the Past</h4>
+				<h4>Skills I no longer use</h4>
 			</summary>
+			<a class="p-skill" name="angular">Angular</a>
+			<a class="p-skill" name="backbone">Backbone</a>
 			<a class="p-skill" name="browserify">Browserify</a>
+			<a class="p-skill" name="cakephp">CakePHP</a>
+			<a class="p-skill" name="gitlab">GitLab</a>
+			<a class="p-skill" name="heroku">Heroku</a>
 			<a class="p-skill" name="jade">Jade</a>
+			<a class="p-skill" name="jenkins">Jenkins</a>
+			<a class="p-skill" name="jquery">jQuery</a>
+			<a class="p-skill" name="mootools">MooTools</a>
+			<a class="p-skill" name="knockout">Knockout</a>
 			<a class="p-skill" name="mysql">MySQL</a>
+			<a class="p-skill" name="netlify">Netlify</a>
 			<a class="p-skill" name="openlayers">OpenLayers</a>
 			<a class="p-skill" name="php">PHP</a>
 			<a class="p-skill" name="redux">Redux</a>
 			<a class="p-skill" name="rubyOnRails">Ruby on Rails</a>
 			<a class="p-skill" name="sass">Sass</a>
 			<a class="p-skill" name="stylus">Stylus</a>
-			<a class="p-skill" name="cakephp">CakePHP</a>
+			<a class="p-skill" name="travis">Travis CI</a>
+			<a class="p-skill" name="vercel">Vercel</a>
 			<a class="p-skill" name="yui">YUI</a>
-			<a class="p-skill" name="webpack">Webpack</a>
-			<a class="p-skill" name="mocha">Mocha</a>
-			<a class="p-skill" name="gitlab">GitLab</a>
 		</details>
 	</section>
 
@@ -147,14 +171,9 @@
 		<h2>Experience</h2>
 		<ol class="h-calendar">
 			<li class="p-experience h-event">
-				<h3>
-					<span class="p-location"><a href="https://www.autofi.com/">AutoFi</a></span>
-					<span class="p-name">Senior Web Developer</span>
-				</h3>
-				<h4>
-					<span class="dt-start">Aug 2021</span>
-					<span class="dt-end">Jul 2023</span>
-				</h4>
+				<h3><span class="p-name">Senior Web Developer</span><span class="p-location"><a
+							href="https://www.autofi.com/">AutoFi</a></span></h3>
+				<h4><span class="dt-start">Aug 2021</span><span class="dt-end">Jul 2023</span></h4>
 				<img alt="autofi logo" src="/_public/resume/autofi.jpg" />
 				<p class="p-summary">
 					Developed <a href="#nextjs">NextJS</a>/<a href="#graphql">GraphQL</a> web
@@ -168,15 +187,9 @@
 				</p>
 			</li>
 			<li class="p-experience h-event">
-				<h3>
-					<span class="p-location"><a href="https://www.thekrogerco.com/">Kroger
-							Technology</a></span>
-					<span class="p-name">Fullstack React Developer</span>
-				</h3>
-				<h4>
-					<span class="dt-start">Feb 2019</span>
-					<span class="dt-end">Nov 2019</span>
-				</h4>
+				<h3><span class="p-name">Fullstack React Developer</span><span class="p-location"><a
+							href="https://www.thekrogerco.com/">Kroger Technology</a></span></h3>
+				<h4><span class="dt-start">Feb 2019</span><span class="dt-end">Nov 2019</span></h4>
 				<img alt="kroger logo" src="/_public/resume/kroger.jpg" />
 				<p class="p-summary">
 					Responsible for developing internal tools for grocery delivery picking. Used
@@ -189,14 +202,9 @@
 				</p>
 			</li>
 			<li class="p-experience h-event">
-				<h3>
-					<span class="p-location"><a href="https://www.chegg.com/flashcards">StudyBlue</a></span>
-					<span class="p-name">Lead Frontend Developer</span>
-				</h3>
-				<h4>
-					<span class="dt-start">Nov 2016</span>
-					<span class="dt-end">Dec 2017</span>
-				</h4>
+				<h3><span class="p-name">Lead Frontend Developer</span><span class="p-location"><a
+							href="https://www.chegg.com/flashcards">StudyBlue</a></span></h3>
+				<h4><span class="dt-start">Nov 2016</span><span class="dt-end">Dec 2017</span></h4>
 				<img alt="studyblue logo" src="/_public/resume/studyblue.jpg" />
 				<p class="p-summary">
 					Spearheaded the overhaul of the app's build process to use
@@ -208,14 +216,9 @@
 				</p>
 			</li>
 			<li class="p-experience h-event">
-				<h3>
-					<span class="p-location"><a href="https://www.planet.com/">Planet Labs</a></span>
-					<span class="p-name">Senior Frontend Developer</span>
-				</h3>
-				<h4>
-					<span class="dt-start">Aug 2015</span>
-					<span class="dt-end">Sep 2016</span>
-				</h4>
+				<h3><span class="p-name">Senior Frontend Developer</span><span class="p-location"><a
+							href="https://www.planet.com/">Planet Labs</a></span></h3>
+				<h4><span class="dt-start">Aug 2015</span><span class="dt-end">Sep 2016</span></h4>
 				<img alt="planet logo" src="/_public/resume/planet.jpg" />
 				<p class="p-summary">
 					Implemented web UIs for satellite imaging applications, developed build scripts, and
@@ -227,14 +230,9 @@
 				</p>
 			</li>
 			<li class="p-experience h-event">
-				<h3>
-					<span class="p-location"><a href="https://www.linkedin.com/company/eveo/">Eveo</a></span>
-					<span class="p-name">Frontend Developer</span>
-				</h3>
-				<h4>
-					<span class="dt-start">Aug 2012</span>
-					<span class="dt-end">Jun 2015</span>
-				</h4>
+				<h3><span class="p-name">Frontend Developer</span><span class="p-location"><a
+							href="https://www.linkedin.com/company/eveo/">Eveo</a></span></h3>
+				<h4><span class="dt-start">Aug 2012</span><span class="dt-end">Jun 2015</span></h4>
 				<img alt="eveo logo" src="/_public/resume/eveo.jpg" />
 				<p class="p-summary">
 					Created interactive presentations and mobile apps for top-tier pharmaceutical
@@ -248,14 +246,8 @@
 				</p>
 			</li>
 			<li class="p-experience h-event">
-				<h3>
-					<span class="p-location">CubeTree</span>
-					<span class="p-name">Ruby on Rails Developer</span>
-				</h3>
-				<h4>
-					<span class="dt-start">Apr 2010</span>
-					<span class="dt-end">Nov 2010</span>
-				</h4>
+				<h3><span class="p-name">Ruby on Rails Developer</span><span class="p-location">CubeTree</span></h3>
+				<h4><span class="dt-start">Apr 2010</span><span class="dt-end">Nov 2010</span></h4>
 				<img alt="cubetree logo" src="/_public/resume/cubetree.jpg" />
 				<p class="p-summary">
 					Utilized <a href="#agile">Agile techniques</a> to deliver innovative features for
@@ -268,14 +260,8 @@
 				</p>
 			</li>
 			<li class="p-experience h-event">
-				<h3>
-					<span class="p-location">CBS Interactive</span>
-					<span class="p-name">Full Stack Developer</span>
-				</h3>
-				<h4>
-					<span class="dt-start">Sep 2008</span>
-					<span class="dt-end">Oct 2009</span>
-				</h4>
+				<h3><span class="p-name">Full Stack Developer</span><span class="p-location">CBS Interactive</span></h3>
+				<h4><span class="dt-start">Sep 2008</span><span class="dt-end">Oct 2009</span></h4>
 				<img alt="cbs logo" src="/_public/resume/cbs.jpg" />
 				<p class="p-summary">
 					Maintained and developed features for TV.com, a high traffic MVC application built
@@ -286,14 +272,8 @@
 				</p>
 			</li>
 			<li class="p-experience h-event no-print">
-				<h3>
-					<span class="p-location">Fordela</span>
-					<span class="p-name">PHP Programmer</span>
-				</h3>
-				<h4>
-					<span class="dt-start">Mar 2007</span>
-					<span class="dt-end">Apr 2008</span>
-				</h4>
+				<h3><span class="p-name">PHP Programmer</span><span class="p-location">Fordela</span></h3>
+				<h4><span class="dt-start">Mar 2007</span><span class="dt-end">Apr 2008</span></h4>
 				<img alt="fordela logo" src="/_public/resume/fordela.jpg" />
 				<p class="p-summary">
 					Transformed a <a href="#php">PHP</a> codebase into <a href="#cakephp">CakePHP</a>,
@@ -304,15 +284,8 @@
 				</p>
 			</li>
 			<li class="p-experience h-event no-print">
-				<h3>
-					<span class="p-location">Tango
-						Diva</span>
-					<span class="p-name">Full Stack Developer</span>
-				</h3>
-				<h4>
-					<span class="dt-start">Aug 2006</span>
-					<span class="dt-end">May 2007</span>
-				</h4>
+				<h3><span class="p-name">Full Stack Developer</span><span class="p-location">Tango Diva</span></h3>
+				<h4><span class="dt-start">Aug 2006</span><span class="dt-end">May 2007</span></h4>
 				<img alt="tangodiva logo" src="/_public/resume/tangodiva.jpg" />
 				<p class="p-summary">
 					Developed a social networking system for a travel website using

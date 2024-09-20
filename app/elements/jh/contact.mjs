@@ -1,6 +1,9 @@
 /** @type {import('@enhance/types').EnhanceElemFn} */
 export default function ({ html }) {
 	return html`<style>
+			:host {
+				display: block;
+			}
 			/* style dl elements using grid so that dt elements appear to the left of coresponding dd elements */
 			dl {
 				display: grid;
