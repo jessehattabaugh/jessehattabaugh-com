@@ -1,0 +1,25 @@
+<main>
+	<h1>Integer Scaling Calculator</h1>
+
+	<p>This page will allow you to experiment with different scaling factors and see how they affect the size of the
+		image and the amount of letterboxing or pillarboxing that occurs.</p>
+
+	<h2>What is Integer Scaling?</h2>
+
+	<p>Integer scaling is a method for scaling up emulated games to a higher resolution without introducing blurring. It
+		works by duplicating each pixel in the image a number of times to fill the space of the higher resolution image.
+		This method is used in emulators to scale up the resolution of old video games to modern displays.</p>
+
+	<p>But different emulators have different screen resolutions, and the original image doesn't always scale up to the
+		same size. This can cause letterboxing or pillarboxing, which is when black bars appear on the sides or top and
+		bottom of the screen. This wastes your screen space and can be distracting.</p>
+
+	<h2>Enter the size of your screen<h2>
+
+	<form>
+		<label>Resolution Width (in pixels): <input type="number" name="width" min="1">px</label>
+		<label>Resolution Height (in pixels): <input type="number" name="height" min="1">px</label>
+		<label>Screen size (measured diagonally, in inches): <input type="number" name="size" min="1">in</label>
+	</form>
+</main>
+<jh-footer></jh-footer>
