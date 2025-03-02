@@ -4,11 +4,21 @@
 export async function get(request) {
 	console.debug('🌸 /flowendar GET request');
 	try {
-		/** @todo get all the photos from Google Photos */
-		const photos = [
-			{ href: 'https://placekitten.com/200/300', date: '2025-03-01' },
-			{ href: 'https://placekitten.com/200/300', date: '2024-03-02' },
-		];
+		const albumId = 'YOUR_ALBUM_ID'; // Replace with your public album ID
+		const response = await fetch(`https://photoslibrary.googleapis.com/v1/mediaItems:search`, {
+			method: 'POST',
+			headers: {
+				'Authorization': `Bearer ${process.env.GOOGLE_PHOTOS_API_TOKEN}`,
+				'Content-Type': 'application/json'
+			},
+			body: JSON.stringify({ albumId })
+		});
+		const data = await response.json();
+		const photos = data.mediaItems.map(item => ({
+			href: item.baseUrl,
+			date: item.mediaMetadata.creationTime
+		}));
+
 		return { json: { photos } };
 	} catch (error) {
 		console.error('🛟 error loading photos', error);
