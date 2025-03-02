@@ -4,7 +4,6 @@ import Matter from 'matter-js';
 const Bodies = Matter.Bodies,
 	Common = Matter.Common,
 	Composite = Matter.Composite,
-	Constraint = Matter.Constraint,
 	Render = Matter.Render,
 	Runner = Matter.Runner,
 	Engine = Matter.Engine;
@@ -34,11 +33,11 @@ const render = Render.create({
 		width: canvasSize,
 		height: canvasSize,
 		wireframes: false, // Set wireframes to false to enable fill
-		background: '#ffffff', // Set a background color (optional)
-		showSleeping: true, // Hide sleeping indicators
-		showDebug: true, // Hide debug information
-		showBounds: true, // Hide bounding boxes
-		showVelocity: true, // Hide velocity indicators
+		background: 'black', // Set a background color (optional)
+		showSleeping: false, // Hide sleeping indicators
+		showDebug: false, // Hide debug information
+		showBounds: false, // Hide bounding boxes
+		showVelocity: false, // Hide velocity indicators
 	},
 });
 
@@ -136,14 +135,6 @@ function createWalls(canvasSize) {
  * @returns {string} A random color from the rainbow
  */
 function getColor() {
-	const rainbow = [
-		'#FF0000', // Red
-		'#FF7F00', // Orange
-		'#FFFF00', // Yellow
-		'#00FF00', // Green
-		'#0000FF', // Blue
-		'#4B0082', // Indigo
-		'#9400D3'  // Violet
-	];
-	return rainbow[Math.floor(Common.random() * rainbow.length)];
+	const colors = ['red','orange','yellow','green','blue','fuschia','purple'];
+	return colors[Math.floor(Common.random() * colors.length)];
 }
