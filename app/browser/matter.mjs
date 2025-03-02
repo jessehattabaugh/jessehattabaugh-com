@@ -23,12 +23,17 @@ let audioContext;
 document.addEventListener('pointerdown', initAudio, { once: true });
 
 function initAudio() {
-    // Create audio context
-    audioContext = new (window.AudioContext || window.webkitAudioContext)();
+	// Create audio context
+	audioContext = new (window.AudioContext || window.webkitAudioContext)();
 }
 
 // create an engine
-const engine = Engine.create({ gravity: { x: 0, y: 0 } });
+const engine = Engine.create({
+	gravity: { x: 0, y: 0 },
+	// Add better collision detection to prevent tunneling
+	positionIterations: 10, // (default is 6) increase for better accuracy
+	velocityIterations: 10, // (default is 4) increase for better accuracy
+});
 
 // create a renderer
 const render = Render.create({
@@ -48,7 +53,6 @@ const render = Render.create({
 
 // add walls to the world
 Composite.add(engine.world, createWalls(canvasSize));
-
 
 // Variables to track pointer state
 let isPointerDown = false;
@@ -70,13 +74,13 @@ document.addEventListener('pointerdown', (event) => {
 	pointerY = (event.clientY - rect.top) * scaleY;
 
 	// Spawn one polygon immediately
-	spawnPolygon(pointerX, pointerY, 5);
+	spawnPolygon(pointerX, pointerY, 6);
 
 	// Start continuous spawning
 	if (!spawnInterval) {
 		spawnInterval = setInterval(() => {
 			if (isPointerDown) {
-				spawnPolygon(pointerX, pointerY, 5);
+				spawnPolygon(pointerX, pointerY, 6);
 			}
 		}, SPAWN_DELAY);
 	}
@@ -133,35 +137,32 @@ window.addEventListener('beforeunload', () => {
 });
 
 // Set up collision event listener
-Events.on(engine, 'collisionStart', function(event) {
-    if (!audioContext) return;
+Events.on(engine, 'collisionStart', function (event) {
+	if (!audioContext) return;
 
-    // Check if we should play a sound (to avoid sound spam)
-    let pairs = event.pairs;
+	// Check if we should play a sound (to avoid sound spam)
+	let pairs = event.pairs;
 
-    for (let i = 0; i < pairs.length; i++) {
-        let pair = pairs[i];
+	for (let i = 0; i < pairs.length; i++) {
+		let pair = pairs[i];
 
-        // Calculate collision force (simplified)
-        let bodyA = pair.bodyA;
-        let bodyB = pair.bodyB;
+		// Calculate collision force (simplified)
+		let bodyA = pair.bodyA;
+		let bodyB = pair.bodyB;
 
-        // Skip if one of the bodies is a wall
-        if (bodyA.isStatic || bodyB.isStatic) continue;
+		// Skip if one of the bodies is a wall
+		if (bodyA.isStatic || bodyB.isStatic) continue;
 
-        // Calculate relative velocity magnitude
-        let velA = bodyA.velocity;
-        let velB = bodyB.velocity;
-        let relVelocity = Math.sqrt(
-            Math.pow(velA.x - velB.x, 2) +
-            Math.pow(velA.y - velB.y, 2)
-        );
+		// Calculate relative velocity magnitude
+		let velA = bodyA.velocity;
+		let velB = bodyB.velocity;
+		let relVelocity = Math.sqrt(Math.pow(velA.x - velB.x, 2) + Math.pow(velA.y - velB.y, 2));
 
-        // Only play sound if velocity is significant
-        if (relVelocity > 3) {
-            playCollisionSound(relVelocity);
-        }
-    }
+		// Only play sound if velocity is significant
+		if (relVelocity > 3) {
+			playCollisionSound(relVelocity);
+		}
+	}
 });
 
 /**
@@ -169,42 +170,42 @@ Events.on(engine, 'collisionStart', function(event) {
  * @param {number} intensity - Collision intensity (affects sound parameters)
  */
 function playCollisionSound(intensity) {
-    if (!audioContext) return;
+	if (!audioContext) return;
 
-    // Limit the max intensity to prevent extremely loud sounds
-    intensity = Math.min(intensity, 20);
+	// Limit the max intensity to prevent extremely loud sounds
+	intensity = Math.min(intensity, 20);
 
-    // Create oscillator
-    const oscillator = audioContext.createOscillator();
-    const gainNode = audioContext.createGain();
+	// Create oscillator
+	const oscillator = audioContext.createOscillator();
+	const gainNode = audioContext.createGain();
 
-    // Connect nodes: oscillator -> gain -> destination
-    oscillator.connect(gainNode);
-    gainNode.connect(audioContext.destination);
+	// Connect nodes: oscillator -> gain -> destination
+	oscillator.connect(gainNode);
+	gainNode.connect(audioContext.destination);
 
-    // Set sound parameters based on collision intensity
-    const baseFrequency = 200 + Math.random() * 300;
-    oscillator.frequency.value = baseFrequency;
-    oscillator.type = 'sine';
+	// Set sound parameters based on collision intensity
+	const baseFrequency = 200 + Math.random() * 300;
+	oscillator.frequency.value = baseFrequency;
+	oscillator.type = 'sine';
 
-    // Set volume based on intensity but keep it reasonable
-    const volume = Math.min(0.05 + (intensity / 100), 0.2);
-    gainNode.gain.value = volume;
+	// Set volume based on intensity but keep it reasonable
+	const volume = Math.min(0.05 + intensity / 100, 0.2);
+	gainNode.gain.value = volume;
 
-    // Schedule the sound
-    const now = audioContext.currentTime;
-    oscillator.start(now);
+	// Schedule the sound
+	const now = audioContext.currentTime;
+	oscillator.start(now);
 
-    // Fade out
-    const duration = 0.1 + (intensity / 100);
-    gainNode.gain.exponentialRampToValueAtTime(0.001, now + duration);
-    oscillator.stop(now + duration + 0.05);
+	// Fade out
+	const duration = 0.1 + intensity / 100;
+	gainNode.gain.exponentialRampToValueAtTime(0.001, now + duration);
+	oscillator.stop(now + duration + 0.05);
 
-    // Clean up
-    setTimeout(() => {
-        oscillator.disconnect();
-        gainNode.disconnect();
-    }, (duration + 0.1) * 1000);
+	// Clean up
+	setTimeout(() => {
+		oscillator.disconnect();
+		gainNode.disconnect();
+	}, (duration + 0.1) * 1000);
 }
 
 // run the renderer
@@ -222,22 +223,24 @@ Runner.run(runner, engine);
  * @param {number} sides
  */
 function spawnPolygon(x, y, sides) {
+	// Get all possible colors for this shape
+	const colors = getColor(sides);
+
 	// Create a polygon at the pointer position
 	const polygon = Bodies.polygon(x, y, sides, 50, {
-		restitution: 1,
+		restitution: 0.9, // Slightly reduce restitution
 		friction: 0,
 		frictionStatic: 0,
-		frictionAir: 0,
+		frictionAir: 0.001, // Add tiny bit of air friction for stability
 		render: {
-			fillStyle: getColor(),
-			//strokeStyle: getColor(), // Add border color if desired
-			//lineWidth: 5, // Border width
+			fillStyle: colors[Math.floor(Common.random() * colors.length)], // Pick a random color from the array
 		},
 	});
 
-	// Add random velocity to the polygon
-	const randomX = (Common.random() - 0.5) * 100;
-	const randomY = (Common.random() - 0.5) * 100;
+	// Add random velocity to the polygon (with capped values)
+	const maxVelocity = 50; // Limit the maximum velocity
+	const randomX = (Common.random() - 0.5) * maxVelocity;
+	const randomY = (Common.random() - 0.5) * maxVelocity;
 	Matter.Body.setVelocity(polygon, { x: randomX, y: randomY });
 
 	// Add the polygon to the world
@@ -249,35 +252,67 @@ function spawnPolygon(x, y, sides) {
  * @param {number} canvasSize
  */
 function createWalls(canvasSize) {
-	const opts = { isStatic: true, restitution: 1, friction: 0, frictionStatic: 0 };
-	const size = 10;
-	const halfWall = size / 2;
+	// Increase wall thickness significantly
+	const wallThickness = 50;
+	const halfWall = wallThickness / 2;
 	const midCanvas = canvasSize / 2;
+	const opts = {
+		isStatic: true,
+		restitution: 0.9, // Slightly reduce restitution to prevent excessive bouncing
+		friction: 0,
+		frictionStatic: 0,
+	};
 	const walls = [];
 
 	// north wall
-	walls.push(Bodies.rectangle(midCanvas, halfWall, canvasSize, size, opts));
+	walls.push(
+		Bodies.rectangle(midCanvas, halfWall, canvasSize + wallThickness, wallThickness, opts),
+	);
 	// south wall
-	walls.push(Bodies.rectangle(midCanvas, canvasSize - halfWall, canvasSize, size, opts));
+	walls.push(
+		Bodies.rectangle(
+			midCanvas,
+			canvasSize - halfWall,
+			canvasSize + wallThickness,
+			wallThickness,
+			opts,
+		),
+	);
 	// east wall
-	walls.push(Bodies.rectangle(halfWall, midCanvas, size, canvasSize, opts));
+	walls.push(
+		Bodies.rectangle(halfWall, midCanvas, wallThickness, canvasSize + wallThickness, opts),
+	);
 	// west wall
-	walls.push(Bodies.rectangle(canvasSize - halfWall, midCanvas, size, canvasSize, opts));
+	walls.push(
+		Bodies.rectangle(
+			canvasSize - halfWall,
+			midCanvas,
+			wallThickness,
+			canvasSize + wallThickness,
+			opts,
+		),
+	);
 
 	return walls;
 }
 
 /**
- * Returns a random rainbow color
- * @returns {string} A random color from the rainbow
+ * Returns an array of colors with evenly distributed hues
+ * @param {number} [totalColors=6] - Number of colors to generate evenly around the color wheel
+ * @returns {string[]} An array of colors with evenly distributed hues
  */
-function getColor() {
-	const colors = [
-		'#CD6A9F', // pink
-		'#65BDCC', // teal
-		'#ADCE6C', // lime
-		'#8067CC', // purple
-		'#CD9669' // ornage
-	];
-	return colors[Math.floor(Common.random() * colors.length)];
+function getColor(totalColors = 6) {
+	const colors = [];
+	// Calculate the hue step size to evenly distribute around 360 degrees
+	const hueStep = 360 / totalColors;
+
+	// Generate totalColors colors with evenly distributed hues
+	for (let i = 0; i < totalColors; i++) {
+		// Calculate the hue for this index
+		const hue = Math.floor(i * hueStep);
+		// Add the color to our array
+		colors.push(`hsla(${hue}, 100%, 75%, 0.8)`);
+	}
+
+	return colors;
 }
