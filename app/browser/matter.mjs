@@ -15,16 +15,7 @@ canvas.width = canvasSize;
 canvas.height = canvasSize;
 document.body.appendChild(canvas);
 
-// Prevent zooming and other unwanted behaviors
-canvas.style.touchAction = 'none'; // Disable browser handling of all touch gestures
-document.addEventListener('dblclick', (e) => e.preventDefault(), { passive: false });
-document.addEventListener(
-	'wheel',
-	(e) => {
-		if (e.ctrlKey) e.preventDefault(); // Prevent ctrl+wheel zoom
-	},
-	{ passive: false },
-);
+
 
 // create an engine
 const engine = Engine.create({ gravity: { x: 0, y: 0 } });
@@ -48,11 +39,9 @@ const render = Render.create({
 // add walls to the world
 Composite.add(engine.world, createWalls(canvasSize));
 
-// place a triangle in the center of the canvas
-const centerX = canvasSize / 2;
-const centerY = canvasSize / 2;
-const triangle = getTriangle(centerX, centerY);
-Composite.add(engine.world, triangle);
+// place a polygon in the center of the canvas
+const center = canvasSize / 2;
+spawnPolygon(center, center, 3);
 
 // Variables to track pointer state
 let isPointerDown = false;
@@ -73,14 +62,14 @@ document.addEventListener('pointerdown', (event) => {
 	pointerX = (event.clientX - rect.left) * scaleX;
 	pointerY = (event.clientY - rect.top) * scaleY;
 
-	// Spawn one triangle immediately
-	spawnTriangle(pointerX, pointerY);
+	// Spawn one polygon immediately
+	spawnPolygon(pointerX, pointerY, 5);
 
 	// Start continuous spawning
 	if (!spawnInterval) {
 		spawnInterval = setInterval(() => {
 			if (isPointerDown) {
-				spawnTriangle(pointerX, pointerY);
+				spawnPolygon(pointerX, pointerY, 5);
 			}
 		}, SPAWN_DELAY);
 	}
@@ -119,14 +108,17 @@ canvas.addEventListener('gotpointercapture', (e) => {
 	canvas.setPointerCapture(e.pointerId);
 });
 
-// Function to spawn a triangle
-function spawnTriangle(x, y) {
-	const triangle = getTriangle(x, y);
-	const randomX = (Common.random() - 0.5) * 100;
-	const randomY = (Common.random() - 0.5) * 100;
-	Matter.Body.setVelocity(triangle, { x: randomX, y: randomY });
-	Composite.add(engine.world, triangle);
-}
+// Prevent zooming and other unwanted behaviors
+document.addEventListener('dblclick', (e) => e.preventDefault(), { passive: false });
+document.addEventListener(
+	'wheel',
+	(e) => {
+		if (e.ctrlKey) e.preventDefault(); // Prevent ctrl+wheel zoom
+	},
+	{ passive: false },
+);
+
+
 
 // Clean up when page unloads
 window.addEventListener('beforeunload', () => {
@@ -144,19 +136,32 @@ const runner = Runner.create();
 // run the engine
 Runner.run(runner, engine);
 
-/** get a triangle */
-function getTriangle(x, y) {
-	return Bodies.polygon(x, y, 3, 50, {
+/** spawn a polygon on the canvas
+ * @param {number} x
+ * @param {number} y
+ * @param {number} sides
+ */
+function spawnPolygon(x, y, sides) {
+	// Create a polygon at the pointer position
+	const polygon = Bodies.polygon(x, y, sides, 50, {
 		restitution: 1,
 		friction: 0,
 		frictionStatic: 0,
 		frictionAir: 0,
 		render: {
 			fillStyle: getColor(),
-			strokeStyle: getColor(), // Add border color if desired
-			lineWidth: 1, // Border width
+			//strokeStyle: getColor(), // Add border color if desired
+			//lineWidth: 5, // Border width
 		},
 	});
+
+	// Add random velocity to the polygon
+	const randomX = (Common.random() - 0.5) * 100;
+	const randomY = (Common.random() - 0.5) * 100;
+	Matter.Body.setVelocity(polygon, { x: randomX, y: randomY });
+
+	// Add the polygon to the world
+	Composite.add(engine.world, polygon);
 }
 
 /**
@@ -187,6 +192,12 @@ function createWalls(canvasSize) {
  * @returns {string} A random color from the rainbow
  */
 function getColor() {
-	const colors = ['red', 'orange', 'yellow', 'green', 'blue', 'fuchia', 'purple'];
+	const colors = [
+		'#CD6A9F', // pink
+		'#65BDCC', // teal
+		'#ADCE6C', // lime
+		'#8067CC', // purple
+		'#CD9669' // ornage
+	];
 	return colors[Math.floor(Common.random() * colors.length)];
 }
