@@ -18,9 +18,13 @@ document.body.appendChild(canvas);
 // Prevent zooming and other unwanted behaviors
 canvas.style.touchAction = 'none'; // Disable browser handling of all touch gestures
 document.addEventListener('dblclick', (e) => e.preventDefault(), { passive: false });
-document.addEventListener('wheel', (e) => {
-  if (e.ctrlKey) e.preventDefault(); // Prevent ctrl+wheel zoom
-}, { passive: false });
+document.addEventListener(
+	'wheel',
+	(e) => {
+		if (e.ctrlKey) e.preventDefault(); // Prevent ctrl+wheel zoom
+	},
+	{ passive: false },
+);
 
 // create an engine
 const engine = Engine.create({ gravity: { x: 0, y: 0 } });
@@ -183,6 +187,6 @@ function createWalls(canvasSize) {
  * @returns {string} A random color from the rainbow
  */
 function getColor() {
-	const colors = ['red','orange','yellow','green','blue','fuchia','purple'];
+	const colors = ['red', 'orange', 'yellow', 'green', 'blue', 'fuchia', 'purple'];
 	return colors[Math.floor(Common.random() * colors.length)];
 }
