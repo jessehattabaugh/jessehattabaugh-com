@@ -4,6 +4,7 @@ import Matter from 'matter-js';
 const Bodies = Matter.Bodies,
 	Common = Matter.Common,
 	Composite = Matter.Composite,
+	Events = Matter.Events,
 	Render = Matter.Render,
 	Runner = Matter.Runner,
 	Engine = Matter.Engine;
@@ -15,7 +16,16 @@ canvas.width = canvasSize;
 canvas.height = canvasSize;
 document.body.appendChild(canvas);
 
+// Set up audio context
+let audioContext;
 
+// Initialize audio context on first user interaction to comply with browser policies
+document.addEventListener('pointerdown', initAudio, { once: true });
+
+function initAudio() {
+    // Create audio context
+    audioContext = new (window.AudioContext || window.webkitAudioContext)();
+}
 
 // create an engine
 const engine = Engine.create({ gravity: { x: 0, y: 0 } });
@@ -118,14 +128,87 @@ document.addEventListener(
 	{ passive: false },
 );
 
-
-
 // Clean up when page unloads
 window.addEventListener('beforeunload', () => {
 	if (spawnInterval) {
 		clearInterval(spawnInterval);
 	}
 });
+
+// Set up collision event listener
+Events.on(engine, 'collisionStart', function(event) {
+    if (!audioContext) return;
+
+    // Check if we should play a sound (to avoid sound spam)
+    let pairs = event.pairs;
+
+    for (let i = 0; i < pairs.length; i++) {
+        let pair = pairs[i];
+
+        // Calculate collision force (simplified)
+        let bodyA = pair.bodyA;
+        let bodyB = pair.bodyB;
+
+        // Skip if one of the bodies is a wall
+        if (bodyA.isStatic || bodyB.isStatic) continue;
+
+        // Calculate relative velocity magnitude
+        let velA = bodyA.velocity;
+        let velB = bodyB.velocity;
+        let relVelocity = Math.sqrt(
+            Math.pow(velA.x - velB.x, 2) +
+            Math.pow(velA.y - velB.y, 2)
+        );
+
+        // Only play sound if velocity is significant
+        if (relVelocity > 3) {
+            playCollisionSound(relVelocity);
+        }
+    }
+});
+
+/**
+ * Plays a sound based on collision force
+ * @param {number} intensity - Collision intensity (affects sound parameters)
+ */
+function playCollisionSound(intensity) {
+    if (!audioContext) return;
+
+    // Limit the max intensity to prevent extremely loud sounds
+    intensity = Math.min(intensity, 20);
+
+    // Create oscillator
+    const oscillator = audioContext.createOscillator();
+    const gainNode = audioContext.createGain();
+
+    // Connect nodes: oscillator -> gain -> destination
+    oscillator.connect(gainNode);
+    gainNode.connect(audioContext.destination);
+
+    // Set sound parameters based on collision intensity
+    const baseFrequency = 200 + Math.random() * 300;
+    oscillator.frequency.value = baseFrequency;
+    oscillator.type = 'sine';
+
+    // Set volume based on intensity but keep it reasonable
+    const volume = Math.min(0.05 + (intensity / 100), 0.2);
+    gainNode.gain.value = volume;
+
+    // Schedule the sound
+    const now = audioContext.currentTime;
+    oscillator.start(now);
+
+    // Fade out
+    const duration = 0.1 + (intensity / 100);
+    gainNode.gain.exponentialRampToValueAtTime(0.001, now + duration);
+    oscillator.stop(now + duration + 0.05);
+
+    // Clean up
+    setTimeout(() => {
+        oscillator.disconnect();
+        gainNode.disconnect();
+    }, (duration + 0.1) * 1000);
+}
 
 // run the renderer
 Render.run(render);
