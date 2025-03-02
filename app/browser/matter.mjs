@@ -49,9 +49,6 @@ const render = Render.create({
 // add walls to the world
 Composite.add(engine.world, createWalls(canvasSize));
 
-// place a polygon in the center of the canvas
-const center = canvasSize / 2;
-spawnPolygon(center, center, 3);
 
 // Variables to track pointer state
 let isPointerDown = false;
