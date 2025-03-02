@@ -50,38 +50,86 @@ const centerY = canvasSize / 2;
 const triangle = getTriangle(centerX, centerY);
 Composite.add(engine.world, triangle);
 
-// when the player clicks down create a triangle moving in a random direction
-document.addEventListener('mousedown', (event) => {
+// Variables to track pointer state
+let isPointerDown = false;
+let pointerX = 0;
+let pointerY = 0;
+let spawnInterval = null;
+const SPAWN_DELAY = 100; // Spawn a new triangle every 100ms
+
+// Use pointer events instead of separate mouse and touch events
+document.addEventListener('pointerdown', (event) => {
 	event.preventDefault(); // Prevent default behaviors like zooming
+	isPointerDown = true;
+
+	// Update pointer coordinates
 	const rect = canvas.getBoundingClientRect();
 	const scaleX = canvas.width / rect.width;
 	const scaleY = canvas.height / rect.height;
-	const x = (event.clientX - rect.left) * scaleX;
-	const y = (event.clientY - rect.top) * scaleY;
-	const triangle = getTriangle(x, y);
-	const randomX = (Common.random() - 0.5) * 100; // Adjusted to include negative values
-	const randomY = (Common.random() - 0.5) * 100; // Adjusted to include negative values
-	Matter.Body.setVelocity(triangle, { x: randomX, y: randomY });
-	Composite.add(engine.world, triangle);
+	pointerX = (event.clientX - rect.left) * scaleX;
+	pointerY = (event.clientY - rect.top) * scaleY;
+
+	// Spawn one triangle immediately
+	spawnTriangle(pointerX, pointerY);
+
+	// Start continuous spawning
+	if (!spawnInterval) {
+		spawnInterval = setInterval(() => {
+			if (isPointerDown) {
+				spawnTriangle(pointerX, pointerY);
+			}
+		}, SPAWN_DELAY);
+	}
 });
 
-// Add touch support and prevent zoom on mobile
-document.addEventListener('touchstart', (event) => {
-	event.preventDefault();
-	if (event.touches.length === 1) {
-		const touch = event.touches[0];
+// Track pointer movement
+document.addEventListener('pointermove', (event) => {
+	if (isPointerDown) {
 		const rect = canvas.getBoundingClientRect();
 		const scaleX = canvas.width / rect.width;
 		const scaleY = canvas.height / rect.height;
-		const x = (touch.clientX - rect.left) * scaleX;
-		const y = (touch.clientY - rect.top) * scaleY;
-		const triangle = getTriangle(x, y);
-		const randomX = (Common.random() - 0.5) * 100;
-		const randomY = (Common.random() - 0.5) * 100;
-		Matter.Body.setVelocity(triangle, { x: randomX, y: randomY });
-		Composite.add(engine.world, triangle);
+		pointerX = (event.clientX - rect.left) * scaleX;
+		pointerY = (event.clientY - rect.top) * scaleY;
 	}
-}, { passive: false });
+});
+
+// Stop spawning when pointer is released
+document.addEventListener('pointerup', () => {
+	isPointerDown = false;
+});
+
+// Stop spawning if pointer leaves canvas
+document.addEventListener('pointerleave', () => {
+	isPointerDown = false;
+});
+
+// Handle pointer cancellation
+document.addEventListener('pointercancel', () => {
+	isPointerDown = false;
+});
+
+// Improve pointer handling on canvas
+canvas.style.touchAction = 'none'; // Disable default touch behaviors
+canvas.addEventListener('gotpointercapture', (e) => {
+	// Ensure the canvas keeps getting events even if the pointer moves away
+	canvas.setPointerCapture(e.pointerId);
+});
+
+// Function to spawn a triangle
+function spawnTriangle(x, y) {
+	const triangle = getTriangle(x, y);
+	const randomX = (Common.random() - 0.5) * 100;
+	const randomY = (Common.random() - 0.5) * 100;
+	Matter.Body.setVelocity(triangle, { x: randomX, y: randomY });
+	Composite.add(engine.world, triangle);
+}
+
+// Clean up when page unloads
+window.addEventListener('beforeunload', () => {
+	if (spawnInterval) {
+		clearInterval(spawnInterval);
+	}
+});
 
 // run the renderer
 Render.run(render);
@@ -135,6 +183,6 @@ function createWalls(canvasSize) {
  * @returns {string} A random color from the rainbow
  */
 function getColor() {
-	const colors = ['red','orange','yellow','green','blue','fuschia','purple'];
+	const colors = ['red','orange','yellow','green','blue','fuchia','purple'];
 	return colors[Math.floor(Common.random() * colors.length)];
 }
