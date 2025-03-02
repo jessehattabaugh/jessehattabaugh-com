@@ -140,27 +140,33 @@ window.addEventListener('beforeunload', () => {
 Events.on(engine, 'collisionStart', function (event) {
 	if (!audioContext) return;
 
-	// Check if we should play a sound (to avoid sound spam)
+	// Check each collision pair
 	let pairs = event.pairs;
 
 	for (let i = 0; i < pairs.length; i++) {
 		let pair = pairs[i];
-
-		// Calculate collision force (simplified)
 		let bodyA = pair.bodyA;
 		let bodyB = pair.bodyB;
 
 		// Skip if one of the bodies is a wall
 		if (bodyA.isStatic || bodyB.isStatic) continue;
 
-		// Calculate relative velocity magnitude
-		let velA = bodyA.velocity;
-		let velB = bodyB.velocity;
-		let relVelocity = Math.sqrt(Math.pow(velA.x - velB.x, 2) + Math.pow(velA.y - velB.y, 2));
+			// Check if bodies have the same color
+		if (bodyA.render.fillStyle === bodyB.render.fillStyle) {
+			// Same color collision - remove both bodies and play shattering sound
+			Composite.remove(engine.world, [bodyA, bodyB]);
+			playShatteringSound();
+		} else {
+			// Different color collision - play normal collision sound
+			// Calculate relative velocity magnitude
+			let velA = bodyA.velocity;
+			let velB = bodyB.velocity;
+			let relVelocity = Math.sqrt(Math.pow(velA.x - velB.x, 2) + Math.pow(velA.y - velB.y, 2));
 
-		// Only play sound if velocity is significant
-		if (relVelocity > 3) {
-			playCollisionSound(relVelocity);
+			// Only play sound if velocity is significant
+			if (relVelocity > 3) {
+				playCollisionSound(relVelocity);
+			}
 		}
 	}
 });
@@ -206,6 +212,50 @@ function playCollisionSound(intensity) {
 		oscillator.disconnect();
 		gainNode.disconnect();
 	}, (duration + 0.1) * 1000);
+}
+
+/**
+ * Plays a shattering sound effect when same-color bodies collide
+ */
+function playShatteringSound() {
+	if (!audioContext) return;
+
+	// Create multiple oscillators for a complex shattering effect
+	const oscillatorCount = 5 + Math.floor(Math.random() * 5); // 5-9 oscillators
+	const now = audioContext.currentTime;
+
+	for (let i = 0; i < oscillatorCount; i++) {
+		const oscillator = audioContext.createOscillator();
+		const gainNode = audioContext.createGain();
+
+		// Connect the audio nodes
+		oscillator.connect(gainNode);
+		gainNode.connect(audioContext.destination);
+
+		// Random parameters for each oscillator to create glass-like effect
+		const baseFreq = 1000 + Math.random() * 2000;
+		oscillator.frequency.value = baseFreq;
+		oscillator.type = ['sine', 'triangle', 'sawtooth'][Math.floor(Math.random() * 3)];
+
+		// Set volume
+		const volume = 0.05 + Math.random() * 0.05;
+		gainNode.gain.value = volume;
+
+		// Randomize the start time slightly
+		const startOffset = Math.random() * 0.05;
+		oscillator.start(now + startOffset);
+
+		// Quick fade out for shattering effect
+		const duration = 0.1 + Math.random() * 0.2;
+		gainNode.gain.exponentialRampToValueAtTime(0.001, now + startOffset + duration);
+		oscillator.stop(now + startOffset + duration + 0.05);
+
+		// Clean up
+		setTimeout(() => {
+			oscillator.disconnect();
+			gainNode.disconnect();
+		}, (startOffset + duration + 0.1) * 1000);
+	}
 }
 
 // run the renderer
