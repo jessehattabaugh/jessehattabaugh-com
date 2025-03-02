@@ -19,6 +19,7 @@
 		"eslint": "latest",
 		"globals": "latest",
 		"lambda-multipart-parser": "latest",
+		"matter-js": "latest",
 		"playwright": "latest"
 	},
 	"engines": {
