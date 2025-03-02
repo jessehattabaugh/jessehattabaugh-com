@@ -16,6 +16,13 @@ canvas.width = canvasSize;
 canvas.height = canvasSize;
 document.body.appendChild(canvas);
 
+// Prevent zooming and other unwanted behaviors
+canvas.style.touchAction = 'none'; // Disable browser handling of all touch gestures
+document.addEventListener('dblclick', (e) => e.preventDefault(), { passive: false });
+document.addEventListener('wheel', (e) => {
+  if (e.ctrlKey) e.preventDefault(); // Prevent ctrl+wheel zoom
+}, { passive: false });
+
 // create an engine
 const engine = Engine.create({ gravity: { x: 0, y: 0 } });
 
@@ -23,7 +30,16 @@ const engine = Engine.create({ gravity: { x: 0, y: 0 } });
 const render = Render.create({
 	canvas,
 	engine,
-	options: { width: canvasSize, height: canvasSize },
+	options: {
+		width: canvasSize,
+		height: canvasSize,
+		wireframes: false, // Set wireframes to false to enable fill
+		background: '#ffffff', // Set a background color (optional)
+		showSleeping: true, // Hide sleeping indicators
+		showDebug: true, // Hide debug information
+		showBounds: true, // Hide bounding boxes
+		showVelocity: true, // Hide velocity indicators
+	},
 });
 
 // add walls to the world
@@ -37,6 +53,7 @@ Composite.add(engine.world, triangle);
 
 // when the player clicks down create a triangle moving in a random direction
 document.addEventListener('mousedown', (event) => {
+	event.preventDefault(); // Prevent default behaviors like zooming
 	const rect = canvas.getBoundingClientRect();
 	const scaleX = canvas.width / rect.width;
 	const scaleY = canvas.height / rect.height;
@@ -49,6 +66,24 @@ document.addEventListener('mousedown', (event) => {
 	Composite.add(engine.world, triangle);
 });
 
+// Add touch support and prevent zoom on mobile
+document.addEventListener('touchstart', (event) => {
+	event.preventDefault();
+	if (event.touches.length === 1) {
+		const touch = event.touches[0];
+		const rect = canvas.getBoundingClientRect();
+		const scaleX = canvas.width / rect.width;
+		const scaleY = canvas.height / rect.height;
+		const x = (touch.clientX - rect.left) * scaleX;
+		const y = (touch.clientY - rect.top) * scaleY;
+		const triangle = getTriangle(x, y);
+		const randomX = (Common.random() - 0.5) * 100;
+		const randomY = (Common.random() - 0.5) * 100;
+		Matter.Body.setVelocity(triangle, { x: randomX, y: randomY });
+		Composite.add(engine.world, triangle);
+	}
+}, { passive: false });
+
 // run the renderer
 Render.run(render);
 
@@ -60,14 +95,16 @@ Runner.run(runner, engine);
 
 /** get a triangle */
 function getTriangle(x, y) {
-	return Bodies.polygon(x, y, 3, 50, { 
-		restitution: 1, 
-		friction: 0, 
-		frictionStatic: 0, 
-		frictionAir: 0, 
-		render:{
-			fillStyle: getRandomPrimaryColor()
-		}
+	return Bodies.polygon(x, y, 3, 50, {
+		restitution: 1,
+		friction: 0,
+		frictionStatic: 0,
+		frictionAir: 0,
+		render: {
+			fillStyle: getColor(),
+			strokeStyle: getColor(), // Add border color if desired
+			lineWidth: 1, // Border width
+		},
 	});
 }
 
@@ -95,10 +132,18 @@ function createWalls(canvasSize) {
 }
 
 /**
- * Returns a random primary color
- * @returns {string} A random primary color
+ * Returns a random rainbow color
+ * @returns {string} A random color from the rainbow
  */
-function getRandomPrimaryColor() {
-	const colors = ['#FF0000', '#00FF00', '#0000FF'];
-	return colors[Math.floor(Common.random() * colors.length)];
+function getColor() {
+	const rainbow = [
+		'#FF0000', // Red
+		'#FF7F00', // Orange
+		'#FFFF00', // Yellow
+		'#00FF00', // Green
+		'#0000FF', // Blue
+		'#4B0082', // Indigo
+		'#9400D3'  // Violet
+	];
+	return rainbow[Math.floor(Common.random() * rainbow.length)];
 }
