@@ -161,6 +161,7 @@ export class GameMatter extends HTMLElement {
 			this.addEventListener('pointerdown', initAudio, { once: true });
 
 			// Prevent unwanted browser behaviors
+			this.addEventListener('contextmenu', (e) => {return e.preventDefault()});
 			this.addEventListener('dblclick', (e) => {return e.preventDefault()}, { passive: false });
 			this.addEventListener(
 				'wheel',
