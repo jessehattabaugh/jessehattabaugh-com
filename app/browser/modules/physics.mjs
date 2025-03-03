@@ -10,19 +10,18 @@ const Common = Matter.Common;
 const Composite = Matter.Composite;
 
 /**
- * Creates walls on each side of the canvas
+ * Creates an array of bodies representing the walls of the canvas
  * @param {number} canvasSize
  * @param {Matter.Engine} engine
  * @returns {Matter.Body[]} Array of wall bodies
  */
-function createWalls(canvasSize) {
-	// Increase wall thickness significantly
+function getWalls(canvasSize) {
 	const wallThickness = 50;
 	const halfWall = wallThickness / 2;
 	const midCanvas = canvasSize / 2;
 	const opts = {
 		isStatic: true,
-		restitution: 0.9, // Slightly reduce restitution to prevent excessive bouncing
+		restitution: 1,
 		friction: 0,
 		frictionStatic: 0,
 	};
@@ -95,15 +94,16 @@ function spawnPolygon(x, y, sides, engine) {
 	// Get all possible colors for this shape
 	const colors = getColor(sides);
 
+	// Pick a random color from the array
+	const fillStyle = colors[Math.floor(Common.random() * colors.length)];
+
 	// Create a polygon at the pointer position
 	const polygon = Bodies.polygon(x, y, sides, 50, {
-		restitution: 0.9, // Slightly reduce restitution
+		restitution: 1,
 		friction: 0,
 		frictionStatic: 0,
-		frictionAir: 0.001, // Add tiny bit of air friction for stability
-		render: {
-			fillStyle: colors[Math.floor(Common.random() * colors.length)], // Pick a random color from the array
-		},
+		frictionAir: 0,
+		render: { fillStyle },
 	});
 
 	// Add random velocity to the polygon (with capped values)
@@ -116,4 +116,4 @@ function spawnPolygon(x, y, sides, engine) {
 	Composite.add(engine.world, polygon);
 }
 
-export { createWalls, spawnPolygon, getColor };
+export { getWalls, spawnPolygon, getColor };

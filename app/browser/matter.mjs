@@ -5,7 +5,7 @@ import {
 	playShatteringSound,
 	hasAudioContext,
 } from './modules/audio.mjs';
-import { createWalls, spawnPolygon } from './modules/physics.mjs';
+import { getWalls, spawnPolygon } from './modules/physics.mjs';
 import { setupInteraction } from './modules/interaction.mjs';
 
 // module aliases
@@ -50,7 +50,7 @@ const render = Render.create({
 });
 
 // add walls to the world
-Composite.add(engine.world, createWalls(canvasSize));
+Composite.add(engine.world, getWalls(canvasSize));
 
 // Set up pointer interaction
 setupInteraction(
