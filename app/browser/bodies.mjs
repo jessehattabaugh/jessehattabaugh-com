@@ -70,7 +70,7 @@ export function getPolygon(x, y, sides) {
 	const fillStyle = colors[Math.floor(Common.random() * colors.length)];
 
 	// Create a polygon at the pointer position
-	return Bodies.polygon(x, y, sides, 50, {
+	return Bodies.polygon(x, y, sides, 10, {
 		restitution: 1,
 		friction: 0,
 		frictionStatic: 0,

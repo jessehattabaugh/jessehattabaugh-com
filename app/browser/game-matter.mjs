@@ -244,7 +244,7 @@ export class GameMatter extends HTMLElement {
 				// Check if bodies have the same color
 				if (bodyA.render.fillStyle === bodyB.render.fillStyle) {
 					// Same color collision - remove both bodies and play shattering sound
-					Composite.remove(this.#engine.world, [bodyA, bodyB]);
+					//Composite.remove(this.#engine.world, [bodyA, bodyB]);
 					playShatteringSound();
 				} else {
 					// Different color collision - play normal collision sound
