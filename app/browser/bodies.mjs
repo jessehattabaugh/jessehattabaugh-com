@@ -12,7 +12,7 @@ const Common = Matter.Common;
  * @param {number} canvasSize
  * @returns {Matter.Body[]} Array of wall bodies
  */
-function getWalls(canvasSize) {
+export function getWalls(canvasSize) {
 	const wallThickness = 50;
 	const halfWall = wallThickness / 2;
 	const midCanvas = canvasSize / 2;
@@ -25,37 +25,25 @@ function getWalls(canvasSize) {
 
 	return [
 		// north wall
-		Bodies.rectangle(
-			midCanvas,
-			halfWall,
-			canvasSize + wallThickness,
-			wallThickness,
-			opts
-		),
+		Bodies.rectangle(midCanvas, halfWall, canvasSize + wallThickness, wallThickness, opts),
 		// south wall
 		Bodies.rectangle(
 			midCanvas,
 			canvasSize - halfWall,
 			canvasSize + wallThickness,
 			wallThickness,
-			opts
+			opts,
 		),
 		// east wall
-		Bodies.rectangle(
-			halfWall,
-			midCanvas,
-			wallThickness,
-			canvasSize + wallThickness,
-			opts
-		),
+		Bodies.rectangle(halfWall, midCanvas, wallThickness, canvasSize + wallThickness, opts),
 		// west wall
 		Bodies.rectangle(
 			canvasSize - halfWall,
 			midCanvas,
 			wallThickness,
 			canvasSize + wallThickness,
-			opts
-		)
+			opts,
+		),
 	];
 }
 
@@ -64,7 +52,7 @@ function getWalls(canvasSize) {
  * @param {number} [totalColors=6] - Number of colors to generate evenly around the color wheel
  * @returns {string[]} An array of colors with evenly distributed hues
  */
-function getColor(totalColors = 6) {
+export function getColor(totalColors = 6) {
 	const colors = [];
 	// Calculate the hue step size to evenly distribute around 360 degrees
 	const hueStep = 360 / totalColors;
@@ -87,7 +75,7 @@ function getColor(totalColors = 6) {
  * @param {number} sides - Number of sides
  * @returns {Matter.Body} The created polygon body
  */
-function getPolygon(x, y, sides) {
+export function getPolygon(x, y, sides) {
 	// Get all possible colors for this shape
 	const colors = getColor(sides);
 
@@ -103,5 +91,3 @@ function getPolygon(x, y, sides) {
 		render: { fillStyle },
 	});
 }
-
-export { getWalls, getPolygon, getColor };

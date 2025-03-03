@@ -1,11 +1,9 @@
-<style>
-	canvas {
-		aspect-ratio: 1;
-		min-height: 100vh;
-		object-fit: cover;
-		max-height: 100vh;
-		outline: 1px dashed red;
-		touch-action: none;
-	}
-</style>
-<script type="module" src="/_public/browser/matter.mjs"></script>
+
+<game-matter></game-matter>
+
+<script type="module">
+	import {GameMatter} from '/_public/browser/game-matter.mjs';
+
+	// Register the custom element
+	customElements.define('game-matter',GameMatter);
+</script>

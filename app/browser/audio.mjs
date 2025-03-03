@@ -8,7 +8,7 @@ let audioContext = null;
 /**
  * Initialize audio context on user interaction
  */
-function initAudio() {
+export function initAudio() {
 	// Create audio context
 	audioContext = new (window.AudioContext || window.webkitAudioContext)();
 }
@@ -17,7 +17,7 @@ function initAudio() {
  * Plays a sound based on collision force
  * @param {number} intensity - Collision intensity (affects sound parameters)
  */
-function playCollisionSound(intensity) {
+export function playCollisionSound(intensity) {
 	if (!audioContext) return;
 
 	// Limit the max intensity to prevent extremely loud sounds
@@ -59,7 +59,7 @@ function playCollisionSound(intensity) {
 /**
  * Plays a shattering sound effect when same-color bodies collide
  */
-function playShatteringSound() {
+export function playShatteringSound() {
 	if (!audioContext) return;
 
 	// Create multiple oscillators for a complex shattering effect
@@ -99,13 +99,3 @@ function playShatteringSound() {
 		}, (startOffset + duration + 0.1) * 1000);
 	}
 }
-
-/**
- * Checks if audio context is initialized
- * @returns {boolean} True if audio context exists
- */
-function hasAudioContext() {
-	return !!audioContext;
-}
-
-export { initAudio, playCollisionSound, playShatteringSound, hasAudioContext };
