@@ -4,8 +4,8 @@
 
 import Matter from 'matter-js';
 
-const Bodies = Matter.Bodies;
-const Common = Matter.Common;
+const { Bodies } = Matter;
+const { Common } = Matter;
 
 /**
  * Creates an array of bodies representing the walls of the canvas
@@ -16,34 +16,19 @@ export function getWalls(canvasSize) {
 	const wallThickness = 50;
 	const halfWall = wallThickness / 2;
 	const midCanvas = canvasSize / 2;
-	const opts = {
-		isStatic: true,
-		restitution: 1,
-		friction: 0,
-		frictionStatic: 0,
-	};
+	const canvasAndWall = canvasSize + wallThickness;
+	const canvasLessWall = canvasSize - wallThickness;
+	const opts = { isStatic: true, restitution: 1, friction: 0, frictionStatic: 0 };
 
 	return [
 		// north wall
-		Bodies.rectangle(midCanvas, halfWall, canvasSize + wallThickness, wallThickness, opts),
+		Bodies.rectangle(midCanvas, halfWall, canvasAndWall, wallThickness, opts),
 		// south wall
-		Bodies.rectangle(
-			midCanvas,
-			canvasSize - halfWall,
-			canvasSize + wallThickness,
-			wallThickness,
-			opts,
-		),
+		Bodies.rectangle(midCanvas, canvasLessWall, canvasAndWall, wallThickness, opts),
 		// east wall
-		Bodies.rectangle(halfWall, midCanvas, wallThickness, canvasSize + wallThickness, opts),
+		Bodies.rectangle(halfWall, midCanvas, wallThickness, canvasAndWall, opts),
 		// west wall
-		Bodies.rectangle(
-			canvasSize - halfWall,
-			midCanvas,
-			wallThickness,
-			canvasSize + wallThickness,
-			opts,
-		),
+		Bodies.rectangle(canvasLessWall, midCanvas, wallThickness, canvasAndWall, opts),
 	];
 }
 

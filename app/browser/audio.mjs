@@ -18,7 +18,9 @@ export function initAudio() {
  * @param {number} intensity - Collision intensity (affects sound parameters)
  */
 export function playCollisionSound(intensity) {
-	if (!audioContext) return;
+	if (!audioContext) {
+		return;
+	}
 
 	// Limit the max intensity to prevent extremely loud sounds
 	intensity = Math.min(intensity, 20);
@@ -60,7 +62,9 @@ export function playCollisionSound(intensity) {
  * Plays a shattering sound effect when same-color bodies collide
  */
 export function playShatteringSound() {
-	if (!audioContext) return;
+	if (!audioContext) {
+		return;
+	}
 
 	// Create multiple oscillators for a complex shattering effect
 	const oscillatorCount = 5 + Math.floor(Math.random() * 5); // 5-9 oscillators
