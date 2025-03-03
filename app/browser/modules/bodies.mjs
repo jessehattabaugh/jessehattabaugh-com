@@ -1,18 +1,15 @@
 /**
- * Physics module for Matter.js shape creation and manipulation
+ * Bodies module for Matter.js shape creation
  */
 
 import Matter from 'matter-js';
 
 const Bodies = Matter.Bodies;
-const Body = Matter.Body;
 const Common = Matter.Common;
-const Composite = Matter.Composite;
 
 /**
  * Creates an array of bodies representing the walls of the canvas
  * @param {number} canvasSize
- * @param {Matter.Engine} engine
  * @returns {Matter.Body[]} Array of wall bodies
  */
 function getWalls(canvasSize) {
@@ -84,13 +81,13 @@ function getColor(totalColors = 6) {
 }
 
 /**
- * Spawn a polygon on the canvas
+ * Creates a polygon body
  * @param {number} x - X coordinate
  * @param {number} y - Y coordinate
  * @param {number} sides - Number of sides
- * @param {Matter.Engine} engine - Matter.js engine
+ * @returns {Matter.Body} The created polygon body
  */
-function spawnPolygon(x, y, sides, engine) {
+function getPolygon(x, y, sides) {
 	// Get all possible colors for this shape
 	const colors = getColor(sides);
 
@@ -98,22 +95,13 @@ function spawnPolygon(x, y, sides, engine) {
 	const fillStyle = colors[Math.floor(Common.random() * colors.length)];
 
 	// Create a polygon at the pointer position
-	const polygon = Bodies.polygon(x, y, sides, 50, {
+	return Bodies.polygon(x, y, sides, 50, {
 		restitution: 1,
 		friction: 0,
 		frictionStatic: 0,
 		frictionAir: 0,
 		render: { fillStyle },
 	});
-
-	// Add random velocity to the polygon (with capped values)
-	const maxVelocity = 50; // Limit the maximum velocity
-	const randomX = (Common.random() - 0.5) * maxVelocity;
-	const randomY = (Common.random() - 0.5) * maxVelocity;
-	Body.setVelocity(polygon, { x: randomX, y: randomY });
-
-	// Add the polygon to the world
-	Composite.add(engine.world, polygon);
 }
 
-export { getWalls, spawnPolygon, getColor };
+export { getWalls, getPolygon, getColor };

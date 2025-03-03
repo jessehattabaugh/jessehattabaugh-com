@@ -5,7 +5,7 @@ import {
 	playShatteringSound,
 	hasAudioContext,
 } from './modules/audio.mjs';
-import { getWalls, spawnPolygon } from './modules/physics.mjs';
+import { getWalls, getPolygon } from './modules/bodies.mjs';
 import { setupInteraction } from './modules/interaction.mjs';
 
 // module aliases
@@ -13,7 +13,9 @@ const Composite = Matter.Composite,
 	Events = Matter.Events,
 	Render = Matter.Render,
 	Runner = Matter.Runner,
-	Engine = Matter.Engine;
+	Engine = Matter.Engine,
+	Body = Matter.Body,
+	Common = Matter.Common;
 
 // create a canvas
 const canvasSize = 3840;
@@ -52,11 +54,30 @@ const render = Render.create({
 // add walls to the world
 Composite.add(engine.world, getWalls(canvasSize));
 
+/**
+ * Applies random velocity to a body and adds it to the world
+ * @param {Matter.Body} body - The body to spawn
+ * @param {Matter.Engine} engine - The Matter.js engine
+ */
+function spawn(body, engine) {
+	// Add random velocity to the body (with capped values)
+	const maxVelocity = 50; // Limit the maximum velocity
+	const randomX = (Common.random() - 0.5) * maxVelocity;
+	const randomY = (Common.random() - 0.5) * maxVelocity;
+	Body.setVelocity(body, { x: randomX, y: randomY });
+
+	// Add the body to the world
+	Composite.add(engine.world, body);
+}
+
 // Set up pointer interaction
 setupInteraction(
 	canvas,
 	// onPointerDown callback
-	(x, y) => spawnPolygon(x, y, 6, engine),
+	(x, y) => {
+		const polygon = getPolygon(x, y, 6);
+		spawn(polygon, engine);
+	},
 	// onPointerMove callback
 	null,
 	// onPointerUp callback
