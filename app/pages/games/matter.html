@@ -5,4 +5,11 @@
 
 	// Register the custom element
 	customElements.define('game-matter',GameMatter);
+
+	// When the page loads, populate the game with polygons
+	window.addEventListener('load', () => {
+		const game = document.querySelector('game-matter');
+		// Spawn 150 polygons across the canvas
+		game.spawnPolygons(150);
+	});
 </script>

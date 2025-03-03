@@ -307,4 +307,66 @@ export class GameMatter extends HTMLElement {
 		// Remove resize listener
 		window.removeEventListener('resize', this.#resizeCanvas.bind(this));
 	}
+
+	/**
+	 * Public method to spawn multiple polygons across the canvas
+	 * @param {number} count - Number of polygons to spawn (default: 100)
+	 */
+	spawnPolygons(count = 100) {
+		this.#spawnPolygonsAcrossCanvas(count);
+	}
+
+	/**
+	 * Spawns multiple polygons distributed across the entire canvas
+	 * @param {number} count - Number of polygons to spawn
+	 */
+	#spawnPolygonsAcrossCanvas(count) {
+		// Array to hold all the bodies
+		const bodies = [];
+
+		// Get canvas dimensions
+		const {width} = this.#render.options;
+		const {height} = this.#render.options;
+
+		// Calculate grid distribution
+		const cols = Math.ceil(Math.sqrt(count));
+		const rows = Math.ceil(count / cols);
+
+		const cellWidth = width / cols;
+		const cellHeight = height / rows;
+
+		let polygonsCreated = 0;
+
+		// Create polygons in a grid pattern with randomness
+		for (let row = 0; row < rows && polygonsCreated < count; row++) {
+			for (let col = 0; col < cols && polygonsCreated < count; col++) {
+				// Calculate position with some random offset
+				const x = col * cellWidth + cellWidth / 2 + (Math.random() - 0.5) * cellWidth * 0.6;
+				const y = row * cellHeight + cellHeight / 2 + (Math.random() - 0.5) * cellHeight * 0.6;
+
+				// Random number of sides (3-8)
+				const sides = Math.floor(Math.random() * 6) + 3;
+
+				// Create polygon
+				const polygon = getPolygon(x, y, sides);
+
+				// Add random velocity
+				const maxVelocity = 15;
+				const velocityX = (Math.random() - 0.5) * maxVelocity;
+				const velocityY = (Math.random() - 0.5) * maxVelocity;
+				Body.setVelocity(polygon, { x: velocityX, y: velocityY });
+
+				// Add random rotation
+				const maxAngularVelocity = 0.2;
+				const angularVelocity = (Math.random() - 0.5) * maxAngularVelocity;
+				Body.setAngularVelocity(polygon, angularVelocity);
+
+				bodies.push(polygon);
+				polygonsCreated++;
+			}
+		}
+
+		// Add all bodies to the world at once
+		Composite.add(this.#engine.world, bodies);
+	}
 }
