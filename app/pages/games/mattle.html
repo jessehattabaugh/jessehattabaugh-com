@@ -1,0 +1,15 @@
+<game-mattle></game-mattle>
+
+<script type="module">
+	import {GameMattle} from '/_public/browser/game-mattle.mjs';
+
+	// Register the custom element
+	customElements.define('game-mattle',GameMattle);
+
+	// When the page loads, populate the game with polygons
+	window.addEventListener('load', () => {
+		const game = document.querySelector('game-mattle');
+		// Spawn 150 polygons across the canvas
+		game.spawnPolygons(150);
+	});
+</script>
