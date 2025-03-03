@@ -249,10 +249,35 @@ export class GameMatter extends HTMLElement {
 			if (bodyA.isStatic || bodyB.isStatic) {continue;}
 
 			// Check if bodies have the same color
-			if (bodyA.render.fillStyle !== bodyB.render.fillStyle) {
-				// Same color collision - apply strong velocity change
+			if (bodyA.render.fillStyle === bodyB.render.fillStyle) {
+				// Same color collision - combine momentum as if sticking together
 
-				// Calculate collision normal (direction from bodyA to bodyB)
+				// Calculate combined velocity based on conservation of momentum
+				// (m1*v1 + m2*v2)/(m1 + m2)
+				const totalMass = bodyA.mass + bodyB.mass;
+				const combinedVelocityX = (bodyA.mass * bodyA.velocity.x + bodyB.mass * bodyB.velocity.x) / totalMass;
+				const combinedVelocityY = (bodyA.mass * bodyA.velocity.y + bodyB.mass * bodyB.velocity.y) / totalMass;
+
+				// Apply the same velocity to both bodies to make them appear to stick together
+				Body.setVelocity(bodyA, {
+					x: combinedVelocityX,
+					y: combinedVelocityY
+				});
+				Body.setVelocity(bodyB, {
+					x: combinedVelocityX,
+					y: combinedVelocityY
+				});
+
+				// Play a subtle collision sound
+				const relVelocity = Math.sqrt(
+					Math.pow(bodyA.velocity.x - bodyB.velocity.x, 2) +
+					Math.pow(bodyA.velocity.y - bodyB.velocity.y, 2)
+				);
+				if (relVelocity > 3) {
+					playCollisionSound(relVelocity * 0.5); // Quieter sound for sticking
+				}
+			} else {
+				// Different color collision - apply repulsion effect
 				const normal = Vector.normalise(
 					Vector.sub(bodyB.position, bodyA.position)
 				);
@@ -266,21 +291,9 @@ export class GameMatter extends HTMLElement {
 				Body.setVelocity(bodyB, {
 					x: bodyB.velocity.x + normal.x * speed,
 					y: bodyB.velocity.y + normal.y * speed
-					});
+				});
 
 				playShatteringSound();
-			} else {
-				// Different color collision - play normal collision sound
-				const velA = bodyA.velocity;
-				const velB = bodyB.velocity;
-				const relVelocity = Math.sqrt(
-					Math.pow(velA.x - velB.x, 2) + Math.pow(velA.y - velB.y, 2),
-				);
-
-				// Only play sound if velocity is significant
-				if (relVelocity > 3) {
-					playCollisionSound(relVelocity);
-				}
 			}
 		}
 	}
