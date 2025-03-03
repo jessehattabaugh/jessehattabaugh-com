@@ -9,26 +9,28 @@ const { Common } = Matter;
 
 /**
  * Creates an array of bodies representing the walls of the canvas
- * @param {number} canvasSize
+ * @param {number} width - Canvas width
+ * @param {number} height - Canvas height
  * @returns {Matter.Body[]} Array of wall bodies
  */
-export function getWalls(canvasSize) {
+export function getWalls(width, height) {
+	// Wall configuration
 	const wallThickness = 50;
-	const halfWall = wallThickness / 2;
-	const midCanvas = canvasSize / 2;
-	const canvasAndWall = canvasSize + wallThickness;
-	const canvasLessWall = canvasSize - wallThickness;
+	const wallOffset = -wallThickness / 2; // Position walls halfway outside the visible area
 	const opts = { isStatic: true, restitution: 1, friction: 0, frictionStatic: 0 };
 
 	return [
-		// north wall
-		Bodies.rectangle(midCanvas, halfWall, canvasAndWall, wallThickness, opts),
-		// south wall
-		Bodies.rectangle(midCanvas, canvasLessWall, canvasAndWall, wallThickness, opts),
-		// east wall
-		Bodies.rectangle(halfWall, midCanvas, wallThickness, canvasAndWall, opts),
-		// west wall
-		Bodies.rectangle(canvasLessWall, midCanvas, wallThickness, canvasAndWall, opts),
+		// Top wall - positioned just above the viewport
+		Bodies.rectangle(width / 2, wallOffset, width + wallThickness, wallThickness, opts),
+
+		// Bottom wall - positioned just below the viewport
+		Bodies.rectangle(width / 2, height - wallOffset, width + wallThickness, wallThickness, opts),
+
+		// Left wall - positioned just left of the viewport
+		Bodies.rectangle(wallOffset, height / 2, wallThickness, height + wallThickness, opts),
+
+		// Right wall - positioned just right of the viewport
+		Bodies.rectangle(width - wallOffset, height / 2, wallThickness, height + wallThickness, opts),
 	];
 }
 
