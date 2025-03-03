@@ -9,7 +9,8 @@ const {Composite} = Matter,
 	{Runner} = Matter,
 	{Engine} = Matter,
 	{Body} = Matter,
-	{Common} = Matter;
+	{Common} = Matter,
+	{Vector} = Matter;
 
 export class GameMatter extends HTMLElement {
 	// Class properties
@@ -30,6 +31,10 @@ export class GameMatter extends HTMLElement {
 	constructor() {
 		super();
 		this.attachShadow({ mode: 'open' });
+
+		this.#boundHandlePointerDown = this.#handlePointerDown.bind(this);
+		this.#boundHandlePointerMove = this.#handlePointerMove.bind(this);
+		this.#boundHandlePointerUp = this.#handlePointerUp.bind(this);
 	}
 
 	connectedCallback() {
@@ -145,37 +150,32 @@ export class GameMatter extends HTMLElement {
 	}
 
 	#setupEventListeners() {
-			// Store bound functions
-			this.#boundHandlePointerDown = this.#handlePointerDown.bind(this);
-			this.#boundHandlePointerMove = this.#handlePointerMove.bind(this);
-			this.#boundHandlePointerUp = this.#handlePointerUp.bind(this);
+		// Add event listeners with stored bound functions
+		this.addEventListener('pointerdown', this.#boundHandlePointerDown);
+		this.addEventListener('pointermove', this.#boundHandlePointerMove);
+		this.addEventListener('pointerup', this.#boundHandlePointerUp);
+		this.addEventListener('pointerleave', this.#boundHandlePointerUp);
+		this.addEventListener('pointercancel', this.#boundHandlePointerUp);
 
-			// Add event listeners with stored bound functions
-			this.addEventListener('pointerdown', this.#boundHandlePointerDown);
-			this.addEventListener('pointermove', this.#boundHandlePointerMove);
-			this.addEventListener('pointerup', this.#boundHandlePointerUp);
-			this.addEventListener('pointerleave', this.#boundHandlePointerUp);
-			this.addEventListener('pointercancel', this.#boundHandlePointerUp);
+		// Audio initialization
+		this.addEventListener('pointerdown', initAudio, { once: true });
 
-			// Audio initialization
-			this.addEventListener('pointerdown', initAudio, { once: true });
+		// Prevent unwanted browser behaviors
+		this.addEventListener('contextmenu', (e) => {return e.preventDefault()});
+		this.addEventListener('dblclick', (e) => {return e.preventDefault()}, { passive: false });
+		this.addEventListener(
+			'wheel',
+			(e) => {
+				if (e.ctrlKey) {e.preventDefault();} // Prevent ctrl+wheel zoom
+			},
+			{ passive: false },
+		);
 
-			// Prevent unwanted browser behaviors
-			this.addEventListener('contextmenu', (e) => {return e.preventDefault()});
-			this.addEventListener('dblclick', (e) => {return e.preventDefault()}, { passive: false });
-			this.addEventListener(
-				'wheel',
-				(e) => {
-					if (e.ctrlKey) {e.preventDefault();} // Prevent ctrl+wheel zoom
-				},
-				{ passive: false },
-			);
-
-			// Handle pointer capture
-			this.#canvas.addEventListener('gotpointercapture', (e) => {
-				this.#canvas.setPointerCapture(e.pointerId);
-			});
-		}
+		// Handle pointer capture
+		this.#canvas.addEventListener('gotpointercapture', (e) => {
+			this.#canvas.setPointerCapture(e.pointerId);
+		});
+	}
 
 	#handlePointerDown(event) {
 		event.preventDefault();
@@ -228,40 +228,61 @@ export class GameMatter extends HTMLElement {
 	}
 
 	#setupCollisionDetection() {
+		// Handle collision start events
 		Events.on(this.#engine, 'collisionStart', (event) => {
+			this.#handleCollisions(event.pairs);
+		});
 
-			// Check each collision pair
-			const {pairs} = event;
+		// Handle ongoing collisions too
+		Events.on(this.#engine, 'collisionActive', (event) => {
+			this.#handleCollisions(event.pairs);
+		});
+	}
 
-			for (let i = 0; i < pairs.length; i++) {
-				const pair = pairs[i];
-				const {bodyA} = pair;
-				const {bodyB} = pair;
+	#handleCollisions(pairs) {
+		for (let i = 0; i < pairs.length; i++) {
+			const pair = pairs[i];
+			const {bodyA} = pair;
+			const {bodyB} = pair;
 
-				// Skip if one of the bodies is a wall
-				if (bodyA.isStatic || bodyB.isStatic) {continue;}
+			// Skip if one of the bodies is a wall
+			if (bodyA.isStatic || bodyB.isStatic) {continue;}
 
-				// Check if bodies have the same color
-				if (bodyA.render.fillStyle === bodyB.render.fillStyle) {
-					// Same color collision - remove both bodies and play shattering sound
-					//Composite.remove(this.#engine.world, [bodyA, bodyB]);
-					playShatteringSound();
-				} else {
-					// Different color collision - play normal collision sound
-					// Calculate relative velocity magnitude
-					const velA = bodyA.velocity;
-					const velB = bodyB.velocity;
-					const relVelocity = Math.sqrt(
-						Math.pow(velA.x - velB.x, 2) + Math.pow(velA.y - velB.y, 2),
-					);
+			// Check if bodies have the same color
+			if (bodyA.render.fillStyle !== bodyB.render.fillStyle) {
+				// Same color collision - apply strong velocity change
 
-					// Only play sound if velocity is significant
-					if (relVelocity > 3) {
-						playCollisionSound(relVelocity);
-					}
+				// Calculate collision normal (direction from bodyA to bodyB)
+				const normal = Vector.normalise(
+					Vector.sub(bodyB.position, bodyA.position)
+				);
+
+				// Apply immediate velocity change for more visible effect
+				const speed = 1;
+				Body.setVelocity(bodyA, {
+					x: bodyA.velocity.x - normal.x * speed,
+					y: bodyA.velocity.y - normal.y * speed
+				});
+				Body.setVelocity(bodyB, {
+					x: bodyB.velocity.x + normal.x * speed,
+					y: bodyB.velocity.y + normal.y * speed
+					});
+
+				playShatteringSound();
+			} else {
+				// Different color collision - play normal collision sound
+				const velA = bodyA.velocity;
+				const velB = bodyB.velocity;
+				const relVelocity = Math.sqrt(
+					Math.pow(velA.x - velB.x, 2) + Math.pow(velA.y - velB.y, 2),
+				);
+
+				// Only play sound if velocity is significant
+				if (relVelocity > 3) {
+					playCollisionSound(relVelocity);
 				}
 			}
-		});
+		}
 	}
 
 	#cleanup() {

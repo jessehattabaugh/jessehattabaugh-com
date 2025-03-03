@@ -64,7 +64,7 @@ export function getColor(totalColors = 6) {
  */
 export function getPolygon(x, y, sides) {
 	// Get all possible colors for this shape
-	const colors = getColor(sides);
+	const colors = getColor(3);
 
 	// Pick a random color from the array
 	const fillStyle = colors[Math.floor(Common.random() * colors.length)];
