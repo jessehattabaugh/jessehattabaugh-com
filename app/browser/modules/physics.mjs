@@ -26,38 +26,41 @@ function createWalls(canvasSize) {
 		friction: 0,
 		frictionStatic: 0,
 	};
-	const walls = [];
 
-	// north wall
-	walls.push(
-		Bodies.rectangle(midCanvas, halfWall, canvasSize + wallThickness, wallThickness, opts),
-	);
-	// south wall
-	walls.push(
+	return [
+		// north wall
+		Bodies.rectangle(
+			midCanvas,
+			halfWall,
+			canvasSize + wallThickness,
+			wallThickness,
+			opts
+		),
+		// south wall
 		Bodies.rectangle(
 			midCanvas,
 			canvasSize - halfWall,
 			canvasSize + wallThickness,
 			wallThickness,
-			opts,
+			opts
 		),
-	);
-	// east wall
-	walls.push(
-		Bodies.rectangle(halfWall, midCanvas, wallThickness, canvasSize + wallThickness, opts),
-	);
-	// west wall
-	walls.push(
+		// east wall
+		Bodies.rectangle(
+			halfWall,
+			midCanvas,
+			wallThickness,
+			canvasSize + wallThickness,
+			opts
+		),
+		// west wall
 		Bodies.rectangle(
 			canvasSize - halfWall,
 			midCanvas,
 			wallThickness,
 			canvasSize + wallThickness,
-			opts,
-		),
-	);
-
-	return walls;
+			opts
+		)
+	];
 }
 
 /**
