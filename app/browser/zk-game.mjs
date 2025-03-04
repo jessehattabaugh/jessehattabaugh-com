@@ -1,4 +1,4 @@
-import { GameBase } from '../game-base.mjs';
+import { GameBase } from './game-base.mjs';
 import Matter from 'matter-js';
 
 const { Body, Composite, Events, Vector, World } = Matter;
@@ -20,6 +20,9 @@ export class ZeroKartGame extends GameBase {
 
     connectedCallback() {
         super.connectedCallback();
+        // Add ZeroKart specific styles to the shadow DOM
+        this._addZeroKartStyles();
+
         // Override gravity for top-down racing
         this._engine.gravity.y = 0;
 
@@ -37,6 +40,59 @@ export class ZeroKartGame extends GameBase {
 
         // Start game loop
         requestAnimationFrame(this._gameLoop);
+    }
+
+    _addZeroKartStyles() {
+        const existingStyle = this.shadowRoot.querySelector('style');
+        existingStyle.textContent += `
+            /* ZeroKart specific styles */
+            :host {
+                background-color: #222;
+            }
+
+            /* Styles moved from external CSS file */
+            .game-container {
+                width: 100%;
+                height: 80vh;
+                margin: 20px 0;
+                position: relative;
+                overflow: hidden;
+                border: 2px solid #333;
+                border-radius: 8px;
+                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            }
+
+            .controls {
+                background-color: #f5f5f5;
+                padding: 15px;
+                border-radius: 8px;
+                margin-bottom: 20px;
+            }
+
+            .controls h3 {
+                margin-top: 0;
+                color: #333;
+            }
+
+            .controls ul {
+                margin: 0;
+                padding-left: 20px;
+            }
+
+            .controls li {
+                margin-bottom: 8px;
+            }
+
+            @media (max-width: 768px) {
+                .game-container {
+                    height: 60vh;
+                }
+
+                .controls {
+                    font-size: 14px;
+                }
+            }
+        `;
     }
 
     _gameLoop(timestamp) {
@@ -113,7 +169,7 @@ export class ZeroKartGame extends GameBase {
                 player1Kart.setBraking(isKeyDown);
                 break;
             case 'ArrowLeft':
-                player1Kart.setSteering(-isKeyDown ? 1 : 0);
+                player1Kart.setSteering(isKeyDown ? -1 : 0);
                 break;
             case 'ArrowRight':
                 player1Kart.setSteering(isKeyDown ? 1 : 0);
