@@ -1,89 +1,104 @@
+<style>
+	/* Game container and controls styles */
+	.game-container {
+		width: 100%;
+		height: 80vh;
+		margin: 20px 0;
+		position: relative;
+		overflow: hidden;
+		border: 2px solid #333;
+		border-radius: 8px;
+		box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+	}
+
+	.controls {
+		background-color: #f5f5f5;
+		padding: 15px;
+		border-radius: 8px;
+		margin-bottom: 20px;
+	}
+
+	.controls h3 {
+		margin-top: 0;
+		color: #333;
+	}
+
+	.controls ul {
+		margin: 0;
+		padding-left: 20px;
+	}
+
+	.controls li {
+		margin-bottom: 8px;
+	}
+
+	/* Kart Builder styles */
+	.kart-builder {
+		background-color: #f0f0f0;
+		padding: 20px;
+		border-radius: 8px;
+		margin: 20px 0;
+		box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+	}
+
+	.kart-builder h2 {
+		color: #333;
+		text-align: center;
+		margin-top: 0;
+	}
+
+	@media (max-width: 768px) {
+		.game-container {
+			height: 60vh;
+		}
+
+		.controls {
+			font-size: 14px;
+		}
+	}
+</style>
 <jh-header></jh-header>
+
 <main>
-    <h1>ZeroKart</h1>
-    <p>Race around the track with physics-based kart racing!</p>
+	<h1>ZeroKart</h1>
+	<p>Race around the track with physics-based kart racing!</p>
 
-    <section class="game-container">
-        <zk-game>
-            <zk-track id="default-track" name="Circuit 1">
-                <zk-obstacle type="ramp" x="500" y="300" angle="45" width="150" height="20"></zk-obstacle>
-                <zk-obstacle type="bounce-pad" x="800" y="400" width="100" height="10" force="0.05"></zk-obstacle>
-                <zk-obstacle type="oil-slick" x="300" y="600" radius="80" friction="0.01"></zk-obstacle>
-            </zk-track>
+	<section class="game-container">
+		<zk-game>
+			<zk-track id="default-track" name="Circuit 1">
+				<zk-obstacle type="ramp" x="500" y="300" angle="45" width="150" height="20"></zk-obstacle>
+				<zk-obstacle type="bounce-pad" x="800" y="400" width="100" height="10" force="0.05"></zk-obstacle>
+				<zk-obstacle type="oil-slick" x="300" y="600" radius="80" friction="0.01"></zk-obstacle>
+			</zk-track>
 
-            <zk-kart
-                id="player1"
-                type="standard"
-                color="red"
-                acceleration="0.005"
-                max-speed="5"
-                handling="0.9"
-                grip="0.8">
-            </zk-kart>
-        </zk-game>
-    </section>
+			<zk-kart id="player1" type="standard" color="red" acceleration="0.005" max-speed="5" handling="0.9"
+				grip="0.8">
+			</zk-kart>
+		</zk-game>
+	</section>
 
-    <section class="controls">
-        <h3>Controls</h3>
-        <ul>
-            <li>Keyboard: Arrow keys to steer, Space to brake</li>
-            <li>Gamepad: Left stick or D-pad to steer, A/X to accelerate, B/O to brake</li>
-            <li>Touch/Mouse: On-screen controls appear automatically</li>
-        </ul>
-    </section>
+	<section class="controls">
+		<h3>Controls</h3>
+		<ul>
+			<li>Keyboard: Arrow keys to steer, Space to brake</li>
+			<li>Gamepad: Left stick or D-pad to steer, A/X to accelerate, B/O to brake</li>
+			<li>Touch/Mouse: On-screen controls appear automatically</li>
+		</ul>
+	</section>
 
-    <a href="/games/">Back to Games</a>
+	<section class="kart-builder">
+		<h2>Customize Your Kart</h2>
+		<zk-kart-builder></zk-kart-builder>
+	</section>
+
+	<a href="/games/">Back to Games</a>
 </main>
 <jh-footer></jh-footer>
 
-<style>
-/* Game container and controls styles */
-.game-container {
-    width: 100%;
-    height: 80vh;
-    margin: 20px 0;
-    position: relative;
-    overflow: hidden;
-    border: 2px solid #333;
-    border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-}
-
-.controls {
-    background-color: #f5f5f5;
-    padding: 15px;
-    border-radius: 8px;
-    margin-bottom: 20px;
-}
-
-.controls h3 {
-    margin-top: 0;
-    color: #333;
-}
-
-.controls ul {
-    margin: 0;
-    padding-left: 20px;
-}
-
-.controls li {
-    margin-bottom: 8px;
-}
-
-@media (max-width: 768px) {
-    .game-container {
-        height: 60vh;
-    }
-
-    .controls {
-        font-size: 14px;
-    }
-}
-</style>
-
 <script type="module">
-    import '/browser/zk-game.mjs';
-    import '/browser/zk-kart.mjs';
-    import '/browser/zk-track.mjs';
-    import '/browser/zk-obstacle.mjs';
+	import '/browser/zk-game.mjs';
+	import '/browser/zk-kart.mjs';
+	import '/browser/zk-track.mjs';
+	import '/browser/zk-obstacle.mjs';
+	import '/browser/zk-kart-builder.mjs';
 </script>
