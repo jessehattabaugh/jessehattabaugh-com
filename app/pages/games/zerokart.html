@@ -1,0 +1,44 @@
+<jh-header></jh-header>
+<main>
+    <h1>ZeroKart</h1>
+    <p>Race around the track with physics-based kart racing!</p>
+
+    <section class="game-container">
+        <zk-game>
+            <zk-track id="default-track" name="Circuit 1">
+                <zk-obstacle type="ramp" x="500" y="300" angle="45" width="150" height="20"></zk-obstacle>
+                <zk-obstacle type="bounce-pad" x="800" y="400" width="100" height="10" force="0.05"></zk-obstacle>
+                <zk-obstacle type="oil-slick" x="300" y="600" radius="80" friction="0.01"></zk-obstacle>
+            </zk-track>
+
+            <zk-kart
+                id="player1"
+                type="standard"
+                color="red"
+                acceleration="0.005"
+                max-speed="5"
+                handling="0.9"
+                grip="0.8">
+            </zk-kart>
+        </zk-game>
+    </section>
+
+    <section class="controls">
+        <h3>Controls</h3>
+        <ul>
+            <li>Keyboard: Arrow keys to steer, Space to brake</li>
+            <li>Gamepad: Left stick or D-pad to steer, A/X to accelerate, B/O to brake</li>
+            <li>Touch/Mouse: On-screen controls appear automatically</li>
+        </ul>
+    </section>
+
+    <a href="/games/">Back to Games</a>
+</main>
+<jh-footer></jh-footer>
+
+<script type="module">
+    import '/browser/zerokart/zk-game.mjs';
+    import '/browser/zerokart/zk-kart.mjs';
+    import '/browser/zerokart/zk-track.mjs';
+    import '/browser/zerokart/zk-obstacle.mjs';
+</script>
