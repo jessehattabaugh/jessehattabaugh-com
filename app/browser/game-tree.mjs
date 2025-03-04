@@ -21,25 +21,72 @@ export class GameTree extends GameBase {
 	}
 
 	spawnTree() {
-		// Create a simple tree: a trunk and several branches
-		const bodies = [];
 		const { width, height } = this._render.options;
+		const groundLevel = height / 2;
+		const seedRadius = 10;
+		// Create seed: circle with bottom flush to ground
+		const seed = Matter.Bodies.circle(width / 2, groundLevel + seedRadius, seedRadius, {
+			isStatic: true,
+			render: { fillStyle: 'sienna' },
+		});
+		Composite.add(this._engine.world, seed);
+		this.treeSegments = [seed];
+		this._growthCycleIndex = 0;
 
-		// Create trunk: a tall thin rectangle centered at the bottom
-		const trunk = Bodies.rectangle(width / 2, height * 0.75, 20, 150, { isStatic: true, render: { fillStyle: 'brown' } });
-		bodies.push(trunk);
-
-		// Create branches: several rectangles coming out from the trunk
-		for (let i = -2; i <= 2; i++) {
-			const branch = Bodies.rectangle(width / 2 + i * 30, height * 0.75 - 80, 100, 20, {
-				angle: i * 0.2,
+		// Start growth cycle: trunk segments elongate upward; add roots and branches at milestones.
+		this._growthInterval = setInterval(() => {
+			this._growthCycleIndex++;
+			// Grow a new trunk segment above the last segment
+			const lastSegment = this.treeSegments[this.treeSegments.length - 1];
+			const segmentHeight = 20;
+			const newY = lastSegment.position.y - segmentHeight;
+			const newSegment = Matter.Bodies.rectangle(lastSegment.position.x, newY, 20, segmentHeight, {
 				isStatic: true,
-				render: { fillStyle: 'green' },
+				render: { fillStyle: 'brown' },
 			});
-			bodies.push(branch);
-		}
+			Composite.add(this._engine.world, newSegment);
+			this.treeSegments.push(newSegment);
 
-		Composite.add(this._engine.world, bodies);
+			if(this._growthCycleIndex === 2) {
+				// Add roots extending downward from the seed base
+				const rootLength = 40;
+				const leftRoot = Matter.Bodies.rectangle(seed.position.x - 10, seed.position.y + seedRadius + rootLength/2, 10, rootLength, {
+					isStatic: true,
+					angle: 0.2,
+					render: { fillStyle: 'darkgreen' },
+				});
+				const rightRoot = Matter.Bodies.rectangle(seed.position.x + 10, seed.position.y + seedRadius + rootLength/2, 10, rootLength, {
+					isStatic: true,
+					angle: -0.2,
+					render: { fillStyle: 'darkgreen' },
+				});
+				Composite.add(this._engine.world, leftRoot);
+				Composite.add(this._engine.world, rightRoot);
+			}
+
+			if(this._growthCycleIndex === 3) {
+				// Add branches extending upward from current trunk segment
+				const branchLength = 40;
+				const branchY = newSegment.position.y - segmentHeight / 2;
+				const leftBranch = Matter.Bodies.rectangle(newSegment.position.x - 10, branchY, branchLength, 10, {
+					isStatic: true,
+					angle: -Math.PI / 4,
+					render: { fillStyle: 'green' },
+				});
+				const rightBranch = Matter.Bodies.rectangle(newSegment.position.x + 10, branchY, branchLength, 10, {
+					isStatic: true,
+					angle: Math.PI / 4,
+					render: { fillStyle: 'green' },
+				});
+				Composite.add(this._engine.world, leftBranch);
+				Composite.add(this._engine.world, rightBranch);
+			}
+
+			// Stop growth after 10 cycles
+			if(this._growthCycleIndex >= 100) {
+				clearInterval(this._growthInterval);
+			}
+		}, 1000);
 	}
 }
 customElements.define('game-tree', GameTree);
