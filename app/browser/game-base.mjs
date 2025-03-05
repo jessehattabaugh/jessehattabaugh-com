@@ -1,5 +1,5 @@
 import Matter from 'matter-js';
-const { Composite, Render, Runner, Engine, Body, Common, Events, Vector } = Matter;
+const { Composite, Render, Runner, Engine, Events } = Matter;
 
 export class GameBase extends HTMLElement {
 	constructor() {
@@ -58,14 +58,37 @@ export class GameBase extends HTMLElement {
 	}
 
 	_setupPhysicsEngine() {
-		this._engine = Engine.create({
-			gravity: { x: 0, y: 0 },
+		this._engine = this.createEngine();
+		this._render = this.createRender(this.shadowRoot, this._engine,
+			window.innerWidth, window.innerHeight);
+	}
+
+	/**
+	 * Creates a Matter.js engine with configurable gravity
+	 * @param {object} gravityOptions - Optional gravity configuration
+	 * @param {number} gravityOptions.x - Horizontal gravity component (default: 0)
+	 * @param {number} gravityOptions.y - Vertical gravity component (default: 0)
+	 * @param {number} gravityOptions.scale - Gravity scale factor (default: 0.001)
+	 * @returns {Matter.Engine} A configured physics engine
+	 */
+	createEngine(gravityOptions = {}) {
+		const gravity = {
+			x: gravityOptions.x !== undefined ? gravityOptions.x : 0,
+			y: gravityOptions.y !== undefined ? gravityOptions.y : 0,
+			scale: gravityOptions.scale !== undefined ? gravityOptions.scale : 0.001
+		};
+
+		return Engine.create({
+			gravity,
 			positionIterations: 10,
 			velocityIterations: 10,
 		});
-		this._render = Render.create({
+	}
+
+	createRender(element, engine, width, height) {
+		return Render.create({
 			canvas: this._canvas,
-			engine: this._engine,
+			engine,
 			options: {
 				wireframes: false,
 				background: 'black',
@@ -73,6 +96,8 @@ export class GameBase extends HTMLElement {
 				showDebug: false,
 				showBounds: false,
 				showVelocity: false,
+				width,
+				height
 			},
 		});
 	}
@@ -117,7 +142,7 @@ export class GameBase extends HTMLElement {
 		Events.on(this._engine, 'collisionActive', (event) => {return this._handleCollisions(event.pairs)});
 	}
 
-	_handleCollisions(pairs) {
+	_handleCollisions() {
 		// ...existing collision handling logic...
 		// Note: subclasses can override or extend this method.
 	}

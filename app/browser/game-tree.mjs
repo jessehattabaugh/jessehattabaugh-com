@@ -1,92 +1,84 @@
 import Matter from 'matter-js';
 import { getWalls } from './bodies.mjs';
 import { GameBase } from './game-base.mjs';
-const { Composite, Body, Bodies } = Matter;
+const { Composite, Bodies, Render } = Matter;
 
 export class GameTree extends GameBase {
 	constructor() {
 		super();
-		// You can add any tree-specific properties here if needed
+		// Basic initialization
 	}
 
 	connectedCallback() {
 		super.connectedCallback();
-		// After engine startup, draw the tree structure
-		this.spawnTree();
+		// Setup your game elements here
+		this.setupGameElements();
 	}
 
-	// Optionally override to provide walls if needed, else reuse getWalls if desired
+	// Override _setupPhysicsEngine to use standard downward gravity
+	_setupPhysicsEngine() {
+		// Create engine with downward gravity
+		this._engine = this.createEngine({
+			x: 0,
+			y: 1,
+			scale: 0.001
+		});
+
+		// Create render
+		this._render = this.createRender(this.shadowRoot, this._engine,
+			window.innerWidth, window.innerHeight);
+	}
+
+	// Reuse the wall creation method
 	addWalls(width, height) {
 		return getWalls(width, height);
 	}
 
-	spawnTree() {
+	setupGameElements() {
 		const { width, height } = this._render.options;
-		const groundLevel = height / 2;
-		const seedRadius = 10;
-		// Create seed: circle with bottom flush to ground
-		const seed = Matter.Bodies.circle(width / 2, groundLevel + seedRadius, seedRadius, {
-			isStatic: true,
-			render: { fillStyle: 'sienna' },
+		// Example: Add a single element to the center
+		const centerElement = Bodies.circle(width / 2, height / 2, 30, {
+			render: { fillStyle: 'brown' }
 		});
-		Composite.add(this._engine.world, seed);
-		this.treeSegments = [seed];
-		this._growthCycleIndex = 0;
 
-		// Start growth cycle: trunk segments elongate upward; add roots and branches at milestones.
-		this._growthInterval = setInterval(() => {
-			this._growthCycleIndex++;
-			// Grow a new trunk segment above the last segment
-			const lastSegment = this.treeSegments[this.treeSegments.length - 1];
-			const segmentHeight = 20;
-			const newY = lastSegment.position.y - segmentHeight;
-			const newSegment = Matter.Bodies.rectangle(lastSegment.position.x, newY, 20, segmentHeight, {
-				isStatic: true,
-				render: { fillStyle: 'brown' },
-			});
-			Composite.add(this._engine.world, newSegment);
-			this.treeSegments.push(newSegment);
+		Composite.add(this._engine.world, centerElement);
 
-			if(this._growthCycleIndex === 2) {
-				// Add roots extending downward from the seed base
-				const rootLength = 40;
-				const leftRoot = Matter.Bodies.rectangle(seed.position.x - 10, seed.position.y + seedRadius + rootLength/2, 10, rootLength, {
-					isStatic: true,
-					angle: 0.2,
-					render: { fillStyle: 'darkgreen' },
-				});
-				const rightRoot = Matter.Bodies.rectangle(seed.position.x + 10, seed.position.y + seedRadius + rootLength/2, 10, rootLength, {
-					isStatic: true,
-					angle: -0.2,
-					render: { fillStyle: 'darkgreen' },
-				});
-				Composite.add(this._engine.world, leftRoot);
-				Composite.add(this._engine.world, rightRoot);
-			}
+		// You can add more game elements and logic here
+	}
 
-			if(this._growthCycleIndex === 3) {
-				// Add branches extending upward from current trunk segment
-				const branchLength = 40;
-				const branchY = newSegment.position.y - segmentHeight / 2;
-				const leftBranch = Matter.Bodies.rectangle(newSegment.position.x - 10, branchY, branchLength, 10, {
-					isStatic: true,
-					angle: -Math.PI / 4,
-					render: { fillStyle: 'green' },
-				});
-				const rightBranch = Matter.Bodies.rectangle(newSegment.position.x + 10, branchY, branchLength, 10, {
-					isStatic: true,
-					angle: Math.PI / 4,
-					render: { fillStyle: 'green' },
-				});
-				Composite.add(this._engine.world, leftBranch);
-				Composite.add(this._engine.world, rightBranch);
-			}
+	createRender(element, engine, width, height) {
+		// Create the base render object
+		const render = Render.create({
+			element,
+			engine,
+			options: {
+				width,
+				height,
+				wireframes: false,
+				background: 'transparent', // Set to transparent to allow our gradient to show
+				// Add any other render options you need here
+			},
+		});
 
-			// Stop growth after 10 cycles
-			if(this._growthCycleIndex >= 100) {
-				clearInterval(this._growthInterval);
-			}
-		}, 1000);
+		// Get the canvas from the render
+		const {canvas} = render;
+		const context = canvas.getContext('2d');
+
+		// Override the before render callback to draw the gradient
+		render.beforeRender = () => {
+			// Create gradient
+			const gradient = context.createLinearGradient(0, 0, 0, height);
+			gradient.addColorStop(0, '#87CEEB'); // Sky blue at top
+			gradient.addColorStop(0.7, '#E0F7FA'); // Light blue in middle
+			gradient.addColorStop(1, '#8BC34A');   // Light green at bottom
+
+			// Fill background with gradient
+			context.fillStyle = gradient;
+			context.fillRect(0, 0, width, height);
+		};
+
+		return render;
 	}
 }
+
 customElements.define('game-tree', GameTree);
