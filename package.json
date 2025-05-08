@@ -1,37 +1,5 @@
 {
-	"devDependencies": {
-		"@architect/architect": "latest",
-		"@architect/asap": "latest",
-		"@architect/functions": "latest",
-		"@architect/sandbox": "latest",
-		"@aws-sdk/client-s3": "latest",
-		"@aws-sdk/node-http-handler": "latest",
-		"@enhance/arc-plugin-enhance": "latest",
-		"@enhance/element": "latest",
-		"@enhance/ssr": "latest",
-		"@enhance/types": "latest",
-		"@playwright/test": "latest",
-		"@types/node": "latest",
-		"eslint": "latest",
-		"eslint-config-prettier": "latest",
-		"lambda-multipart-parser": "latest",
-		"playwright": "latest"
-	},
-	"engines": {
-		"node": "~20",
-		"npm": "~10"
-	},
-	"private": true,
-	"scripts": {
-		"clean": "npx cli-confirm 'have you commited your changes?' && git clean -fdx",
-		"kill": "npx kill-port 3333",
-		"prod": "arc deploy --production",
-		"stage": "arc deploy",
-		"start": "npm run kill && arc sandbox",
-		"test": "npx playwright test",
-		"test:codegen": "npm start & npx playwright codegen",
-		"test:ui": "npx playwright test --ui",
-		"test:update": "npx playwright test --update-snapshots"
-	},
+	"devDependencies": {},
+	"scripts": {},
 	"type": "module"
 }
