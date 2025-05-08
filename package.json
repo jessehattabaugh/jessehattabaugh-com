@@ -1,5 +1,8 @@
 {
-	"devDependencies": {},
+	"devDependencies": {
+		"@eslint/js": "^9.26.0",
+		"eslint": "^9.26.0"
+	},
 	"scripts": {},
 	"type": "module"
 }
