@@ -1,0 +1,48 @@
+{
+	"editor.codeActionsOnSave": {
+		"source.fixAll.eslint": "always"
+	},
+	"editor.defaultFormatter": "esbenp.prettier-vscode",
+	"editor.formatOnSave": true,
+	"editor.wordWrap": "on",
+	"github.copilot.advanced": {
+		"codeGeneration": {
+			"enabled": true
+		},
+		"codesearch": {
+			"enabled": true
+		},
+		"commitMessageGeneration": {
+			"enabled": true
+		},
+		"reviewSelection": {
+			"enabled": true
+		},
+		"testGeneration": {
+			"enabled": true
+		}
+	},
+	"github.copilot.chat.codeGeneration.instructions": [
+		{
+			"file": "../.github/prompts/codeGeneration.prompt.md"
+		}
+	],
+	"github.copilot.chat.codeGeneration.useInstructionFiles": true,
+	"github.copilot.chat.codesearch.enabled": true,
+	"github.copilot.chat.commitMessageGeneration.instructions": [
+		{
+			"file": "../.github/prompts/commitMessageGeneration.prompt.md"
+		}
+	],
+	"github.copilot.chat.reviewSelection.enabled": true,
+	"github.copilot.chat.reviewSelection.instructions": [
+		{
+			"file": "../.github/prompts/reviewSelection.prompt.md"
+		}
+	],
+	"github.copilot.chat.testGeneration.instructions": [
+		{
+			"file": "../.github/prompts/testGeneration.prompt.md"
+		}
+	]
+}
