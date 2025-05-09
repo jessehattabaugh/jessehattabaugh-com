@@ -7,13 +7,11 @@
 		"eslint-plugin-compat": "latest",
 		"eslint-plugin-promise": "latest",
 		"eslint-plugin-sonarjs": "latest",
-		"eslint-plugin-unicorn": "latest",
-		"serverless": "latest"
+		"eslint-plugin-unicorn": "latest"
 	},
 	"scripts": {
 		"lint": "eslint",
-		"lint:fix": "npm run lint -- --fix",
-		"update": "npx sls update"
+		"lint:fix": "npm run lint -- --fix"
 	},
 	"type": "module"
 }
