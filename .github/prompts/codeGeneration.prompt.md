@@ -12,6 +12,7 @@
 -   Use `types.d.ts` for shared types.
 -   Use `@typedef` for complex types.
 -   Never create .ts files
+-   Prefer JSON over YAML for configuration files.
 -   Use exactly two emojis per console message: one shared per file, one unique per message.
 -   Use appropriate console methods:
     -   `console.debug()`: Minor information, loop iterations, internal details.

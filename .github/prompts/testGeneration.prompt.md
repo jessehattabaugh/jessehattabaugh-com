@@ -1,0 +1,3 @@
+- Use Playwright for end-to-end testing; do NOT write Unit tests or use Jest.
+- When selecting elements, prefer using userspace selectors (e.g., `getByRole`, `getByLabelText`) over CSS selectors or `data-*` attributes.
+- Only test the user interface; do not test the implementation.
