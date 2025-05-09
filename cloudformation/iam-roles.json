@@ -100,6 +100,29 @@
 					}
 				]
 			}
+		},
+		"LambdaExecutionRole": {
+			"Type": "AWS::IAM::Role",
+			"Properties": {
+				"RoleName": {
+					"Fn::Sub": "${ProjectName}-LambdaExecutionRole-${AWS::Region}"
+				},
+				"AssumeRolePolicyDocument": {
+					"Version": "2012-10-17",
+					"Statement": [
+						{
+							"Effect": "Allow",
+							"Principal": {
+								"Service": "lambda.amazonaws.com"
+							},
+							"Action": "sts:AssumeRole"
+						}
+					]
+				},
+				"ManagedPolicyArns": [
+					"arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+				]
+			}
 		}
 	},
 	"Outputs": {
@@ -111,6 +134,17 @@
 			"Export": {
 				"Name": {
 					"Fn::Sub": "${AWS::StackName}-CodeBuildServiceRoleArn"
+				}
+			}
+		},
+		"LambdaExecutionRoleArn": {
+			"Description": "ARN of the Lambda execution role",
+			"Value": {
+				"Fn::GetAtt": ["LambdaExecutionRole", "Arn"]
+			},
+			"Export": {
+				"Name": {
+					"Fn::Sub": "${AWS::StackName}-LambdaExecutionRoleArn"
 				}
 			}
 		}

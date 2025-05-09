@@ -32,6 +32,25 @@
 		"StaticAssetsS3BucketName": {
 			"Type": "String",
 			"Description": "Name for the S3 bucket that will store static assets. Will be prefixed with project name and suffixed with region."
+		},
+		"LambdaFunctionName": {
+			"Type": "String",
+			"Description": "Base name for the application Lambda function.",
+			"Default": "AppLambda"
+		},
+		"LambdaHandler": {
+			"Type": "String",
+			"Description": "Handler for the Lambda function.",
+			"Default": "index.handler"
+		},
+		"LambdaRuntime": {
+			"Type": "String",
+			"Description": "Runtime for the Lambda function.",
+			"Default": "nodejs20.x"
+		},
+		"LambdaCodeS3Key": {
+			"Type": "String",
+			"Description": "S3 key for the Lambda function's deployment package (.zip). Example: lambda/app.zip"
 		}
 	},
 	"Mappings": {
@@ -74,6 +93,26 @@
 					"ProjectName": { "Ref": "ProjectName" }
 				}
 			}
+		},
+		"LambdaFunctionsStack": {
+			"Type": "AWS::CloudFormation::Stack",
+			"Properties": {
+				"TemplateURL": "./lambda-functions.json",
+				"Parameters": {
+					"ProjectName": { "Ref": "ProjectName" },
+					"LambdaFunctionName": { "Ref": "LambdaFunctionName" },
+					"LambdaHandler": { "Ref": "LambdaHandler" },
+					"LambdaRuntime": { "Ref": "LambdaRuntime" },
+					"LambdaCodeS3Bucket": {
+						"Fn::GetAtt": "StaticAssetsBucketStack.Outputs.BucketName"
+					},
+					"LambdaCodeS3Key": { "Ref": "LambdaCodeS3Key" },
+					"LambdaExecutionRoleArn": {
+						"Fn::GetAtt": "IamRolesStack.Outputs.LambdaExecutionRoleArn"
+					},
+					"BranchName": { "Ref": "BranchName" }
+				}
+			}
 		}
 	},
 	"Outputs": {
@@ -84,6 +123,14 @@
 		"CodeBuildServiceRoleArnOutput": {
 			"Description": "ARN of the CodeBuild service role",
 			"Value": { "Fn::GetAtt": "IamRolesStack.Outputs.CodeBuildServiceRoleArn" }
+		},
+		"LambdaFunctionArnOutput": {
+			"Description": "ARN of the application Lambda function",
+			"Value": { "Fn::GetAtt": "LambdaFunctionsStack.Outputs.LambdaFunctionArn" }
+		},
+		"LambdaFunctionNameOutput": {
+			"Description": "Name of the application Lambda function",
+			"Value": { "Fn::GetAtt": "LambdaFunctionsStack.Outputs.LambdaFunctionNameOutput" }
 		}
 	}
 }
