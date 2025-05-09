@@ -1,3 +1,7 @@
+---
+applyTo: '**'
+---
+
 -   Support all modern browsers; no Internet Explorer compatibility.
 -   Use tabs for indentation.
 -   Prefer traditional control structures (`if/else`, `switch`, `while`) for clarity.
