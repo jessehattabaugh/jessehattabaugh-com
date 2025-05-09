@@ -1,0 +1,22 @@
+{
+    "org": "jessehattabaugh",
+    "app": "jessehattabaugh-com",
+    "service": "jessehattabaugh-com",
+    "provider": {
+        "name": "aws",
+        "runtime": "nodejs22.x"
+    },
+    "functions": {
+        "hello": {
+            "handler": "handler.hello",
+            "events": [
+                {
+                    "httpApi": {
+                        "path": "/",
+                        "method": "get"
+                    }
+                }
+            ]
+        }
+    }
+}
