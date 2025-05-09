@@ -46,11 +46,16 @@
 		"LambdaRuntime": {
 			"Type": "String",
 			"Description": "Runtime for the Lambda function.",
-			"Default": "nodejs20.x"
+			"Default": "nodejs22.x"
 		},
 		"LambdaCodeS3Key": {
 			"Type": "String",
 			"Description": "S3 key for the Lambda function's deployment package (.zip). Example: lambda/app.zip"
+		},
+		"ApiGatewayStageName": {
+			"Type": "String",
+			"Description": "Name for the API Gateway stage.",
+			"Default": "$default"
 		}
 	},
 	"Mappings": {
@@ -113,6 +118,20 @@
 					"BranchName": { "Ref": "BranchName" }
 				}
 			}
+		},
+		"ApiGatewayStack": {
+			"Type": "AWS::CloudFormation::Stack",
+			"Properties": {
+				"TemplateURL": "./api-gateway.json",
+				"Parameters": {
+					"ProjectName": { "Ref": "ProjectName" },
+					"BranchName": { "Ref": "BranchName" },
+					"LambdaFunctionArn": {
+						"Fn::GetAtt": "LambdaFunctionsStack.Outputs.LambdaFunctionArn"
+					},
+					"ApiGatewayStageName": { "Ref": "ApiGatewayStageName" }
+				}
+			}
 		}
 	},
 	"Outputs": {
@@ -131,6 +150,14 @@
 		"LambdaFunctionNameOutput": {
 			"Description": "Name of the application Lambda function",
 			"Value": { "Fn::GetAtt": "LambdaFunctionsStack.Outputs.LambdaFunctionNameOutput" }
+		},
+		"ApiIdOutput": {
+			"Description": "ID of the HTTP API Gateway",
+			"Value": { "Fn::GetAtt": "ApiGatewayStack.Outputs.ApiId" }
+		},
+		"ApiEndpointOutput": {
+			"Description": "Endpoint URL for the HTTP API Gateway Stage",
+			"Value": { "Fn::GetAtt": "ApiGatewayStack.Outputs.ApiEndpoint" }
 		}
 	}
 }
