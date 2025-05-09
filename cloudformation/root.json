@@ -1,0 +1,89 @@
+{
+	"AWSTemplateFormatVersion": "2010-09-09",
+	"Description": "Root CloudFormation stack for jessehattabaugh.com. Manages S3, IAM, CloudFront, API Gateway, Lambda, and Route 53 resources.",
+	"Parameters": {
+		"ProjectName": {
+			"Type": "String",
+			"Description": "A name for the project, used to prefix resource names for uniqueness and clarity.",
+			"Default": "jessehattabaugh-com"
+		},
+		"DomainName": {
+			"Type": "String",
+			"Description": "The root domain name (e.g., example.com) for the website."
+		},
+		"Subdomain": {
+			"Type": "String",
+			"Description": "The subdomain for the current environment (e.g., 'www', 'dev', or branch name). Use '@' for the root domain.",
+			"Default": "@"
+		},
+		"HostedZoneId": {
+			"Type": "AWS::Route53::HostedZone::Id",
+			"Description": "The Route 53 Hosted Zone ID for the DomainName."
+		},
+		"AcmCertificateArn": {
+			"Type": "String",
+			"Description": "ARN of the ACM SSL/TLS certificate for the domain/subdomain. Must be in us-east-1 for CloudFront."
+		},
+		"BranchName": {
+			"Type": "String",
+			"Description": "The current Git branch name, used for tagging and conditional resource naming.",
+			"Default": "main"
+		},
+		"StaticAssetsS3BucketName": {
+			"Type": "String",
+			"Description": "Name for the S3 bucket that will store static assets. Will be prefixed with project name and suffixed with region."
+		}
+	},
+	"Mappings": {
+		"RegionMap": {
+			"us-east-1": { "RegionAlias": "ue1" },
+			"us-west-2": { "RegionAlias": "uw2" }
+		}
+	},
+	"Resources": {
+		"CloudFrontOAI": {
+			"Type": "AWS::CloudFront::CloudFrontOriginAccessIdentity",
+			"Properties": {
+				"CloudFrontOriginAccessIdentityConfig": {
+					"Comment": { "Fn::Sub": "OAI for ${ProjectName} static assets" }
+				}
+			}
+		},
+		"StaticAssetsBucketStack": {
+			"Type": "AWS::CloudFormation::Stack",
+			"Properties": {
+				"TemplateURL": "./s3-static-assets-bucket.json",
+				"Parameters": {
+					"CloudFrontOAICanonicalUserId": {
+						"Fn::GetAtt": "CloudFrontOAI.S3CanonicalUserId"
+					},
+					"BucketName": {
+						"Fn::Sub": "${ProjectName}-static-assets-${AWS::Region}"
+					}
+				}
+			}
+		},
+		"IamRolesStack": {
+			"Type": "AWS::CloudFormation::Stack",
+			"Properties": {
+				"TemplateURL": "./iam-roles.json",
+				"Parameters": {
+					"ArtifactsBucketArn": {
+						"Fn::GetAtt": "StaticAssetsBucketStack.Outputs.BucketArn"
+					},
+					"ProjectName": { "Ref": "ProjectName" }
+				}
+			}
+		}
+	},
+	"Outputs": {
+		"StaticAssetsBucketNameOutput": {
+			"Description": "Name of the S3 bucket for static assets",
+			"Value": { "Fn::GetAtt": "StaticAssetsBucketStack.Outputs.BucketName" }
+		},
+		"CodeBuildServiceRoleArnOutput": {
+			"Description": "ARN of the CodeBuild service role",
+			"Value": { "Fn::GetAtt": "IamRolesStack.Outputs.CodeBuildServiceRoleArn" }
+		}
+	}
+}
