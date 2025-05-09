@@ -11,7 +11,7 @@
 	},
 	"scripts": {
 		"lint": "eslint",
-		"lint:fix": "eslint --fix"
+		"lint:fix": "npm run lint -- --fix"
 	},
 	"type": "module"
 }
