@@ -56,6 +56,11 @@
 			"Type": "String",
 			"Description": "Name for the API Gateway stage.",
 			"Default": "$default"
+		},
+		"StaticAssetPathPattern": {
+			"Type": "String",
+			"Description": "Path pattern for static assets in CloudFront (e.g., static/*).",
+			"Default": "static/*"
 		}
 	},
 	"Mappings": {
@@ -63,6 +68,9 @@
 			"us-east-1": { "RegionAlias": "ue1" },
 			"us-west-2": { "RegionAlias": "uw2" }
 		}
+	},
+	"Conditions": {
+		"IsRootDomain": { "Fn::Equals": [{ "Ref": "Subdomain" }, "@"] }
 	},
 	"Resources": {
 		"CloudFrontOAI": {
@@ -132,6 +140,54 @@
 					"ApiGatewayStageName": { "Ref": "ApiGatewayStageName" }
 				}
 			}
+		},
+		"CloudFrontDistributionStack": {
+			"Type": "AWS::CloudFormation::Stack",
+			"Properties": {
+				"TemplateURL": "./cloudfront-distribution.json",
+				"Parameters": {
+					"ProjectName": { "Ref": "ProjectName" },
+					"BranchName": { "Ref": "BranchName" },
+					"StaticAssetsS3BucketDomainName": {
+						"Fn::GetAtt": "StaticAssetsBucketStack.Outputs.BucketDomainName"
+					},
+					"CloudFrontOAIId": {
+						"Fn::GetAtt": "CloudFrontOAI.CloudFrontOriginAccessIdentityId"
+					},
+					"ApiGatewayId": { "Fn::GetAtt": "ApiGatewayStack.Outputs.ApiId" },
+					"ApiGatewayStageName": { "Ref": "ApiGatewayStageName" },
+					"AcmCertificateArn": { "Ref": "AcmCertificateArn" },
+					"CloudFrontAliases": {
+						"Fn::If": [
+							"IsRootDomain",
+							{ "Ref": "DomainName" },
+							{ "Fn::Sub": "${Subdomain}.${DomainName}" }
+						]
+					},
+					"StaticAssetPathPattern": { "Ref": "StaticAssetPathPattern" }
+				}
+			},
+			"DependsOn": ["ApiGatewayStack", "StaticAssetsBucketStack", "CloudFrontOAI"]
+		},
+		"Route53RecordsStack": {
+			"Type": "AWS::CloudFormation::Stack",
+			"Properties": {
+				"TemplateURL": "./route53-records.json",
+				"Parameters": {
+					"HostedZoneId": { "Ref": "HostedZoneId" },
+					"FullDomainName": {
+						"Fn::If": [
+							"IsRootDomain",
+							{ "Ref": "DomainName" },
+							{ "Fn::Sub": "${Subdomain}.${DomainName}" }
+						]
+					},
+					"CloudFrontDistributionDomainName": {
+						"Fn::GetAtt": "CloudFrontDistributionStack.Outputs.DistributionDomainName"
+					}
+				}
+			},
+			"DependsOn": "CloudFrontDistributionStack"
 		}
 	},
 	"Outputs": {
@@ -158,6 +214,18 @@
 		"ApiEndpointOutput": {
 			"Description": "Endpoint URL for the HTTP API Gateway Stage",
 			"Value": { "Fn::GetAtt": "ApiGatewayStack.Outputs.ApiEndpoint" }
+		},
+		"CloudFrontDistributionIdOutput": {
+			"Description": "ID of the CloudFront distribution",
+			"Value": { "Fn::GetAtt": "CloudFrontDistributionStack.Outputs.DistributionId" }
+		},
+		"CloudFrontDistributionDomainNameOutput": {
+			"Description": "Domain name of the CloudFront distribution",
+			"Value": { "Fn::GetAtt": "CloudFrontDistributionStack.Outputs.DistributionDomainName" }
+		},
+		"Route53RecordSetNameOutput": {
+			"Description": "The name of the DNS record set created/updated.",
+			"Value": { "Fn::GetAtt": "Route53RecordsStack.Outputs.RecordSetName" }
 		}
 	}
 }
