@@ -1,0 +1,206 @@
+{
+	"AWSTemplateFormatVersion": "2010-09-09",
+	"Description": "Defines an AWS CodeBuild project for building and deploying the web application. Triggered by EventBridge.",
+	"Parameters": {
+		"ProjectName": {
+			"Type": "String",
+			"Description": "The overall project name, used for naming resources."
+		},
+		"CodeBuildServiceRoleArn": {
+			"Type": "String",
+			"Description": "ARN of the IAM service role for CodeBuild."
+		},
+		"SourceRepositoryUrl": {
+			"Type": "String",
+			"Description": "URL of the GitHub source code repository (e.g., https://github.com/user/repo.git)."
+		},
+		"BuildEnvironmentImage": {
+			"Type": "String",
+			"Description": "CodeBuild environment image (e.g., aws/codebuild/standard:7.0).",
+			"Default": "aws/codebuild/standard:7.0"
+		},
+		"BuildSpecFile": {
+			"Type": "String",
+			"Description": "Path to the buildspec file in the source repository.",
+			"Default": "buildspec.yml"
+		},
+		"RootStackNamePrefix": {
+			"Type": "String",
+			"Description": "Prefix for the CloudFormation root stack name (branch name will be appended by buildspec)."
+		},
+		"RootTemplateFileInRepo": {
+			"Type": "String",
+			"Description": "Path to the root CloudFormation template file in the repository.",
+			"Default": "cloudformation/root.json"
+		},
+		"EnvVarProjectNameForCfn": {
+			"Type": "String",
+			"Description": "Value for the 'ProjectName' parameter of the root CloudFormation stack."
+		},
+		"EnvVarDomainNameForCfn": {
+			"Type": "String",
+			"Description": "Value for the 'DomainName' parameter of the root CloudFormation stack."
+		},
+		"EnvVarSubdomainBaseForCfn": {
+			"Type": "String",
+			"Description": "Base for the 'Subdomain' parameter of the root CloudFormation stack (e.g., '@' for main, '{branch}' for others). Buildspec will process this."
+		},
+		"EnvVarHostedZoneIdForCfn": {
+			"Type": "String",
+			"Description": "Value for the 'HostedZoneId' parameter of the root CloudFormation stack."
+		},
+		"EnvVarAcmCertificateArnForCfn": {
+			"Type": "String",
+			"Description": "Value for the 'AcmCertificateArn' parameter of the root CloudFormation stack."
+		},
+		"EnvVarStaticAssetsS3BucketNameForCfn": {
+			"Type": "String",
+			"Description": "Value for the 'StaticAssetsS3BucketName' parameter of the root CloudFormation stack. Also used by buildspec for uploads."
+		},
+		"EnvVarLambdaFunctionNameForCfn": {
+			"Type": "String",
+			"Description": "Value for the 'LambdaFunctionName' parameter of the root CloudFormation stack."
+		},
+		"EnvVarLambdaHandlerForCfn": {
+			"Type": "String",
+			"Description": "Value for the 'LambdaHandler' parameter of the root CloudFormation stack."
+		},
+		"EnvVarLambdaRuntimeForCfn": {
+			"Type": "String",
+			"Description": "Value for the 'LambdaRuntime' parameter of the root CloudFormation stack."
+		},
+		"EnvVarLambdaCodeS3KeyPatternForCfn": {
+			"Type": "String",
+			"Description": "S3 key pattern for Lambda code (e.g., lambda/{branch}/app.zip). Buildspec uses this."
+		},
+		"EnvVarApiGatewayStageNameForCfn": {
+			"Type": "String",
+			"Description": "Value for the 'ApiGatewayStageName' parameter of the root CloudFormation stack."
+		},
+		"EnvVarStaticAssetPathPatternForCfn": {
+			"Type": "String",
+			"Description": "Value for the 'StaticAssetPathPattern' parameter of the root CloudFormation stack."
+		}
+	},
+	"Resources": {
+		"CodeBuildProject": {
+			"Type": "AWS::CodeBuild::Project",
+			"Properties": {
+				"Name": { "Fn::Sub": "${ProjectName}-WebAppDeploy" },
+				"Description": {
+					"Fn::Sub": "Builds and deploys the ${ProjectName} web application."
+				},
+				"ServiceRole": { "Ref": "CodeBuildServiceRoleArn" },
+				"Artifacts": { "Type": "NO_ARTIFACTS" },
+				"Environment": {
+					"ComputeType": "BUILD_GENERAL1_SMALL",
+					"Image": { "Ref": "BuildEnvironmentImage" },
+					"Type": "LINUX_CONTAINER",
+					"PrivilegedMode": false,
+					"EnvironmentVariables": [
+						{
+							"Name": "PROJECT_NAME_FOR_CFN_PARAM",
+							"Value": { "Ref": "EnvVarProjectNameForCfn" },
+							"Type": "PLAINTEXT"
+						},
+						{
+							"Name": "ROOT_STACK_NAME_PREFIX_ENV_VAR",
+							"Value": { "Ref": "RootStackNamePrefix" },
+							"Type": "PLAINTEXT"
+						},
+						{
+							"Name": "CFN_TEMPLATE_FILE_ENV_VAR",
+							"Value": { "Ref": "RootTemplateFileInRepo" },
+							"Type": "PLAINTEXT"
+						},
+						{
+							"Name": "CFN_REGION_ENV_VAR",
+							"Value": { "Ref": "AWS::Region" },
+							"Type": "PLAINTEXT"
+						},
+						{
+							"Name": "STATIC_ASSETS_S3_BUCKET_ENV_VAR",
+							"Value": { "Ref": "EnvVarStaticAssetsS3BucketNameForCfn" },
+							"Type": "PLAINTEXT"
+						},
+						{
+							"Name": "LAMBDA_CODE_S3_KEY_PATTERN_ENV_VAR",
+							"Value": { "Ref": "EnvVarLambdaCodeS3KeyPatternForCfn" },
+							"Type": "PLAINTEXT"
+						},
+						{
+							"Name": "DOMAIN_NAME_FOR_CFN_PARAM",
+							"Value": { "Ref": "EnvVarDomainNameForCfn" },
+							"Type": "PLAINTEXT"
+						},
+						{
+							"Name": "SUBDOMAIN_BASE_FOR_CFN_PARAM",
+							"Value": { "Ref": "EnvVarSubdomainBaseForCfn" },
+							"Type": "PLAINTEXT"
+						},
+						{
+							"Name": "HOSTED_ZONE_ID_FOR_CFN_PARAM",
+							"Value": { "Ref": "EnvVarHostedZoneIdForCfn" },
+							"Type": "PLAINTEXT"
+						},
+						{
+							"Name": "ACM_CERT_ARN_FOR_CFN_PARAM",
+							"Value": { "Ref": "EnvVarAcmCertificateArnForCfn" },
+							"Type": "PLAINTEXT"
+						},
+						{
+							"Name": "LAMBDA_FUNCTION_NAME_FOR_CFN_PARAM",
+							"Value": { "Ref": "EnvVarLambdaFunctionNameForCfn" },
+							"Type": "PLAINTEXT"
+						},
+						{
+							"Name": "LAMBDA_HANDLER_FOR_CFN_PARAM",
+							"Value": { "Ref": "EnvVarLambdaHandlerForCfn" },
+							"Type": "PLAINTEXT"
+						},
+						{
+							"Name": "LAMBDA_RUNTIME_FOR_CFN_PARAM",
+							"Value": { "Ref": "EnvVarLambdaRuntimeForCfn" },
+							"Type": "PLAINTEXT"
+						},
+						{
+							"Name": "API_GATEWAY_STAGE_NAME_FOR_CFN_PARAM",
+							"Value": { "Ref": "EnvVarApiGatewayStageNameForCfn" },
+							"Type": "PLAINTEXT"
+						},
+						{
+							"Name": "STATIC_ASSET_PATH_PATTERN_FOR_CFN_PARAM",
+							"Value": { "Ref": "EnvVarStaticAssetPathPatternForCfn" },
+							"Type": "PLAINTEXT"
+						}
+					]
+				},
+				"Source": {
+					"Type": "GITHUB",
+					"Location": { "Ref": "SourceRepositoryUrl" },
+					"BuildSpec": { "Ref": "BuildSpecFile" },
+					"GitCloneDepth": 1,
+					"ReportBuildStatus": true
+				},
+				"LogsConfig": {
+					"CloudWatchLogs": {
+						"Status": "ENABLED",
+						"GroupName": { "Fn::Sub": "/aws/codebuild/${ProjectName}-WebAppDeployLogs" }
+					}
+				},
+				"TimeoutInMinutes": 60,
+				"Tags": [{ "Key": "Project", "Value": { "Ref": "ProjectName" } }]
+			}
+		}
+	},
+	"Outputs": {
+		"CodeBuildProjectName": {
+			"Description": "Name of the AWS CodeBuild project.",
+			"Value": { "Ref": "CodeBuildProject" }
+		},
+		"CodeBuildProjectArn": {
+			"Description": "ARN of the AWS CodeBuild project.",
+			"Value": { "Fn::GetAtt": "CodeBuildProject.Arn" }
+		}
+	}
+}
