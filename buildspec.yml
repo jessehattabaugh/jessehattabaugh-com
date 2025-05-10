@@ -9,6 +9,12 @@ phases:
       nodejs: 20
     commands:
       - echo "Install phase..."
+      - echo "Installing Playwright..."
+      - npm install -g npm # Ensure npm is up to date
+      - npm install playwright @playwright/test
+      - npx playwright install --with-deps # Install browser drivers and OS dependencies
+      - echo "Installing Marko..."
+      - npm install -g marko
   pre_build:
     commands:
       - export BRANCH_NAME=$(echo $CODEBUILD_WEBHOOK_HEAD_REF | sed 's/refs\/heads\////' | sed 's/[^a-zA-Z0-9-]/-/g' | cut -c 1-63)
@@ -24,20 +30,64 @@ phases:
   build:
     commands:
       - echo "Build phase..."
-      - echo 'exports.handler = async (event) => { console.log("Event:", JSON.stringify(event, null, 2)); return { statusCode: 200, body: JSON.stringify({ message: "Hello from Lambda!", input: event, build_branch: "'$BRANCH_NAME'"})}; };' > ${APP_DIR}/index.js
-      - echo "Branch: $BRANCH_NAME" > ${APP_DIR}/branch_info.txt
+      - echo "Creating Lambda deployment package..."
+      - mkdir -p lambda_package/node_modules
+      - cp -r src/* lambda_package/
+      - cp -r node_modules/marko lambda_package/node_modules/marko
+      - cd lambda_package
+      - zip -r ../lambda_function.zip .
+      - cd ..
+      - echo "Lambda deployment package created."
+      - echo "Branch: $BRANCH_NAME" > ${APP_DIR}/branch_info.txt # Example file
       - cd $APP_DIR && zip -qr ../$LAMBDA_ZIP_FILE . && cd ..
       - echo "Lambda package $LAMBDA_ZIP_FILE created."
-  post_build:
+  post_build: # Renamed to reflect its primary role: deploying infrastructure and preparing for tests
     commands:
-      - echo "Post-build phase..."
-      - echo "Uploading Lambda code to S3..."
-      - aws s3 cp $LAMBDA_ZIP_FILE s3://${STATIC_ASSETS_S3_BUCKET_ENV_VAR}/${FINAL_LAMBDA_CODE_S3_KEY} --region $CFN_REGION_ENV_VAR
+      - echo "Infrastructure deployment and test preparation phase..."
+      - echo "Uploading Lambda function code to S3..."
+      - aws s3 cp lambda_function.zip s3://$S3_BUCKET_NAME/$LAMBDA_S3_KEY
       - echo "Uploading static assets to S3..."
       - aws s3 sync ./static s3://${STATIC_ASSETS_S3_BUCKET_ENV_VAR}/${BRANCH_NAME}/static/ --delete --region $CFN_REGION_ENV_VAR
       - echo "Static assets uploaded."
       - echo "Deploying CloudFormation stack: $CFN_STACK_NAME"
-      - aws cloudformation deploy --template-file $CFN_TEMPLATE_FILE_ENV_VAR --stack-name $CFN_STACK_NAME --capabilities CAPABILITY_IAM CAPABILITY_NAMED_IAM --region $CFN_REGION_ENV_VAR --parameter-overrides ProjectName="$PROJECT_NAME_FOR_CFN_PARAM" DomainName="$DOMAIN_NAME_FOR_CFN_PARAM" Subdomain="$CFN_PARAM_SUBDOMAIN" HostedZoneId="$HOSTED_ZONE_ID_FOR_CFN_PARAM" AcmCertificateArn="$ACM_CERT_ARN_FOR_CFN_PARAM" BranchName="$BRANCH_NAME" StaticAssetsS3BucketName="$STATIC_ASSETS_S3_BUCKET_ENV_VAR" LambdaFunctionName="$LAMBDA_FUNCTION_NAME_FOR_CFN_PARAM" LambdaHandler="$LAMBDA_HANDLER_FOR_CFN_PARAM" LambdaRuntime="$LAMBDA_RUNTIME_FOR_CFN_PARAM" LambdaCodeS3Key="$FINAL_LAMBDA_CODE_S3_KEY" ApiGatewayStageName="$API_GATEWAY_STAGE_NAME_FOR_CFN_PARAM" StaticAssetPathPattern="$STATIC_ASSET_PATH_PATTERN_FOR_CFN_PARAM"
-      - echo "CloudFormation deployment initiated."
+      - |
+        aws cloudformation deploy \
+          --template-file $CFN_TEMPLATE_FILE_ENV_VAR \
+          --stack-name $CFN_STACK_NAME \
+          --capabilities CAPABILITY_IAM CAPABILITY_NAMED_IAM \
+          --region $CFN_REGION_ENV_VAR \
+          --parameter-overrides \
+            ProjectName="$PROJECT_NAME_FOR_CFN_PARAM" \
+            DomainName="$DOMAIN_NAME_FOR_CFN_PARAM" \
+            Subdomain="$CFN_PARAM_SUBDOMAIN" \
+            HostedZoneId="$HOSTED_ZONE_ID_FOR_CFN_PARAM" \
+            AcmCertificateArn="$ACM_CERT_ARN_FOR_CFN_PARAM" \
+            BranchName="$BRANCH_NAME" \
+            StaticAssetsS3BucketName="$STATIC_ASSETS_S3_BUCKET_ENV_VAR" \
+            LambdaFunctionName="$LAMBDA_FUNCTION_NAME_FOR_CFN_PARAM" \
+            LambdaHandler="$LAMBDA_HANDLER_FOR_CFN_PARAM" \
+            LambdaRuntime="$LAMBDA_RUNTIME_FOR_CFN_PARAM" \
+            LambdaCodeS3Key="$FINAL_LAMBDA_CODE_S3_KEY" \
+            ApiGatewayStageName="$API_GATEWAY_STAGE_NAME_FOR_CFN_PARAM" \
+            StaticAssetPathPattern="$STATIC_ASSET_PATH_PATTERN_FOR_CFN_PARAM"
+      - echo "CloudFormation deployment initiated and command will wait for completion."
+      - echo "Retrieving application URL for testing..."
+      - export APP_URL_DOMAIN=$(aws cloudformation describe-stacks --stack-name $CFN_STACK_NAME --query "Stacks[0].Outputs[?OutputKey=='CloudFrontDistributionDomainNameOutput'].OutputValue" --output text --region $CFN_REGION_ENV_VAR)
+      - if [ -z "$APP_URL_DOMAIN" ] || [ "$APP_URL_DOMAIN" = "None" ]; then echo "Error: Failed to retrieve CloudFront domain name from stack outputs."; exit 1; fi
+      - export APP_BASE_URL="https://$APP_URL_DOMAIN"
+      - echo "Application base URL for testing: $APP_BASE_URL"
+  test:
+    commands:
+      - echo "Test phase..."
+      - if [ -z "$APP_BASE_URL" ]; then echo "Error: APP_BASE_URL not set. Cannot run tests."; exit 1; fi
+      # TODO: Ensure Playwright tests exist and playwright.config.js is configured (e.g., to use BASE_URL env var)
+      - echo "Running Playwright tests against $APP_BASE_URL..."
+      - BASE_URL=$APP_BASE_URL npx playwright test
+      - echo "Playwright tests completed."
 artifacts:
   files: []
+# reports:
+#   PlaywrightTestReports: # A name for the report group
+#     files:
+#       - playwright-report/results.xml # Adjust path if your Playwright JUnit reporter outputs elsewhere
+#     file-format: JUNITXML

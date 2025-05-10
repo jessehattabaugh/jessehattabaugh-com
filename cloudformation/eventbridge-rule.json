@@ -1,0 +1,124 @@
+{
+	"AWSTemplateFormatVersion": "2010-09-09",
+	"Description": "EventBridge rule to trigger CodeBuild project on GitHub push events.",
+	"Parameters": {
+		"ProjectName": {
+			"Type": "String",
+			"Description": "The name of the project."
+		},
+		"BranchName": {
+			"Type": "String",
+			"Description": "The name of the branch this stack is for. Used for naming resources."
+		},
+		"CodeBuildProjectArn": {
+			"Type": "String",
+			"Description": "The ARN of the CodeBuild project to trigger."
+		},
+		"GitHubRepoName": {
+			"Type": "String",
+			"Description": "The name of the GitHub repository (e.g., 'owner/repo')."
+		}
+	},
+	"Resources": {
+		"EventBridgeRule": {
+			"Type": "AWS::Events::Rule",
+			"Properties": {
+				"Name": {
+					"Fn::Sub": "${ProjectName}-GitHubPushTrigger-${BranchName}"
+				},
+				"Description": {
+					"Fn::Sub": "Triggers CodeBuild project ${CodeBuildProjectArn} on push to any branch of ${GitHubRepoName}"
+				},
+				"EventPattern": {
+					"source": [
+						"aws.codecommit"
+					],
+					"detail-type": [
+						"CodeCommit Repository State Change"
+					],
+					"resources": [
+						{
+							"Fn::Sub": "arn:aws:codecommit:${AWS::Region}:${AWS::AccountId}:${GitHubRepoName}"
+						}
+					],
+					"detail": {
+						"event": [
+							"referenceCreated",
+							"referenceUpdated"
+						],
+						"referenceType": [
+							"branch"
+						]
+					}
+				},
+				"State": "ENABLED",
+				"Targets": [
+					{
+						"Arn": {
+							"Ref": "CodeBuildProjectArn"
+						},
+						"Id": {
+							"Fn::Sub": "${ProjectName}-CodeBuildTarget-${BranchName}"
+						},
+						"RoleArn": {
+							"Fn::GetAtt": [
+								"EventBridgeIAMRole",
+								"Arn"
+							]
+						}
+					}
+				]
+			}
+		},
+		"EventBridgeIAMRole": {
+			"Type": "AWS::IAM::Role",
+			"Properties": {
+				"RoleName": {
+					"Fn::Sub": "${ProjectName}-EventBridgeIAMRole-${BranchName}"
+				},
+				"AssumeRolePolicyDocument": {
+					"Version": "2012-10-17",
+					"Statement": [
+						{
+							"Effect": "Allow",
+							"Principal": {
+								"Service": "events.amazonaws.com"
+							},
+							"Action": "sts:AssumeRole"
+						}
+					]
+				},
+				"Policies": [
+					{
+						"PolicyName": {
+							"Fn::Sub": "${ProjectName}-EventBridgeToCodeBuildPolicy-${BranchName}"
+						},
+						"PolicyDocument": {
+							"Version": "2012-10-17",
+							"Statement": [
+								{
+									"Effect": "Allow",
+									"Action": "codebuild:StartBuild",
+									"Resource": {
+										"Ref": "CodeBuildProjectArn"
+									}
+								}
+							]
+						}
+					}
+				]
+			}
+		}
+	},
+	"Outputs": {
+		"EventBridgeRuleArn": {
+			"Description": "ARN of the EventBridge Rule",
+			"Value": {
+				"Fn::GetAtt": [
+					"EventBridgeRule",
+					"Arn"
+				]
+			}
+		}
+	}
+}

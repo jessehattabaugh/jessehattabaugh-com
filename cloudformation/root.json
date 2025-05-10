@@ -75,6 +75,11 @@
 			"Type": "String",
 			"Description": "S3 key pattern for Lambda code used by CodeBuild (e.g., lambda/{branch}/app.zip). The {branch} placeholder will be replaced by the buildspec.",
 			"Default": "lambda/{branch}/app.zip"
+		},
+		"GitHubRepoName": {
+			"Type": "String",
+			"Description": "The name of the GitHub repository (e.g., 'owner/repo').",
+			"Default": "jessehattabaugh/jessehattabaugh-com"
 		}
 	},
 	"Mappings": {
@@ -231,6 +236,29 @@
 				}
 			},
 			"DependsOn": ["IamRolesStack"]
+		},
+		"EventBridgeRuleStack": {
+			"Type": "AWS::CloudFormation::Stack",
+			"Properties": {
+				"TemplateURL": "./eventbridge-rule.json",
+				"Parameters": {
+					"ProjectName": {
+						"Ref": "ProjectName"
+					},
+					"BranchName": {
+						"Ref": "BranchName"
+					},
+					"CodeBuildProjectArn": {
+						"Fn::GetAtt": [
+							"CodeBuildProjectStack",
+							"Outputs.CodeBuildProjectArn"
+						]
+					},
+					"GitHubRepoName": {
+						"Ref": "GitHubRepoName"
+					}
+				}
+			}
 		}
 	},
 	"Outputs": {
@@ -277,6 +305,15 @@
 		"CodeBuildProjectArnOutput": {
 			"Description": "ARN of the AWS CodeBuild project created.",
 			"Value": { "Fn::GetAtt": "CodeBuildProjectStack.Outputs.CodeBuildProjectArn" }
+		},
+		"EventBridgeRuleArn": {
+			"Description": "ARN of the EventBridge Rule",
+			"Value": {
+				"Fn::GetAtt": [
+					"EventBridgeRuleStack",
+					"Outputs.EventBridgeRuleArn"
+				]
+			}
 		}
 	}
 }
