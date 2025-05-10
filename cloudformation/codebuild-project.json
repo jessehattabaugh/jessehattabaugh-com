@@ -180,7 +180,8 @@
 					"Location": { "Ref": "SourceRepositoryUrl" },
 					"BuildSpec": { "Ref": "BuildSpecFile" },
 					"GitCloneDepth": 1,
-					"ReportBuildStatus": true
+					"ReportBuildStatus": true,
+					"SourceType": "GITHUB"
 				},
 				"LogsConfig": {
 					"CloudWatchLogs": {
@@ -189,7 +190,12 @@
 					}
 				},
 				"TimeoutInMinutes": 60,
-				"Tags": [{ "Key": "Project", "Value": { "Ref": "ProjectName" } }]
+				"Tags": [
+					{
+						"Key": "Project",
+						"Value": { "Ref": "ProjectName" }
+					}
+				]
 			}
 		}
 	},
