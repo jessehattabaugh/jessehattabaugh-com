@@ -1,0 +1,57 @@
+{
+	"AWSTemplateFormatVersion": "2010-09-09",
+	"Description": "Creates Route 53 alias records to point a domain/subdomain to a CloudFront distribution.",
+	"Parameters": {
+		"HostedZoneId": {
+			"Type": "AWS::Route53::HostedZone::Id",
+			"Description": "The ID of the Hosted Zone to create the record in (e.g., Z2FDTNDATAQYW2)."
+		},
+		"FullDomainName": {
+			"Type": "String",
+			"Description": "The full domain name to create the record for (e.g., www.example.com or feature-branch.example.com)."
+		},
+		"CloudFrontDistributionDomainName": {
+			"Type": "String",
+			"Description": "The domain name of the CloudFront distribution (e.g., d111111abcdef8.cloudfront.net)."
+		},
+		"CloudFrontDistributionHostedZoneId": {
+			"Type": "String",
+			"Description": "The canonical Hosted Zone ID for CloudFront distributions (this is a fixed value).",
+			"Default": "Z2FDTNDATAQYW2"
+		}
+	},
+	"Resources": {
+		"DNSRecord": {
+			"Type": "AWS::Route53::RecordSetGroup",
+			"Properties": {
+				"HostedZoneId": { "Ref": "HostedZoneId" },
+				"RecordSets": [
+					{
+						"Name": { "Ref": "FullDomainName" },
+						"Type": "A",
+						"AliasTarget": {
+							"HostedZoneId": { "Ref": "CloudFrontDistributionHostedZoneId" },
+							"DNSName": { "Ref": "CloudFrontDistributionDomainName" },
+							"EvaluateTargetHealth": false
+						}
+					},
+					{
+						"Name": { "Ref": "FullDomainName" },
+						"Type": "AAAA",
+						"AliasTarget": {
+							"HostedZoneId": { "Ref": "CloudFrontDistributionHostedZoneId" },
+							"DNSName": { "Ref": "CloudFrontDistributionDomainName" },
+							"EvaluateTargetHealth": false
+						}
+					}
+				]
+			}
+		}
+	},
+	"Outputs": {
+		"RecordSetName": {
+			"Description": "The name of the DNS record set created/updated.",
+			"Value": { "Ref": "FullDomainName" }
+		}
+	}
+}

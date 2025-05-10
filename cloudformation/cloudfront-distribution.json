@@ -61,6 +61,7 @@
 						{
 							"Id": "S3Origin",
 							"DomainName": { "Ref": "StaticAssetsS3BucketDomainName" },
+							"OriginPath": { "Fn::Sub": "/${BranchName}" },
 							"S3OriginConfig": {
 								"OriginAccessIdentity": {
 									"Fn::Sub": "origin-access-identity/cloudfront/${CloudFrontOAIId}"
