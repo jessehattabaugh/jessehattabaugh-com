@@ -88,6 +88,12 @@
 			"Value": {
 				"Fn::GetAtt": ["StaticAssetsBucket", "Arn"]
 			}
+		},
+		"BucketDomainName": {
+			"Description": "Domain name of the S3 bucket for static assets",
+			"Value": {
+				"Fn::GetAtt": ["StaticAssetsBucket", "DomainName"]
+			}
 		}
 	}
 }

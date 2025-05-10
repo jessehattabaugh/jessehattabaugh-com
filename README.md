@@ -5,7 +5,7 @@ Personal website of Jesse Hattabaugh.
 ## Architecture
 
 This is a [Hypermedia-Driven Application](https://htmx.org/essays/hypermedia-driven-applications/)
-It's pages are served from API Gateway. HTML is built using [Marko](https://markojs.com/) templates. All responses are cached in CloudFront. Static assets like images, fonts, stylesheets, and client-side JavaScript are hosted in S3.
+It's pages are served from API Gateway. HTML is built using [Marko](https://markojs.com/) templates. Static assets like images, fonts, stylesheets, and client-side JavaScript are stored in `/static`, and stored in S3. All responses are cached in CloudFront.
 
 ## Deployment
 
