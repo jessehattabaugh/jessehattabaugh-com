@@ -1,0 +1,43 @@
+version: 0.2
+env:
+  variables:
+    APP_DIR: "app"
+    LAMBDA_ZIP_FILE: "app_lambda.zip"
+phases:
+  install:
+    runtime-versions:
+      nodejs: 20
+    commands:
+      - echo "Install phase..."
+  pre_build:
+    commands:
+      - export BRANCH_NAME=$(echo $CODEBUILD_WEBHOOK_HEAD_REF | sed 's/refs\/heads\////' | sed 's/[^a-zA-Z0-9-]/-/g' | cut -c 1-63)
+      - if [ -z "$BRANCH_NAME" ] || [ "$BRANCH_NAME" = "null" ]; then export BRANCH_NAME="main"; fi
+      - echo "Branch name: $BRANCH_NAME"
+      - export CFN_STACK_NAME="${ROOT_STACK_NAME_PREFIX_ENV_VAR}-${BRANCH_NAME}"
+      - echo "CloudFormation Stack name: $CFN_STACK_NAME"
+      - export FINAL_LAMBDA_CODE_S3_KEY=$(echo $LAMBDA_CODE_S3_KEY_PATTERN_ENV_VAR | sed "s|{branch}|$BRANCH_NAME|g")
+      - echo "Final Lambda S3 Key: $FINAL_LAMBDA_CODE_S3_KEY"
+      - if [ "$BRANCH_NAME" = "main" ]; then export CFN_PARAM_SUBDOMAIN="@"; else export CFN_PARAM_SUBDOMAIN=$BRANCH_NAME; fi
+      - echo "CloudFormation Subdomain parameter: $CFN_PARAM_SUBDOMAIN"
+      - mkdir -p $APP_DIR
+  build:
+    commands:
+      - echo "Build phase..."
+      - echo 'exports.handler = async (event) => { console.log("Event:", JSON.stringify(event, null, 2)); return { statusCode: 200, body: JSON.stringify({ message: "Hello from Lambda!", input: event, build_branch: "'$BRANCH_NAME'"})}; };' > ${APP_DIR}/index.js
+      - echo "Branch: $BRANCH_NAME" > ${APP_DIR}/branch_info.txt
+      - cd $APP_DIR && zip -qr ../$LAMBDA_ZIP_FILE . && cd ..
+      - echo "Lambda package $LAMBDA_ZIP_FILE created."
+  post_build:
+    commands:
+      - echo "Post-build phase..."
+      - echo "Uploading Lambda code to S3..."
+      - aws s3 cp $LAMBDA_ZIP_FILE s3://${STATIC_ASSETS_S3_BUCKET_ENV_VAR}/${FINAL_LAMBDA_CODE_S3_KEY} --region $CFN_REGION_ENV_VAR
+      - echo "Uploading static assets to S3..."
+      - aws s3 sync ./static s3://${STATIC_ASSETS_S3_BUCKET_ENV_VAR}/${BRANCH_NAME}/static/ --delete --region $CFN_REGION_ENV_VAR
+      - echo "Static assets uploaded."
+      - echo "Deploying CloudFormation stack: $CFN_STACK_NAME"
+      - aws cloudformation deploy --template-file $CFN_TEMPLATE_FILE_ENV_VAR --stack-name $CFN_STACK_NAME --capabilities CAPABILITY_IAM CAPABILITY_NAMED_IAM --region $CFN_REGION_ENV_VAR --parameter-overrides ProjectName="$PROJECT_NAME_FOR_CFN_PARAM" DomainName="$DOMAIN_NAME_FOR_CFN_PARAM" Subdomain="$CFN_PARAM_SUBDOMAIN" HostedZoneId="$HOSTED_ZONE_ID_FOR_CFN_PARAM" AcmCertificateArn="$ACM_CERT_ARN_FOR_CFN_PARAM" BranchName="$BRANCH_NAME" StaticAssetsS3BucketName="$STATIC_ASSETS_S3_BUCKET_ENV_VAR" LambdaFunctionName="$LAMBDA_FUNCTION_NAME_FOR_CFN_PARAM" LambdaHandler="$LAMBDA_HANDLER_FOR_CFN_PARAM" LambdaRuntime="$LAMBDA_RUNTIME_FOR_CFN_PARAM" LambdaCodeS3Key="$FINAL_LAMBDA_CODE_S3_KEY" ApiGatewayStageName="$API_GATEWAY_STAGE_NAME_FOR_CFN_PARAM" StaticAssetPathPattern="$STATIC_ASSET_PATH_PATTERN_FOR_CFN_PARAM"
+      - echo "CloudFormation deployment initiated."
+artifacts:
+  files: []

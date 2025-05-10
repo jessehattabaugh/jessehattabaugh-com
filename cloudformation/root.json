@@ -1,6 +1,6 @@
 {
 	"AWSTemplateFormatVersion": "2010-09-09",
-	"Description": "Root CloudFormation stack for jessehattabaugh.com. Manages S3, IAM, CloudFront, API Gateway, Lambda, and Route 53 resources.",
+	"Description": "Root CloudFormation stack for jessehattabaugh.com. Manages S3, IAM, CloudFront, API Gateway, Lambda, Route 53, and CodeBuild resources.",
 	"Parameters": {
 		"ProjectName": {
 			"Type": "String",
@@ -61,6 +61,20 @@
 			"Type": "String",
 			"Description": "Path pattern for static assets in CloudFront (e.g., static/*).",
 			"Default": "static/*"
+		},
+		"GitHubRepoUrl": {
+			"Type": "String",
+			"Description": "URL of the GitHub source code repository (e.g., https://github.com/user/repo.git)."
+		},
+		"CodeBuildRootStackNamePrefix": {
+			"Type": "String",
+			"Description": "Prefix for the CloudFormation root stack name deployed by CodeBuild (branch name will be appended by buildspec).",
+			"Default": "WebAppStack"
+		},
+		"LambdaCodeS3KeyPatternForBuild": {
+			"Type": "String",
+			"Description": "S3 key pattern for Lambda code used by CodeBuild (e.g., lambda/{branch}/app.zip). The {branch} placeholder will be replaced by the buildspec.",
+			"Default": "lambda/{branch}/app.zip"
 		}
 	},
 	"Mappings": {
@@ -188,6 +202,35 @@
 				}
 			},
 			"DependsOn": "CloudFrontDistributionStack"
+		},
+		"CodeBuildProjectStack": {
+			"Type": "AWS::CloudFormation::Stack",
+			"Properties": {
+				"TemplateURL": "./codebuild-project.json",
+				"Parameters": {
+					"ProjectName": { "Ref": "ProjectName" },
+					"CodeBuildServiceRoleArn": {
+						"Fn::GetAtt": "IamRolesStack.Outputs.CodeBuildServiceRoleArn"
+					},
+					"SourceRepositoryUrl": { "Ref": "GitHubRepoUrl" },
+					"RootStackNamePrefix": { "Ref": "CodeBuildRootStackNamePrefix" },
+					"EnvVarProjectNameForCfn": { "Ref": "ProjectName" },
+					"EnvVarDomainNameForCfn": { "Ref": "DomainName" },
+					"EnvVarSubdomainBaseForCfn": { "Ref": "Subdomain" },
+					"EnvVarHostedZoneIdForCfn": { "Ref": "HostedZoneId" },
+					"EnvVarAcmCertificateArnForCfn": { "Ref": "AcmCertificateArn" },
+					"EnvVarStaticAssetsS3BucketNameForCfn": { "Ref": "StaticAssetsS3BucketName" },
+					"EnvVarLambdaFunctionNameForCfn": { "Ref": "LambdaFunctionName" },
+					"EnvVarLambdaHandlerForCfn": { "Ref": "LambdaHandler" },
+					"EnvVarLambdaRuntimeForCfn": { "Ref": "LambdaRuntime" },
+					"EnvVarLambdaCodeS3KeyPatternForCfn": {
+						"Ref": "LambdaCodeS3KeyPatternForBuild"
+					},
+					"EnvVarApiGatewayStageNameForCfn": { "Ref": "ApiGatewayStageName" },
+					"EnvVarStaticAssetPathPatternForCfn": { "Ref": "StaticAssetPathPattern" }
+				}
+			},
+			"DependsOn": ["IamRolesStack"]
 		}
 	},
 	"Outputs": {
@@ -226,6 +269,14 @@
 		"Route53RecordSetNameOutput": {
 			"Description": "The name of the DNS record set created/updated.",
 			"Value": { "Fn::GetAtt": "Route53RecordsStack.Outputs.RecordSetName" }
+		},
+		"CodeBuildProjectNameOutput": {
+			"Description": "Name of the AWS CodeBuild project created.",
+			"Value": { "Fn::GetAtt": "CodeBuildProjectStack.Outputs.CodeBuildProjectName" }
+		},
+		"CodeBuildProjectArnOutput": {
+			"Description": "ARN of the AWS CodeBuild project created.",
+			"Value": { "Fn::GetAtt": "CodeBuildProjectStack.Outputs.CodeBuildProjectArn" }
 		}
 	}
 }
