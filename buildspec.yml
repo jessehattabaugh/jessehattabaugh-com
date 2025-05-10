@@ -1,55 +1,100 @@
 version: 0.2
 env:
   variables:
-    APP_DIR: "app"
-    LAMBDA_ZIP_FILE: "app_lambda.zip"
+    # APP_DIR: "app" # Deprecated: No longer a single app dir for lambda source
+    # LAMBDA_ZIP_FILE: "app_lambda.zip" # Deprecated: No longer a single zip file
+    LAMBDA_SRC_DIR: "src"
+    LAMBDA_DIST_DIR: "lambda_dist_packages" # Directory to store individual zip files
 phases:
   install:
     runtime-versions:
       nodejs: 20
     commands:
       - echo "Install phase..."
-      - echo "Installing Playwright..."
-      - npm install -g npm # Ensure npm is up to date
-      - npm install playwright @playwright/test
-      - npx playwright install --with-deps # Install browser drivers and OS dependencies
-      - echo "Installing Marko..."
-      - npm install -g marko
+      - echo "📦 Installing project dependencies..."
+      - npm install # Install project dependencies from package.json (should include marko)
+      - echo "🎭 Installing Playwright and browser dependencies..."
+      - npm install playwright @playwright/test # Explicitly install/update Playwright
+      - npx playwright install --with-deps
+
   pre_build:
     commands:
-      - export BRANCH_NAME=$(echo $CODEBUILD_WEBHOOK_HEAD_REF | sed 's/refs\/heads\////' | sed 's/[^a-zA-Z0-9-]/-/g' | cut -c 1-63)
+      - export BRANCH_NAME=$(echo $CODEBUILD_WEBHOOK_HEAD_REF | sed 's/refs\\/heads\\////' | sed 's/[^a-zA-Z0-9-]/-/g' | cut -c 1-63)
       - if [ -z "$BRANCH_NAME" ] || [ "$BRANCH_NAME" = "null" ]; then export BRANCH_NAME="main"; fi
-      - echo "Branch name: $BRANCH_NAME"
+      - echo "🌿 Branch name: $BRANCH_NAME"
       - export CFN_STACK_NAME="${ROOT_STACK_NAME_PREFIX_ENV_VAR}-${BRANCH_NAME}"
-      - echo "CloudFormation Stack name: $CFN_STACK_NAME"
-      - export FINAL_LAMBDA_CODE_S3_KEY=$(echo $LAMBDA_CODE_S3_KEY_PATTERN_ENV_VAR | sed "s|{branch}|$BRANCH_NAME|g")
-      - echo "Final Lambda S3 Key: $FINAL_LAMBDA_CODE_S3_KEY"
+      - echo "🏗️ CloudFormation Stack name: $CFN_STACK_NAME"
       - if [ "$BRANCH_NAME" = "main" ]; then export CFN_PARAM_SUBDOMAIN="@"; else export CFN_PARAM_SUBDOMAIN=$BRANCH_NAME; fi
-      - echo "CloudFormation Subdomain parameter: $CFN_PARAM_SUBDOMAIN"
-      - mkdir -p $APP_DIR
+      - echo "🌐 CloudFormation Subdomain parameter: $CFN_PARAM_SUBDOMAIN"
+      - rm -rf $LAMBDA_DIST_DIR # Clean up dist dir from previous builds
+      - mkdir -p $LAMBDA_DIST_DIR # Create dist dir for new zip files
+      - export LAMBDA_FUNCTION_NAMES="" # Initialize
+      - if [ -d "$LAMBDA_SRC_DIR" ] && [ -n "$(ls -A $LAMBDA_SRC_DIR)" ]; then
+      -   LAMBDA_FUNCTION_NAMES=$(ls -d $LAMBDA_SRC_DIR/*/ 2>/dev/null | xargs -n 1 basename | tr '\\n' ',' | sed 's/,$//')
+      - fi
+      - echo "💡 Lambda function sources identified: $LAMBDA_FUNCTION_NAMES"
+
   build:
     commands:
       - echo "Build phase..."
-      - echo "Creating Lambda deployment package..."
-      - mkdir -p lambda_package/node_modules
-      - cp -r src/* lambda_package/
-      - cp -r node_modules/marko lambda_package/node_modules/marko
-      - cd lambda_package
-      - zip -r ../lambda_function.zip .
-      - cd ..
-      - echo "Lambda deployment package created."
-      - echo "Branch: $BRANCH_NAME" > ${APP_DIR}/branch_info.txt # Example file
-      - cd $APP_DIR && zip -qr ../$LAMBDA_ZIP_FILE . && cd ..
-      - echo "Lambda package $LAMBDA_ZIP_FILE created."
-  post_build: # Renamed to reflect its primary role: deploying infrastructure and preparing for tests
+      - |
+        if [ -z "$LAMBDA_FUNCTION_NAMES" ]; then
+          echo "🤷 No Lambda function sources found in subdirectories of $LAMBDA_SRC_DIR. Skipping Lambda packaging."
+        else
+          echo "📦 Packaging Lambda functions: $LAMBDA_FUNCTION_NAMES"
+          for func_name in $(echo $LAMBDA_FUNCTION_NAMES | tr ',' ' '); do
+            echo "⚙️ Packaging Lambda function: $func_name from $LAMBDA_SRC_DIR/$func_name"
+            temp_package_dir="temp_lambda_package_for_${func_name}"
+            mkdir -p "$temp_package_dir"
+
+            # Copy function-specific code
+            cp -r "$LAMBDA_SRC_DIR/$func_name/"* "$temp_package_dir/"
+
+            # Copy essential node_modules (e.g., marko)
+            # This assumes 'npm install' in the 'install' phase populated node_modules at the project root
+            if [ -d "node_modules/marko" ]; then
+              mkdir -p "$temp_package_dir/node_modules"
+              cp -r "node_modules/marko" "$temp_package_dir/node_modules/"
+            fi
+            # TODO: Consider a more robust way to handle dependencies, e.g., by running 'npm install --production'
+            # within each function's temporary package directory if they have their own package.json,
+            # or by using Lambda Layers for common dependencies.
+
+            current_dir=$(pwd)
+            cd "$temp_package_dir"
+            zip -qr "${current_dir}/$LAMBDA_DIST_DIR/${func_name}_lambda.zip" .
+            cd "$current_dir"
+            rm -rf "$temp_package_dir" # Clean up temporary packaging directory
+            echo "✅ Lambda package $LAMBDA_DIST_DIR/${func_name}_lambda.zip created for $func_name."
+          done
+        fi
+
+  post_build:
     commands:
-      - echo "Infrastructure deployment and test preparation phase..."
-      - echo "Uploading Lambda function code to S3..."
-      - aws s3 cp lambda_function.zip s3://$S3_BUCKET_NAME/$LAMBDA_S3_KEY
-      - echo "Uploading static assets to S3..."
+      - echo "Post-build phase..."
+      - |
+        if [ -z "$LAMBDA_FUNCTION_NAMES" ]; then
+          echo "🤷 No Lambda functions packaged. Skipping S3 upload for Lambdas."
+        else
+          echo "☁️ Uploading Lambda function packages to S3..."
+          for func_name in $(echo $LAMBDA_FUNCTION_NAMES | tr ',' ' '); do
+            zip_file="$LAMBDA_DIST_DIR/${func_name}_lambda.zip"
+            # Standardized S3 key: lambda-code/BRANCH/FUNCTION_NAME/FUNCTION_NAME_lambda.zip
+            s3_key_lambda="lambda-code/${BRANCH_NAME}/${func_name}/${func_name}_lambda.zip"
+            echo "⬆️ Uploading $zip_file to s3://${STATIC_ASSETS_S3_BUCKET_ENV_VAR}/${s3_key_lambda}"
+            aws s3 cp "$zip_file" "s3://${STATIC_ASSETS_S3_BUCKET_ENV_VAR}/${s3_key_lambda}" --region $CFN_REGION_ENV_VAR
+          done
+        fi
+
+      - echo "🖼️ Uploading static assets to S3..."
       - aws s3 sync ./static s3://${STATIC_ASSETS_S3_BUCKET_ENV_VAR}/${BRANCH_NAME}/static/ --delete --region $CFN_REGION_ENV_VAR
-      - echo "Static assets uploaded."
-      - echo "Deploying CloudFormation stack: $CFN_STACK_NAME"
+      - echo "✅ Static assets uploaded."
+
+      - echo "🚀 Deploying CloudFormation stack: $CFN_STACK_NAME"
+      # IMPORTANT: The CloudFormation templates (root.json, lambda-functions.json) must be updated
+      # to accept 'LambdaFunctionNames' and create/configure multiple Lambda functions accordingly.
+      # Parameters like 'LambdaFunctionName', 'LambdaHandler', and 'LambdaCodeS3Key' for a single function
+      # in the root stack's parameters should be revised or removed.
       - |
         aws cloudformation deploy \
           --template-file $CFN_TEMPLATE_FILE_ENV_VAR \
@@ -64,30 +109,27 @@ phases:
             AcmCertificateArn="$ACM_CERT_ARN_FOR_CFN_PARAM" \
             BranchName="$BRANCH_NAME" \
             StaticAssetsS3BucketName="$STATIC_ASSETS_S3_BUCKET_ENV_VAR" \
-            LambdaFunctionName="$LAMBDA_FUNCTION_NAME_FOR_CFN_PARAM" \
-            LambdaHandler="$LAMBDA_HANDLER_FOR_CFN_PARAM" \
-            LambdaRuntime="$LAMBDA_RUNTIME_FOR_CFN_PARAM" \
-            LambdaCodeS3Key="$FINAL_LAMBDA_CODE_S3_KEY" \
             ApiGatewayStageName="$API_GATEWAY_STAGE_NAME_FOR_CFN_PARAM" \
-            StaticAssetPathPattern="$STATIC_ASSET_PATH_PATTERN_FOR_CFN_PARAM"
-      - echo "CloudFormation deployment initiated and command will wait for completion."
-      - echo "Retrieving application URL for testing..."
-      - export APP_URL_DOMAIN=$(aws cloudformation describe-stacks --stack-name $CFN_STACK_NAME --query "Stacks[0].Outputs[?OutputKey=='CloudFrontDistributionDomainNameOutput'].OutputValue" --output text --region $CFN_REGION_ENV_VAR)
-      - if [ -z "$APP_URL_DOMAIN" ] || [ "$APP_URL_DOMAIN" = "None" ]; then echo "Error: Failed to retrieve CloudFront domain name from stack outputs."; exit 1; fi
-      - export APP_BASE_URL="https://$APP_URL_DOMAIN"
-      - echo "Application base URL for testing: $APP_BASE_URL"
+            StaticAssetPathPattern="$STATIC_ASSET_PATH_PATTERN_FOR_CFN_PARAM" \
+            LambdaRuntime="$LAMBDA_RUNTIME_FOR_CFN_PARAM" \
+            LambdaFunctionNames="$LAMBDA_FUNCTION_NAMES" # Pass the derived list of function names
+
+      - echo "✅ CloudFormation deployment initiated. NOTE: Review Lambda configuration in CloudFormation templates for multi-function setup."
+
   test:
     commands:
-      - echo "Test phase..."
-      - if [ -z "$APP_BASE_URL" ]; then echo "Error: APP_BASE_URL not set. Cannot run tests."; exit 1; fi
-      # TODO: Ensure Playwright tests exist and playwright.config.js is configured (e.g., to use BASE_URL env var)
-      - echo "Running Playwright tests against $APP_BASE_URL..."
+      - echo "🧪 Test phase..."
+      - export APP_URL_DOMAIN=$(aws cloudformation describe-stacks --stack-name $CFN_STACK_NAME --query "Stacks[0].Outputs[?OutputKey=='CloudFrontDistributionDomainNameOutput'].OutputValue" --output text --region $CFN_REGION_ENV_VAR)
+      - if [ -z "$APP_URL_DOMAIN" ]; then echo "❌ Failed to retrieve CloudFront domain name. Tests will be skipped."; exit 1; fi
+      - export APP_BASE_URL="https://${APP_URL_DOMAIN}"
+      - echo "🎯 Running Playwright tests against $APP_BASE_URL"
       - BASE_URL=$APP_BASE_URL npx playwright test
-      - echo "Playwright tests completed."
+
 artifacts:
-  files: []
-# reports:
-#   PlaywrightTestReports: # A name for the report group
-#     files:
-#       - playwright-report/results.xml # Adjust path if your Playwright JUnit reporter outputs elsewhere
-#     file-format: JUNITXML
+  files:
+    - "$LAMBDA_DIST_DIR/**/*_lambda.zip" # Archive all packaged lambdas
+  # reports: # Example for CodeBuild test reporting integration
+  #   TestReports: # This name is user-defined for the report group
+  #     files:
+  #       - 'playwright-report/results.xml' # Adjust path if your Playwright JUnit reporter outputs elsewhere
+  #     file-format: JUNITXML
