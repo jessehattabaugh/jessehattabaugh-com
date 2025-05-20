@@ -33,24 +33,19 @@
 			"Type": "String",
 			"Description": "Name for the S3 bucket that will store static assets. Will be prefixed with project name and suffixed with region."
 		},
-		"LambdaFunctionName": {
+		"LambdaFunctionNames": {
 			"Type": "String",
-			"Description": "Base name for the application Lambda function.",
-			"Default": "AppLambda"
+			"Description": "Comma-separated list of Lambda function names derived from the 'pages' directory (e.g., 'hello,about'). Provided by CodeBuild."
 		},
 		"LambdaHandler": {
 			"Type": "String",
-			"Description": "Handler for the Lambda function.",
+			"Description": "Default handler for the Lambda functions (e.g., 'index.handler').",
 			"Default": "index.handler"
 		},
 		"LambdaRuntime": {
 			"Type": "String",
-			"Description": "Runtime for the Lambda function.",
-			"Default": "nodejs22.x"
-		},
-		"LambdaCodeS3Key": {
-			"Type": "String",
-			"Description": "S3 key for the Lambda function's deployment package (.zip). Example: lambda/app.zip"
+			"Description": "Default runtime for the Lambda functions (e.g., 'nodejs20.x').",
+			"Default": "nodejs20.x"
 		},
 		"ApiGatewayStageName": {
 			"Type": "String",
@@ -100,7 +95,7 @@
 				}
 			}
 		},
-		"StaticAssetsBucketStack": {
+		"S3StaticAssetsBucketStack": {
 			"Type": "AWS::CloudFormation::Stack",
 			"Properties": {
 				"TemplateURL": "./s3-static-assets-bucket.json",
@@ -114,7 +109,7 @@
 				}
 			}
 		},
-		"IamRolesStack": {
+		"IAMRolesStack": {
 			"Type": "AWS::CloudFormation::Stack",
 			"Properties": {
 				"TemplateURL": "./iam-roles.json",
@@ -126,26 +121,6 @@
 				}
 			}
 		},
-		"LambdaFunctionsStack": {
-			"Type": "AWS::CloudFormation::Stack",
-			"Properties": {
-				"TemplateURL": "./lambda-functions.json",
-				"Parameters": {
-					"ProjectName": { "Ref": "ProjectName" },
-					"LambdaFunctionName": { "Ref": "LambdaFunctionName" },
-					"LambdaHandler": { "Ref": "LambdaHandler" },
-					"LambdaRuntime": { "Ref": "LambdaRuntime" },
-					"LambdaCodeS3Bucket": {
-						"Fn::GetAtt": "StaticAssetsBucketStack.Outputs.BucketName"
-					},
-					"LambdaCodeS3Key": { "Ref": "LambdaCodeS3Key" },
-					"LambdaExecutionRoleArn": {
-						"Fn::GetAtt": "IamRolesStack.Outputs.LambdaExecutionRoleArn"
-					},
-					"BranchName": { "Ref": "BranchName" }
-				}
-			}
-		},
 		"ApiGatewayStack": {
 			"Type": "AWS::CloudFormation::Stack",
 			"Properties": {
@@ -153,10 +128,9 @@
 				"Parameters": {
 					"ProjectName": { "Ref": "ProjectName" },
 					"BranchName": { "Ref": "BranchName" },
-					"LambdaFunctionArn": {
-						"Fn::GetAtt": "LambdaFunctionsStack.Outputs.LambdaFunctionArn"
-					},
-					"ApiGatewayStageName": { "Ref": "ApiGatewayStageName" }
+					"ApiGatewayStageName": { "Ref": "ApiGatewayStageName" },
+					"LambdaFunctionNames": { "Ref": "LambdaFunctionNames" },
+					"RootLambdaFunctionArn": ""
 				}
 			}
 		},
@@ -173,7 +147,7 @@
 					"CloudFrontOAIId": {
 						"Fn::GetAtt": "CloudFrontOAI.CloudFrontOriginAccessIdentityId"
 					},
-					"ApiGatewayId": { "Fn::GetAtt": "ApiGatewayStack.Outputs.ApiId" },
+					"ApiGatewayId": { "Fn::GetAtt": ["ApiGatewayStack", "Outputs.ApiGatewayId"] },
 					"ApiGatewayStageName": { "Ref": "ApiGatewayStageName" },
 					"AcmCertificateArn": { "Ref": "AcmCertificateArn" },
 					"CloudFrontAliases": {
@@ -249,10 +223,7 @@
 						"Ref": "BranchName"
 					},
 					"CodeBuildProjectArn": {
-						"Fn::GetAtt": [
-							"CodeBuildProjectStack",
-							"Outputs.CodeBuildProjectArn"
-						]
+						"Fn::GetAtt": ["CodeBuildProjectStack", "Outputs.CodeBuildProjectArn"]
 					},
 					"GitHubRepoName": {
 						"Ref": "GitHubRepoName"
@@ -262,27 +233,23 @@
 		}
 	},
 	"Outputs": {
-		"StaticAssetsBucketNameOutput": {
+		"StaticAssetsS3BucketNameOutput": {
 			"Description": "Name of the S3 bucket for static assets",
 			"Value": { "Fn::GetAtt": "StaticAssetsBucketStack.Outputs.BucketName" }
+		},
+		"StaticAssetsS3BucketDomainNameOutput": {
+			"Description": "Domain name of the S3 bucket for static assets",
+			"Value": { "Fn::GetAtt": "StaticAssetsBucketStack.Outputs.BucketDomainName" }
 		},
 		"CodeBuildServiceRoleArnOutput": {
 			"Description": "ARN of the CodeBuild service role",
 			"Value": { "Fn::GetAtt": "IamRolesStack.Outputs.CodeBuildServiceRoleArn" }
 		},
-		"LambdaFunctionArnOutput": {
-			"Description": "ARN of the application Lambda function",
-			"Value": { "Fn::GetAtt": "LambdaFunctionsStack.Outputs.LambdaFunctionArn" }
+		"LambdaExecutionRoleArnOutput": {
+			"Description": "ARN of the Lambda execution role",
+			"Value": { "Fn::GetAtt": "IamRolesStack.Outputs.LambdaExecutionRoleArn" }
 		},
-		"LambdaFunctionNameOutput": {
-			"Description": "Name of the application Lambda function",
-			"Value": { "Fn::GetAtt": "LambdaFunctionsStack.Outputs.LambdaFunctionNameOutput" }
-		},
-		"ApiIdOutput": {
-			"Description": "ID of the HTTP API Gateway",
-			"Value": { "Fn::GetAtt": "ApiGatewayStack.Outputs.ApiId" }
-		},
-		"ApiEndpointOutput": {
+		"ApiGatewayEndpointOutput": {
 			"Description": "Endpoint URL for the HTTP API Gateway Stage",
 			"Value": { "Fn::GetAtt": "ApiGatewayStack.Outputs.ApiEndpoint" }
 		},
@@ -294,14 +261,6 @@
 			"Description": "Domain name of the CloudFront distribution",
 			"Value": { "Fn::GetAtt": "CloudFrontDistributionStack.Outputs.DistributionDomainName" }
 		},
-		"Route53RecordSetNameOutput": {
-			"Description": "The name of the DNS record set created/updated.",
-			"Value": { "Fn::GetAtt": "Route53RecordsStack.Outputs.RecordSetName" }
-		},
-		"CodeBuildProjectNameOutput": {
-			"Description": "Name of the AWS CodeBuild project created.",
-			"Value": { "Fn::GetAtt": "CodeBuildProjectStack.Outputs.CodeBuildProjectName" }
-		},
 		"CodeBuildProjectArnOutput": {
 			"Description": "ARN of the AWS CodeBuild project created.",
 			"Value": { "Fn::GetAtt": "CodeBuildProjectStack.Outputs.CodeBuildProjectArn" }
@@ -309,10 +268,7 @@
 		"EventBridgeRuleArn": {
 			"Description": "ARN of the EventBridge Rule",
 			"Value": {
-				"Fn::GetAtt": [
-					"EventBridgeRuleStack",
-					"Outputs.EventBridgeRuleArn"
-				]
+				"Fn::GetAtt": ["EventBridgeRuleStack", "Outputs.EventBridgeRuleArn"]
 			}
 		}
 	}
