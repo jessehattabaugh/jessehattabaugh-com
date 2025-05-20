@@ -3,8 +3,9 @@ env:
   variables:
     # APP_DIR: "app" # Deprecated: No longer a single app dir for lambda source
     # LAMBDA_ZIP_FILE: "app_lambda.zip" # Deprecated: No longer a single zip file
-    LAMBDA_SRC_DIR: "src"
+    LAMBDA_SRC_DIR: "pages" # Changed from src to pages
     LAMBDA_DIST_DIR: "lambda_dist_packages" # Directory to store individual zip files
+    SHARED_LIB_DIR: "lib"
 phases:
   install:
     runtime-versions:
@@ -32,7 +33,7 @@ phases:
       - if [ -d "$LAMBDA_SRC_DIR" ] && [ -n "$(ls -A $LAMBDA_SRC_DIR)" ]; then
       -   LAMBDA_FUNCTION_NAMES=$(ls -d $LAMBDA_SRC_DIR/*/ 2>/dev/null | xargs -n 1 basename | tr '\\n' ',' | sed 's/,$//')
       - fi
-      - echo "💡 Lambda function sources identified: $LAMBDA_FUNCTION_NAMES"
+      - echo "💡 Lambda function sources identified in $LAMBDA_SRC_DIR: $LAMBDA_FUNCTION_NAMES"
 
   build:
     commands:
@@ -49,6 +50,12 @@ phases:
 
             # Copy function-specific code
             cp -r "$LAMBDA_SRC_DIR/$func_name/"* "$temp_package_dir/"
+
+            # Copy shared lib directory if it exists
+            if [ -d "$SHARED_LIB_DIR" ] && [ -n "$(ls -A $SHARED_LIB_DIR)" ]; then
+              echo "📚 Copying shared $SHARED_LIB_DIR into package for $func_name..."
+              cp -r "$SHARED_LIB_DIR" "$temp_package_dir/"
+            fi
 
             # Copy essential node_modules (e.g., marko)
             # This assumes 'npm install' in the 'install' phase populated node_modules at the project root
