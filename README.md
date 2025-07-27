@@ -4,7 +4,7 @@ Personal website of Jesse Hattabaugh.
 
 ## Architecture
 
-This is a [Hypermedia-Driven Application](https://htmx.org/essays/hypermedia-driven-applications/) [AWS](https://aws.amazon.com/). The infrastructure is entirely defined in CloudFormation using JSON format. The URL and certificates are managed in AWS Route53.
+This is a [Hypermedia-Driven Application](https://htmx.org/essays/hypermedia-driven-applications/) [AWS](https://aws.amazon.com/). The infrastructure is entirely defined in CDK using JavaScript. The URL and certificates are managed in AWS Route53.
 
 ### Static Assets
 
@@ -17,10 +17,6 @@ Pages of this site are built by Lambda functions called by API Gateway. Each dir
 ## Deployment
 
 This website is hosted at [jessehattabaugh.com](https://jessehattabaugh.com). To manually deploy run `npm run deploy`.
-
-### Continuous Deployment
-
-Any changes pushed to this repository are automatically deployed using AWS EventBridge and AWS CodeBuild. Changes pushed to the `main` branch are deployed to the bare domain. Changes pushed to any other branches are automatically deployed to a subdomain that matches the branch name _example: `https://feature-branch.jessehattabaugh.com`_.
 
 ## Testing
 
