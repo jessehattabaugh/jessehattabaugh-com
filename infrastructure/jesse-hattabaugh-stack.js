@@ -20,32 +20,37 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 /**
- * Synchronously discovers all page directories in the /pages folder
+ * Synchronously discovers all page files in the /pages folder
+ * Supports both file-based pages (e.g., about.js → /about) and
+ * directory-based pages (e.g., hello/index.js → /hello)
  */
-function discoverPages(pagesDir) {
+function buildRouteAndLambdaName(pathSegments) {
+	const route = pathSegments.length === 0 ? '/' : `/${pathSegments.join('/')}`;
+	const lambdaName =
+		pathSegments.length === 0
+			? 'HomePage'
+			: pathSegments
+					.map((segment) => segment.charAt(0).toUpperCase() + segment.slice(1))
+					.join('') + 'Page';
+	return { route, lambdaName };
+}
+
+function discoverPages(pagesDirectory) {
 	const pages = [];
 
-	function scanDirectory(dir, pathSegments = []) {
-		const entries = readdirSync(dir);
+	function scanDirectory(directory, pathSegments = []) {
+		const entries = readdirSync(directory);
 
 		for (const entry of entries) {
-			const fullPath = join(dir, entry);
+			const fullPath = join(directory, entry);
 			const stats = statSync(fullPath);
 
 			if (stats.isDirectory()) {
 				// Recursively scan subdirectories
 				scanDirectory(fullPath, [...pathSegments, entry]);
 			} else if (entry === 'index.js') {
-				// Found a page
-				const route = pathSegments.length === 0 ? '/' : `/${pathSegments.join('/')}`;
-				const lambdaName =
-					pathSegments.length === 0
-						? 'HomePage'
-						: pathSegments
-								.map(
-									(segment) => segment.charAt(0).toUpperCase() + segment.slice(1)
-								)
-								.join('') + 'Page';
+				// Directory-based page (e.g., hello/index.js → /hello)
+				const { route, lambdaName } = buildRouteAndLambdaName(pathSegments);
 
 				pages.push({
 					route,
@@ -53,11 +58,24 @@ function discoverPages(pagesDir) {
 					entryPath: fullPath,
 					pathSegments,
 				});
+			} else if (entry.endsWith('.js')) {
+				// File-based page (e.g., about.js → /about)
+				const pageName = entry.slice(0, -3); // Remove .js extension
+				const allSegments =
+					pathSegments.length === 0 ? [pageName] : [...pathSegments, pageName];
+				const { route, lambdaName } = buildRouteAndLambdaName(allSegments);
+
+				pages.push({
+					route,
+					lambdaName,
+					entryPath: fullPath,
+					pathSegments: allSegments,
+				});
 			}
 		}
 	}
 
-	scanDirectory(pagesDir);
+	scanDirectory(pagesDirectory);
 	return pages;
 }
 
@@ -99,8 +117,8 @@ export class JesseHattabaughStack extends cdk.Stack {
 		});
 
 		// Discover all pages automatically
-		const pagesDir = join(__dirname, '../pages');
-		const pages = discoverPages(pagesDir);
+		const pagesDirectory = join(__dirname, '../pages');
+		const pages = discoverPages(pagesDirectory);
 
 		console.log('Discovered pages:', pages);
 
