@@ -61,13 +61,25 @@ export async function pageHandler(event, context) {
 		}
 	} catch (error) {
 		console.error('Page handler error:', error);
-		return {
-			statusCode: 500,
-			headers: { 'Content-Type': 'application/json' },
-			body: JSON.stringify({
-				error: 'Internal Server Error',
-				message: 'Failed to load page module or execute handler',
-			}),
-		};
+
+		// If the page module failed to load, try to fall back to 404.js
+		try {
+			console.log('Falling back to 404 page');
+			const baseDir = process.env.BASE_DIR || process.cwd();
+			const notFoundModule = await import(`${baseDir}/pages/404.js`);
+			const method = event.httpMethod?.toLowerCase() || 'get';
+			const notFoundHandler = notFoundModule[method] || notFoundModule.get;
+			return await notFoundHandler(event, context);
+		} catch (fallbackError) {
+			console.error('404 fallback also failed:', fallbackError);
+			return {
+				statusCode: 500,
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({
+					error: 'Internal Server Error',
+					message: 'Failed to load page module or execute handler',
+				}),
+			};
+		}
 	}
 }
