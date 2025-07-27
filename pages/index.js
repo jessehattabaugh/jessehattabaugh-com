@@ -1,5 +1,5 @@
 const marko = require('marko');
-const helloTemplate = require('./templates/page.marko'); // Updated path
+const helloTemplate = require('../lib/templates/page.marko');
 
 exports.handler = async (event) => {
     const html = await helloTemplate.render({});
