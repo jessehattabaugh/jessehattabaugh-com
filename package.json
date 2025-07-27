@@ -1,17 +1,34 @@
 {
+	"name": "jessehattabaugh-com",
+	"version": "1.0.0",
+	"description": "Personal website of Jesse Hattabaugh",
+	"dependencies": {
+		"aws-cdk-lib": "^2.100.0",
+		"constructs": "^10.3.0",
+		"marko": "^5.33.0"
+	},
 	"devDependencies": {
 		"@eslint/compat": "latest",
 		"@eslint/js": "latest",
+		"@types/node": "^20.5.0",
+		"aws-cdk": "^2.100.0",
 		"eslint": "latest",
 		"eslint-config-prettier": "latest",
 		"eslint-plugin-compat": "latest",
 		"eslint-plugin-promise": "latest",
 		"eslint-plugin-sonarjs": "latest",
-		"eslint-plugin-unicorn": "latest"
+		"eslint-plugin-unicorn": "latest",
+		"playwright": "^1.40.0",
+		"typescript": "^5.2.0"
 	},
 	"scripts": {
+		"build": "cdk synth",
+		"deploy": "cdk deploy",
+		"destroy": "cdk destroy",
+		"diff": "cdk diff",
 		"lint": "eslint",
-		"lint:fix": "npm run lint -- --fix"
+		"lint:fix": "npm run lint -- --fix",
+		"test": "playwright test"
 	},
 	"type": "module"
 }
