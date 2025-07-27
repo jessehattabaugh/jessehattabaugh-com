@@ -10,19 +10,62 @@ import * as s3 from 'aws-cdk-lib/aws-s3';
 import * as s3deploy from 'aws-cdk-lib/aws-s3-deployment';
 import * as targets from 'aws-cdk-lib/aws-route53-targets';
 
-import { dirname, join } from 'path';
+import { dirname, join } from 'node:path';
+import { readdirSync, statSync } from 'node:fs';
 
 import { Construct } from 'constructs';
-import { fileURLToPath } from 'url';
+import { fileURLToPath } from 'node:url';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-export class JesseHattabaughStack extends cdk.Stack {
-	constructor(scope, id, props) {
-		super(scope, id, props);
+/**
+ * Synchronously discovers all page directories in the /pages folder
+ */
+function discoverPages(pagesDir) {
+	const pages = [];
 
-		const { domain, environment } = props;
+	function scanDirectory(dir, pathSegments = []) {
+		const entries = readdirSync(dir);
+
+		for (const entry of entries) {
+			const fullPath = join(dir, entry);
+			const stats = statSync(fullPath);
+
+			if (stats.isDirectory()) {
+				// Recursively scan subdirectories
+				scanDirectory(fullPath, [...pathSegments, entry]);
+			} else if (entry === 'index.js') {
+				// Found a page
+				const route = pathSegments.length === 0 ? '/' : `/${pathSegments.join('/')}`;
+				const lambdaName =
+					pathSegments.length === 0
+						? 'HomePage'
+						: pathSegments
+								.map(
+									(segment) => segment.charAt(0).toUpperCase() + segment.slice(1)
+								)
+								.join('') + 'Page';
+
+				pages.push({
+					route,
+					lambdaName,
+					entryPath: fullPath,
+					pathSegments,
+				});
+			}
+		}
+	}
+
+	scanDirectory(pagesDir);
+	return pages;
+}
+
+export class JesseHattabaughStack extends cdk.Stack {
+	constructor(scope, id, properties) {
+		super(scope, id, properties);
+
+		const { domain, environment } = properties;
 		const isProduction = environment === 'production';
 
 		// S3 bucket for static assets
@@ -45,42 +88,6 @@ export class JesseHattabaughStack extends cdk.Stack {
 			destinationBucket: staticBucket,
 		});
 
-		// Lambda function for home page
-		const homePageFunction = new nodejs.NodejsFunction(this, 'HomePageFunction', {
-			entry: join(__dirname, '../pages/index.js'),
-			handler: 'handler',
-			runtime: lambda.Runtime.NODEJS_18_X,
-			bundling: {
-				minify: isProduction,
-				sourceMap: true,
-				target: 'es2020',
-				format: nodejs.OutputFormat.CJS,
-				externalModules: [],
-			},
-			environment: {
-				NODE_ENV: environment,
-				ENVIRONMENT: environment,
-			},
-		});
-
-		// Lambda function for hello page
-		const helloPageFunction = new nodejs.NodejsFunction(this, 'HelloPageFunction', {
-			entry: join(__dirname, '../pages/hello/index.js'),
-			handler: 'handler',
-			runtime: lambda.Runtime.NODEJS_18_X,
-			bundling: {
-				minify: isProduction,
-				sourceMap: true,
-				target: 'es2020',
-				format: nodejs.OutputFormat.CJS,
-				externalModules: [],
-			},
-			environment: {
-				NODE_ENV: environment,
-				ENVIRONMENT: environment,
-			},
-		});
-
 		// API Gateway
 		const api = new apigateway.RestApi(this, 'WebsiteApi', {
 			restApiName: `Jesse Hattabaugh Website API (${environment})`,
@@ -91,14 +98,67 @@ export class JesseHattabaughStack extends cdk.Stack {
 			},
 		});
 
-		// API Gateway integrations
-		const homePageIntegration = new apigateway.LambdaIntegration(homePageFunction);
-		const helloPageIntegration = new apigateway.LambdaIntegration(helloPageFunction);
+		// Discover all pages automatically
+		const pagesDir = join(__dirname, '../pages');
+		const pages = discoverPages(pagesDir);
 
-		// API Gateway routes
-		api.root.addMethod('GET', homePageIntegration);
-		const helloResource = api.root.addResource('hello');
-		helloResource.addMethod('GET', helloPageIntegration);
+		console.log('Discovered pages:', pages);
+
+		// Create Lambda functions and API routes for each discovered page
+		const lambdaFunctions = new Map();
+
+		for (const page of pages) {
+			// Create Lambda function using the universal handler
+			const lambdaFunction = new nodejs.NodejsFunction(this, `${page.lambdaName}Function`, {
+				entry: join(__dirname, './universal-handler.js'),
+				handler: 'handler',
+				runtime: lambda.Runtime.NODEJS_22_X,
+				bundling: {
+					minify: isProduction,
+					sourceMap: true,
+					target: 'es2020',
+					format: nodejs.OutputFormat.ESM,
+					externalModules: [],
+				},
+				environment: {
+					NODE_ENV: environment,
+					ENVIRONMENT: environment,
+					PAGE_MODULE_PATH: page.entryPath,
+				},
+			});
+
+			lambdaFunctions.set(page.route, lambdaFunction);
+
+			// Create API Gateway integration
+			const integration = new apigateway.LambdaIntegration(lambdaFunction);
+
+			// Add routes to API Gateway
+			if (page.route === '/') {
+				// Root route
+				api.root.addMethod('GET', integration);
+				api.root.addMethod('POST', integration);
+				api.root.addMethod('PUT', integration);
+				api.root.addMethod('DELETE', integration);
+			} else {
+				// Create nested resources for the route
+				let currentResource = api.root;
+				const segments = page.pathSegments;
+
+				for (const segment of segments) {
+					let nextResource = currentResource.getResource(segment);
+					if (!nextResource) {
+						nextResource = currentResource.addResource(segment);
+					}
+					currentResource = nextResource;
+				}
+
+				// Add all HTTP methods to the resource
+				currentResource.addMethod('GET', integration);
+				currentResource.addMethod('POST', integration);
+				currentResource.addMethod('PUT', integration);
+				currentResource.addMethod('DELETE', integration);
+			}
+		}
 
 		// Certificate for CloudFront (must be in us-east-1)
 		const certificate = new acm.Certificate(this, 'Certificate', {
@@ -115,7 +175,7 @@ export class JesseHattabaughStack extends cdk.Stack {
 				cachePolicy: isProduction
 					? cloudfront.CachePolicy.CACHING_OPTIMIZED
 					: cloudfront.CachePolicy.CACHING_DISABLED,
-				allowedMethods: cloudfront.AllowedMethods.ALLOW_GET_HEAD_OPTIONS,
+				allowedMethods: cloudfront.AllowedMethods.ALLOW_ALL,
 			},
 			additionalBehaviors: {
 				'/static/*': {
@@ -155,6 +215,11 @@ export class JesseHattabaughStack extends cdk.Stack {
 		new cdk.CfnOutput(this, 'Environment', {
 			value: environment,
 			description: 'Deployment environment',
+		});
+
+		new cdk.CfnOutput(this, 'DiscoveredPages', {
+			value: JSON.stringify(pages.map((p) => p.route)),
+			description: 'Automatically discovered page routes',
 		});
 
 		new cdk.CfnOutput(this, 'ApiGatewayUrl', {
