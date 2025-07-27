@@ -20,21 +20,21 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 /**
+ * Helper to generate Lambda function names from path segments.
+ */
+function generateLambdaName(pathSegments) {
+	return (pathSegments.length === 0
+		? 'HomePage'
+		: pathSegments
+			.map(segment => segment.charAt(0).toUpperCase() + segment.slice(1))
+			.join('') + 'Page');
+}
+
+/**
  * Synchronously discovers all page files in the /pages folder
  * Supports both file-based pages (e.g., about.js → /about) and
  * directory-based pages (e.g., hello/index.js → /hello)
  */
-function buildRouteAndLambdaName(pathSegments) {
-	const route = pathSegments.length === 0 ? '/' : `/${pathSegments.join('/')}`;
-	const lambdaName =
-		pathSegments.length === 0
-			? 'HomePage'
-			: pathSegments
-					.map((segment) => segment.charAt(0).toUpperCase() + segment.slice(1))
-					.join('') + 'Page';
-	return { route, lambdaName };
-}
-
 function discoverPages(pagesDirectory) {
 	const pages = [];
 
@@ -50,7 +50,8 @@ function discoverPages(pagesDirectory) {
 				scanDirectory(fullPath, [...pathSegments, entry]);
 			} else if (entry === 'index.js') {
 				// Directory-based page (e.g., hello/index.js → /hello)
-				const { route, lambdaName } = buildRouteAndLambdaName(pathSegments);
+				const route = pathSegments.length === 0 ? '/' : `/${pathSegments.join('/')}`;
+				const lambdaName = generateLambdaName(pathSegments);
 
 				pages.push({
 					route,
@@ -61,9 +62,13 @@ function discoverPages(pagesDirectory) {
 			} else if (entry.endsWith('.js')) {
 				// File-based page (e.g., about.js → /about)
 				const pageName = entry.slice(0, -3); // Remove .js extension
+				const route =
+					pathSegments.length === 0
+						? `/${pageName}`
+						: `/${pathSegments.join('/')}/${pageName}`;
 				const allSegments =
 					pathSegments.length === 0 ? [pageName] : [...pathSegments, pageName];
-				const { route, lambdaName } = buildRouteAndLambdaName(allSegments);
+				const lambdaName = generateLambdaName(allSegments);
 
 				pages.push({
 					route,
@@ -133,8 +138,7 @@ export class JesseHattabaughStack extends cdk.Stack {
 				runtime: lambda.Runtime.NODEJS_22_X,
 				bundling: {
 					minify: isProduction,
-					// Consider enabling source maps in production for easier debugging, or ensure robust logging/monitoring is in place.
-					sourceMap: true,
+					sourceMap: !isProduction,
 					target: 'es2020',
 					format: nodejs.OutputFormat.ESM,
 					externalModules: [],
