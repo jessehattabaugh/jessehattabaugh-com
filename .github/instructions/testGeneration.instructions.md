@@ -1,5 +1,5 @@
 ---
-applyTo: 'tests/**'
+applyTo: '**.spec.js'
 ---
 
 # Playwright Testing Standards

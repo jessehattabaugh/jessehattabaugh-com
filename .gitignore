@@ -1,1 +1,9 @@
 node_modules
+cdk.out
+*.js.map
+.cdk.staging
+.env
+.DS_Store
+test-results/
+playwright-report/
+playwright/.cache/

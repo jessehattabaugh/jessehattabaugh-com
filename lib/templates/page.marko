@@ -3,11 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hello from Marko</title>
-    <link rel="stylesheet" href="/static/all.css">
+    <title>${input.title || 'Jesse Hattabaugh'}</title>
+    <link rel="stylesheet" href="/static/styles/all.css">
 </head>
 <body>
-    <h1>Hello from Marko!</h1>
-    <p>This is a sample page rendered by a Lambda function using Marko templates.</p>
+    <header>
+        <nav>
+            <a href="/">Home</a>
+            <a href="/hello">Hello</a>
+        </nav>
+    </header>
+    <main>
+        <h1>${input.title || 'Jesse Hattabaugh'}</h1>
+        <p>${input.content || 'Welcome to my personal website!'}</p>
+    </main>
 </body>
 </html>
