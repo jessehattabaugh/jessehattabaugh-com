@@ -22,11 +22,12 @@ export class JesseHattabaughStack extends cdk.Stack {
 	constructor(scope, id, props) {
 		super(scope, id, props);
 
-		const { domain } = props;
+		const { domain, environment } = props;
+		const isProduction = environment === 'production';
 
 		// S3 bucket for static assets
 		const staticBucket = new s3.Bucket(this, 'StaticAssets', {
-			bucketName: `${domain}-static-assets`,
+			bucketName: `${domain.replace('.', '-')}-static-assets`,
 			removalPolicy: cdk.RemovalPolicy.DESTROY,
 			autoDeleteObjects: true,
 			cors: [
@@ -50,14 +51,15 @@ export class JesseHattabaughStack extends cdk.Stack {
 			handler: 'handler',
 			runtime: lambda.Runtime.NODEJS_18_X,
 			bundling: {
-				minify: false,
+				minify: isProduction,
 				sourceMap: true,
 				target: 'es2020',
 				format: nodejs.OutputFormat.CJS,
 				externalModules: [],
 			},
 			environment: {
-				NODE_ENV: 'production',
+				NODE_ENV: environment,
+				ENVIRONMENT: environment,
 			},
 		});
 
@@ -67,21 +69,22 @@ export class JesseHattabaughStack extends cdk.Stack {
 			handler: 'handler',
 			runtime: lambda.Runtime.NODEJS_18_X,
 			bundling: {
-				minify: false,
+				minify: isProduction,
 				sourceMap: true,
 				target: 'es2020',
 				format: nodejs.OutputFormat.CJS,
 				externalModules: [],
 			},
 			environment: {
-				NODE_ENV: 'production',
+				NODE_ENV: environment,
+				ENVIRONMENT: environment,
 			},
 		});
 
 		// API Gateway
 		const api = new apigateway.RestApi(this, 'WebsiteApi', {
-			restApiName: 'Jesse Hattabaugh Website API',
-			description: 'API Gateway for jessehattabaugh.com',
+			restApiName: `Jesse Hattabaugh Website API (${environment})`,
+			description: `API Gateway for ${domain}`,
 			defaultCorsPreflightOptions: {
 				allowOrigins: apigateway.Cors.ALL_ORIGINS,
 				allowMethods: apigateway.Cors.ALL_METHODS,
@@ -109,7 +112,9 @@ export class JesseHattabaughStack extends cdk.Stack {
 			defaultBehavior: {
 				origin: new origins.RestApiOrigin(api),
 				viewerProtocolPolicy: cloudfront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
-				cachePolicy: cloudfront.CachePolicy.CACHING_OPTIMIZED,
+				cachePolicy: isProduction
+					? cloudfront.CachePolicy.CACHING_OPTIMIZED
+					: cloudfront.CachePolicy.CACHING_DISABLED,
 				allowedMethods: cloudfront.AllowedMethods.ALLOW_GET_HEAD_OPTIONS,
 			},
 			additionalBehaviors: {
@@ -122,27 +127,36 @@ export class JesseHattabaughStack extends cdk.Stack {
 			},
 			domainNames: [domain, `www.${domain}`],
 			certificate,
-			comment: 'CloudFront distribution for jessehattabaugh.com',
+			comment: `CloudFront distribution for ${domain} (${environment})`,
 		});
 
-		// Route53 hosted zone (assuming it already exists)
+		// Route53 hosted zone lookup
+		// For staging, we assume the subdomain is managed in the same hosted zone as the main domain
+		const rootDomain = isProduction ? domain : 'jessehattabaugh.com';
 		const hostedZone = route53.HostedZone.fromLookup(this, 'HostedZone', {
-			domainName: domain,
+			domainName: rootDomain,
 		});
 
 		// Route53 records
+		const recordName = isProduction ? undefined : 'staging';
 		new route53.ARecord(this, 'AliasRecord', {
 			zone: hostedZone,
+			recordName,
 			target: route53.RecordTarget.fromAlias(new targets.CloudFrontTarget(distribution)),
 		});
 
 		new route53.ARecord(this, 'WwwAliasRecord', {
 			zone: hostedZone,
-			recordName: 'www',
+			recordName: isProduction ? 'www' : 'www.staging',
 			target: route53.RecordTarget.fromAlias(new targets.CloudFrontTarget(distribution)),
 		});
 
 		// Outputs
+		new cdk.CfnOutput(this, 'Environment', {
+			value: environment,
+			description: 'Deployment environment',
+		});
+
 		new cdk.CfnOutput(this, 'ApiGatewayUrl', {
 			value: api.url,
 			description: 'API Gateway URL',
