@@ -70,7 +70,7 @@ export async function pageHandler(event, context) {
 			const contentHtml = await methodTemplate.default.render(contextData || {});
 
 			// Load the main page template
-			const pageTemplate = await import(join(__dirname, '../lib/templates/page.marko'));
+			const pageTemplate = await import(join(__dirname, '../lib/templates/page.marko.js'));
 
 			// Get page title based on the page and method
 			const title = getPageTitle(pageModulePath, method);
@@ -113,12 +113,12 @@ export async function pageHandler(event, context) {
 			const contextData = await notFoundHandler(event, context);
 
 			// Load 404 method template
-			const templatePath = `${baseDir}/pages/404.get.marko`;
+			const templatePath = `${baseDir}/pages/404.get.marko.js`;
 			const methodTemplate = await import(templatePath);
 			const contentHtml = await methodTemplate.default.render(contextData || {});
 
 			// Load the main page template
-			const pageTemplate = await import(join(__dirname, '../lib/templates/page.marko'));
+			const pageTemplate = await import(join(__dirname, '../lib/templates/page.marko.js'));
 
 			// Render the full 404 page
 			const html = await pageTemplate.default.render({
@@ -152,10 +152,10 @@ export async function pageHandler(event, context) {
  * @returns {string} Template path (e.g., '/pages/hello/index.get.marko')
  */
 function generateTemplatePath(pageModulePath, method) {
-	// Convert .js to .{method}.marko
-	// e.g., '/pages/hello/index.js' -> '/pages/hello/index.get.marko'
+	// Convert .js to .{method}.marko.js
+	// e.g., '/pages/hello/index.js' -> '/pages/hello/index.get.marko.js'
 	const basePath = pageModulePath.replace(/\.js$/, '');
-	return `${basePath}.${method}.marko`;
+	return `${basePath}.${method}.marko.js`;
 }
 
 /**
