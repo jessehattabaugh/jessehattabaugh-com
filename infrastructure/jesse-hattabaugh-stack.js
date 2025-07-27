@@ -115,6 +115,7 @@ export class JesseHattabaughStack extends cdk.Stack {
 				runtime: lambda.Runtime.NODEJS_22_X,
 				bundling: {
 					minify: isProduction,
+					// Consider enabling source maps in production for easier debugging, or ensure robust logging/monitoring is in place.
 					sourceMap: true,
 					target: 'es2020',
 					format: nodejs.OutputFormat.ESM,
