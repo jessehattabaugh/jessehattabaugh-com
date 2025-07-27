@@ -1,7 +1,5 @@
 #!/usr/bin/env node
 
-import 'source-map-support/register.js';
-
 import * as cdk from 'aws-cdk-lib';
 
 import { JesseHattabaughStack } from './infrastructure/jesse-hattabaugh-stack.js';
