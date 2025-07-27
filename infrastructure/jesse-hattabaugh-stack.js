@@ -202,7 +202,7 @@ export class JesseHattabaughStack extends cdk.Stack {
 			},
 			additionalBehaviors: {
 				'/static/*': {
-					origin: new origins.S3Origin(staticBucket),
+					origin: new origins.S3BucketOrigin(staticBucket),
 					viewerProtocolPolicy: cloudfront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
 					cachePolicy: cloudfront.CachePolicy.CACHING_OPTIMIZED,
 					allowedMethods: cloudfront.AllowedMethods.ALLOW_GET_HEAD,
