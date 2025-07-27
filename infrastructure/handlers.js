@@ -6,6 +6,37 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 /**
+ * Generate a complete HTML page
+ * @param {string} title - Page title
+ * @param {string} content - HTML content for the page body
+ * @returns {string} Complete HTML page
+ */
+function generateHtmlPage(title, content) {
+	return `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>${title || 'Jesse Hattabaugh'}</title>
+    <link rel="stylesheet" href="/static/styles/all.css">
+</head>
+<body>
+    <header>
+        <nav>
+            <a href="/">Home</a>
+            <a href="/hello">Hello</a>
+            <a href="/about">About</a>
+        </nav>
+    </header>
+    <main>
+        <h1>${title || 'Jesse Hattabaugh'}</h1>
+        ${content}
+    </main>
+</body>
+</html>`;
+}
+
+/**
  * Request handler for routes created by /pages
  *
  * @param {Object} event - Lambda event object
@@ -54,32 +85,32 @@ export async function pageHandler(event, context) {
 		}
 
 		try {
-			// Get context data from the page handler
-			const contextData = await handlerFunction(event, context);
+			// Call the page handler function
+			const result = await handlerFunction(event, context);
 
 			// Check if handler returned a direct response (like 405 errors)
-			if (contextData && contextData.statusCode) {
-				return contextData;
+			if (result && result.statusCode) {
+				return result;
 			}
-
-			// Generate template path based on page module path and method
-			const templatePath = generateTemplatePath(pageModulePath, method);
-
-			// Dynamically import and render the method-specific template
-			const methodTemplate = await import(templatePath);
-			const contentHtml = await methodTemplate.default.render(contextData || {});
-
-			// Load the main page template
-			const pageTemplate = await import(join(__dirname, '../lib/templates/page.marko.js'));
 
 			// Get page title based on the page and method
 			const title = getPageTitle(pageModulePath, method);
 
-			// Render the full page with the method content
-			const html = await pageTemplate.default.render({
-				title,
-				content: contentHtml,
-			});
+			// If result is a string, treat it as HTML content
+			// If result is an object with html property, use that
+			// Otherwise, result should be an empty object and we'll use default content
+			let content = '';
+			if (typeof result === 'string') {
+				content = result;
+			} else if (result && result.html) {
+				content = result.html;
+			} else {
+				// Default content based on page
+				content = getDefaultContent(pageModulePath, method);
+			}
+
+			// Generate the complete HTML page
+			const html = generateHtmlPage(title, content);
 
 			// Determine status code (404 for 404 pages, 200 for others)
 			const statusCode = pageModulePath.includes('404') ? 404 : 200;
@@ -87,7 +118,7 @@ export async function pageHandler(event, context) {
 			return {
 				statusCode,
 				headers: { 'Content-Type': 'text/html' },
-				body: html.toString(),
+				body: html,
 			};
 		} catch (error) {
 			console.error('Handler error:', error);
@@ -110,26 +141,25 @@ export async function pageHandler(event, context) {
 			const notFoundModule = await import(`${baseDir}/pages/404.js`);
 			const method = event.httpMethod?.toLowerCase() || 'get';
 			const notFoundHandler = notFoundModule[method] || notFoundModule.get;
-			const contextData = await notFoundHandler(event, context);
+			const result = await notFoundHandler(event, context);
 
-			// Load 404 method template
-			const templatePath = `${baseDir}/pages/404.get.marko.js`;
-			const methodTemplate = await import(templatePath);
-			const contentHtml = await methodTemplate.default.render(contextData || {});
+			// Get 404 content
+			let content = '';
+			if (typeof result === 'string') {
+				content = result;
+			} else if (result && result.html) {
+				content = result.html;
+			} else {
+				content = getDefaultContent(`${baseDir}/pages/404.js`, method);
+			}
 
-			// Load the main page template
-			const pageTemplate = await import(join(__dirname, '../lib/templates/page.marko.js'));
-
-			// Render the full 404 page
-			const html = await pageTemplate.default.render({
-				title: '404 - Page Not Found',
-				content: contentHtml,
-			});
+			// Generate the complete 404 HTML page
+			const html = generateHtmlPage('404 - Page Not Found', content);
 
 			return {
 				statusCode: 404,
 				headers: { 'Content-Type': 'text/html' },
-				body: html.toString(),
+				body: html,
 			};
 		} catch (fallbackError) {
 			console.error('404 fallback also failed:', fallbackError);
@@ -146,16 +176,72 @@ export async function pageHandler(event, context) {
 }
 
 /**
- * Generate template path based on page module path and HTTP method
- * @param {string} pageModulePath - Path to the page module (e.g., '/pages/hello/index.js')
- * @param {string} method - HTTP method (e.g., 'get', 'post')
- * @returns {string} Template path (e.g., '/pages/hello/index.get.marko')
+ * Get default content for a page if no content is provided
+ * @param {string} pageModulePath - Path to the page module
+ * @param {string} method - HTTP method
+ * @returns {string} Default HTML content
  */
-function generateTemplatePath(pageModulePath, method) {
-	// Convert .js to .{method}.marko.js
-	// e.g., '/pages/hello/index.js' -> '/pages/hello/index.get.marko.js'
-	const basePath = pageModulePath.replace(/\.js$/, '');
-	return `${basePath}.${method}.marko.js`;
+function getDefaultContent(pageModulePath, method) {
+	if (pageModulePath.includes('404')) {
+		return `<div class='error-page'>
+			<h2>Page Not Found</h2>
+			<p>The page you are looking for does not exist.</p>
+			<a href='/' class='home-link'>Return to Home</a>
+		</div>`;
+	}
+
+	if (pageModulePath.includes('about')) {
+		return `<div class='about-page'>
+			<h2>About Jesse</h2>
+			<p>Software developer passionate about creating amazing web experiences.</p>
+			<ul>
+				<li>Full-stack web development</li>
+				<li>Cloud architecture and serverless applications</li>
+				<li>Modern JavaScript and web technologies</li>
+			</ul>
+		</div>`;
+	}
+
+	if (pageModulePath.includes('hello')) {
+		if (method === 'post') {
+			return `<div class='hello-page'>
+				<h2>Message Sent!</h2>
+				<p>Thank you for your message. I'll get back to you soon!</p>
+				<a href='/hello'>Send another message</a>
+			</div>`;
+		}
+		return `<div class='hello-page'>
+			<h2>Say Hello!</h2>
+			<form method='post' action='/hello'>
+				<label for='name'>Name:</label>
+				<input type='text' id='name' name='name' required>
+				<label for='message'>Message:</label>
+				<textarea id='message' name='message' required></textarea>
+				<button type='submit'>Send Message</button>
+			</form>
+		</div>`;
+	}
+
+	// Default home page content
+	return `<div class='hero'>
+		<h2>Welcome to my personal website!</h2>
+		<p>I'm a software developer passionate about creating amazing web experiences.</p>
+
+		<section class='intro'>
+			<h3>What I Do</h3>
+			<ul>
+				<li>Full-stack web development</li>
+				<li>Cloud architecture and serverless applications</li>
+				<li>Modern JavaScript and web technologies</li>
+			</ul>
+		</section>
+
+		<section class='recent-work'>
+			<h3>Recent Projects</h3>
+			<p>Check out some of my latest work and experiments.</p>
+			<a href='/about' class='cta-button'>Learn More About Me</a>
+		</section>
+	</div>`;
 }
 
 /**
