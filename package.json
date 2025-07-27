@@ -5,7 +5,7 @@
 	"dependencies": {
 		"aws-cdk-lib": "^2.100.0",
 		"constructs": "^10.3.0",
-		"marko": "^5.33.0"
+		"marko": "^6.0.0"
 	},
 	"devDependencies": {
 		"@eslint/compat": "latest",
@@ -22,20 +22,21 @@
 		"typescript": "^5.2.0"
 	},
 	"scripts": {
-		"build": "cdk synth",
-		"build:staging": "cdk synth --context environment=staging",
-		"build:prod": "cdk synth --context environment=production",
-		"deploy": "cdk deploy --context environment=production",
-		"deploy:staging": "cdk deploy --context environment=staging",
+		"compile-templates": "node compile-templates.js",
+		"build": "npm run compile-templates && cdk synth",
+		"build:staging": "npm run compile-templates && cdk synth --context environment=staging",
+		"build:prod": "npm run compile-templates && cdk synth --context environment=production",
+		"deploy": "npm run compile-templates && cdk deploy --context environment=production",
+		"deploy:staging": "npm run compile-templates && cdk deploy --context environment=staging",
 		"destroy": "cdk destroy",
 		"destroy:staging": "cdk destroy --context environment=staging",
 		"destroy:prod": "cdk destroy --context environment=production",
-		"diff": "cdk diff --context environment=staging",
-		"diff:prod": "cdk diff --context environment=production",
+		"diff": "npm run compile-templates && cdk diff --context environment=staging",
+		"diff:prod": "npm run compile-templates && cdk diff --context environment=production",
 		"lint": "eslint",
 		"lint:fix": "npm run lint -- --fix",
-		"test": "TEST_URL=https://staging.jessehattabaugh.com playwright test",
-		"test:prod": "TEST_URL=https://jessehattabaugh.com playwright test"
+		"test": "npm run compile-templates && TEST_URL=https://staging.jessehattabaugh.com playwright test",
+		"test:prod": "npm run compile-templates && TEST_URL=https://jessehattabaugh.com playwright test"
 	},
 	"type": "module"
 }

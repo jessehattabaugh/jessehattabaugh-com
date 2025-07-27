@@ -58,8 +58,9 @@ function discoverPages(pagesDirectory) {
 					entryPath: fullPath,
 					pathSegments,
 				});
-			} else if (entry.endsWith('.js')) {
+			} else if (entry.endsWith('.js') && !entry.endsWith('.marko.js')) {
 				// File-based page (e.g., about.js → /about)
+				// Exclude compiled Marko templates (.marko.js)
 				const pageName = entry.slice(0, -3); // Remove .js extension
 				const route =
 					pathSegments.length === 0

@@ -1,0 +1,5 @@
+import * as _$ from "marko/debug/html";
+export default _$.createTemplate("pages/404.get.marko", input => {
+  const $scope0_id = _$.nextScopeId();
+  _$.write("<div class=error-content><section class=error-message><h2>Oops! Page Not Found \uD83D\uDD0D</h2><p>Sorry, the page you are looking for could not be found.</p><p>It might have been moved, deleted, or you may have mistyped the URL.</p></section><section class=suggestions><h3>What can you do?</h3><ul><li>Check the URL for typos</li><li>Go back to the <a href=\"/\">home page</a></li><li>Browse the available pages using the navigation above</li></ul></section><section class=popular-pages><h3>Popular Pages</h3><div class=page-links><a href=\"/\" class=page-link>Home</a><a href=/about class=page-link>About</a><a href=/hello class=page-link>Hello</a></div></section></div>");
+});
