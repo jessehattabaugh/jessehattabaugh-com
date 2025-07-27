@@ -17,7 +17,7 @@ export async function post(event) {
 	let body;
 	try {
 		body = JSON.parse(event.body || '{}');
-	} catch (error) {
+	} catch {
 		body = {};
 	}
 
