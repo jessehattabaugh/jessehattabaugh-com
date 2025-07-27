@@ -16,10 +16,22 @@ Pages of this site are built by Lambda functions called by API Gateway. Each dir
 
 ## Deployment
 
-This website is hosted at [jessehattabaugh.com](https://jessehattabaugh.com). To manually deploy run `npm run deploy`. The URL and certificates are managed in AWS Route53.
+The URL and certificates are managed in AWS Route53.
+
+### Production
+
+This website is hosted at [jessehattabaugh.com](https://jessehattabaugh.com).
+
+To deploy the production environment run `npm run deploy`.
+
+### Staging
+
+The staging environment is [staging.jessehattabaugh.com](https://staging.jessehattabaugh.com)
+
+To deploy the staging environment run `npm run deploy:staging`.
 
 ## Testing
 
 The functionality of this site is verified in real browsers accessing real servers using Playwright.
 
-
+To test the staging environment run `npm test`.
