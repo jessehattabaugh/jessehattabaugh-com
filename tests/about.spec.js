@@ -12,8 +12,30 @@ test.describe('About Page', () => {
 		// Check for main heading
 		await expect(page.locator('h1')).toContainText('About Jesse');
 
-		// Check for about content
-		await expect(page.locator('main p')).toContainText('learn more about Jesse Hattabaugh');
+		// Check for bio section
+		await expect(page.locator('h2')).toContainText('About Jesse Hattabaugh');
+		await expect(page.locator('.bio p')).toContainText(
+			'passionate software developer with years of experience'
+		);
+		await expect(page.locator('.bio p')).toContainText(
+			'frontend technologies like React and Vue to backend systems'
+		);
+
+		// Check for technical skills section
+		await expect(page.locator('h3')).toContainText('Technical Skills');
+		await expect(page.locator('h4')).toContainText('Frontend');
+		await expect(page.locator('h4')).toContainText('Backend');
+		await expect(page.locator('h4')).toContainText('Cloud & DevOps');
+
+		// Check for specific skills
+		await expect(page.locator('.skill-category li')).toContainText('JavaScript/TypeScript');
+		await expect(page.locator('.skill-category li')).toContainText('Node.js, Python');
+		await expect(page.locator('.skill-category li')).toContainText('AWS, Azure');
+
+		// Check for contact section
+		await expect(page.locator('h3')).toContainText('Get In Touch');
+		await expect(page.locator('.contact p')).toContainText('Interested in working together');
+		await expect(page.locator('.cta-button')).toContainText('Say Hello');
 
 		// Check for navigation
 		await expect(page.locator('nav a[href="/"]')).toBeVisible();
