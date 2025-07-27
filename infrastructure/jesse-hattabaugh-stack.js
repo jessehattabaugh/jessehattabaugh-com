@@ -13,7 +13,6 @@ import * as targets from 'aws-cdk-lib/aws-route53-targets';
 import { dirname, join } from 'node:path';
 import { readdirSync, statSync } from 'node:fs';
 
-import { Construct } from 'constructs';
 import { fileURLToPath } from 'node:url';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -23,11 +22,11 @@ const __dirname = dirname(__filename);
  * Helper to generate Lambda function names from path segments.
  */
 function generateLambdaName(pathSegments) {
-	return (pathSegments.length === 0
+	return pathSegments.length === 0
 		? 'HomePage'
 		: pathSegments
-			.map(segment => segment.charAt(0).toUpperCase() + segment.slice(1))
-			.join('') + 'Page');
+				.map((segment) => segment.charAt(0).toUpperCase() + segment.slice(1))
+				.join('') + 'Page';
 }
 
 /**
@@ -131,10 +130,10 @@ export class JesseHattabaughStack extends cdk.Stack {
 		const lambdaFunctions = new Map();
 
 		for (const page of pages) {
-			// Create Lambda function using the universal handler
+			// Create Lambda function using the page handler
 			const lambdaFunction = new nodejs.NodejsFunction(this, `${page.lambdaName}Function`, {
-				entry: join(__dirname, './universal-handler.js'),
-				handler: 'handler',
+				entry: join(__dirname, './handlers.js'),
+				handler: 'pageHandler',
 				runtime: lambda.Runtime.NODEJS_22_X,
 				bundling: {
 					minify: isProduction,
