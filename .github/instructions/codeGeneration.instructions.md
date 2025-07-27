@@ -5,6 +5,7 @@ applyTo: '**.js'
 # JavaScript Coding Standards
 
 -   Use ESModules instead of CommonJS.
+-   Avoid using fat arrow functions for top-level exports.
 -   Prefer traditional control structures (`if/else`, `switch`, `while`) for clarity.
 -   Avoid creating new names by using array/object destructuring, and rest/spread operators.
 -   Use modern APIs where possible, such as `fetch` and `async/await`.

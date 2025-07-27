@@ -1,14 +1,38 @@
-const marko = require('marko');
-const helloTemplate = require('../lib/templates/page.marko');
+import page from '../lib/templates/page.marko';
 
-exports.handler = async (event) => {
-    const html = await helloTemplate.render({
+export async function get(event) {
+	const html = await page.render({
 		title: 'Jesse Hattabaugh',
 		content: 'Welcome to my personal website!',
 	});
-    return {
-        statusCode: 200,
-        headers: { 'Content-Type': 'text/html' },
-        body: html.toString(),
-    };
-};
+	return {
+		statusCode: 200,
+		headers: { 'Content-Type': 'text/html' },
+		body: html.toString(),
+	};
+}
+
+// Optional: implement other HTTP methods as needed
+export async function post(event) {
+	return {
+		statusCode: 405,
+		headers: { 'Content-Type': 'application/json' },
+		body: JSON.stringify({ error: 'POST method not implemented for this page' }),
+	};
+}
+
+export async function put(event) {
+	return {
+		statusCode: 405,
+		headers: { 'Content-Type': 'application/json' },
+		body: JSON.stringify({ error: 'PUT method not implemented for this page' }),
+	};
+}
+
+export async function del(event) {
+	return {
+		statusCode: 405,
+		headers: { 'Content-Type': 'application/json' },
+		body: JSON.stringify({ error: 'DELETE method not implemented for this page' }),
+	};
+}

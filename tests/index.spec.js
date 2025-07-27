@@ -15,6 +15,7 @@ test.describe('Home Page', () => {
 		// Check for navigation
 		await expect(page.locator('nav a[href="/"]')).toBeVisible();
 		await expect(page.locator('nav a[href="/hello"]')).toBeVisible();
+		await expect(page.locator('nav a[href="/about"]')).toBeVisible();
 
 		// Check that CSS is loaded
 		const nav = page.locator('nav');

@@ -2,30 +2,9 @@ import page from '../../lib/templates/page.marko';
 
 export async function get(event) {
 	const html = await page.render({
-		title: 'Hello Page',
-		content: 'This is the Hello Page!',
+		title: 'About Jesse',
+		content: 'This is the about page where you can learn more about Jesse Hattabaugh.',
 	});
-	return {
-		statusCode: 200,
-		headers: { 'Content-Type': 'text/html' },
-		body: html.toString(),
-	};
-}
-
-export async function post(event) {
-	// Example POST handler
-	let body;
-	try {
-		body = JSON.parse(event.body || '{}');
-	} catch (error) {
-		body = {};
-	}
-
-	const html = await page.render({
-		title: 'Hello Page - Posted!',
-		content: `Thank you for your POST request! Data received: ${JSON.stringify(body)}`,
-	});
-
 	return {
 		statusCode: 200,
 		headers: { 'Content-Type': 'text/html' },
@@ -34,6 +13,14 @@ export async function post(event) {
 }
 
 // Optional: implement other HTTP methods as needed
+export async function post(event) {
+	return {
+		statusCode: 405,
+		headers: { 'Content-Type': 'application/json' },
+		body: JSON.stringify({ error: 'POST method not implemented for this page' }),
+	};
+}
+
 export async function put(event) {
 	return {
 		statusCode: 405,

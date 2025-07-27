@@ -37,13 +37,13 @@ export default defineConfig([
 					impliedStrict: true,
 				},
 			},
-			settings: {
-				browsers: ['> 5%'],
-			},
 			sourceType: 'module',
 		},
 		linterOptions: {
 			reportUnusedDisableDirectives: 'error',
+		},
+		settings: {
+			browsers: ['> 5%'],
 		},
 	},
 ]);

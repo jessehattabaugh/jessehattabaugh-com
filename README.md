@@ -12,7 +12,9 @@ Static assets like images, fonts, stylesheets, and client-side JavaScript are st
 
 ### Pages
 
-Pages of this site are built by Lambda functions called by API Gateway. Each directory in `/pages` contains an `index.js` which is the main entry point for a corresponging route in API Gateway. All responses are cached in CloudFront. HTML is built using [Marko](https://markojs.com/) templates. Shared templates and modules are stored in `/lib`.
+Pages of this site are built by Lambda functions called by API Gateway. Each directory in `/pages` contains an `index.js` which is the main entry point for a corresponding route in API Gateway. Each `index.js` file can export `get()`, `post()`, `put()`, and `del()` functions, which will be used to respond to requests for the `GET`, `POST`, `PUT`, and `DELETE` HTTP methods.
+
+HTML is built using [Marko](https://markojs.com/) templates. Shared templates and modules are stored in `/lib`.
 
 ## Deployment
 
@@ -23,6 +25,8 @@ The URL and certificates are managed in AWS Route53.
 This website is hosted at [jessehattabaugh.com](https://jessehattabaugh.com).
 
 To deploy the production environment run `npm run deploy`.
+
+All responses from the production environment are cached in CloudFront.
 
 ### Staging
 
