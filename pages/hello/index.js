@@ -47,16 +47,6 @@ export async function get(event) {
  * @param {Object} event - Lambda event object
  * @returns {Object} Response object with HTML content and custom headers
  */
-// Helper function to escape HTML special characters
-function escapeHtml(str) {
-	return String(str)
-		.replace(/&/g, '&amp;')
-		.replace(/</g, '&lt;')
-		.replace(/>/g, '&gt;')
-		.replace(/"/g, '&quot;')
-		.replace(/'/g, '&#39;');
-}
-
 export async function post(event) {
 	// Parse form data from the request body
 	let formData = {};
@@ -80,46 +70,43 @@ export async function post(event) {
 
 	const { name, email, message } = formData;
 
-	// Sanitize user input to prevent XSS
-	const safeName = escapeHtml(name);
-	const safeEmail = escapeHtml(email);
-	const safeMessage = escapeHtml(message);
+	// Validate required fields
+	if (!name || !email || !message) {
+		return {
+			statusCode: 400,
+			headers: {
+				'Content-Type': 'text/html',
+				'X-Form-Error': 'Missing required fields',
+			},
+			body: html`<div class="hello-error">
+				<h2>Please Fill All Fields</h2>
+				<p>All fields are required to send a message.</p>
+				<a href="/hello" class="secondary-btn">Try Again</a>
+			</div>`,
+		};
+	}
 
 	// Simulate sending the message (e.g., save to database, send email, etc.)
-	// Sanitize name, email, and message for header injection and XSS prevention
-	function escapeHtml(str) {
-		return String(str)
-			.replace(/&/g, '&amp;')
-			.replace(/</g, '&lt;')
-			.replace(/>/g, '&gt;')
-			.replace(/"/g, '&quot;')
-			.replace(/'/g, '&#39;');
-	}
-	const safeName = typeof name === 'string' ? escapeHtml(name.replace(/[\r\n]+/g, ' ')) : '';
-	const safeEmail = typeof email === 'string' ? escapeHtml(email.replace(/[\r\n]+/g, ' ')) : '';
-	const safeMessage = typeof message === 'string' ? escapeHtml(message) : '';
-
 	return {
 		statusCode: 200,
 		headers: {
 			'Content-Type': 'text/html',
 			'X-Message-Status': 'sent',
-			'X-Contact-Name': safeName,
 			'Cache-Control': 'no-cache',
 		},
 		body: html`<div class="hello-success">
 			<h2>Message Sent!</h2>
 			<p>
-				Thank you for reaching out, ${safeName}! I've received your message and will get back to
+				Thank you for reaching out, ${name}! I've received your message and will get back to
 				you soon.
 			</p>
 
 			<div class="message-summary">
 				<h3>Your Message:</h3>
 				<div class="submitted-data">
-					<p><strong>Name:</strong> ${safeName}</p>
-					<p><strong>Email:</strong> ${safeEmail}</p>
-					<p><strong>Message:</strong><br />${safeMessage}</p>
+					<p><strong>Name:</strong> ${name}</p>
+					<p><strong>Email:</strong> ${email}</p>
+					<p><strong>Message:</strong><br />${message}</p>
 				</div>
 			</div>
 
@@ -127,21 +114,6 @@ export async function post(event) {
 				<a href="/hello" class="secondary-btn">Send Another Message</a>
 				<a href="/" class="primary-btn">Return to Home</a>
 			</div>
-		</div>`,
-	};
-}
-					<p><strong>Email:</strong> ${safeEmail}</p>
-					<p><strong>Message:</strong><br />${safeMessage}</p>
-				</div>
-			</div>
-
-			<div class="next-steps">
-				<a href="/hello" class="secondary-btn">Send Another Message</a>
-				<a href="/" class="primary-btn">Return to Home</a>
-			</div>
-		</div>`,
-	};
-}
 		</div>`,
 	};
 }
