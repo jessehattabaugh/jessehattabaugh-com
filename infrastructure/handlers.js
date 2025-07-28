@@ -21,6 +21,7 @@ function escapeHeaderValue(value) {
 
 /**
  * Request handler for routes created by /pages
+ * Handles dynamic page routing with proper bundling support
  *
  * @param {Object} event - Lambda event object
  * @param {Object} context - Lambda context object
@@ -28,10 +29,34 @@ function escapeHeaderValue(value) {
  */
 export async function pageHandler(event, context) {
 	try {
-		// Get the page module path from environment variable
-		const pageModulePath = process.env.PAGE_MODULE_PATH;
+		// Get the page route from environment variable
+		const pageRoute = process.env.PAGE_ROUTE;
+		if (!pageRoute) {
+			throw new Error('PAGE_ROUTE environment variable is required');
+		}
+
+		// Dynamically resolve the page module path based on the route
+		import { existsSync } from 'node:fs';
+		let pageModulePath;
+
+		const tryPaths = [
+			`./pages${pageRoute}.js`,
+			`./pages${pageRoute}/index.js`,
+		];
+
+		if (pageRoute === '/') {
+			tryPaths.unshift('./pages/index.js');
+		}
+			// Remove trailing slash (except for root) to avoid invalid paths like './pages/api/.js'
+			const sanitizedRoute = pageRoute.endsWith('/') && pageRoute !== '/' ? pageRoute.slice(0, -1) : pageRoute;
+			pageModulePath = `./pages${sanitizedRoute}.js`;
+			tryPaths.unshift('./pages/404.js');
+		}
+
+		pageModulePath = tryPaths.find(p => existsSync(join(__dirname, p.replace('./', ''))));
+
 		if (!pageModulePath) {
-			throw new Error('PAGE_MODULE_PATH environment variable is required');
+			throw new Error(`Page module not found for route: ${pageRoute}`);
 		}
 
 		// Dynamically import the page module
@@ -126,14 +151,14 @@ export async function pageHandler(event, context) {
 			if (typeof result === 'string') {
 				response.body = result;
 				// Determine status code (404 for 404 pages, 200 for others)
-				response.statusCode = pageModulePath.includes('404') ? 404 : 200;
+				response.statusCode = pageRoute === '/404' ? 404 : 200;
 				return response;
 			}
 
 			// If no result or empty object, use default content
-			const content = getDefaultContent(pageModulePath, method);
+			const content = getDefaultContent(pageRoute, method);
 			response.body = html`${content}`;
-			response.statusCode = pageModulePath.includes('404') ? 404 : 200;
+			response.statusCode = pageRoute === '/404' ? 404 : 200;
 
 			return response;
 		} catch (error) {
@@ -153,8 +178,7 @@ export async function pageHandler(event, context) {
 		// If the page module failed to load, try to fall back to 404.js
 		try {
 			console.log('📄🔄 Falling back to 404 page');
-			const baseDir = process.env.BASE_DIR || process.cwd();
-			const notFoundModule = await import(`${baseDir}/pages/404.js`);
+			const notFoundModule = await import('./pages/404.js');
 			const method = event.httpMethod?.toLowerCase() || 'get';
 			const notFoundHandler = notFoundModule[method] || notFoundModule.get;
 			const result = await notFoundHandler(event, context);
@@ -199,7 +223,7 @@ export async function pageHandler(event, context) {
 			}
 
 			// If no result or empty object, use default content
-			const content = getDefaultContent(`${baseDir}/pages/404.js`, method);
+			const content = getDefaultContent('/404', method);
 			response.body = html`${content}`;
 
 			return response;
@@ -219,12 +243,12 @@ export async function pageHandler(event, context) {
 
 /**
  * Get default content for a page if no content is provided
- * @param {string} pageModulePath - Path to the page module
+ * @param {string} pageRoute - Route of the page
  * @param {string} method - HTTP method
  * @returns {string} Default HTML content
  */
-function getDefaultContent(pageModulePath, method) {
-	if (pageModulePath.includes('404')) {
+function getDefaultContent(pageRoute, method) {
+	if (pageRoute === '/404') {
 		return `<div class='error-page'>
 			<h2>Page Not Found</h2>
 			<p>The page you are looking for does not exist.</p>
@@ -232,7 +256,7 @@ function getDefaultContent(pageModulePath, method) {
 		</div>`;
 	}
 
-	if (pageModulePath.includes('about')) {
+	if (pageRoute === '/about') {
 		return `<div class='about-page'>
 			<h2>About Jesse</h2>
 			<p>Software developer passionate about creating amazing web experiences.</p>
@@ -244,7 +268,7 @@ function getDefaultContent(pageModulePath, method) {
 		</div>`;
 	}
 
-	if (pageModulePath.includes('hello')) {
+	if (pageRoute === '/hello') {
 		if (method === 'post') {
 			return `<div class='hello-page'>
 				<h2>Message Sent!</h2>
@@ -287,21 +311,21 @@ function getDefaultContent(pageModulePath, method) {
 }
 
 /**
- * Get page title based on page module path and HTTP method
- * @param {string} pageModulePath - Path to the page module
+ * Get page title based on page route and HTTP method
+ * @param {string} pageRoute - Route of the page
  * @param {string} method - HTTP method
  * @returns {string} Page title
  */
-function getPageTitle(pageModulePath, method) {
-	if (pageModulePath.includes('404')) {
+function getPageTitle(pageRoute, method) {
+	if (pageRoute === '/404') {
 		return '404 - Page Not Found';
 	}
 
-	if (pageModulePath.includes('about')) {
+	if (pageRoute === '/about') {
 		return 'About Jesse';
 	}
 
-	if (pageModulePath.includes('hello')) {
+	if (pageRoute === '/hello') {
 		return method === 'post' ? 'Hello Page - Message Sent!' : 'Hello Page';
 	}
 
