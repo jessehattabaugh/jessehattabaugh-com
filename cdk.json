@@ -56,12 +56,12 @@
 		"@aws-cdk/aws-codebuild:privilegedModeVariant": true,
 		"@aws-cdk/aws-opensearchservice:enableVersionUpgrade": true,
 
-		"certificates": {
-			"production": "arn:aws:acm:us-east-1:347151913839:certificate/b862944c-6dc0-487f-95e1-2df10464a6f7",
-			"staging": "arn:aws:acm:us-east-1:347151913839:certificate/b261cc5e-bef6-42e5-9a14-a7c305804536"
-		},
 		"developmentMode": false,
 		"skipCloudFront": false,
-		"cloudFrontMinimumTtl": 0
+		"cloudFrontMinimumTtl": 0,
+
+		"// Security Note": "Certificate ARN should preferably be set via CERTIFICATE_ARN environment variable",
+		"// Local Development": "Uncomment and set the line below for local development only",
+		"// certificateArn": "arn:aws:acm:us-east-1:YOUR_ACCOUNT_ID:certificate/YOUR_CERTIFICATE_ID"
 	}
 }

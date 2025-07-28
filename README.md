@@ -16,6 +16,22 @@ Pages of this site are built by Lambda functions called by API Gateway. Each dir
 
 HTML is built using [Marko](https://markojs.com/) templates. Shared templates and modules are stored in `/lib`.
 
+## Setup
+
+Copy the environment template and configure your certificate:
+
+```bash
+cp .env.example .env
+```
+
+Edit `.env` and replace `YOUR_CERTIFICATE_ID` with your actual certificate ID. You can find your certificate ID by running:
+
+```bash
+aws acm list-certificates --region us-east-1
+```
+
+The certificate ARN will be automatically constructed using your AWS account ID from your profile.
+
 ## Deployment
 
 The URL and certificates are managed in AWS Route53.

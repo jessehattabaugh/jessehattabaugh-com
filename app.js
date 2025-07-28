@@ -3,57 +3,57 @@
 /**
  * Jesse Hattabaugh Website CDK App
  * 
- * This app follows CDK best practices:
- * - Environment agnostic code via context
- * - No hard-coded ARNs (uses context/environment variables)
- * - Deterministic deployments
- * - Proper environment handling
+ * Uses environment variables for certificate configuration.
+ * Copy .env.example to .env and set your CERTIFICATE_ARN.
  */
 
-import * as cdk from 'aws-cdk-lib';
-
+import { App } from 'aws-cdk-lib';
 import { JesseHattabaughStack } from './infrastructure/jesse-hattabaugh-stack.js';
 
-const app = new cdk.App();
+const app = new App();
 
-// Environment agnostic configuration
-const environment = app.node.tryGetContext('environment') || 'staging';
-const isProduction = environment === 'production';
-
-// Configure domains based on environment (no hard-coding)
-const domain = isProduction ? 'jessehattabaugh.com' : 'staging.jessehattabaugh.com';
-const stackName = isProduction ? 'JesseHattabaughProdStack' : 'JesseHattabaughStagingStack';
-
-// Get certificate ARN from context (environment agnostic)
-const certificateArn = app.node.tryGetContext('certificates')?.[environment] || 
-	app.node.tryGetContext('certificateArn') ||
-	process.env[`CERTIFICATE_ARN_${environment.toUpperCase()}`];
-
-// Validate required configuration
-if (!certificateArn && !app.node.tryGetContext('skipCloudFront')) {
+// Get certificate ID from environment variable
+const certificateId = process.env.CERTIFICATE_ID;
+if (!certificateId) {
 	throw new Error(
-		`Certificate ARN is required for ${environment} environment. ` +
-		`Set it in cdk.json context or CDK_CERTIFICATE_ARN_${environment.toUpperCase()} environment variable.`
+		'CERTIFICATE_ID environment variable is required. Copy .env.example to .env and set your certificate ID.'
 	);
 }
 
-// Development mode flags for faster deployments
-const developmentMode = app.node.tryGetContext('developmentMode') || false;
-const skipCloudFront = app.node.tryGetContext('skipCloudFront') || developmentMode;
+// Validate certificate ID format (must be a UUID)
+const certificateIdPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+if (!certificateIdPattern.test(certificateId)) {
+	throw new Error(
+		'CERTIFICATE_ID does not appear to be a valid AWS ACM certificate ID (UUID format required).'
+	);
+}
 
-// Environment detection from CDK environment variables or AWS CLI
-const env = {
-	account: process.env.CDK_DEFAULT_ACCOUNT || process.env.AWS_ACCOUNT_ID,
-	region: process.env.CDK_DEFAULT_REGION || process.env.AWS_DEFAULT_REGION || 'us-east-1',
-};
+// Get AWS account and region from environment variables
+const account = process.env.CDK_DEFAULT_ACCOUNT;
+const region = process.env.CDK_DEFAULT_REGION || 'us-east-1';
 
-// Create the stack with proper environment configuration
-new JesseHattabaughStack(app, stackName, {
-	env,
-	domain,
-	environment,
+if (!account) {
+	throw new Error(
+		'CDK_DEFAULT_ACCOUNT environment variable is required. Set it to your AWS account ID.'
+	);
+}
+
+const certificateArn = `arn:aws:acm:${region}:${account}:certificate/${certificateId}`;
+
+// Create production stack
+new JesseHattabaughStack(app, 'JesseHattabaughProdStack', {
+	domain: 'jessehattabaugh.com',
+	environment: 'production',
 	certificateArn,
-	skipCloudFront,
-	description: `Jesse Hattabaugh Website Stack for ${environment} environment`,
-	terminationProtection: isProduction, // Protect production stack from accidental deletion
+	crossRegionReferences: true,
+	env: { account, region }
+})
+
+// Create staging stack  
+new JesseHattabaughStack(app, 'JesseHattabaughStagingStack', {
+	domain: 'staging.jessehattabaugh.com',
+	environment: 'staging',
+	certificateArn,
+	crossRegionReferences: true,
+	env: { account, region }
 });
