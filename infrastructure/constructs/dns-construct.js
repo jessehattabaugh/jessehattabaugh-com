@@ -43,11 +43,14 @@ export class DnsConstruct extends Construct {
 			comment: `A record for ${domain}`,
 		});
 
-		this.wwwAliasRecord = new route53.ARecord(this, 'WwwAliasRecord', {
-			zone: this.hostedZone,
-			recordName: isProduction ? 'www' : 'www.staging',
-			target,
-			comment: `WWW A record for ${domain}`,
-		});
+		// Only create www record for production
+		if (isProduction) {
+			this.wwwAliasRecord = new route53.ARecord(this, 'WwwAliasRecord', {
+				zone: this.hostedZone,
+				recordName: 'www',
+				target,
+				comment: `WWW A record for ${domain}`,
+			});
+		}
 	}
 }

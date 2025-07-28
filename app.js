@@ -4,11 +4,17 @@
  * Jesse Hattabaugh Website CDK App
  * 
  * Uses environment variables for certificate configuration.
- * Copy .env.example to .env and set your CERTIFICATE_ARN.
+ * Copy .env.example to .env and set your CERTIFICATE_ID.
  */
 
 import { App } from 'aws-cdk-lib';
 import { JesseHattabaughStack } from './infrastructure/jesse-hattabaugh-stack.js';
+// Load environment variables from .env file
+import dotenv from 'dotenv';
+import { execSync } from 'child_process';
+
+dotenv.config();
+
 
 const app = new App();
 
@@ -20,25 +26,12 @@ if (!certificateId) {
 	);
 }
 
-// Validate certificate ID format (must be a UUID)
-const certificateIdPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-if (!certificateIdPattern.test(certificateId)) {
-	throw new Error(
-		'CERTIFICATE_ID does not appear to be a valid AWS ACM certificate ID (UUID format required).'
-	);
-}
+// Get account and region from AWS CLI
+const account = execSync('aws sts get-caller-identity --query Account --output text', { encoding: 'utf8' }).trim();
+const region = execSync('aws configure get region', { encoding: 'utf8' }).trim() || 'us-east-1';
 
-// Get AWS account and region from environment variables
-const account = process.env.CDK_DEFAULT_ACCOUNT;
-const region = process.env.CDK_DEFAULT_REGION || 'us-east-1';
-
-if (!account) {
-	throw new Error(
-		'CDK_DEFAULT_ACCOUNT environment variable is required. Set it to your AWS account ID.'
-	);
-}
-
-const certificateArn = `arn:aws:acm:${region}:${account}:certificate/${certificateId}`;
+// Construct certificate ARN using account from CDK context
+const certificateArn = `arn:aws:acm:us-east-1:${account}:certificate/${certificateId}`;
 
 // Create production stack
 new JesseHattabaughStack(app, 'JesseHattabaughProdStack', {
