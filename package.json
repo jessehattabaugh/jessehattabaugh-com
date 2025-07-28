@@ -9,6 +9,7 @@
 	"devDependencies": {
 		"@eslint/compat": "latest",
 		"@eslint/js": "latest",
+		"@playwright/test": "^1.54.1",
 		"@types/node": "^20.5.0",
 		"aws-cdk": "^2.100.0",
 		"eslint": "latest",
