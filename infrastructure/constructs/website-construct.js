@@ -155,7 +155,7 @@ export class WebsiteConstruct extends Construct {
 					compress: true,
 				},
 			},
-			domainNames: [domain, `www.${domain}`],
+			domainNames: [domain], // Only use the specific domain, not www variant
 			certificate,
 			comment: `CloudFront distribution for ${domain}`,
 			httpVersion: cloudfront.HttpVersion.HTTP2_AND_3,
