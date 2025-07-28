@@ -35,7 +35,9 @@
 		"lint": "eslint",
 		"lint:fix": "npm run lint -- --fix",
 		"test": "TEST_URL=https://staging.jessehattabaugh.com playwright test",
-		"test:prod": "TEST_URL=https://jessehattabaugh.com playwright test"
+		"test:prod": "TEST_URL=https://jessehattabaugh.com playwright test",
+		"test:unit": "node --test tests/unit/**/*.test.js",
+		"test:unit:watch": "node --test --watch tests/unit/**/*.test.js"
 	},
 	"type": "module"
 }
