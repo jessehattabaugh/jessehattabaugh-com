@@ -1,11 +1,8 @@
 import { defineConfig, devices } from '@playwright/test';
 
 export default defineConfig({
-	testDir: './tests',
+	testDir: './tests/pages',
 	fullyParallel: true,
-	forbidOnly: !!process.env.CI,
-	retries: process.env.CI ? 2 : 0,
-	workers: process.env.CI ? 1 : undefined,
 	reporter: 'html',
 	use: {
 		trace: 'on-first-retry',
@@ -32,10 +29,4 @@ export default defineConfig({
 			use: { ...devices['iPhone 12'] },
 		},
 	],
-	webServer: process.env.TEST_URL
-		? undefined
-		: {
-				command: 'npm run serve:local',
-				port: 3000,
-		  },
 });
