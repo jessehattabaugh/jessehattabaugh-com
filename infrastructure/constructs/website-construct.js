@@ -102,11 +102,21 @@ export class WebsiteConstruct extends Construct {
 					format: nodejs.OutputFormat.ESM,
 					externalModules: [],
 					forceDockerBundling: false,
+					commandHooks: {
+						beforeBundling(inputDir, outputDir) {
+							return [
+								`cp -r ${inputDir}/pages ${outputDir}/`,
+								`cp -r ${inputDir}/lib ${outputDir}/`,
+							];
+						},
+						beforeInstall: () => [],
+						afterBundling: () => [],
+					},
 				},
 				environment: {
 					NODE_ENV: environment,
 					ENVIRONMENT: environment,
-					PAGE_MODULE_PATH: page.entryPath,
+					PAGE_ROUTE: page.route,
 				},
 				// Security: Least privilege IAM
 				initialPolicy: [],
