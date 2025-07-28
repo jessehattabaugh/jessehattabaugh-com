@@ -7,6 +7,19 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 /**
+ * Escape header values to prevent header injection attacks
+ * @param {string} value - Header value to escape
+ * @returns {string} Escaped header value
+ */
+function escapeHeaderValue(value) {
+	return String(value)
+		.replaceAll('\r', '')
+		.replaceAll('\n', '')
+		.replaceAll('\t', ' ')
+		.trim();
+}
+
+/**
  * Request handler for routes created by /pages
  *
  * @param {Object} event - Lambda event object
@@ -79,7 +92,11 @@ export async function pageHandler(event, context) {
 
 				// Merge headers if provided
 				if (result.headers) {
-					response.headers = { ...response.headers, ...result.headers };
+					const escapedHeaders = {};
+					for (const [key, value] of Object.entries(result.headers)) {
+						escapedHeaders[key] = escapeHeaderValue(value);
+					}
+					response.headers = { ...response.headers, ...escapedHeaders };
 				}
 
 				// Handle direct body content (complete HTML responses)
@@ -157,7 +174,11 @@ export async function pageHandler(event, context) {
 			// If result is an object with response properties
 			if (result && typeof result === 'object') {
 				if (result.headers) {
-					response.headers = { ...response.headers, ...result.headers };
+					const escapedHeaders = {};
+					for (const [key, value] of Object.entries(result.headers)) {
+						escapedHeaders[key] = escapeHeaderValue(value);
+					}
+					response.headers = { ...response.headers, ...escapedHeaders };
 				}
 
 				if (result.body !== undefined) {
