@@ -1,40 +1,10 @@
 import { dirname, join } from 'node:path';
 
 import { fileURLToPath } from 'node:url';
+import { html } from '../lib/html.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
-
-/**
- * Generate a complete HTML page
- * @param {string} title - Page title
- * @param {string} content - HTML content for the page body
- * @returns {string} Complete HTML page
- */
-function generateHtmlPage(title, content) {
-	return `<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>${title || 'Jesse Hattabaugh'}</title>
-    <link rel="stylesheet" href="/static/styles/all.css">
-</head>
-<body>
-    <header>
-        <nav>
-            <a href="/">Home</a>
-            <a href="/hello">Hello</a>
-            <a href="/about">About</a>
-        </nav>
-    </header>
-    <main>
-        <h1>${title || 'Jesse Hattabaugh'}</h1>
-        ${content}
-    </main>
-</body>
-</html>`;
-}
 
 /**
  * Request handler for routes created by /pages
@@ -88,40 +58,69 @@ export async function pageHandler(event, context) {
 			// Call the page handler function
 			const result = await handlerFunction(event, context);
 
-			// Check if handler returned a direct response (like 405 errors)
-			if (result && result.statusCode) {
+			// Check if handler returned a complete response object
+			if (result && typeof result === 'object' && result.statusCode) {
 				return result;
 			}
 
-			// Get page title based on the page and method
-			const title = getPageTitle(pageModulePath, method);
+			// Handle response objects with optional properties
+			let response = {
+				statusCode: 200,
+				headers: { 'Content-Type': 'text/html' },
+				body: '',
+			};
 
-			// If result is a string, treat it as HTML content
-			// If result is an object with html property, use that
-			// Otherwise, result should be an empty object and we'll use default content
-			let content = '';
-			if (typeof result === 'string') {
-				content = result;
-			} else if (result && result.html) {
-				content = result.html;
-			} else {
-				// Default content based on page
-				content = getDefaultContent(pageModulePath, method);
+			// If result is an object, merge its properties
+			if (result && typeof result === 'object') {
+				// Copy status code if provided
+				if (result.statusCode) {
+					response.statusCode = result.statusCode;
+				}
+
+				// Merge headers if provided
+				if (result.headers) {
+					response.headers = { ...response.headers, ...result.headers };
+				}
+
+				// Handle direct body content (complete HTML responses)
+				if (result.body !== undefined) {
+					response.body = result.body;
+					return response;
+				}
+
+				// Handle HTML content for page generation (partial content to be wrapped)
+				if (result.html) {
+					response.body = result.html;
+					return response;
+				}
+
+				// Handle redirect responses
+				if (result.redirect) {
+					response.statusCode = result.statusCode || 302;
+					response.headers.Location = result.redirect;
+					response.body = result.body || '';
+					return response;
+				}
+
+				// If object has no recognized response properties, treat as empty and use defaults
 			}
 
-			// Generate the complete HTML page
-			const html = generateHtmlPage(title, content);
+			// If result is a string, treat it as complete HTML (from html template literal)
+			if (typeof result === 'string') {
+				response.body = result;
+				// Determine status code (404 for 404 pages, 200 for others)
+				response.statusCode = pageModulePath.includes('404') ? 404 : 200;
+				return response;
+			}
 
-			// Determine status code (404 for 404 pages, 200 for others)
-			const statusCode = pageModulePath.includes('404') ? 404 : 200;
+			// If no result or empty object, use default content
+			const content = getDefaultContent(pageModulePath, method);
+			response.body = html`${content}`;
+			response.statusCode = pageModulePath.includes('404') ? 404 : 200;
 
-			return {
-				statusCode,
-				headers: { 'Content-Type': 'text/html' },
-				body: html,
-			};
+			return response;
 		} catch (error) {
-			console.error('Handler error:', error);
+			console.error('📄❌ Handler error:', error);
 			return {
 				statusCode: 500,
 				headers: { 'Content-Type': 'application/json' },
@@ -132,37 +131,59 @@ export async function pageHandler(event, context) {
 			};
 		}
 	} catch (error) {
-		console.error('Page handler error:', error);
+		console.error('📄💥 Page handler error:', error);
 
 		// If the page module failed to load, try to fall back to 404.js
 		try {
-			console.log('Falling back to 404 page');
+			console.log('📄🔄 Falling back to 404 page');
 			const baseDir = process.env.BASE_DIR || process.cwd();
 			const notFoundModule = await import(`${baseDir}/pages/404.js`);
 			const method = event.httpMethod?.toLowerCase() || 'get';
 			const notFoundHandler = notFoundModule[method] || notFoundModule.get;
 			const result = await notFoundHandler(event, context);
 
-			// Get 404 content
-			let content = '';
-			if (typeof result === 'string') {
-				content = result;
-			} else if (result && result.html) {
-				content = result.html;
-			} else {
-				content = getDefaultContent(`${baseDir}/pages/404.js`, method);
-			}
-
-			// Generate the complete 404 HTML page
-			const html = generateHtmlPage('404 - Page Not Found', content);
-
-			return {
+			// Handle 404 response using the same logic as normal pages
+			let response = {
 				statusCode: 404,
 				headers: { 'Content-Type': 'text/html' },
-				body: html,
+				body: '',
 			};
+
+			// If result is a complete response object, return it
+			if (result && typeof result === 'object' && result.statusCode) {
+				return result;
+			}
+
+			// If result is an object with response properties
+			if (result && typeof result === 'object') {
+				if (result.headers) {
+					response.headers = { ...response.headers, ...result.headers };
+				}
+
+				if (result.body !== undefined) {
+					response.body = result.body;
+					return response;
+				}
+
+				if (result.html) {
+					response.body = result.html;
+					return response;
+				}
+			}
+
+			// Handle string content (complete HTML from template literal)
+			if (typeof result === 'string') {
+				response.body = result;
+				return response;
+			}
+
+			// If no result or empty object, use default content
+			const content = getDefaultContent(`${baseDir}/pages/404.js`, method);
+			response.body = html`${content}`;
+
+			return response;
 		} catch (fallbackError) {
-			console.error('404 fallback also failed:', fallbackError);
+			console.error('📄❌ 404 fallback also failed:', fallbackError);
 			return {
 				statusCode: 500,
 				headers: { 'Content-Type': 'application/json' },
