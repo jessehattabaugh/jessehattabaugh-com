@@ -1,6 +1,4 @@
 import { Annotations, TagManager } from 'aws-cdk-lib';
-import { Bucket } from 'aws-cdk-lib/aws-s3';
-import { Function as LambdaFunction } from 'aws-cdk-lib/aws-lambda';
 
 import { Bucket } from 'aws-cdk-lib/aws-s3';
 import { Function as LambdaFunction } from 'aws-cdk-lib/aws-lambda';
@@ -41,16 +39,20 @@ export class MandatoryTagsAspect {
  */
 export class SecurityAspect {
 	/**
-	 * Apply security checks to constructs
+	 * Applies security checks to AWS S3 buckets and Lambda functions.
+	 * For S3 buckets, checks for encryption and public access block settings.
+	 * For Lambda functions, checks for environment variables that may contain secrets.
+	 * Adds warnings via CDK Annotations if security best practices are not met.
+	 * @param {import('constructs').IConstruct} node - The construct node to check.
+	 * @returns {void}
+	 */
+	visit(node) {
 		// Check S3 buckets for security settings
 		if (node instanceof Bucket) {
 			this._checkS3Security(node);
 		}
 
 		// Check Lambda functions for security settings
-		if (node instanceof LambdaFunction) {
-			this._checkLambdaSecurity(node);
-		}
 		if (node instanceof LambdaFunction) {
 			this._checkLambdaSecurity(node);
 		}
