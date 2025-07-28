@@ -1,267 +1,122 @@
-import * as acm from 'aws-cdk-lib/aws-certificatemanager';
-import * as apigateway from 'aws-cdk-lib/aws-apigateway';
 import * as cdk from 'aws-cdk-lib';
-import * as cloudfront from 'aws-cdk-lib/aws-cloudfront';
-import * as lambda from 'aws-cdk-lib/aws-lambda';
-import * as nodejs from 'aws-cdk-lib/aws-lambda-nodejs';
-import * as origins from 'aws-cdk-lib/aws-cloudfront-origins';
-import * as route53 from 'aws-cdk-lib/aws-route53';
-import * as s3 from 'aws-cdk-lib/aws-s3';
-import * as s3deploy from 'aws-cdk-lib/aws-s3-deployment';
-import * as targets from 'aws-cdk-lib/aws-route53-targets';
 
-import { dirname, join } from 'node:path';
-import { readdirSync, statSync } from 'node:fs';
+import { MandatoryTagsAspect, SecurityAspect } from './aspects/compliance-aspects.js';
 
-import { fileURLToPath } from 'node:url';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
+import { Aspects } from 'aws-cdk-lib';
+import { DnsConstruct } from './constructs/dns-construct.js';
+import { WebsiteConstruct } from './constructs/website-construct.js';
 
 /**
- * Helper to generate Lambda function names from path segments.
+ * Jesse Hattabaugh Website Stack
+ *
+ * This stack follows CDK best practices:
+ * - Modular constructs for logical separation
+ * - Environment agnostic code with parameterization
+ * - Security by default
+ * - Mandatory tagging via Aspects
+ * - Explicit RemovalPolicies
+ * - Proper documentation
  */
-function generateLambdaName(pathSegments) {
-	return pathSegments.length === 0
-		? 'HomePage'
-		: pathSegments
-				.map((segment) => segment.charAt(0).toUpperCase() + segment.slice(1))
-				.join('') + 'Page';
-}
-
-/**
- * Synchronously discovers all page files in the /pages folder
- * Supports both file-based pages (e.g., about.js → /about) and
- * directory-based pages (e.g., hello/index.js → /hello)
- */
-function discoverPages(pagesDirectory) {
-	const pages = [];
-
-	function scanDirectory(directory, pathSegments = []) {
-		const entries = readdirSync(directory);
-
-		for (const entry of entries) {
-			const fullPath = join(directory, entry);
-			const stats = statSync(fullPath);
-
-			if (stats.isDirectory()) {
-				// Recursively scan subdirectories
-				scanDirectory(fullPath, [...pathSegments, entry]);
-			} else if (entry === 'index.js') {
-				// Directory-based page (e.g., hello/index.js → /hello)
-				const route = pathSegments.length === 0 ? '/' : `/${pathSegments.join('/')}`;
-				const lambdaName = generateLambdaName(pathSegments);
-
-				pages.push({
-					route,
-					lambdaName,
-					entryPath: fullPath,
-					pathSegments,
-				});
-			} else if (entry.endsWith('.js')) {
-				// File-based page (e.g., about.js → /about)
-				const pageName = entry.slice(0, -3); // Remove .js extension
-				const route =
-					pathSegments.length === 0
-						? `/${pageName}`
-						: `/${pathSegments.join('/')}/${pageName}`;
-				const allSegments =
-					pathSegments.length === 0 ? [pageName] : [...pathSegments, pageName];
-				const lambdaName = generateLambdaName(allSegments);
-
-				pages.push({
-					route,
-					lambdaName,
-					entryPath: fullPath,
-					pathSegments: allSegments,
-				});
-			}
-		}
-	}
-
-	scanDirectory(pagesDirectory);
-	return pages;
-}
-
 export class JesseHattabaughStack extends cdk.Stack {
 	constructor(scope, id, properties) {
 		super(scope, id, properties);
 
-		const { domain, environment } = properties;
+		const { domain, environment, certificateArn, skipCloudFront = false } = properties;
 		const isProduction = environment === 'production';
 
-		// S3 bucket for static assets
-		const staticBucket = new s3.Bucket(this, 'StaticAssets', {
-			bucketName: `${domain.replace('.', '-')}-static-assets`,
-			removalPolicy: cdk.RemovalPolicy.DESTROY,
-			autoDeleteObjects: true,
-			cors: [
-				{
-					allowedMethods: [s3.HttpMethods.GET],
-					allowedOrigins: ['*'],
-					allowedHeaders: ['*'],
-				},
-			],
+		// Apply mandatory tags via Aspects (cross-cutting concern)
+		const mandatoryTags = {
+			Environment: environment,
+			Project: 'JesseHattabaughWebsite',
+			Owner: 'jesse@jessehattabaugh.com',
+			CostCenter: 'Personal',
+			ManagedBy: 'CDK',
+			StackName: this.stackName,
+		};
+
+		Aspects.of(this).add(new MandatoryTagsAspect(mandatoryTags));
+		Aspects.of(this).add(new SecurityAspect());
+
+		// Website infrastructure construct (logical unit)
+		this.website = new WebsiteConstruct(this, 'Website', {
+			environment,
+			domain,
+			certificateArn: skipCloudFront ? undefined : certificateArn,
+			skipCloudFront,
 		});
 
-		// Deploy static assets to S3
-		new s3deploy.BucketDeployment(this, 'DeployStaticAssets', {
-			sources: [s3deploy.Source.asset(join(__dirname, '../static'))],
-			destinationBucket: staticBucket,
-		});
-
-		// API Gateway
-		const api = new apigateway.RestApi(this, 'WebsiteApi', {
-			restApiName: `Jesse Hattabaugh Website API (${environment})`,
-			description: `API Gateway for ${domain}`,
-			defaultCorsPreflightOptions: {
-				allowOrigins: apigateway.Cors.ALL_ORIGINS,
-				allowMethods: apigateway.Cors.ALL_METHODS,
-			},
-		});
-
-		// Discover all pages automatically
-		const pagesDirectory = join(__dirname, '../pages');
-		const pages = discoverPages(pagesDirectory);
-
-		console.log('Discovered pages:', pages);
-
-		// Create Lambda functions and API routes for each discovered page
-		const lambdaFunctions = new Map();
-
-		for (const page of pages) {
-			// Create Lambda function using the page handler
-			const lambdaFunction = new nodejs.NodejsFunction(this, `${page.lambdaName}Function`, {
-				entry: join(__dirname, './handlers.js'),
-				handler: 'pageHandler',
-				runtime: lambda.Runtime.NODEJS_22_X,
-				bundling: {
-					minify: isProduction,
-					sourceMap: !isProduction,
-					target: 'es2020',
-					format: nodejs.OutputFormat.ESM,
-					externalModules: [],
-				},
-				environment: {
-					NODE_ENV: environment,
-					ENVIRONMENT: environment,
-					PAGE_MODULE_PATH: page.entryPath,
-				},
+		// DNS management construct (logical unit)
+		if (!skipCloudFront) {
+			const rootDomain = isProduction ? domain : 'jessehattabaugh.com';
+			this.dns = new DnsConstruct(this, 'DNS', {
+				domain,
+				rootDomain,
+				isProduction,
+				distribution: this.website.distribution,
+				api: this.website.api,
 			});
-
-			lambdaFunctions.set(page.route, lambdaFunction);
-
-			// Create API Gateway integration
-			const integration = new apigateway.LambdaIntegration(lambdaFunction);
-
-			// Add routes to API Gateway
-			if (page.route === '/') {
-				// Root route
-				api.root.addMethod('GET', integration);
-				api.root.addMethod('POST', integration);
-				api.root.addMethod('PUT', integration);
-				api.root.addMethod('DELETE', integration);
-			} else {
-				// Create nested resources for the route
-				let currentResource = api.root;
-				const segments = page.pathSegments;
-
-				for (const segment of segments) {
-					let nextResource = currentResource.getResource(segment);
-					if (!nextResource) {
-						nextResource = currentResource.addResource(segment);
-					}
-					currentResource = nextResource;
-				}
-
-				// Add all HTTP methods to the resource
-				currentResource.addMethod('GET', integration);
-				currentResource.addMethod('POST', integration);
-				currentResource.addMethod('PUT', integration);
-				currentResource.addMethod('DELETE', integration);
-			}
 		}
 
-		// Certificate for CloudFront (must be in us-east-1)
-		const certificate = new acm.Certificate(this, 'Certificate', {
-			domainName: domain,
-			subjectAlternativeNames: [`www.${domain}`],
-			validation: acm.CertificateValidation.fromDns(),
-		});
+		// Stack outputs with proper descriptions
+		this._createOutputs(environment, skipCloudFront);
+	}
 
-		// CloudFront distribution
-		const distribution = new cloudfront.Distribution(this, 'Distribution', {
-			defaultBehavior: {
-				origin: new origins.RestApiOrigin(api),
-				viewerProtocolPolicy: cloudfront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
-				cachePolicy: isProduction
-					? cloudfront.CachePolicy.CACHING_OPTIMIZED
-					: cloudfront.CachePolicy.CACHING_DISABLED,
-				allowedMethods: cloudfront.AllowedMethods.ALLOW_ALL,
-			},
-			additionalBehaviors: {
-				'/static/*': {
-					origin: new origins.S3BucketOrigin(staticBucket),
-					viewerProtocolPolicy: cloudfront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
-					cachePolicy: cloudfront.CachePolicy.CACHING_OPTIMIZED,
-					allowedMethods: cloudfront.AllowedMethods.ALLOW_GET_HEAD,
-				},
-			},
-			domainNames: [domain, `www.${domain}`],
-			certificate,
-			comment: `CloudFront distribution for ${domain} (${environment})`,
-		});
-
-		// Route53 hosted zone lookup
-		// For staging, we assume the subdomain is managed in the same hosted zone as the main domain
-		const rootDomain = isProduction ? domain : 'jessehattabaugh.com';
-		const hostedZone = route53.HostedZone.fromLookup(this, 'HostedZone', {
-			domainName: rootDomain,
-		});
-
-		// Route53 records
-		const recordName = isProduction ? undefined : 'staging';
-		new route53.ARecord(this, 'AliasRecord', {
-			zone: hostedZone,
-			recordName,
-			target: route53.RecordTarget.fromAlias(new targets.CloudFrontTarget(distribution)),
-		});
-
-		new route53.ARecord(this, 'WwwAliasRecord', {
-			zone: hostedZone,
-			recordName: isProduction ? 'www' : 'www.staging',
-			target: route53.RecordTarget.fromAlias(new targets.CloudFrontTarget(distribution)),
-		});
-
-		// Outputs
+	/**
+	 * Create CloudFormation outputs
+	 * @private
+	 */
+	_createOutputs(environment, skipCloudFront) {
 		new cdk.CfnOutput(this, 'Environment', {
 			value: environment,
 			description: 'Deployment environment',
+			exportName: `${this.stackName}-Environment`,
 		});
 
 		new cdk.CfnOutput(this, 'DiscoveredPages', {
-			value: JSON.stringify(pages.map((p) => p.route)),
+			value: JSON.stringify(this.website.pages.map((page) => page.route)),
 			description: 'Automatically discovered page routes',
+			exportName: `${this.stackName}-Pages`,
 		});
 
 		new cdk.CfnOutput(this, 'ApiGatewayUrl', {
-			value: api.url,
+			value: this.website.api.url,
 			description: 'API Gateway URL',
+			exportName: `${this.stackName}-ApiUrl`,
 		});
 
-		new cdk.CfnOutput(this, 'CloudFrontUrl', {
-			value: `https://${distribution.distributionDomainName}`,
-			description: 'CloudFront distribution URL',
-		});
+		if (!skipCloudFront && this.website.distribution) {
+			new cdk.CfnOutput(this, 'CloudFrontUrl', {
+				value: `https://${this.website.distribution.distributionDomainName}`,
+				description: 'CloudFront distribution URL',
+				exportName: `${this.stackName}-CloudFrontUrl`,
+			});
 
-		new cdk.CfnOutput(this, 'WebsiteUrl', {
-			value: `https://${domain}`,
-			description: 'Website URL',
-		});
+			new cdk.CfnOutput(this, 'WebsiteUrl', {
+				value: `https://${
+					this.website.domain ||
+					this.website.api.restApiId + '.execute-api.' + this.region + '.amazonaws.com'
+				}`,
+				description: 'Website URL',
+				exportName: `${this.stackName}-WebsiteUrl`,
+			});
+		} else {
+			new cdk.CfnOutput(this, 'WebsiteUrl', {
+				value: this.website.api.url,
+				description: 'Website URL (API Gateway direct - no CloudFront)',
+				exportName: `${this.stackName}-WebsiteUrl`,
+			});
+		}
 
 		new cdk.CfnOutput(this, 'StaticBucketName', {
-			value: staticBucket.bucketName,
+			value: this.website.staticBucket.bucketName,
 			description: 'S3 bucket name for static assets',
+			exportName: `${this.stackName}-StaticBucket`,
+		});
+
+		new cdk.CfnOutput(this, 'SkipCloudFront', {
+			value: skipCloudFront.toString(),
+			description: 'Whether CloudFront was skipped for this deployment',
+			exportName: `${this.stackName}-SkipCloudFront`,
 		});
 	}
 }

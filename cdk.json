@@ -54,6 +54,14 @@
 		"@aws-cdk/aws-globalaccelerator:forwardedHeadersSupport": true,
 		"@aws-cdk/aws-rds:preventRenderingDeprecatedCredentials": true,
 		"@aws-cdk/aws-codebuild:privilegedModeVariant": true,
-		"@aws-cdk/aws-opensearchservice:enableVersionUpgrade": true
+		"@aws-cdk/aws-opensearchservice:enableVersionUpgrade": true,
+
+		"certificates": {
+			"production": "arn:aws:acm:us-east-1:347151913839:certificate/b862944c-6dc0-487f-95e1-2df10464a6f7",
+			"staging": "arn:aws:acm:us-east-1:347151913839:certificate/b261cc5e-bef6-42e5-9a14-a7c305804536"
+		},
+		"developmentMode": false,
+		"skipCloudFront": false,
+		"cloudFrontMinimumTtl": 0
 	}
 }
