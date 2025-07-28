@@ -1,43 +1,42 @@
 {
-	"name": "jessehattabaugh-com",
-	"version": "1.0.0",
-	"description": "Personal website of Jesse Hattabaugh",
-	"dependencies": {
-		"aws-cdk-lib": "^2.100.0",
-		"constructs": "^10.3.0"
-	},
 	"devDependencies": {
 		"@eslint/compat": "latest",
 		"@eslint/js": "latest",
-		"@playwright/test": "^1.54.1",
-		"@types/node": "^20.5.0",
-		"aws-cdk": "^2.100.0",
-		"eslint": "latest",
+		"@playwright/test": "latest",
+		"@types/node": "latest",
+		"aws-cdk": "latest",
+		"constructs": "latest",
+		"esbuild": "latest",
 		"eslint-config-prettier": "latest",
 		"eslint-plugin-compat": "latest",
 		"eslint-plugin-promise": "latest",
 		"eslint-plugin-sonarjs": "latest",
 		"eslint-plugin-unicorn": "latest",
-		"playwright": "^1.40.0",
-		"typescript": "^5.2.0"
+		"playwright": "latest"
+	},
+	"dependencies": {
+		"aws-cdk-lib": "latest",
+		"constructs": "latest"
 	},
 	"scripts": {
-		"build": "cdk synth",
+		"build": "cdk synth --context environment=production",
 		"build:staging": "cdk synth --context environment=staging",
-		"build:prod": "cdk synth --context environment=production",
 		"deploy": "cdk deploy --context environment=production",
+		"deploy:staging:dev": "cdk deploy --context environment=staging --context developmentMode=true --require-approval never",
+		"deploy:staging:fast": "cdk deploy --context environment=staging --context skipCloudFront=true --require-approval never",
+		"deploy:staging:hotswap": "cdk deploy --context environment=staging --hotswap --require-approval never",
 		"deploy:staging": "cdk deploy --context environment=staging",
-		"destroy": "cdk destroy",
+		"destroy": "cdk destroy --context environment=production",
 		"destroy:staging": "cdk destroy --context environment=staging",
-		"destroy:prod": "cdk destroy --context environment=production",
-		"diff": "cdk diff --context environment=staging",
-		"diff:prod": "cdk diff --context environment=production",
+		"diff": "cdk diff --context environment=production",
+		"diff:staging": "cdk diff --context environment=staging",
 		"lint": "eslint",
 		"lint:fix": "npm run lint -- --fix",
-		"test": "TEST_URL=https://staging.jessehattabaugh.com playwright test",
-		"test:prod": "TEST_URL=https://jessehattabaugh.com playwright test",
-		"test:unit": "node --test tests/unit/**/*.test.js",
-		"test:unit:watch": "node --test --watch tests/unit/**/*.test.js"
+		"test": "npm run test:unit && npm run test:e2e:staging",
+		"test:e2e:staging": "TEST_URL=https://staging.jessehattabaugh.com playwright test",
+		"test:e2e": "TEST_URL=https://jessehattabaugh.com playwright test",
+		"test:unit:watch": "node --test --watch tests/unit/**/*.test.js",
+		"test:unit": "node --test tests/unit/**/*.test.js"
 	},
 	"type": "module"
 }
