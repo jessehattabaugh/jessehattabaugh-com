@@ -26,13 +26,13 @@ describe('Shares construct functionality', () => {
 			api,
 		});
 		
-		assert(construct);
-		assert(construct.sharesTable);
-		assert(construct.sharesBucket);
-		assert(construct.submitShareFunction);
-		assert(construct.verifyEmailFunction);
-		assert(construct.approveShareFunction);
-		assert(construct.emailNotificationFunction);
+		assert.ok(construct);
+		assert.ok(construct.sharesTable);
+		assert.ok(construct.sharesBucket);
+		assert.ok(construct.submitShareFunction);
+		assert.ok(construct.verifyEmailFunction);
+		assert.ok(construct.approveShareFunction);
+		assert.ok(construct.emailNotificationFunction);
 	});
 
 	it('should handle production environment configuration', async () => {
@@ -47,7 +47,7 @@ describe('Shares construct functionality', () => {
 			api,
 		});
 		
-		assert(construct);
+		assert.ok(construct);
 		// Production should have different settings than development
 		assert.strictEqual(construct.sharesTable.removalPolicy, 'Retain');
 	});
@@ -64,7 +64,7 @@ describe('Shares construct functionality', () => {
 			api,
 		});
 		
-		assert(construct);
+		assert.ok(construct);
 		// Staging should have different settings than production
 		assert.strictEqual(construct.sharesTable.removalPolicy, 'Destroy');
 	});
@@ -76,12 +76,12 @@ describe('Shares construct functionality', () => {
 		const api = new apigateway.RestApi(stack, 'TestApi');
 		
 		// Should not throw when all required properties are provided
-		assert.doesNotThrow(() => {
-			new SharesConstruct(stack, 'TestShares', {
-				environment: 'test',
-				domain: 'test.example.com',
-				api,
-			});
+		const construct = new SharesConstruct(stack, 'TestShares', {
+			environment: 'test',
+			domain: 'test.example.com',
+			api,
 		});
+		
+		assert.ok(construct);
 	});
 });

@@ -169,11 +169,33 @@ export class SharesConstruct extends Construct {
 			},
 		});
 
+		// Lambda function for listing published shares
+		this.listSharesFunction = new nodejs.NodejsFunction(this, 'ListSharesFunction', {
+			entry: path.join(__dirname, '../lambda/list-shares.js'),
+			handler: 'handler',
+			runtime: lambda.Runtime.NODEJS_22_X,
+			timeout: cdk.Duration.seconds(30),
+			memorySize: 512,
+			bundling: {
+				minify: isProduction,
+				sourceMap: !isProduction,
+				target: 'es2022',
+				format: nodejs.OutputFormat.ESM,
+				externalModules: [],
+			},
+			environment: {
+				SHARES_TABLE_NAME: this.sharesTable.tableName,
+				DOMAIN: domain,
+				ENVIRONMENT: environment,
+			},
+		});
+
 		// Grant permissions following least privilege principle
 		this.sharesTable.grantReadWriteData(this.submitShareFunction);
 		this.sharesTable.grantReadWriteData(this.verifyEmailFunction);
 		this.sharesTable.grantReadWriteData(this.approveShareFunction);
 		this.sharesTable.grantReadData(this.emailNotificationFunction);
+		this.sharesTable.grantReadData(this.listSharesFunction);
 
 		this.sharesBucket.grantReadWrite(this.submitShareFunction);
 
@@ -205,6 +227,10 @@ export class SharesConstruct extends Construct {
 		// POST /share - Submit new share
 		const shareResource = api.root.addResource('share');
 		shareResource.addMethod('POST', new apigateway.LambdaIntegration(this.submitShareFunction));
+
+		// GET /shares - List published shares (API endpoint)
+		const sharesResource = api.root.addResource('shares');
+		sharesResource.addMethod('GET', new apigateway.LambdaIntegration(this.listSharesFunction));
 
 		// GET /verify-email - Email verification callback
 		const verifyEmailResource = api.root.addResource('verify-email');

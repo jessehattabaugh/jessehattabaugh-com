@@ -20,32 +20,32 @@ describe('Share page functionality', () => {
 		const result = await shareModule.get();
 		
 		assert.strictEqual(typeof result, 'string');
-		assert(result.includes('<!DOCTYPE html>'));
-		assert(result.includes('Share Something'));
-		assert(result.includes('shareForm'));
-		assert(result.includes('type="email"'));
-		assert(result.includes('type="text"'));
-		assert(result.includes('textarea'));
-		assert(result.includes('type="file"'));
+		assert.ok(result.includes('<!DOCTYPE html>'));
+		assert.ok(result.includes('Share Something'));
+		assert.ok(result.includes('shareForm'));
+		assert.ok(result.includes('type="email"'));
+		assert.ok(result.includes('type="text"'));
+		assert.ok(result.includes('textarea'));
+		assert.ok(result.includes('type="file"'));
 	});
 
 	it('should include form validation in HTML', async () => {
 		const shareModule = await import('../../../pages/share.js');
 		const result = await shareModule.get();
 		
-		assert(result.includes('required'));
-		assert(result.includes('placeholder'));
-		assert(result.includes('accept="image/*"'));
+		assert.ok(result.includes('required'));
+		assert.ok(result.includes('placeholder'));
+		assert.ok(result.includes('accept="image/*"'));
 	});
 
 	it('should include JavaScript for form submission', async () => {
 		const shareModule = await import('../../../pages/share.js');
 		const result = await shareModule.get();
 		
-		assert(result.includes('<script>'));
-		assert(result.includes('addEventListener'));
-		assert(result.includes('fetch'));
-		assert(result.includes('FormData'));
+		assert.ok(result.includes('<script>'));
+		assert.ok(result.includes('addEventListener'));
+		assert.ok(result.includes('fetch'));
+		assert.ok(result.includes('FormData'));
 	});
 
 	it('should handle POST requests with redirect', async () => {
@@ -54,16 +54,16 @@ describe('Share page functionality', () => {
 		
 		assert.strictEqual(typeof result, 'object');
 		assert.strictEqual(result.statusCode, 302);
-		assert(result.headers.Location.includes('/share'));
+		assert.ok(result.headers.Location.includes('/share'));
 	});
 
 	it('should include CSS styling', async () => {
 		const shareModule = await import('../../../pages/share.js');
 		const result = await shareModule.get();
 		
-		assert(result.includes('<style>'));
-		assert(result.includes('.share-form'));
-		assert(result.includes('.form-group'));
-		assert(result.includes('.submit-button'));
+		assert.ok(result.includes('<style>'));
+		assert.ok(result.includes('.share-form'));
+		assert.ok(result.includes('.form-group'));
+		assert.ok(result.includes('.submit-button'));
 	});
 });
