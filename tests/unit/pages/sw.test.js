@@ -1,18 +1,22 @@
 import { test } from 'node:test';
 import assert from 'node:assert';
-import { readFileSync } from 'node:fs';
-import path from 'node:path';
+import { get } from '../../../pages/sw.js';
 
-test('Service Worker File', async (t) => {
-	const swPath = path.join(process.cwd(), 'static', 'sw.js');
-	
-	await t.test('should exist and be readable', async () => {
-		const swContent = readFileSync(swPath, 'utf8');
+test('Service Worker Page Handler', async (t) => {
+	await t.test('should return valid JavaScript content', async () => {
+		const result = await get();
+		
+		assert.strictEqual(result.statusCode, 200);
+		assert.strictEqual(result.headers['Content-Type'], 'application/javascript');
+		assert.strictEqual(result.headers['Cache-Control'], 'public, max-age=3600');
+		
+		const swContent = result.body;
 		assert.ok(swContent.length > 0);
 	});
 	
 	await t.test('should contain required PWA cache functionality', async () => {
-		const swContent = readFileSync(swPath, 'utf8');
+		const result = await get();
+		const swContent = result.body;
 		
 		// Check for required constants and events
 		assert.ok(swContent.includes('CACHE_NAME'));
@@ -23,7 +27,8 @@ test('Service Worker File', async (t) => {
 	});
 	
 	await t.test('should cache critical resources', async () => {
-		const swContent = readFileSync(swPath, 'utf8');
+		const result = await get();
+		const swContent = result.body;
 		
 		// Check that important pages and assets are cached
 		assert.ok(swContent.includes("'/'"));

@@ -6,7 +6,7 @@ test('PWA Meta Tags in HTML', async (t) => {
 	await t.test('should include manifest link in HTML output', async () => {
 		const htmlOutput = html`<div>Test content</div>`;
 		
-		assert.ok(htmlOutput.includes('<link rel="manifest" href="/manifest">'));
+		assert.ok(htmlOutput.includes('<link rel="manifest" href="/static/manifest.json">'));
 		assert.ok(htmlOutput.includes('<meta name="theme-color" content="#2563eb">'));
 	});
 	
@@ -22,7 +22,7 @@ test('PWA Meta Tags in HTML', async (t) => {
 	await t.test('should include service worker registration script', async () => {
 		const htmlOutput = html`<div>Test content</div>`;
 		
-		assert.ok(htmlOutput.includes("navigator.serviceWorker.register('/static/sw.js')"));
+		assert.ok(htmlOutput.includes("navigator.serviceWorker.register('/sw')"));
 		assert.ok(htmlOutput.includes("'serviceWorker' in navigator"));
 	});
 	

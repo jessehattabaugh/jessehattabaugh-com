@@ -1,4 +1,11 @@
 /**
+ * Service Worker page handler
+ * Serves the PWA service worker from the root path
+ * @param {Object} event - Lambda event object
+ * @returns {Object} Response object with service worker JavaScript
+ */
+export async function get() {
+	const serviceWorkerContent = `/**
  * Service Worker for PWA functionality
  * Provides basic caching for offline capability
  */
@@ -102,4 +109,14 @@ globalThis.addEventListener('fetch', (event) => {
 					});
 			})
 	);
-});
+});`;
+
+	return {
+		statusCode: 200,
+		headers: {
+			'Content-Type': 'application/javascript',
+			'Cache-Control': 'public, max-age=3600'
+		},
+		body: serviceWorkerContent
+	};
+}
