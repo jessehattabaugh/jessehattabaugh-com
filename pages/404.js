@@ -1,4 +1,4 @@
-import { html } from '../lib/html.js';
+import { html, navigation, raw } from '../lib/html.js';
 
 /**
  * 404 page handler
@@ -18,11 +18,7 @@ export async function get() {
 			<section>
 				<h2>What would you like to do?</h2>
 				<p>You can return to the home page or visit one of the available sections:</p>
-				<ul>
-					<li><a href="/">Home</a></li>
-					<li><a href="/about">About</a></li>
-					<li><a href="/contact">Contact</a></li>
-				</ul>
+				${raw(navigation())}
 			</section>
 		</article>`,
 	};
