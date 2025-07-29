@@ -5,7 +5,7 @@ import { html } from '../lib/html.js';
  * @param {Object} event - Lambda event object
  * @returns {string} Complete HTML page
  */
-export async function get(event) {
+export async function get() {
 	return html`<div class="hero">
 		<h2>Welcome to my personal website!</h2>
 		<p>I'm a software developer passionate about creating amazing web experiences.</p>
