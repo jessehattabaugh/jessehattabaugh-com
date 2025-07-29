@@ -6,69 +6,69 @@ import { html } from '../../lib/html.js';
  * @returns {string} Complete HTML page
  */
 export async function get() {
-	return html`<div class="contact-page">
-		<h2>Get In Touch</h2>
-		<p>I'd love to hear from you! Whether you have a project idea, want to collaborate, or just want to say hello, feel free to reach out.</p>
+	return html`<article>
+		<header>
+			<h2>Get In Touch</h2>
+			<p>I'd love to hear from you! Whether you have a project idea, want to collaborate, or just want to say hello, feel free to reach out.</p>
+		</header>
 
-		<div class="contact-content">
-			<div class="contact-form-section">
-				<h3>Send me a message</h3>
-				<form method="post" action="/contact" class="contact-form">
-					<div class="form-group">
-						<label for="name">Name:</label>
-						<input type="text" id="name" name="name" required />
-					</div>
+		<section>
+			<h3>Send me a message</h3>
+			<form method="post" action="/contact">
+				<fieldset>
+					<label for="name">Name:</label>
+					<input type="text" id="name" name="name" required />
+				</fieldset>
 
-					<div class="form-group">
-						<label for="email">Email:</label>
-						<input type="email" id="email" name="email" required />
-					</div>
+				<fieldset>
+					<label for="email">Email:</label>
+					<input type="email" id="email" name="email" required />
+				</fieldset>
 
-					<div class="form-group">
-						<label for="message">Message:</label>
-						<textarea
-							id="message"
-							name="message"
-							rows="5"
-							required
-							placeholder="Tell me about your project or just say hello!"
-						></textarea>
-					</div>
+				<fieldset>
+					<label for="message">Message:</label>
+					<textarea
+						id="message"
+						name="message"
+						rows="5"
+						required
+						placeholder="Tell me about your project or just say hello!"
+					></textarea>
+				</fieldset>
 
-					<button type="submit" class="submit-btn">Send Message</button>
-				</form>
-			</div>
+				<button type="submit">Send Message</button>
+			</form>
+		</section>
 
-			<div class="contact-info">
-				<h3>Other Ways to Connect</h3>
-				<div class="contact-methods">
-					<div class="contact-method">
+		<aside>
+			<h3>Other Ways to Connect</h3>
+			<address class="h-card">
+				<ul>
+					<li>
 						<h4>📧 Email</h4>
-						<p><a href="mailto:jesse@jessehattabaugh.com">jesse@jessehattabaugh.com</a></p>
-					</div>
+						<a href="mailto:jesse@jessehattabaugh.com" class="u-email">jesse@jessehattabaugh.com</a>
+					</li>
 					
-					<div class="contact-method">
+					<li>
 						<h4>💼 Professional</h4>
-						<p><a href="https://linkedin.com/in/jessehattabaugh" target="_blank" rel="noopener">LinkedIn</a></p>
-					</div>
+						<a href="https://linkedin.com/in/jessehattabaugh" target="_blank" rel="noopener" class="u-url">LinkedIn</a>
+					</li>
 					
-					<div class="contact-method">
+					<li>
 						<h4>💻 Code</h4>
-						<p><a href="https://github.com/jessehattabaugh" target="_blank" rel="noopener">GitHub</a></p>
-					</div>
+						<a href="https://github.com/jessehattabaugh" target="_blank" rel="noopener" class="u-url">GitHub</a>
+					</li>
 					
-					<div class="contact-method">
+					<li>
 						<h4>🐦 Social</h4>
-						<p><a href="https://twitter.com/jessehattabaugh" target="_blank" rel="noopener">Twitter</a></p>
-					</div>
-				</div>
+						<a href="https://twitter.com/jessehattabaugh" target="_blank" rel="noopener" class="u-url">Twitter</a>
+					</li>
+				</ul>
 				
-				<div class="response-time">
-					<p><strong>Response Time:</strong> I typically respond to messages within 24-48 hours during business days.</p>
-				</div>
-			</div>
-		</div>
-	</div>`;
+				<p><strong>Response Time:</strong> I typically respond to messages within 24-48 hours during business days.</p>
+			</address>
+		</aside>
+	</article>`;
 }
 
 /**
@@ -107,11 +107,11 @@ export async function post(event) {
 				'Content-Type': 'text/html',
 				'X-Form-Error': 'Missing required fields',
 			},
-			body: html`<div class="contact-error">
+			body: html`<article>
 				<h2>Please Fill All Fields</h2>
 				<p>All fields are required to send a message.</p>
-				<a href="/contact" class="secondary-btn">Try Again</a>
-			</div>`,
+				<a href="/contact">Try Again</a>
+			</article>`,
 		};
 	}
 
@@ -123,26 +123,29 @@ export async function post(event) {
 			'X-Message-Status': 'sent',
 			'Cache-Control': 'no-cache',
 		},
-		body: html`<div class="contact-success">
+		body: html`<article>
 			<h2>Message Sent!</h2>
 			<p>
 				Thank you for reaching out, ${name}! I've received your message and will get back to
 				you soon.
 			</p>
 
-			<div class="message-summary">
+			<section>
 				<h3>Your Message:</h3>
-				<div class="submitted-data">
-					<p><strong>Name:</strong> ${name}</p>
-					<p><strong>Email:</strong> ${email}</p>
-					<p><strong>Message:</strong><br />${message}</p>
-				</div>
-			</div>
+				<dl>
+					<dt>Name:</dt>
+					<dd>${name}</dd>
+					<dt>Email:</dt>
+					<dd>${email}</dd>
+					<dt>Message:</dt>
+					<dd>${message}</dd>
+				</dl>
+			</section>
 
-			<div class="next-steps">
-				<a href="/contact" class="secondary-btn">Send Another Message</a>
-				<a href="/" class="primary-btn">Return to Home</a>
-			</div>
-		</div>`,
+			<nav>
+				<a href="/contact">Send Another Message</a>
+				<a href="/">Return to Home</a>
+			</nav>
+		</article>`,
 	};
 }

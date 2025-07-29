@@ -77,37 +77,40 @@ p {
 }
 
 /* Contact page specific styles */
-.contact-page {
+main article {
     max-width: 1000px;
-}
-
-.contact-content {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 3rem;
     margin-top: 2rem;
 }
 
-.contact-form {
+main article header {
+    grid-column: 1 / -1;
+}
+
+main article section form {
     background-color: #f8f9fa;
     padding: 2rem;
     border-radius: 8px;
     box-shadow: 0 2px 10px rgba(0,0,0,0.1);
 }
 
-.form-group {
-    margin-bottom: 1.5rem;
+main article section fieldset {
+    border: none;
+    padding: 0;
+    margin: 0 0 1.5rem 0;
 }
 
-.form-group label {
+main article section fieldset label {
     display: block;
     font-weight: 600;
     margin-bottom: 0.5rem;
     color: #2c3e50;
 }
 
-.form-group input,
-.form-group textarea {
+main article section fieldset input,
+main article section fieldset textarea {
     width: 100%;
     padding: 0.75rem;
     border: 2px solid #e1e8ed;
@@ -117,13 +120,13 @@ p {
     transition: border-color 0.3s ease;
 }
 
-.form-group input:focus,
-.form-group textarea:focus {
+main article section fieldset input:focus,
+main article section fieldset textarea:focus {
     outline: none;
     border-color: #3498db;
 }
 
-.submit-btn {
+main article section form button[type="submit"] {
     background-color: #3498db;
     color: white;
     padding: 0.75rem 2rem;
@@ -135,19 +138,21 @@ p {
     transition: background-color 0.3s ease;
 }
 
-.submit-btn:hover {
+main article section form button[type="submit"]:hover {
     background-color: #2980b9;
 }
 
-.contact-info {
+main article aside {
     padding: 1rem;
 }
 
-.contact-methods {
+main article aside address ul {
+    list-style: none;
+    padding: 0;
     margin-bottom: 2rem;
 }
 
-.contact-method {
+main article aside address ul li {
     margin-bottom: 1.5rem;
     padding: 1rem;
     background-color: #f8f9fa;
@@ -155,105 +160,73 @@ p {
     border-left: 4px solid #3498db;
 }
 
-.contact-method h4 {
+main article aside address ul li h4 {
     margin-bottom: 0.5rem;
     color: #2c3e50;
 }
 
-.contact-method p {
-    margin: 0;
-}
-
-.contact-method a {
+main article aside address ul li a {
     color: #3498db;
     text-decoration: none;
     font-weight: 500;
     transition: color 0.3s ease;
 }
 
-.contact-method a:hover {
+main article aside address ul li a:hover {
     color: #2980b9;
     text-decoration: underline;
 }
 
-.response-time {
+main article aside address > p {
     background-color: #e8f5e8;
     padding: 1rem;
     border-radius: 6px;
     border-left: 4px solid #27ae60;
-}
-
-.response-time p {
     margin: 0;
     color: #2c3e50;
     font-size: 0.95rem;
 }
 
-/* Success and error messages */
-.contact-success,
-.contact-error {
+/* Success and error pages */
+main article dl {
     max-width: 600px;
     margin: 2rem auto;
     padding: 2rem;
     border-radius: 8px;
-    text-align: center;
-}
-
-.contact-success {
-    background-color: #d4edda;
-    border: 1px solid #c3e6cb;
-    color: #155724;
-}
-
-.contact-error {
-    background-color: #f8d7da;
-    border: 1px solid #f5c6cb;
-    color: #721c24;
-}
-
-.message-summary {
     background-color: #f8f9fa;
-    padding: 1.5rem;
-    border-radius: 6px;
-    margin: 1.5rem 0;
-    text-align: left;
 }
 
-.submitted-data p {
-    margin-bottom: 0.5rem;
+main article dl dt {
+    font-weight: 600;
+    margin-top: 1rem;
+    color: #2c3e50;
 }
 
-.next-steps {
+main article dl dd {
+    margin: 0.5rem 0 0 0;
+    padding: 0.5rem;
+    background-color: white;
+    border-radius: 4px;
+}
+
+main article nav {
+    text-align: center;
     margin-top: 2rem;
 }
 
-.primary-btn,
-.secondary-btn {
+main article nav a {
     display: inline-block;
+    margin: 0 1rem;
     padding: 0.75rem 1.5rem;
-    margin: 0.5rem;
-    border-radius: 4px;
-    text-decoration: none;
-    font-weight: 600;
-    transition: all 0.3s ease;
-}
-
-.primary-btn {
     background-color: #3498db;
     color: white;
+    text-decoration: none;
+    border-radius: 4px;
+    transition: background-color 0.3s ease;
 }
 
-.primary-btn:hover {
+main article nav a:hover {
     background-color: #2980b9;
-}
-
-.secondary-btn {
-    background-color: #6c757d;
-    color: white;
-}
-
-.secondary-btn:hover {
-    background-color: #5a6268;
 }
 
 /* Responsive design */
@@ -278,12 +251,12 @@ p {
         font-size: 1.75rem;
     }
 
-    .contact-content {
+    main article {
         grid-template-columns: 1fr;
         gap: 2rem;
     }
 
-    .contact-form {
+    main article section form {
         padding: 1.5rem;
     }
 }
