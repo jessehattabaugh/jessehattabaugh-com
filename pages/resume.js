@@ -7,7 +7,7 @@ import { html } from '../lib/html.js';
  */
 export async function get() {
 	return html`<div class="h-resume">
-		<header class="resume-header">
+		<header>
 			<h2 class="p-name">Jesse Hattabaugh</h2>
 			<div class="p-contact h-card">
 				<p class="p-title">Software Developer</p>
@@ -16,7 +16,7 @@ export async function get() {
 			</div>
 		</header>
 
-		<section class="resume-summary">
+		<section>
 			<h3>Professional Summary</h3>
 			<p class="p-summary">
 				Passionate software developer with extensive experience in building modern web applications
@@ -25,17 +25,17 @@ export async function get() {
 			</p>
 		</section>
 
-		<section class="resume-experience">
+		<section>
 			<h3>Professional Experience</h3>
 			
 			<div class="p-experience h-event">
 				<h4 class="p-name">Senior Software Developer</h4>
-				<div class="experience-details">
+				<div>
 					<span class="p-org">Tech Solutions Inc.</span>
 					<time class="dt-start" datetime="2021-01">January 2021</time> - 
 					<time class="dt-end" datetime="2024-12">Present</time>
 				</div>
-				<ul class="experience-duties">
+				<ul>
 					<li>Lead development of scalable web applications using modern JavaScript frameworks</li>
 					<li>Design and implement serverless architectures on AWS using Lambda and API Gateway</li>
 					<li>Mentor junior developers and conduct code reviews</li>
@@ -45,12 +45,12 @@ export async function get() {
 
 			<div class="p-experience h-event">
 				<h4 class="p-name">Full Stack Developer</h4>
-				<div class="experience-details">
+				<div>
 					<span class="p-org">Digital Innovations LLC</span>
 					<time class="dt-start" datetime="2019-03">March 2019</time> - 
 					<time class="dt-end" datetime="2020-12">December 2020</time>
 				</div>
-				<ul class="experience-duties">
+				<ul>
 					<li>Developed responsive web applications using React, Vue.js, and Node.js</li>
 					<li>Implemented CI/CD pipelines and infrastructure as code</li>
 					<li>Optimized application performance and database queries</li>
@@ -60,12 +60,12 @@ export async function get() {
 
 			<div class="p-experience h-event">
 				<h4 class="p-name">Web Developer</h4>
-				<div class="experience-details">
+				<div>
 					<span class="p-org">Creative Web Studio</span>
 					<time class="dt-start" datetime="2017-06">June 2017</time> - 
 					<time class="dt-end" datetime="2019-02">February 2019</time>
 				</div>
-				<ul class="experience-duties">
+				<ul>
 					<li>Created custom websites and web applications for clients</li>
 					<li>Maintained and updated existing web properties</li>
 					<li>Collaborated with designers to implement pixel-perfect interfaces</li>
@@ -74,27 +74,27 @@ export async function get() {
 			</div>
 		</section>
 
-		<section class="resume-education">
+		<section>
 			<h3>Education</h3>
 			
 			<div class="p-education h-event">
 				<h4 class="p-name">Bachelor of Science in Computer Science</h4>
-				<div class="education-details">
+				<div>
 					<span class="p-org">State University</span>
 					<time class="dt-start" datetime="2013-09">2013</time> - 
 					<time class="dt-end" datetime="2017-05">2017</time>
 				</div>
-				<p class="education-description">
+				<p>
 					Focused on software engineering, algorithms, and web technologies.
 					Graduated Magna Cum Laude with a 3.7 GPA.
 				</p>
 			</div>
 		</section>
 
-		<section class="resume-skills">
+		<section>
 			<h3>Technical Skills</h3>
 			
-			<div class="skills-category">
+			<div>
 				<h4>Frontend Development</h4>
 				<ul class="skills-list">
 					<li class="p-skill">JavaScript/TypeScript</li>
@@ -106,7 +106,7 @@ export async function get() {
 				</ul>
 			</div>
 
-			<div class="skills-category">
+			<div>
 				<h4>Backend Development</h4>
 				<ul class="skills-list">
 					<li class="p-skill">Node.js</li>
@@ -118,7 +118,7 @@ export async function get() {
 				</ul>
 			</div>
 
-			<div class="skills-category">
+			<div>
 				<h4>Cloud & DevOps</h4>
 				<ul class="skills-list">
 					<li class="p-skill">AWS (Lambda, CloudFormation, CDK)</li>
@@ -131,32 +131,32 @@ export async function get() {
 			</div>
 		</section>
 
-		<section class="resume-projects">
+		<section>
 			<h3>Notable Projects</h3>
 			
-			<div class="project">
+			<article>
 				<h4>Personal Website & Portfolio</h4>
 				<p>
 					Built a serverless website using AWS CDK, Lambda functions, and modern web technologies.
 					Features responsive design, automated deployments, and comprehensive testing.
 				</p>
-			</div>
+			</article>
 
-			<div class="project">
+			<article>
 				<h4>E-commerce Platform</h4>
 				<p>
 					Developed a full-stack e-commerce solution with React frontend, Node.js backend,
 					and integrated payment processing. Handled high traffic with optimized performance.
 				</p>
-			</div>
+			</article>
 
-			<div class="project">
+			<article>
 				<h4>Task Management Application</h4>
 				<p>
 					Created a collaborative task management tool with real-time updates, user authentication,
 					and mobile-responsive design using Vue.js and Firebase.
 				</p>
-			</div>
+			</article>
 		</section>
 	</div>`;
 }
