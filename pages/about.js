@@ -13,8 +13,8 @@ export async function get() {
 			<h2>Built by Jesse Hattabaugh</h2>
 			<p>
 				This website was designed and built by Jesse Hattabaugh, a passionate software developer with years of experience
-				creating modern web applications. The site showcases expertise ranging from 
-				frontend technologies like React and Vue to backend systems and cloud infrastructure.
+				creating modern web applications. The site showcases expertise in web standards, serverless architecture, and cloud infrastructure.
+				For full details of Jesse's experience and capabilities, check out his <a href="/resume">resume</a>.
 			</p>
 		</section>
 
@@ -28,17 +28,18 @@ export async function get() {
 			<div class="skill-category">
 				<h4>Frontend</h4>
 				<ul>
-					<li>Custom HTML templating system with JavaScript ES modules</li>
+					<li>Tagged template literal strings for HTML templating</li>
 					<li>Responsive CSS design with mobile-first approach</li>
-					<li>JavaScript/TypeScript for interactive features</li>
+					<li>JavaScript with TypeScript via JSDoc comment blocks</li>
 					<li>Semantic HTML5 markup for accessibility</li>
+					<li>ES modules throughout</li>
 				</ul>
 			</div>
 
 			<div class="skill-category">
 				<h4>Backend</h4>
 				<ul>
-					<li>Node.js, Python serverless functions</li>
+					<li>Node.js serverless functions</li>
 					<li>AWS Lambda for compute</li>
 					<li>API Gateway for request routing</li>
 					<li>Custom HTTP method handlers</li>
@@ -48,10 +49,12 @@ export async function get() {
 			<div class="skill-category">
 				<h4>Cloud & DevOps</h4>
 				<ul>
-					<li>AWS, Azure cloud deployment</li>
+					<li>AWS cloud deployment</li>
 					<li>AWS CDK for infrastructure as code</li>
 					<li>CloudFront CDN for global performance</li>
 					<li>S3 for static asset hosting</li>
+					<li>Route53 for DNS management</li>
+					<li>Amazon Certificate Manager for SSL certificates</li>
 					<li>Automated testing with Playwright and Node.js test runner</li>
 				</ul>
 			</div>
