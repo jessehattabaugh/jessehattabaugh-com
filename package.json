@@ -1,14 +1,15 @@
 {
 	"devDependencies": {
-		"@aws-sdk/client-sts": "^3.855.0",
-		"@aws-sdk/credential-provider-ini": "^3.855.0",
+		"@aws-sdk/client-sts": "latest",
+		"@aws-sdk/credential-provider-ini": "latest",
+		"@aws-sdk/credential-providers": "^3.855.0",
 		"@eslint/compat": "latest",
 		"@eslint/js": "latest",
 		"@playwright/test": "latest",
 		"@types/node": "latest",
 		"aws-cdk": "latest",
 		"constructs": "latest",
-		"dotenv": "^17.2.1",
+		"dotenv": "latest",
 		"esbuild": "latest",
 		"eslint-config-prettier": "latest",
 		"eslint-plugin-compat": "latest",
