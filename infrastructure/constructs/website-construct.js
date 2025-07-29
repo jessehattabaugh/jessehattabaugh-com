@@ -8,14 +8,14 @@ import * as origins from 'aws-cdk-lib/aws-cloudfront-origins';
 import * as s3 from 'aws-cdk-lib/aws-s3';
 import * as s3deploy from 'aws-cdk-lib/aws-s3-deployment';
 
-import { dirname, join } from 'node:path';
 import { readdirSync, statSync } from 'node:fs';
 
 import { Construct } from 'constructs';
 import { fileURLToPath } from 'node:url';
+import path from 'node:path';
 
 const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
+const __dirname = path.dirname(__filename);
 
 /**
  * Properties for the Website construct
@@ -45,6 +45,8 @@ export class WebsiteConstruct extends Construct {
 			publicReadAccess: false, // Security by default
 			blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL, // Security by default
 			encryption: s3.BucketEncryption.S3_MANAGED, // Security by default
+			// eslint-disable-next-line sonarjs/aws-s3-bucket-versioning
+			versioned: false, // Static assets don't need versioning for this use case
 			cors: [
 				{
 					allowedMethods: [s3.HttpMethods.GET],
@@ -59,7 +61,7 @@ export class WebsiteConstruct extends Construct {
 
 		// Deploy static assets to S3 with reproducible bundling
 		new s3deploy.BucketDeployment(this, 'DeployStaticAssets', {
-			sources: [s3deploy.Source.asset(join(__dirname, '../../static'))],
+			sources: [s3deploy.Source.asset(path.join(__dirname, '../../static'))],
 			destinationBucket: this.staticBucket,
 			memoryLimit: 512,
 			timeout: cdk.Duration.minutes(15),
@@ -84,13 +86,13 @@ export class WebsiteConstruct extends Construct {
 		});
 
 		// Discover and create Lambda functions for pages
-		this.pages = this._discoverPages(join(__dirname, '../../pages'));
+		this.pages = this._discoverPages(path.join(__dirname, '../../pages'));
 		this.lambdaFunctions = new Map();
 
 		for (const page of this.pages) {
 			// Create Lambda function with security defaults
 			const lambdaFunction = new nodejs.NodejsFunction(this, `${page.lambdaName}Function`, {
-				entry: join(__dirname, '../handlers.js'),
+				entry: path.join(__dirname, '../handlers.js'),
 				handler: 'pageHandler',
 				runtime: lambda.Runtime.NODEJS_22_X,
 				timeout: cdk.Duration.seconds(30),
@@ -103,10 +105,10 @@ export class WebsiteConstruct extends Construct {
 					externalModules: [],
 					forceDockerBundling: false,
 					commandHooks: {
-						beforeBundling(inputDir, outputDir) {
+						beforeBundling(inputDirectory, outputDirectory) {
 							return [
-								`cp -r ${inputDir}/pages ${outputDir}/`,
-								`cp -r ${inputDir}/lib ${outputDir}/`,
+								`cp -r ${inputDirectory}/pages ${outputDirectory}/`,
+								`cp -r ${inputDirectory}/lib ${outputDirectory}/`,
 							];
 						},
 						beforeInstall: () => [],
@@ -117,6 +119,7 @@ export class WebsiteConstruct extends Construct {
 					NODE_ENV: environment,
 					ENVIRONMENT: environment,
 					PAGE_ROUTE: page.route,
+					PAGE_MODULE_PATH: page.modulePath,
 				},
 				// Security: Least privilege IAM
 				initialPolicy: [],
@@ -207,55 +210,85 @@ export class WebsiteConstruct extends Construct {
 	}
 
 	/**
+	 * Creates page object for directory-based routes (index.js files)
+	 * @private
+	 */
+	_createDirectoryPage(pathSegments, fullPath) {
+		const route = pathSegments.length === 0 ? '/' : `/${pathSegments.join('/')}`;
+		const lambdaName = _generateLambdaName(pathSegments);
+		const modulePath =
+			pathSegments.length === 0
+				? './pages/index.js'
+				: `./pages/${pathSegments.join('/')}/index.js`;
+
+		return {
+			route,
+			lambdaName,
+			entryPath: fullPath,
+			pathSegments,
+			modulePath,
+		};
+	}
+
+	/**
+	 * Creates page object for file-based routes (.js files)
+	 * @private
+	 */
+	_createFilePage(entry, pathSegments, fullPath) {
+		const pageName = entry.slice(0, -3); // Remove .js extension
+		const route =
+			pathSegments.length === 0 ? `/${pageName}` : `/${pathSegments.join('/')}/${pageName}`;
+		const allSegments = pathSegments.length === 0 ? [pageName] : [...pathSegments, pageName];
+		const lambdaName = _generateLambdaName(allSegments);
+		const modulePath =
+			pathSegments.length === 0
+				? `./pages/${pageName}.js`
+				: `./pages/${pathSegments.join('/')}/${pageName}.js`;
+
+		return {
+			route,
+			lambdaName,
+			entryPath: fullPath,
+			pathSegments: allSegments,
+			modulePath,
+		};
+	}
+
+	/**
+	 * Recursively scans directory for page files
+	 * @private
+	 */
+	_scanDirectory(directory, pathSegments, pages) {
+		const entries = readdirSync(directory);
+
+		// Move iteration down - batch process all entries
+		for (const entry of entries) {
+			const fullPath = path.join(directory, entry);
+			const stats = statSync(fullPath);
+
+			if (stats.isDirectory()) {
+				this._scanDirectory(fullPath, [...pathSegments, entry], pages);
+				continue;
+			}
+
+			if (entry === 'index.js') {
+				pages.push(this._createDirectoryPage(pathSegments, fullPath));
+				continue;
+			}
+
+			if (entry.endsWith('.js')) {
+				pages.push(this._createFilePage(entry, pathSegments, fullPath));
+			}
+		}
+	}
+
+	/**
 	 * Discovers all page files in the /pages folder
 	 * @private
 	 */
 	_discoverPages(pagesDirectory) {
 		const pages = [];
-
-		function scanDirectory(directory, pathSegments = []) {
-			const entries = readdirSync(directory);
-
-			for (const entry of entries) {
-				const fullPath = join(directory, entry);
-				const stats = statSync(fullPath);
-
-				if (stats.isDirectory()) {
-					// Recursively scan subdirectories
-					scanDirectory(fullPath, [...pathSegments, entry]);
-				} else if (entry === 'index.js') {
-					// Directory-based page (e.g., hello/index.js → /hello)
-					const route = pathSegments.length === 0 ? '/' : `/${pathSegments.join('/')}`;
-					const lambdaName = _generateLambdaName(pathSegments);
-
-					pages.push({
-						route,
-						lambdaName,
-						entryPath: fullPath,
-						pathSegments,
-					});
-				} else if (entry.endsWith('.js')) {
-					// File-based page (e.g., about.js → /about)
-					const pageName = entry.slice(0, -3); // Remove .js extension
-					const route =
-						pathSegments.length === 0
-							? `/${pageName}`
-							: `/${pathSegments.join('/')}/${pageName}`;
-					const allSegments =
-						pathSegments.length === 0 ? [pageName] : [...pathSegments, pageName];
-					const lambdaName = _generateLambdaName(allSegments);
-
-					pages.push({
-						route,
-						lambdaName,
-						entryPath: fullPath,
-						pathSegments: allSegments,
-					});
-				}
-			}
-		}
-
-		scanDirectory(pagesDirectory);
+		this._scanDirectory(pagesDirectory, [], pages);
 		return pages;
 	}
 }

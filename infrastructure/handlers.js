@@ -1,10 +1,4 @@
-import { dirname, join } from 'node:path';
-
-import { fileURLToPath } from 'node:url';
 import { html } from '../lib/html.js';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
 
 /**
  * Escape header values to prevent header injection attacks
@@ -12,11 +6,127 @@ const __dirname = dirname(__filename);
  * @returns {string} Escaped header value
  */
 function escapeHeaderValue(value) {
-	return String(value)
-		.replaceAll('\r', '')
-		.replaceAll('\n', '')
-		.replaceAll('\t', ' ')
-		.trim();
+	return String(value).replaceAll('\r', '').replaceAll('\n', '').replaceAll('\t', ' ').trim();
+}
+
+/**
+ * Creates escaped headers object from input headers
+ * @param {Object} headers - Input headers object
+ * @returns {Object} Escaped headers object
+ */
+function createEscapedHeaders(headers) {
+	const escapedHeaders = {};
+	for (const [key, value] of Object.entries(headers)) {
+		escapedHeaders[key] = escapeHeaderValue(value);
+	}
+	return escapedHeaders;
+}
+
+/**
+ * Creates default content based on page route
+ * @param {string} pageRoute - Current page route
+ * @returns {string} Default HTML content
+ */
+function createDefaultContent(pageRoute) {
+	if (pageRoute === '/404') {
+		return html`<div><p>Page not found</p></div>`;
+	}
+	return html`<div><p>No content available</p></div>`;
+}
+
+/**
+ * Creates redirect response
+ * @param {Object} result - Handler result object
+ * @param {Object} baseResponse - Base response object
+ * @returns {Object} Redirect response
+ */
+function createRedirectResponse(result, baseResponse) {
+	return {
+		...baseResponse,
+		statusCode: result.statusCode || 302,
+		headers: { ...baseResponse.headers, Location: result.redirect },
+		body: result.body || '',
+	};
+}
+
+/**
+ * Processes object-type handler results
+ * @param {Object} result - Handler result object
+ * @param {Object} baseResponse - Base response object
+ * @returns {Object|undefined} Response object, or undefined if no response should be returned (continue processing)
+ */
+function processObjectResult(result, baseResponse) {
+	const response = { ...baseResponse };
+
+	if (result.statusCode) {
+		response.statusCode = result.statusCode;
+	}
+
+	if (result.headers) {
+		response.headers = { ...response.headers, ...createEscapedHeaders(result.headers) };
+	}
+
+	if (result.body !== undefined) {
+		response.body = result.body;
+		return response;
+	}
+
+	if (result.html) {
+		response.body = result.html;
+		return response;
+	}
+
+	if (result.redirect) {
+		return createRedirectResponse(result, response);
+	}
+
+	// Continue processing - no response to return
+}
+
+/**
+ * Process handler result into a proper HTTP response
+ * @param {*} result - Result from page handler function
+ * @param {string} pageRoute - Current page route for status code determination
+ * @param {number} defaultStatusCode - Default status code to use
+ * @returns {Object} HTTP response object
+ */
+function processHandlerResult(result, pageRoute, defaultStatusCode = 200) {
+	// Early return for complete response objects
+	if (result && typeof result === 'object' && result.statusCode) {
+		return result;
+	}
+
+	// Build base response object
+	const baseResponse = {
+		statusCode: defaultStatusCode,
+		headers: { 'Content-Type': 'text/html' },
+		body: '',
+	};
+
+	// Handle object results
+	if (result && typeof result === 'object') {
+		const objectResponse = processObjectResult(result, baseResponse);
+		if (objectResponse) {
+			return objectResponse;
+		}
+		// Fall through to default content for empty objects
+	}
+
+	// Handle string results
+	if (typeof result === 'string') {
+		return {
+			...baseResponse,
+			statusCode: pageRoute === '/404' ? 404 : defaultStatusCode,
+			body: result,
+		};
+	}
+
+	// Default case - no result or empty object
+	return {
+		...baseResponse,
+		statusCode: pageRoute === '/404' ? 404 : defaultStatusCode,
+		body: createDefaultContent(pageRoute),
+	};
 }
 
 /**
@@ -29,34 +139,16 @@ function escapeHeaderValue(value) {
  */
 export async function pageHandler(event, context) {
 	try {
-		// Get the page route from environment variable
+		// Get the page route and module path from environment variables
 		const pageRoute = process.env.PAGE_ROUTE;
+		const pageModulePath = process.env.PAGE_MODULE_PATH;
+
 		if (!pageRoute) {
 			throw new Error('PAGE_ROUTE environment variable is required');
 		}
 
-		// Dynamically resolve the page module path based on the route
-		import { existsSync } from 'node:fs';
-		let pageModulePath;
-
-		const tryPaths = [
-			`./pages${pageRoute}.js`,
-			`./pages${pageRoute}/index.js`,
-		];
-
-		if (pageRoute === '/') {
-			tryPaths.unshift('./pages/index.js');
-		}
-			// Remove trailing slash (except for root) to avoid invalid paths like './pages/api/.js'
-			const sanitizedRoute = pageRoute.endsWith('/') && pageRoute !== '/' ? pageRoute.slice(0, -1) : pageRoute;
-			pageModulePath = `./pages${sanitizedRoute}.js`;
-			tryPaths.unshift('./pages/404.js');
-		}
-
-		pageModulePath = tryPaths.find(p => existsSync(join(__dirname, p.replace('./', ''))));
-
 		if (!pageModulePath) {
-			throw new Error(`Page module not found for route: ${pageRoute}`);
+			throw new Error('PAGE_MODULE_PATH environment variable is required');
 		}
 
 		// Dynamically import the page module
@@ -95,72 +187,7 @@ export async function pageHandler(event, context) {
 		try {
 			// Call the page handler function
 			const result = await handlerFunction(event, context);
-
-			// Check if handler returned a complete response object
-			if (result && typeof result === 'object' && result.statusCode) {
-				return result;
-			}
-
-			// Handle response objects with optional properties
-			let response = {
-				statusCode: 200,
-				headers: { 'Content-Type': 'text/html' },
-				body: '',
-			};
-
-			// If result is an object, merge its properties
-			if (result && typeof result === 'object') {
-				// Copy status code if provided
-				if (result.statusCode) {
-					response.statusCode = result.statusCode;
-				}
-
-				// Merge headers if provided
-				if (result.headers) {
-					const escapedHeaders = {};
-					for (const [key, value] of Object.entries(result.headers)) {
-						escapedHeaders[key] = escapeHeaderValue(value);
-					}
-					response.headers = { ...response.headers, ...escapedHeaders };
-				}
-
-				// Handle direct body content (complete HTML responses)
-				if (result.body !== undefined) {
-					response.body = result.body;
-					return response;
-				}
-
-				// Handle HTML content for page generation (partial content to be wrapped)
-				if (result.html) {
-					response.body = result.html;
-					return response;
-				}
-
-				// Handle redirect responses
-				if (result.redirect) {
-					response.statusCode = result.statusCode || 302;
-					response.headers.Location = result.redirect;
-					response.body = result.body || '';
-					return response;
-				}
-
-				// If object has no recognized response properties, treat as empty and use defaults
-			}
-
-			// If result is a string, treat it as complete HTML (from html template literal)
-			if (typeof result === 'string') {
-				response.body = result;
-				// Determine status code (404 for 404 pages, 200 for others)
-				response.statusCode = pageRoute === '/404' ? 404 : 200;
-				return response;
-			}
-
-			// If no result or empty object, use default content
-			const content = getDefaultContent(pageRoute, method);
-			response.body = html`${content}`;
-			response.statusCode = pageRoute === '/404' ? 404 : 200;
-
-			return response;
+			return processHandlerResult(result, pageRoute);
 		} catch (error) {
 			console.error('📄❌ Handler error:', error);
 			return {
@@ -183,50 +210,8 @@ export async function pageHandler(event, context) {
 			const notFoundHandler = notFoundModule[method] || notFoundModule.get;
 			const result = await notFoundHandler(event, context);
 
-			// Handle 404 response using the same logic as normal pages
-			let response = {
-				statusCode: 404,
-				headers: { 'Content-Type': 'text/html' },
-				body: '',
-			};
-
-			// If result is a complete response object, return it
-			if (result && typeof result === 'object' && result.statusCode) {
-				return result;
-			}
-
-			// If result is an object with response properties
-			if (result && typeof result === 'object') {
-				if (result.headers) {
-					const escapedHeaders = {};
-					for (const [key, value] of Object.entries(result.headers)) {
-						escapedHeaders[key] = escapeHeaderValue(value);
-					}
-					response.headers = { ...response.headers, ...escapedHeaders };
-				}
-
-				if (result.body !== undefined) {
-					response.body = result.body;
-					return response;
-				}
-
-				if (result.html) {
-					response.body = result.html;
-					return response;
-				}
-			}
-
-			// Handle string content (complete HTML from template literal)
-			if (typeof result === 'string') {
-				response.body = result;
-				return response;
-			}
-
-			// If no result or empty object, use default content
-			const content = getDefaultContent('/404', method);
-			response.body = html`${content}`;
-
-			return response;
+			// Use the same response processing logic with 404 as default status
+			return processHandlerResult(result, '/404', 404);
 		} catch (fallbackError) {
 			console.error('📄❌ 404 fallback also failed:', fallbackError);
 			return {
@@ -239,96 +224,4 @@ export async function pageHandler(event, context) {
 			};
 		}
 	}
-}
-
-/**
- * Get default content for a page if no content is provided
- * @param {string} pageRoute - Route of the page
- * @param {string} method - HTTP method
- * @returns {string} Default HTML content
- */
-function getDefaultContent(pageRoute, method) {
-	if (pageRoute === '/404') {
-		return `<div class='error-page'>
-			<h2>Page Not Found</h2>
-			<p>The page you are looking for does not exist.</p>
-			<a href='/' class='home-link'>Return to Home</a>
-		</div>`;
-	}
-
-	if (pageRoute === '/about') {
-		return `<div class='about-page'>
-			<h2>About Jesse</h2>
-			<p>Software developer passionate about creating amazing web experiences.</p>
-			<ul>
-				<li>Full-stack web development</li>
-				<li>Cloud architecture and serverless applications</li>
-				<li>Modern JavaScript and web technologies</li>
-			</ul>
-		</div>`;
-	}
-
-	if (pageRoute === '/hello') {
-		if (method === 'post') {
-			return `<div class='hello-page'>
-				<h2>Message Sent!</h2>
-				<p>Thank you for your message. I'll get back to you soon!</p>
-				<a href='/hello'>Send another message</a>
-			</div>`;
-		}
-		return `<div class='hello-page'>
-			<h2>Say Hello!</h2>
-			<form method='post' action='/hello'>
-				<label for='name'>Name:</label>
-				<input type='text' id='name' name='name' required>
-				<label for='message'>Message:</label>
-				<textarea id='message' name='message' required></textarea>
-				<button type='submit'>Send Message</button>
-			</form>
-		</div>`;
-	}
-
-	// Default home page content
-	return `<div class='hero'>
-		<h2>Welcome to my personal website!</h2>
-		<p>I'm a software developer passionate about creating amazing web experiences.</p>
-
-		<section class='intro'>
-			<h3>What I Do</h3>
-			<ul>
-				<li>Full-stack web development</li>
-				<li>Cloud architecture and serverless applications</li>
-				<li>Modern JavaScript and web technologies</li>
-			</ul>
-		</section>
-
-		<section class='recent-work'>
-			<h3>Recent Projects</h3>
-			<p>Check out some of my latest work and experiments.</p>
-			<a href='/about' class='cta-button'>Learn More About Me</a>
-		</section>
-	</div>`;
-}
-
-/**
- * Get page title based on page route and HTTP method
- * @param {string} pageRoute - Route of the page
- * @param {string} method - HTTP method
- * @returns {string} Page title
- */
-function getPageTitle(pageRoute, method) {
-	if (pageRoute === '/404') {
-		return '404 - Page Not Found';
-	}
-
-	if (pageRoute === '/about') {
-		return 'About Jesse';
-	}
-
-	if (pageRoute === '/hello') {
-		return method === 'post' ? 'Hello Page - Message Sent!' : 'Hello Page';
-	}
-
-	// Default to home page title
-	return 'Jesse Hattabaugh';
 }
