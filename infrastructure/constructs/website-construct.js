@@ -80,8 +80,7 @@ export class WebsiteConstruct extends Construct {
 			publicReadAccess: false, // Security by default
 			blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL, // Security by default
 			encryption: s3.BucketEncryption.S3_MANAGED, // Security by default
-			// eslint-disable-next-line sonarjs/aws-s3-bucket-versioning
-			versioned: false, // Static assets don't need versioning for this use case
+			versioned: true, // Enable versioning for data protection and recovery
 			cors: [
 				{
 					allowedMethods: [s3.HttpMethods.GET],
