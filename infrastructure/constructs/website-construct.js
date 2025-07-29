@@ -8,9 +8,10 @@ import * as origins from 'aws-cdk-lib/aws-cloudfront-origins';
 import * as s3 from 'aws-cdk-lib/aws-s3';
 import * as s3deploy from 'aws-cdk-lib/aws-s3-deployment';
 
-import { readdirSync, statSync } from 'node:fs';
+import { readFileSync, readdirSync, statSync } from 'node:fs';
 
 import { Construct } from 'constructs';
+import { createHash } from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
 
@@ -25,6 +26,40 @@ const __dirname = path.dirname(__filename);
  * @property {string} certificateArn - The ACM certificate ARN
  * @property {boolean} [skipCloudFront=false] - Whether to skip CloudFront creation
  */
+
+/**
+ * Creates a hash based on the page file and shared lib directory
+ * @private
+ */
+function createCodeHash(pageEntryPath, libraryDirectory) {
+	const hash = createHash('sha256');
+
+	// Hash the specific page file
+	const pageContent = readFileSync(pageEntryPath, 'utf8');
+	hash.update(pageContent);
+
+	// Hash all files in the lib directory recursively
+	function hashDirectory(directory) {
+		const entries = readdirSync(directory, { withFileTypes: true });
+		for (const entry of entries) {
+			const fullPath = path.join(directory, entry.name);
+			if (entry.isDirectory()) {
+				hashDirectory(fullPath);
+			} else if (entry.isFile()) {
+				const content = readFileSync(fullPath, 'utf8');
+				hash.update(content);
+			}
+		}
+	}
+
+	try {
+		hashDirectory(libraryDirectory);
+	} catch {
+		// If lib directory doesn't exist, just use page content
+	}
+
+	return hash.digest('hex').slice(0, 8); // Use first 8 characters
+}
 
 /**
  * Website Construct - Manages the serverless website infrastructure
@@ -90,6 +125,12 @@ export class WebsiteConstruct extends Construct {
 		this.lambdaFunctions = new Map();
 
 		for (const page of this.pages) {
+			// Create a hash based on the page content and lib directory
+			const codeHash = createCodeHash(
+				page.entryPath,
+				path.join(path.dirname(fileURLToPath(import.meta.url)), '../../lib')
+			);
+
 			// Only copy the relevant page module as page.js and shared lib/
 			const lambdaFunction = new nodejs.NodejsFunction(this, `${page.lambdaName}Function`, {
 				entry: path.join(__dirname, '../handlers.js'),
@@ -104,6 +145,8 @@ export class WebsiteConstruct extends Construct {
 					format: nodejs.OutputFormat.ESM,
 					externalModules: [],
 					forceDockerBundling: false,
+					// Include page file and lib directory in asset hash calculation
+					assetHashType: cdk.AssetHashType.SOURCE,
 					commandHooks: {
 						beforeBundling(inputDirectory, outputDirectory) {
 							const relativePagePath = path.relative(
@@ -120,8 +163,9 @@ export class WebsiteConstruct extends Construct {
 					},
 				},
 				environment: {
-					NODE_ENV: environment,
-					ENVIRONMENT: environment,
+					// Use content-based hash to force Lambda redeployment only when code actually changes.
+					// This variable is not used at runtime, but changing it ensures AWS updates the function when code changes.
+					CODE_HASH: codeHash,
 					PAGE_ROUTE: page.route,
 				},
 				// Security: Least privilege IAM
