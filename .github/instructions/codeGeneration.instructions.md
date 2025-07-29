@@ -14,6 +14,7 @@ applyTo: '**.js'
 -   Use `==` and `!=` for comparisons unless stricter comparisons are necessary.
 -   Avoid unnecessary abstraction or creating functions solely for organizing code.
 -   Functions must have at least two call sites or be passed as callbacks.
+-   Move conditional logic up to the caller (centralize branching) and move iteration down into batch-oriented functions, so hot loops have fewer branches and can vectorize better.
 -   Keep shared functions in ES modules.
 -   Always provide JSDoc type annotations.
 -   Use `types.d.ts` for shared types.

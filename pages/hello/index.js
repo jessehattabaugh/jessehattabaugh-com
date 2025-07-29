@@ -58,8 +58,8 @@ export async function post(event) {
 			event.headers['content-type']?.includes('application/x-www-form-urlencoded')
 		) {
 			const body = event.body || '';
-			const params = new URLSearchParams(body);
-			formData = Object.fromEntries(params.entries());
+			const parameters = new URLSearchParams(body);
+			formData = Object.fromEntries(parameters.entries());
 		} else {
 			// Handle JSON data
 			formData = JSON.parse(event.body || '{}');

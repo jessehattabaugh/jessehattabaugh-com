@@ -35,7 +35,7 @@ const getAwsInfo = async () => {
 	try {
 		credentialsProvider = fromIni();
 		await credentialsProvider();
-	} catch (e) {
+	} catch {
 		credentialsProvider = fromNodeProviderChain();
 	}
 	const sts = new STSClient({ region, credentials: credentialsProvider });
@@ -43,8 +43,8 @@ const getAwsInfo = async () => {
 	try {
 		const identity = await sts.send(new GetCallerIdentityCommand({}));
 		return { account: identity.Account, region };
-	} catch (err) {
-		throw new Error('Failed to retrieve AWS account ID: ' + err.message);
+	} catch (error) {
+		throw new Error('Failed to retrieve AWS account ID: ' + error.message);
 	}
 };
 
