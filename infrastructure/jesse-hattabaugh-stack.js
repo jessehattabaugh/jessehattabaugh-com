@@ -4,6 +4,7 @@ import { MandatoryTagsAspect, SecurityAspect } from './aspects/compliance-aspect
 
 import { Aspects } from 'aws-cdk-lib';
 import { DnsConstruct } from './constructs/dns-construct.js';
+import { SharesConstruct } from './constructs/shares-construct.js';
 import { WebsiteConstruct } from './constructs/website-construct.js';
 
 /**
@@ -43,6 +44,13 @@ export class JesseHattabaughStack extends cdk.Stack {
 			domain,
 			certificateArn: skipCloudFront ? undefined : certificateArn,
 			skipCloudFront,
+		});
+
+		// Shares functionality construct (logical unit)
+		this.shares = new SharesConstruct(this, 'Shares', {
+			environment,
+			domain,
+			api: this.website.api,
 		});
 
 		// DNS management construct (logical unit)

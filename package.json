@@ -1,8 +1,14 @@
 {
 	"devDependencies": {
+		"@aws-sdk/client-dynamodb": "latest",
+		"@aws-sdk/client-lambda": "latest",
+		"@aws-sdk/client-s3": "latest", 
+		"@aws-sdk/client-ses": "latest",
 		"@aws-sdk/client-sts": "latest",
 		"@aws-sdk/credential-provider-ini": "latest",
 		"@aws-sdk/credential-providers": "^3.855.0",
+		"@aws-sdk/lib-dynamodb": "latest",
+		"@aws-sdk/s3-request-presigner": "latest",
 		"@eslint/compat": "latest",
 		"@eslint/js": "latest",
 		"@playwright/test": "latest",
