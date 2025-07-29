@@ -47,6 +47,7 @@ test.describe('About Page', () => {
 		await expect(page.locator('nav a[href="/"]')).toBeVisible();
 		await expect(page.locator('nav a[href="/hello"]')).toBeVisible();
 		await expect(page.locator('nav a[href="/about"]')).toBeVisible();
+		await expect(page.locator('nav a[href="/resume"]')).toBeVisible();
 	});
 
 	test('should navigate to other pages from about page', async ({ page }) => {
