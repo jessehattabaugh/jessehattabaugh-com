@@ -7,13 +7,13 @@ test.describe('About Page', () => {
 		await page.goto(`${baseURL}/about`);
 
 		// Check that the page loads
-		await expect(page).toHaveTitle(/About Jesse/);
+		await expect(page).toHaveTitle(/Jesse Hattabaugh/);
 
 		// Check for main heading
-		await expect(page.locator('h1')).toContainText('About Jesse');
+		await expect(page.locator('h1')).toContainText('About This Website');
 
 		// Check for bio section
-		await expect(page.locator('h2')).toContainText('About Jesse Hattabaugh');
+		await expect(page.locator('h2')).toContainText('Built by Jesse Hattabaugh');
 		await expect(page.locator('.bio p')).toContainText(
 			'passionate software developer with years of experience'
 		);
@@ -21,16 +21,22 @@ test.describe('About Page', () => {
 			'frontend technologies like React and Vue to backend systems'
 		);
 
-		// Check for technical skills section
-		await expect(page.locator('h3')).toContainText('Technical Skills');
+		// Check for technical architecture section
+		await expect(page.locator('h3')).toContainText('Technical Architecture');
 		await expect(page.locator('h4')).toContainText('Frontend');
 		await expect(page.locator('h4')).toContainText('Backend');
 		await expect(page.locator('h4')).toContainText('Cloud & DevOps');
 
-		// Check for specific skills
+		// Check for specific technologies
 		await expect(page.locator('.skill-category li')).toContainText('JavaScript/TypeScript');
 		await expect(page.locator('.skill-category li')).toContainText('Node.js, Python');
 		await expect(page.locator('.skill-category li')).toContainText('AWS, Azure');
+
+		// Check for website features section
+		await expect(page.locator('h3')).toContainText('Website Features');
+		await expect(page.locator('.features li')).toContainText('Serverless Architecture');
+		await expect(page.locator('.features li')).toContainText('Global CDN');
+		await expect(page.locator('.features li')).toContainText('Security First');
 
 		// Check for contact section
 		await expect(page.locator('h3')).toContainText('Get In Touch');
