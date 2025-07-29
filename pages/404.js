@@ -13,16 +13,30 @@ export async function get() {
 			'Cache-Control': 'no-cache',
 		},
 		body: html`<div class="error-page">
-			<h2>Page Not Found</h2>
-			<p>The page you are looking for does not exist or has been moved.</p>
-			<div class="error-actions">
-				<a href="/" class="home-link">← Return to Home</a>
-				<p>Or try one of these pages:</p>
-				<ul class="page-suggestions">
-					<li><a href="/about">About</a></li>
-					<li><a href="/hello">Contact</a></li>
-				</ul>
+			<h2>Oops! Page Not Found 🔍</h2>
+			<div class="error-message">
+				<p>Sorry, the page you are looking for could not be found.</p>
+				<p>It might have been moved, deleted, or you may have mistyped the URL.</p>
 			</div>
+			
+			<section class="error-help">
+				<h3>What can you do?</h3>
+				<ul class="suggestions">
+					<li>Check the URL for typos</li>
+					<li>Go back to our <a href="/">home page</a></li>
+					<li>Browse the available pages using the navigation above</li>
+				</ul>
+			</section>
+
+			<section class="popular-pages">
+				<h3>Popular Pages</h3>
+				<div class="page-links">
+					<a href="/" class="page-link">Home</a>
+					<a href="/about" class="page-link">About</a>
+					<a href="/resume" class="page-link">Resume</a>
+					<a href="/hello" class="page-link">Hello</a>
+				</div>
+			</section>
 		</div>`,
 	};
 }

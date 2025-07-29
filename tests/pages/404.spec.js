@@ -33,12 +33,14 @@ test.describe('404 Page', () => {
 		await expect(page.locator('h3')).toContainText('Popular Pages');
 		await expect(page.locator('.page-link[href="/"]')).toContainText('Home');
 		await expect(page.locator('.page-link[href="/about"]')).toContainText('About');
+		await expect(page.locator('.page-link[href="/resume"]')).toContainText('Resume');
 		await expect(page.locator('.page-link[href="/hello"]')).toContainText('Hello');
 
 		// Check for navigation
 		await expect(page.locator('nav a[href="/"]')).toBeVisible();
 		await expect(page.locator('nav a[href="/hello"]')).toBeVisible();
 		await expect(page.locator('nav a[href="/about"]')).toBeVisible();
+		await expect(page.locator('nav a[href="/resume"]')).toBeVisible();
 	});
 
 	test('should navigate to home page from 404', async ({ page }) => {
