@@ -139,22 +139,14 @@ function processHandlerResult(result, pageRoute, defaultStatusCode = 200) {
  */
 export async function pageHandler(event, context) {
 	try {
-		// Get the page route and module path from environment variables
 		const pageRoute = process.env.PAGE_ROUTE;
-		const pageModulePath = process.env.PAGE_MODULE_PATH;
-
 		if (!pageRoute) {
 			throw new Error('PAGE_ROUTE environment variable is required');
 		}
 
-		if (!pageModulePath) {
-			throw new Error('PAGE_MODULE_PATH environment variable is required');
-		}
+		// Always import the page module as './page.js'
+		const pageModule = await import('./page.js');
 
-		// Dynamically import the page module
-		const pageModule = await import(pageModulePath);
-
-		// Create method map from the imported page module
 		const methodMap = {
 			get: pageModule.get,
 			post: pageModule.post,
@@ -162,7 +154,6 @@ export async function pageHandler(event, context) {
 			delete: pageModule.del, // Note: 'del' export maps to 'delete' method
 		};
 
-		// Handle the HTTP request method
 		const method = event.httpMethod?.toLowerCase() || 'get';
 		const handlerFunction = methodMap[method];
 
@@ -185,7 +176,6 @@ export async function pageHandler(event, context) {
 		}
 
 		try {
-			// Call the page handler function
 			const result = await handlerFunction(event, context);
 			return processHandlerResult(result, pageRoute);
 		} catch (error) {
@@ -201,16 +191,12 @@ export async function pageHandler(event, context) {
 		}
 	} catch (error) {
 		console.error('📄💥 Page handler error:', error);
-
-		// If the page module failed to load, try to fall back to 404.js
 		try {
 			console.log('📄🔄 Falling back to 404 page');
 			const notFoundModule = await import('./pages/404.js');
 			const method = event.httpMethod?.toLowerCase() || 'get';
 			const notFoundHandler = notFoundModule[method] || notFoundModule.get;
 			const result = await notFoundHandler(event, context);
-
-			// Use the same response processing logic with 404 as default status
 			return processHandlerResult(result, '/404', 404);
 		} catch (fallbackError) {
 			console.error('📄❌ 404 fallback also failed:', fallbackError);

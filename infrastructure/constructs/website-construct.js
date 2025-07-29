@@ -90,7 +90,7 @@ export class WebsiteConstruct extends Construct {
 		this.lambdaFunctions = new Map();
 
 		for (const page of this.pages) {
-			// Create Lambda function with security defaults
+			// Only copy the relevant page module as page.js and shared lib/
 			const lambdaFunction = new nodejs.NodejsFunction(this, `${page.lambdaName}Function`, {
 				entry: path.join(__dirname, '../handlers.js'),
 				handler: 'pageHandler',
@@ -106,8 +106,12 @@ export class WebsiteConstruct extends Construct {
 					forceDockerBundling: false,
 					commandHooks: {
 						beforeBundling(inputDirectory, outputDirectory) {
+							const relativePagePath = path.relative(
+								path.join(__dirname, '../..'),
+								page.entryPath
+							);
 							return [
-								`cp -r ${inputDirectory}/pages ${outputDirectory}/`,
+								`cp ${inputDirectory}/${relativePagePath} ${outputDirectory}/page.js`,
 								`cp -r ${inputDirectory}/lib ${outputDirectory}/`,
 							];
 						},
@@ -119,7 +123,6 @@ export class WebsiteConstruct extends Construct {
 					NODE_ENV: environment,
 					ENVIRONMENT: environment,
 					PAGE_ROUTE: page.route,
-					PAGE_MODULE_PATH: page.modulePath,
 				},
 				// Security: Least privilege IAM
 				initialPolicy: [],
