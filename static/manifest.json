@@ -1,0 +1,27 @@
+{
+	"name": "Jesse Hattabaugh",
+	"short_name": "Jesse H",
+	"description": "Jesse Hattabaugh's personal website - Software developer passionate about creating amazing web experiences",
+	"start_url": "/",
+	"display": "standalone",
+	"background_color": "#ffffff",
+	"theme_color": "#2563eb",
+	"categories": ["business", "technology"],
+	"lang": "en",
+	"orientation": "portrait-primary",
+	"scope": "/",
+	"icons": [
+		{
+			"src": "/static/icons/icon-192x192.png",
+			"sizes": "192x192",
+			"type": "image/png",
+			"purpose": "any maskable"
+		},
+		{
+			"src": "/static/icons/icon-512x512.png", 
+			"sizes": "512x512",
+			"type": "image/png",
+			"purpose": "any maskable"
+		}
+	]
+}
