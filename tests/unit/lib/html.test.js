@@ -64,7 +64,7 @@ describe('html template function', () => {
 		const result = html`<p>Test content</p>`;
 
 		assert.ok(result.includes('<a href="/">Home</a>'));
-		assert.ok(result.includes('<a href="/hello">Hello</a>'));
+		assert.ok(result.includes('<a href="/contact">Contact</a>'));
 		assert.ok(result.includes('<a href="/about">About</a>'));
 	});
 

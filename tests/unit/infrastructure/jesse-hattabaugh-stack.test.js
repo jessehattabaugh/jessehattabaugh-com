@@ -53,7 +53,7 @@ describe('Lambda name generation logic', () => {
 		const testCases = [
 			{ pathSegments: [], expected: 'HomePage' },
 			{ pathSegments: ['about'], expected: 'AboutPage' },
-			{ pathSegments: ['hello'], expected: 'HelloPage' },
+			{ pathSegments: ['contact'], expected: 'ContactPage' },
 			{ pathSegments: ['404'], expected: '404Page' },
 			{ pathSegments: ['api', 'users'], expected: 'ApiUsersPage' },
 			{ pathSegments: ['deep', 'nested', 'path'], expected: 'DeepNestedPathPage' },
@@ -86,7 +86,7 @@ describe('Page discovery logic', () => {
 		const testPages = [
 			{ fileName: 'index.js', pathSegments: [], expectedRoute: '/' },
 			{ fileName: 'about.js', pathSegments: [], expectedRoute: '/about' },
-			{ fileName: 'index.js', pathSegments: ['hello'], expectedRoute: '/hello' },
+			{ fileName: 'index.js', pathSegments: ['contact'], expectedRoute: '/contact' },
 			{ fileName: '404.js', pathSegments: [], expectedRoute: '/404' },
 		];
 
@@ -242,7 +242,7 @@ describe('HTTP method mapping for API Gateway', () => {
 		const routes = [
 			{ route: '/', isRoot: true },
 			{ route: '/about', isRoot: false },
-			{ route: '/hello', isRoot: false },
+			{ route: '/contact', isRoot: false },
 			{ route: '/api/users', isRoot: false },
 		];
 

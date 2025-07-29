@@ -20,7 +20,7 @@ export async function get() {
 				<p>Or try one of these pages:</p>
 				<ul class="page-suggestions">
 					<li><a href="/about">About</a></li>
-					<li><a href="/hello">Contact</a></li>
+					<li><a href="/contact">Contact</a></li>
 				</ul>
 			</div>
 		</div>`,

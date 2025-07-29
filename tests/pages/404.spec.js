@@ -33,11 +33,11 @@ test.describe('404 Page', () => {
 		await expect(page.locator('h3')).toContainText('Popular Pages');
 		await expect(page.locator('.page-link[href="/"]')).toContainText('Home');
 		await expect(page.locator('.page-link[href="/about"]')).toContainText('About');
-		await expect(page.locator('.page-link[href="/hello"]')).toContainText('Hello');
+		await expect(page.locator('.page-link[href="/contact"]')).toContainText('Contact');
 
 		// Check for navigation
 		await expect(page.locator('nav a[href="/"]')).toBeVisible();
-		await expect(page.locator('nav a[href="/hello"]')).toBeVisible();
+		await expect(page.locator('nav a[href="/contact"]')).toBeVisible();
 		await expect(page.locator('nav a[href="/about"]')).toBeVisible();
 	});
 
@@ -60,10 +60,10 @@ test.describe('404 Page', () => {
 		await expect(page).toHaveURL(`${baseURL}/about`);
 		await expect(page.locator('h1')).toContainText('About Jesse');
 
-		// Go back to 404 and test hello page
+		// Go back to 404 and test contact page
 		await page.goto(`${baseURL}/non-existent-page`);
-		await page.click('.page-link[href="/hello"]');
-		await expect(page).toHaveURL(`${baseURL}/hello`);
-		await expect(page.locator('h1')).toContainText('Hello Page');
+		await page.click('.page-link[href="/contact"]');
+		await expect(page).toHaveURL(`${baseURL}/contact`);
+		await expect(page.locator('h2')).toContainText('Get In Touch');
 	});
 });

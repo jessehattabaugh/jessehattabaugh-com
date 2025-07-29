@@ -40,7 +40,7 @@ export async function get() {
 			<h3>Get In Touch</h3>
 			<p>
 				Interested in working together or have a question? Feel free to
-				<a href="/hello">reach out</a>!
+				<a href="/contact">reach out</a>!
 			</p>
 		</section>
 	</div>`;

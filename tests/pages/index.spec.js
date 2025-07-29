@@ -37,7 +37,7 @@ test.describe('Home Page', () => {
 
 		// Check for navigation
 		await expect(page.locator('nav a[href="/"]')).toBeVisible();
-		await expect(page.locator('nav a[href="/hello"]')).toBeVisible();
+		await expect(page.locator('nav a[href="/contact"]')).toBeVisible();
 		await expect(page.locator('nav a[href="/about"]')).toBeVisible();
 
 		// Check that CSS is loaded
@@ -45,14 +45,14 @@ test.describe('Home Page', () => {
 		await expect(nav).toHaveCSS('background-color', 'rgb(44, 62, 80)');
 	});
 
-	test('should navigate to hello page', async ({ page }) => {
+	test('should navigate to contact page', async ({ page }) => {
 		await page.goto(baseURL);
 
-		// Click on hello link
-		await page.click('nav a[href="/hello"]');
+		// Click on contact link
+		await page.click('nav a[href="/contact"]');
 
-		// Check that we're on the hello page
-		await expect(page).toHaveURL(`${baseURL}/hello`);
-		await expect(page.locator('h1')).toContainText('Hello Page');
+		// Check that we're on the contact page
+		await expect(page).toHaveURL(`${baseURL}/contact`);
+		await expect(page.locator('h2')).toContainText('Get In Touch');
 	});
 });

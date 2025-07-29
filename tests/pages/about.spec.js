@@ -39,7 +39,7 @@ test.describe('About Page', () => {
 
 		// Check for navigation
 		await expect(page.locator('nav a[href="/"]')).toBeVisible();
-		await expect(page.locator('nav a[href="/hello"]')).toBeVisible();
+		await expect(page.locator('nav a[href="/contact"]')).toBeVisible();
 		await expect(page.locator('nav a[href="/about"]')).toBeVisible();
 	});
 
@@ -54,9 +54,9 @@ test.describe('About Page', () => {
 		// Go back to about
 		await page.goto(`${baseURL}/about`);
 
-		// Test navigation to hello
-		await page.click('nav a[href="/hello"]');
-		await expect(page).toHaveURL(`${baseURL}/hello`);
-		await expect(page.locator('h1')).toContainText('Hello Page');
+		// Test navigation to contact
+		await page.click('nav a[href="/contact"]');
+		await expect(page).toHaveURL(`${baseURL}/contact`);
+		await expect(page.locator('h2')).toContainText('Get In Touch');
 	});
 });
