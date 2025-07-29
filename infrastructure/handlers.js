@@ -144,9 +144,14 @@ export async function pageHandler(event, context) {
 			throw new Error('PAGE_ROUTE environment variable is required');
 		}
 
+		// Validate the PAGE_PATH environment variable
+		const pagePath = process.env.PAGE_PATH;
+		if (!pagePath) {
+			throw new Error('PAGE_PATH environment variable is required');
+		}
+
 		// Import the page module using its actual path
 		// The page path is passed via environment variable during CDK deployment
-		const pagePath = process.env.PAGE_PATH || './pages/index.js';
 		const pageModule = await import(pagePath);
 
 		const methodMap = {
