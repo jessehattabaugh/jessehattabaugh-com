@@ -149,13 +149,12 @@ export class WebsiteConstruct extends Construct {
 					assetHashType: cdk.AssetHashType.SOURCE,
 					commandHooks: {
 						beforeBundling(inputDirectory, outputDirectory) {
-							const relativePagePath = path.relative(
-								path.join(__dirname, '../..'),
-								page.entryPath
-							);
+							// Use separate build script to handle ES module context
 							return [
-								`cp ${inputDirectory}/${relativePagePath} ${outputDirectory}/page.js`,
-								`cp -r ${inputDirectory}/lib ${outputDirectory}/`,
+								`node ${path.join(
+									__dirname,
+									'../build-lambda.js'
+								)} "${inputDirectory}" "${outputDirectory}" "${page.entryPath}"`,
 							];
 						},
 						beforeInstall: () => [],
@@ -167,6 +166,8 @@ export class WebsiteConstruct extends Construct {
 					// This variable is not used at runtime, but changing it ensures AWS updates the function when code changes.
 					CODE_HASH: codeHash,
 					PAGE_ROUTE: page.route,
+					// Pass the relative path to the page module for dynamic import
+					PAGE_PATH: `./${path.relative(path.join(__dirname, '../..'), page.entryPath)}`,
 				},
 				// Security: Least privilege IAM
 				initialPolicy: [],
