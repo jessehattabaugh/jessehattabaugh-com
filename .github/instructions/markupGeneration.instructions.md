@@ -1,0 +1,6 @@
+---
+applyTo: '**'
+---
+
+# HTML Markup Guidelines
+
