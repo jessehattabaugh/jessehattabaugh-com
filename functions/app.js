@@ -7,13 +7,7 @@ import * as resume from '../pages/resume.js';
 const FILE_EMOJI = '🌐';
 
 /** @type {Record<string, Object>} */
-const routes = {
-	'/': home,
-	'/about': about,
-	'/resume': resume,
-	'/hello': hello,
-	'/404': notFound,
-};
+const routes = { '/': home, '/about': about, '/resume': resume, '/hello': hello, '/404': notFound };
 
 /**
  * Converts a page handler result into a Netlify Function response.
@@ -59,21 +53,12 @@ export function buildResponse(result, pageRoute) {
 	}
 
 	if (typeof result == 'string') {
-		return {
-			statusCode: defaultStatus,
-			headers: baseHeaders,
-			body: result,
-		};
+		return { statusCode: defaultStatus, headers: baseHeaders, body: result };
 	}
 
-	const fallback =
-		pageRoute == '/404' ? '<p>Page not found</p>' : '<p>No content available</p>';
+	const fallback = pageRoute == '/404' ? '<p>Page not found</p>' : '<p>No content available</p>';
 
-	return {
-		statusCode: defaultStatus,
-		headers: baseHeaders,
-		body: fallback,
-	};
+	return { statusCode: defaultStatus, headers: baseHeaders, body: fallback };
 }
 
 /**
@@ -85,7 +70,8 @@ export function buildResponse(result, pageRoute) {
  * @returns {Promise<{statusCode:number, headers:Record<string, string>, body:string}>}
  */
 export async function handler(event) {
-	const rawUrl = event.rawUrl || `https://${event.headers?.host || 'localhost'}${event.path || '/'}`;
+	const rawUrl =
+		event.rawUrl || `https://${event.headers?.host || 'localhost'}${event.path || '/'}`;
 	const url = new URL(rawUrl);
 
 	const pathname =
@@ -107,10 +93,7 @@ export async function handler(event) {
 
 		return {
 			statusCode: 405,
-			headers: {
-				'Content-Type': 'application/json',
-				Allow: allowedMethods.join(', '),
-			},
+			headers: { 'Content-Type': 'application/json', Allow: allowedMethods.join(', ') },
 			body: JSON.stringify({
 				error: 'Method Not Allowed',
 				message: `HTTP method ${method.toUpperCase()} is not supported for this endpoint`,

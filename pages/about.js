@@ -66,9 +66,7 @@ export async function get() {
 					<strong>Serverless Runtime:</strong> Netlify Functions handle dynamic requests
 					with low operational overhead
 				</li>
-				<li>
-					<strong>Global CDN:</strong> Netlify network for fast static asset delivery
-				</li>
+				<li><strong>Global CDN:</strong> Netlify network for fast static asset delivery</li>
 				<li>
 					<strong>Security First:</strong> HTTPS enforced, header injection prevention,
 					HTML output escaping
