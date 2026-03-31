@@ -1,8 +1,10 @@
 import { readFile } from 'node:fs/promises';
+import path from 'node:path';
 import { html, raw } from '../../lib/html.js';
 
 const FILE_EMOJI = '📸';
-const DATA_DIRECTORY = new URL('../../static/data/photos/', import.meta.url);
+const __dirname = path.dirname(path.fileURLToPath(import.meta.url));
+const DATA_PATH = path.join(__dirname, '../../static/data/photos/');
 
 /**
  * @typedef {Object} ResponsiveSource
@@ -50,7 +52,7 @@ const DATA_DIRECTORY = new URL('../../static/data/photos/', import.meta.url);
  * @returns {Promise<any>}
  */
 async function readJsonFile(fileName) {
-	const filePath = new URL(fileName, DATA_DIRECTORY);
+	const filePath = path.join(DATA_PATH, fileName);
 	const content = await readFile(filePath, 'utf8');
 	return JSON.parse(content);
 }
