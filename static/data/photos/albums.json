@@ -1,0 +1,19 @@
+{
+	"generatedAt": "2026-03-31T00:00:00.000Z",
+	"albums": [
+		{
+			"slug": "flowers",
+			"title": "Flowers",
+			"sourceUrl": "https://photos.app.goo.gl/iNLgEiYex8swGSbL8",
+			"photoCount": 0,
+			"cover": "/static/photos/placeholders/empty-album.svg"
+		},
+		{
+			"slug": "old-cars",
+			"title": "Old Cars",
+			"sourceUrl": "https://photos.app.goo.gl/vUXuqmWWLzP25Tce7",
+			"photoCount": 0,
+			"cover": "/static/photos/placeholders/empty-album.svg"
+		}
+	]
+}

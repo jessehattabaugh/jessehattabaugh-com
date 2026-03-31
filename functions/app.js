@@ -2,12 +2,45 @@ import * as notFound from '../pages/404.js';
 import * as about from '../pages/about.js';
 import * as hello from '../pages/hello/index.js';
 import * as home from '../pages/index.js';
+import * as photos from '../pages/photos/index.js';
 import * as resume from '../pages/resume.js';
 
 const FILE_EMOJI = '🌐';
 
 /** @type {Record<string, Object>} */
-const routes = { '/': home, '/about': about, '/resume': resume, '/hello': hello, '/404': notFound };
+const routes = {
+	'/': home,
+	'/about': about,
+	'/resume': resume,
+	'/hello': hello,
+	'/photos': photos,
+	'/photos/*': photos,
+	'/404': notFound,
+};
+
+/**
+ * Matches a request pathname to an exact or wildcard route.
+ * @param {string} pathname
+ * @returns {{module: Object, route: string}}
+ */
+function matchRoute(pathname) {
+	if (routes[pathname]) {
+		return { module: routes[pathname], route: pathname };
+	}
+
+	for (const [route, module] of Object.entries(routes)) {
+		if (!route.endsWith('/*')) {
+			continue;
+		}
+
+		const prefix = route.slice(0, -1);
+		if (pathname.startsWith(prefix)) {
+			return { module, route };
+		}
+	}
+
+	return { module: notFound, route: '/404' };
+}
 
 /**
  * Converts a page handler result into a Netlify Function response.
@@ -79,8 +112,7 @@ export async function handler(event) {
 			? url.pathname.slice(0, -1)
 			: url.pathname;
 
-	const pageModule = routes[pathname] || notFound;
-	const pageRoute = routes[pathname] ? pathname : '/404';
+	const { module: pageModule, route: pageRoute } = matchRoute(pathname);
 
 	const method = (event.httpMethod || 'GET').toLowerCase();
 	const handlerKey = method == 'delete' ? 'del' : method;

@@ -1,4 +1,7 @@
 {
+	"dependencies": {
+		"sharp": "latest"
+	},
 	"devDependencies": {
 		"@eslint/compat": "latest",
 		"@eslint/js": "latest",
@@ -18,6 +21,8 @@
 		"dev": "netlify dev",
 		"lint": "eslint",
 		"lint:fix": "npm run lint -- --fix",
+		"photos:sync": "node scripts/photos/sync.js",
+		"photos:sync:dry-run": "node scripts/photos/sync.js --dry-run",
 		"test": "npm run test:e2e:staging",
 		"test:e2e:staging": "playwright test",
 		"test:e2e": "TEST_URL=https://jessehattabaugh.com playwright test"

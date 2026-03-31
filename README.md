@@ -10,6 +10,24 @@ This is a [Hypermedia-Driven Application](https://htmx.org/essays/hypermedia-dri
 
 Static assets like images, fonts, stylesheets, and client-side JavaScript are stored in `/static` and served directly by Netlify's CDN.
 
+### Google Photos Sync
+
+Public shared Google Photos albums are configured in `config/photos.albums.json`.
+
+Generate or refresh local backups and responsive derivatives:
+
+```bash
+npm run photos:sync
+```
+
+Dry run without writing files:
+
+```bash
+npm run photos:sync:dry-run
+```
+
+Generated metadata lives under `/static/data/photos`, original backups under `/static/photos/originals`, and responsive derivatives under `/static/photos/derivatives`.
+
 ### Pages
 
 Pages are built by a Netlify Function invoked via `functions/app.js`. Each file in `/pages` exports `get()`, `post()`, `put()`, and `del()` functions corresponding to the HTTP methods for that route. The function entry point discovers routes statically and dispatches requests accordingly.

@@ -22,7 +22,12 @@ export async function get() {
 		<section class="recent-work">
 			<h3>Recent Projects</h3>
 			<p>Check out some of my latest work and experiments.</p>
-			<a href="/about" class="cta-button"> Learn More About Me </a>
+			<div class="hero-actions">
+				<a href="/about" class="cta-button"> Learn More About Me </a>
+				<a href="/photos" class="cta-button cta-button-secondary">
+					Browse My Photo Albums
+				</a>
+			</div>
 		</section>
 	</div>`;
 }

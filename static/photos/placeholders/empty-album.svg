@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="640" height="480" viewBox="0 0 640 480" role="img" aria-labelledby="title desc">
+	<title id="title">Album Placeholder</title>
+	<desc id="desc">Placeholder image shown before first photo sync.</desc>
+	<defs>
+		<linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+			<stop offset="0%" stop-color="#f4efe1"/>
+			<stop offset="100%" stop-color="#d8e7ea"/>
+		</linearGradient>
+	</defs>
+	<rect width="640" height="480" fill="url(#bg)"/>
+	<g fill="#29445a" opacity="0.82">
+		<rect x="132" y="122" width="376" height="236" rx="22"/>
+		<rect x="168" y="164" width="304" height="152" rx="10" fill="#f2f7f8"/>
+		<circle cx="226" cy="204" r="20"/>
+		<path d="M196 288l76-70 54 48 54-56 68 78H196z"/>
+	</g>
+</svg>
