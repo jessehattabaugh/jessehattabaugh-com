@@ -1,4 +1,5 @@
 [build]
+command = "npm run photos:sync"
 publish = "."
 functions = "functions"
 
