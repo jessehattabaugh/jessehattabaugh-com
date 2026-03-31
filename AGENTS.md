@@ -12,13 +12,12 @@ Also see @README.md
 - `/lib` – JavaScript modules that are shared between pages
 - `/pages` – Each module exports functions for handling HTTP requests. Directories represent sub paths from the root of the site, and `index.js` files handle the bare path.
 - `/static` – Static assets served directly by Netlify CDN at `/static`
-- `/tests` – End-to-end Playwright browser tests, and Node Test Runner Unit tests.
+- `/tests` – End-to-end Playwright browser tests.
 
 ## Dev & Staging
 
 - Local dev server: `npm run dev`
 - Fix Lint Errors: `npm run lint:fix`
-- Unit tests: `npm run test:unit`
 - Staging deploy: `npm run deploy:staging`
 - End-to-end Staging Tests: `npm run test:e2e:staging`
 
@@ -31,7 +30,6 @@ Also see @README.md
 - General: @.github/copilot-instructions.md
 - JavaScript: @.github/instructions/codeGeneration.instructions.md
 - End-to-end tests: @.github/instructions/e2eTestGeneration.instructions.md
-- Unit tests: @.github/instructions/unitTestGeneration.instructions.md
 - Infrastructure: @.github/instructions/infrastructureGeneration.instructions.md
 - Styles: @.github/instructions/styleGeneration.instructions.md
 - Markup: @.github/instructions/markupGeneration.instructions.md
@@ -45,6 +43,5 @@ Also see @README.md
 ## PR checklist
 
 1. No lint errors
-2. Unit tests pass locally
-3. Staging deploys successfully
-4. E2E tests against staging pass
+2. Staging deploys successfully
+3. E2E tests against staging pass

@@ -3,7 +3,7 @@
 		"checkJs": true,
 		"lib": ["webworker", "dom", "esnext"],
 		"module": "esnext",
-		"moduleResolution": "node",
+		"moduleResolution": "nodenext",
 		"noImplicitAny": true,
 		"target": "esnext"
 	},

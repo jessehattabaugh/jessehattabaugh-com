@@ -54,7 +54,7 @@ export async function get() {
 					<li>Netlify global CDN for performance</li>
 					<li>Netlify DNS and managed TLS</li>
 					<li>Netlify CLI for deployment configuration</li>
-					<li>Automated testing with Playwright and Node.js test runner</li>
+					<li>Automated end-to-end browser testing with Playwright</li>
 				</ul>
 			</div>
 		</section>
@@ -79,7 +79,7 @@ export async function get() {
 					<strong>Modern Web Standards:</strong> Semantic HTML, CSS Grid/Flexbox, ES
 					modules
 				</li>
-				<li><strong>Testing:</strong> Comprehensive e2e and unit test coverage</li>
+				<li><strong>Testing:</strong> Comprehensive end-to-end browser test coverage</li>
 				<li>
 					<strong>CI/CD:</strong> Git-integrated deployment pipeline with preview and
 					production environments

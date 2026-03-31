@@ -68,9 +68,3 @@ Set the target URL to the Netlify deploy preview URL before running staging e2e 
 ```bash
 TEST_URL=https://<deploy-preview-url>.netlify.app npm run test:e2e:staging
 ```
-
-### Unit tests
-
-```bash
-npm run test:unit
-```
