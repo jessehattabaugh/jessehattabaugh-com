@@ -13,8 +13,8 @@
 		"wrangler": "latest"
 	},
 	"scripts": {
-		"deploy": "wrangler pages deploy .",
-		"deploy:staging": "wrangler pages deploy . --branch staging",
+		"deploy": "node scripts/deploy.js",
+		"deploy:staging": "node scripts/deploy.js --branch staging",
 		"dev": "wrangler pages dev .",
 		"lint": "eslint",
 		"lint:fix": "npm run lint -- --fix",

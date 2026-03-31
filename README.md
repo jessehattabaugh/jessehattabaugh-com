@@ -49,6 +49,11 @@ npm run deploy           # deploy to production
 npm run deploy:staging   # deploy staging branch
 ```
 
+Note: The deploy script automatically skips the Wrangler API upload when running
+inside Cloudflare Pages Git-integrated builds (`CF_PAGES=1`). This avoids
+build-time authentication failures because Git-integrated Pages deployments do
+not require a secondary Wrangler upload.
+
 ## Testing
 
 ### Staging / Preview
