@@ -3,8 +3,8 @@ import path from 'node:path';
 import { html, raw } from '../../lib/html.js';
 
 const FILE_EMOJI = '📸';
-const __dirname = path.dirname(path.fileURLToPath(import.meta.url));
-const DATA_PATH = path.join(__dirname, '../../static/data/photos/');
+const CURRENT_DIR = path.dirname(path.fileURLToPath(import.meta.url));
+const DATA_PATH = path.join(CURRENT_DIR, '../../static/data/photos/');
 
 /**
  * @typedef {Object} ResponsiveSource
