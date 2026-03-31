@@ -1,25 +1,16 @@
----
-applyTo: '/infrastructure/**.js'
+﻿---
+applyTo: 'wrangler.toml'
 ---
 
-# AWK CDK Guidelines
+# Cloudflare Pages / Wrangler Guidelines
 
--   **Model logical units as constructs.** Group Website, DB, monitoring, etc. into reusable L2/L3 constructs.
--   **Start small; split by deploy boundary.** Begin with one app/stack, then partition into independently deployable stacks to limit blast radius.
--   **Prefer patterns.** Use AWS Solutions Constructs or proven community patterns before writing custom glue.
--   **Keep deployments deterministic.** Pin versions, avoid time‑based randomness, and ensure repeated deploys produce the same result.
--   **Use the modern bootstrap + DefaultStackSynthesizer.** CDK v2 requires the modern bootstrap; customize only if you understand the contract.
--   **Environment agnostic code.** Don’t hard‑code ARNs; parameterize account/region and pass env/config centrally.
--   **Tags everywhere.** Apply mandatory cost/owner/env tags via Aspects; define precedence intentionally.
--   **Security by default.** Least‑privilege IAM, encryption at rest/in transit, restrict public access, enable logging, and set log retention explicitly.
--   **Never commit secrets.** Use Secrets Manager/SSM; inject at deploy time if you must seed values.
--   **Automated checks.** Run `cdk-nag` in unit tests/CI; fail builds on critical findings, suppress with justification.
--   **Test constructs.** Write assertions/snapshot tests for synthesized templates; add integration tests for key paths.
--   **Use pipelines.** Deploy via CDK Pipelines/CodePipeline with stages, manual approvals, and `cdk diff` gates.
--   **Set explicit RemovalPolicies.** `DESTROY` for ephemeral/dev, `RETAIN` or snapshots for prod data.
--   **Prefer generated names.** Let CDK/name tokens manage uniqueness; only fix names when required by integrations.
--   **Use Aspects for cross‑cutting rules.** Centralize tagging, encryption enforcement, and policy validation.
--   **Bundle assets reproducibly.** Use CDK bundling (e.g., esbuild) for Lambda/containers; avoid “latest” image tags.
--   **Control stack size & dependencies.** Keep stacks reasonably small, avoid circular refs; share via Outputs/SSM where appropriate.
--   **Document conventions.** Repo contains one CDK app with clear folder structure, coding standards, and lint/format hooks.
--   **Scale org adoption.** Provide templates, golden patterns, and guardrails so teams don’t fork practices ad hoc.
+-   **Use `wrangler.toml` for project config.** Declare `name`, `compatibility_date`, and `pages_build_output_dir` here; keep it minimal.
+-   **No build step required.** Pages Functions are served directly from `functions/`; static assets from the project root. Only add a build command if a transpilation step is genuinely needed.
+-   **Compatibility date pinning.** Set `compatibility_date` to a recent stable date; update intentionally when adopting new runtime APIs.
+-   **Environment separation via branches.** Production deploys from `main`; staging/preview deploys from feature or staging branches — no separate config files needed.
+-   **Secrets via dashboard.** Store secrets (API keys, tokens) in the Cloudflare Pages dashboard environment variables, never committed to the repo.
+-   **Functions entry point.** `functions/[[path]].js` is the catch-all Pages Function; add additional files under `functions/` only if a specific path needs isolated logic.
+-   **Static assets served first.** Cloudflare Pages serves files from the output directory before invoking Functions; keep static paths predictable (e.g., `/static/*`).
+-   **No server-side state.** Pages Functions are stateless edge workers; use Cloudflare KV, D1, or R2 bindings if persistence is needed, declared in `wrangler.toml`.
+-   **Test locally with `wrangler pages dev`.** Matches the production runtime; use `npm run dev` which wraps this command.
+-   **Deploy with Wrangler CLI or Git push.** `npm run deploy` runs `wrangler pages deploy`; Git-integrated deploys are the preferred production path.

@@ -32,25 +32,10 @@ export default defineConfig([
 				navigator: 'readonly',
 				window: 'readonly',
 			},
-			parserOptions: {
-				ecmaFeatures: {
-					impliedStrict: true,
-				},
-			},
+			parserOptions: { ecmaFeatures: { impliedStrict: true } },
 			sourceType: 'module',
 		},
-		linterOptions: {
-			reportUnusedDisableDirectives: 'error',
-		},
-		settings: {
-			browsers: ['> 5%'],
-		},
-	},
-	// Override for CDK files - disable constructor-for-side-effects rule
-	{
-		files: ['app.js', 'infrastructure/**/*.js'],
-		rules: {
-			'sonarjs/constructor-for-side-effects': 'off',
-		},
+		linterOptions: { reportUnusedDisableDirectives: 'error' },
+		settings: { browsers: ['> 5%'] },
 	},
 ]);

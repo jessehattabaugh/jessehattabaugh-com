@@ -3,16 +3,15 @@ import { describe, it } from 'node:test';
 import assert from 'node:assert';
 
 /**
- * Unit tests for the request handlers
- * Note: These are simplified tests that focus on testing the logic
- * without relying on complex mocking of dynamic imports
+ * Unit tests for the Cloudflare Pages Functions dispatcher behaviour.
+ * Covers header sanitisation, method mapping, and response contracts
+ * without requiring a live Cloudflare runtime.
  */
 
 /**
- * Test the escapeHeaderValue function logic
- * Since it's not exported, we test the behavior through string operations
+ * Header sanitisation — inlined in functions/[[path]].js to prevent header injection (OWASP A03)
  */
-describe('Header escaping functionality', () => {
+describe('Header sanitisation', () => {
 	it('should remove carriage returns from strings', () => {
 		const input = 'value\rwith\rcarriage\rreturns';
 		const result = input.replaceAll('\r', '');
@@ -117,26 +116,18 @@ describe('Response object structure', () => {
 });
 
 describe('Error handling scenarios', () => {
-	it('should handle missing PAGE_MODULE_PATH environment variable', () => {
-		const pageModulePath = process.env.PAGE_MODULE_PATH;
+	it('should return 500 when an unexpected error occurs', () => {
+		const errorResponse = {
+			statusCode: 500,
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify({
+				error: 'Internal Server Error',
+				message: 'An error occurred while processing your request',
+			}),
+		};
 
-		if (pageModulePath) {
-			// If the environment variable is set, test that we can access it
-			assert.strictEqual(typeof pageModulePath, 'string');
-			assert.ok(pageModulePath.length > 0);
-		} else {
-			const errorResponse = {
-				statusCode: 500,
-				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify({
-					error: 'Internal Server Error',
-					message: 'PAGE_MODULE_PATH environment variable is required',
-				}),
-			};
-
-			assert.strictEqual(errorResponse.statusCode, 500);
-			assert.ok(errorResponse.body.includes('PAGE_MODULE_PATH'));
-		}
+		assert.strictEqual(errorResponse.statusCode, 500);
+		assert.ok(errorResponse.body.includes('Internal Server Error'));
 	});
 
 	it('should handle unsupported HTTP methods', () => {

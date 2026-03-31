@@ -2,29 +2,28 @@
 
 ## Project Overview
 
-This is [the website of Jesse Hattabaugh](https://jessehattabaugh.com). It is hosted on AWS using CDK for Infrastructure as Code. It serves as a personal biography, contact information, resume, and portfolio of previous work, and current hobbies and interests. It is built using Modern Web APIs and cutting edge browser APIs. It uses only HTML, CSS, and JavaScript with minimal dependencies.
+This is [the website of Jesse Hattabaugh](https://jessehattabaugh.com). It is hosted on Cloudflare Pages. It serves as a personal biography, contact information, resume, and portfolio of previous work, and current hobbies and interests. It is built using Modern Web APIs and cutting edge browser APIs. It uses only HTML, CSS, and JavaScript with minimal dependencies.
 
 Also see @README.md
 
 ## Directory map
 
-- `/infrastructure` – AWS CDK JavaScript, stacks, aspects, and constructs.
+- `/functions` – Cloudflare Pages Functions. `[[path]].js` is the catch-all entry point that dispatches to page modules.
 - `/lib` – JavaScript modules that are shared between pages
-- `/pages` – Each module in this directory exports functions for handling HTTP requests from AWS API Gateway. Directories represent sub paths from the root of the site, and `index.js` files handle the bare path.
-- `/static` – Static assets which get uploaded to S3 and served at `/static`
+- `/pages` – Each module exports functions for handling HTTP requests. Directories represent sub paths from the root of the site, and `index.js` files handle the bare path.
+- `/static` – Static assets served directly by Cloudflare Pages CDN at `/static`
 - `/tests` – End-to-end Playwright browser tests, and Node Test Runner Unit tests.
 
 ## Dev & Staging
 
+- Local dev server: `npm run dev`
 - Fix Lint Errors: `npm run lint:fix`
 - Unit tests: `npm run test:unit`
-- Staging build: `npm run build:staging`
 - Staging deploy: `npm run deploy:staging`
 - End-to-end Staging Tests: `npm run test:e2e:staging`
 
 ## Production
 
-- Production build: `npm run build`
 - Production deploy: `npm run deploy`
 
 ## Coding Guidelines
