@@ -2,16 +2,16 @@
 
 ## Project Overview
 
-This is [the website of Jesse Hattabaugh](https://jessehattabaugh.com). It is hosted on Cloudflare Pages. It serves as a personal biography, contact information, resume, and portfolio of previous work, and current hobbies and interests. It is built using Modern Web APIs and cutting edge browser APIs. It uses only HTML, CSS, and JavaScript with minimal dependencies.
+This is [the website of Jesse Hattabaugh](https://jessehattabaugh.com). It is hosted on Netlify. It serves as a personal biography, contact information, resume, and portfolio of previous work, and current hobbies and interests. It is built using Modern Web APIs and cutting edge browser APIs. It uses only HTML, CSS, and JavaScript with minimal dependencies.
 
 Also see @README.md
 
 ## Directory map
 
-- `/functions` – Cloudflare Pages Functions. `[[path]].js` is the catch-all entry point that dispatches to page modules.
+- `/functions` – Netlify Functions. `app.js` is the catch-all entry point that dispatches to page modules.
 - `/lib` – JavaScript modules that are shared between pages
 - `/pages` – Each module exports functions for handling HTTP requests. Directories represent sub paths from the root of the site, and `index.js` files handle the bare path.
-- `/static` – Static assets served directly by Cloudflare Pages CDN at `/static`
+- `/static` – Static assets served directly by Netlify CDN at `/static`
 - `/tests` – End-to-end Playwright browser tests, and Node Test Runner Unit tests.
 
 ## Dev & Staging
@@ -24,7 +24,7 @@ Also see @README.md
 
 ## Production
 
-- Production deploy: `npm run deploy`
+- Production deploy: git push to `main` (recommended) or `npm run deploy` for manual CLI deployment
 
 ## Coding Guidelines
 

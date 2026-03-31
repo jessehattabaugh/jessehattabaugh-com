@@ -41,8 +41,8 @@ export async function get() {
 			<div class="skill-category">
 				<h4>Backend</h4>
 				<ul>
-					<li>Cloudflare Workers runtime for serverless execution</li>
-					<li>Cloudflare Pages Functions for request routing</li>
+					<li>Netlify Functions runtime for serverless execution</li>
+					<li>Netlify rewrites for catch-all request routing</li>
 					<li>Custom HTTP method handlers (GET, POST, PUT, DELETE)</li>
 				</ul>
 			</div>
@@ -50,10 +50,10 @@ export async function get() {
 			<div class="skill-category">
 				<h4>Cloud & DevOps</h4>
 				<ul>
-					<li>Cloudflare Pages for hosting and Git-integrated deployments</li>
-					<li>Cloudflare global CDN for performance</li>
-					<li>Cloudflare DNS and managed TLS</li>
-					<li>Wrangler CLI for deployment configuration</li>
+					<li>Netlify for hosting and Git-integrated deployments</li>
+					<li>Netlify global CDN for performance</li>
+					<li>Netlify DNS and managed TLS</li>
+					<li>Netlify CLI for deployment configuration</li>
 					<li>Automated testing with Playwright and Node.js test runner</li>
 				</ul>
 			</div>
@@ -63,11 +63,11 @@ export async function get() {
 			<h3>Website Features</h3>
 			<ul>
 				<li>
-					<strong>Edge Computing:</strong> Cloudflare Pages Functions run at the network
-					edge for low latency worldwide
+					<strong>Serverless Runtime:</strong> Netlify Functions handle dynamic requests
+					with low operational overhead
 				</li>
 				<li>
-					<strong>Global CDN:</strong> Cloudflare network for fast static asset delivery
+					<strong>Global CDN:</strong> Netlify network for fast static asset delivery
 				</li>
 				<li>
 					<strong>Security First:</strong> HTTPS enforced, header injection prevention,

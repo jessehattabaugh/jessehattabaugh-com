@@ -3,13 +3,13 @@ import { describe, it } from 'node:test';
 import assert from 'node:assert';
 
 /**
- * Unit tests for the Cloudflare Pages Functions dispatcher behaviour.
+ * Unit tests for the Netlify Functions dispatcher behaviour.
  * Covers header sanitisation, method mapping, and response contracts
- * without requiring a live Cloudflare runtime.
+ * without requiring a live runtime.
  */
 
 /**
- * Header sanitisation — inlined in functions/[[path]].js to prevent header injection (OWASP A03)
+ * Header sanitisation — inlined in functions/app.js to prevent header injection (OWASP A03)
  */
 describe('Header sanitisation', () => {
 	it('should remove carriage returns from strings', () => {

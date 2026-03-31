@@ -1,5 +1,5 @@
 node_modules
-.wrangler
+.netlify
 *.js.map
 .env
 test-results/
