@@ -13,7 +13,7 @@ A personal website hosted entirely on **Cloudflare Workers**. The site is:
 - **Statically generated** HTML/CSS/JS for everything that can be known at build time.
 - Backed by **HATEOAS API Workers** that render dynamic responses **from the same HTML templates** used at build time.
 - **Progressively enhanced**: every page and action works with zero client JS, then improves when JS and modern browser APIs are available.
-- Deployed with **per-branch preview deployments** and **per-branch database branches**, so every PR is a fully isolated, clickable environment.
+- Deployed with **per-branch preview deployments**, so every PR is a clickable preview environment. Code is isolated per branch; the database uses **two Cloudflare D1 databases — one for production, one shared by all preview/branch environments** (D1 has no native per-branch branching today; see §12).
 
 There is no SPA framework, no client-side router, and no build-time UI framework. If you reach for React/Vue/Svelte/Next/etc., you are doing it wrong.
 
@@ -26,7 +26,7 @@ There is no SPA framework, no client-side router, and no build-time UI framework
 3. **HATEOAS.** API responses are hypermedia. They carry their own controls — links (`<a>`) and forms (`<form>`) — describing what the client can do next. Clients do not hardcode endpoint knowledge or construct URLs from out-of-band API docs; they follow what the server gives them.
 4. **One template source.** The build step and the runtime Worker import the **same** template functions. Never maintain two copies of markup.
 5. **JavaScript with JSDoc.** Author in `.js`/`.mjs` with JSDoc type annotations. Run `tsc` in `checkJs` mode for type checking. Do not introduce a `.ts` toolchain or a transpile step for types.
-6. **Isolated previews.** Every branch gets its own preview URL and its own database branch. Previews must never read or write production data.
+6. **Isolated from production.** Every branch gets its own preview URL. Preview/branch environments bind to a **separate preview database** and must never read or write production data. Note the current limitation: all previews share that one preview database, so they are isolated from production but not from each other (see §12–§13).
 
 ---
 
@@ -88,7 +88,7 @@ Three layers, one shared core:
 │   ├── schema.sql
 │   └── migrations/
 ├── scripts/
-│   └── deploy.js              # per-branch deploy + DB branch orchestration
+│   └── deploy.js              # selects prod vs preview env + applies migrations
 └── dist/                      # build output (gitignored)
     ├── client/
     └── server/
@@ -239,7 +239,7 @@ import { routes } from "../shared/routes.js";
 export default {
   /**
    * @param {Request} request
-   * @param {{ ASSETS: Fetcher, HYPERDRIVE: { connectionString: string } }} env
+   * @param {{ ASSETS: Fetcher, DB: D1Database }} env
    */
   async fetch(request, env) {
     const url = new URL(request.url);
@@ -279,19 +279,34 @@ Baseline shape (verify field names/semantics against current docs — the platfo
   },
   "observability": { "enabled": true },
 
-  // Primary data layer: Neon Postgres via Hyperdrive (see §12).
-  "hyperdrive": [
-    { "binding": "HYPERDRIVE", "id": "<production-hyperdrive-id>" }
-  ]
+  // Default (production) database. The binding name `DB` is identical across
+  // environments so application code never changes — only the database behind
+  // it changes per environment.
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "site-production",
+      "database_id": "<production-db-id>"
+    }
+  ],
 
-  // If using D1 instead (alternative, see §12), replace hyperdrive with:
-  // "d1_databases": [
-  //   { "binding": "DB", "database_name": "site", "database_id": "<prod-id>" }
-  // ]
+  // Preview/branch environment: same binding name, different physical database.
+  // All non-production branches deploy with `--env preview` and share this DB.
+  "env": {
+    "preview": {
+      "d1_databases": [
+        {
+          "binding": "DB",
+          "database_name": "site-preview",
+          "database_id": "<preview-db-id>"
+        }
+      ]
+    }
+  }
 }
 ```
 
-Per-environment overrides (e.g. `env.preview`) point bindings at preview resources; the deploy script (§13) injects the per-branch IDs.
+The two databases (`site-production`, `site-preview`) are created once with `wrangler d1 create <name>`; paste the returned IDs above. Verify the exact `env`/binding-inheritance semantics against current docs (see §15) — wrangler environments do not always inherit top-level bindings, so the preview env must declare its own `DB` binding explicitly, as shown.
 
 ---
 
@@ -311,41 +326,45 @@ Do **not** hand-roll GitHub Actions for this unless Workers Builds proves insuff
 
 ## 12. Data layer
 
-**Primary: Neon Postgres + Cloudflare Hyperdrive.** Chosen because the per-branch-database requirement needs real branching, and Neon provides instant copy-on-write branches purpose-built for preview environments. Compute stays on Cloudflare; only the database is Neon. Connect from the Worker through Hyperdrive (connection pooling + edge caching of the Postgres wire protocol). Query with a thin Postgres client; keep all queries in `shared/data/`.
+**Cloudflare D1 (serverless SQLite), first-party, single vendor.** Everything stays on one Cloudflare account and one bill: Workers, static assets, DNS, and the database. Bind D1 to the Worker as `DB`; write all queries in `shared/data/` behind a small interface so call sites never touch the driver directly. Use prepared statements with bound parameters (`env.DB.prepare(sql).bind(...args)`) — never string-interpolate input into SQL.
 
-**Alternative: Cloudflare D1 (SQLite), 100% on Cloudflare.** Acceptable if staying entirely on Cloudflare matters more than native branching. Caveat the agent must respect: **D1 has no native git-branch database branching today** (it is on Cloudflare's roadmap via Time Travel). On D1, preview environments share the production database unless you explicitly isolate them, so branch isolation must be **scripted** — create a uniquely-named D1 database per branch, apply migrations, and bind it to the preview version. This is more fragile than Neon branching; only choose D1 with that understood.
+Two physical databases, one binding name:
 
-Pick one and keep `shared/data/` behind a small interface so the rest of the code doesn't care which backend is live.
+- `site-production` — bound in the default (production) environment.
+- `site-preview` — bound in the `preview` environment, shared by **all** branch/preview deployments.
+
+**Known limitation (accepted for now).** D1 has **no native git-branch database branching** today — it's on Cloudflare's roadmap via Time Travel, not shipped. So we do not get a fresh database per PR. Instead, every preview branch shares the single `site-preview` database. Consequences the agent must respect:
+
+- Previews are isolated from **production** data, but **not from each other**. Two open PRs hit the same preview database.
+- A destructive or schema-changing migration applied to `site-preview` affects every other open preview until it's promoted to production. Coordinate schema changes; don't land migrations that break sibling branches.
+- Treat `site-preview` as disposable: its data is shared scratch state, not a per-branch fixture. Tests must not assume exclusive ownership of it (see §18).
+
+**Upgrade path (do not build yet).** When real per-branch isolation is needed, two options: (a) script a dedicated D1 database per branch in `scripts/deploy.js` — create-on-the-fly, migrate, bind, and tear down on PR close; or (b) adopt native D1 branching once Cloudflare ships it. Keeping all DB access behind `shared/data/` and a single `DB` binding is what makes either upgrade a localized change.
 
 ---
 
-## 13. Per-branch database branches
+## 13. Database environments (production vs preview)
 
-The goal: each preview deployment talks to its own isolated database branch; production talks to the production database. `scripts/deploy.js` orchestrates this and is invoked by Workers Builds for every build.
+There are exactly two databases, selected by git branch at deploy time. `scripts/deploy.js` runs inside Workers Builds and picks the environment; there is no per-branch database creation.
 
-**Neon path (primary):**
+Deploy logic:
 1. Determine the current git branch.
-2. If `main`: target Neon's production branch and the production Hyperdrive config; deploy to production.
-3. Else: create-or-reuse a Neon branch named after the git branch (e.g. `preview/<branch>`). Neon branches are near-instant and copy-on-write.
-4. Create-or-update a Hyperdrive config pointing at that Neon branch's connection string.
-5. Run migrations against the branch.
-6. Deploy the Worker version with the branch's Hyperdrive binding injected.
-7. On branch deletion / PR close, delete the Neon branch and its Hyperdrive config (cleanup job).
+2. If `main` → production deploy against the default environment (binds `site-production`).
+3. Any other branch → preview deploy with `--env preview` (binds `site-preview`). This produces the branch's preview version + stable preview URL from §11.
+4. Apply migrations to whichever database the deploy targets before/at deploy (`wrangler d1 migrations apply <database_name> --remote`, optionally `--env preview`).
 
-**D1 path (alternative):**
-1. On non-`main` branches, `wrangler d1 create site-preview-<branch>` (idempotent: reuse if exists).
-2. `wrangler d1 migrations apply --remote` against that database.
-3. Bind it via a per-environment block / dynamic config for the preview version.
-4. Clean up the per-branch database on PR close.
+Verify the exact interaction between `wrangler versions upload` (used for branch previews) and `--env` against current docs (§15); confirm the preview version actually binds `site-preview` and not the production database before trusting it.
 
-Secrets (DB credentials, Neon API key, Cloudflare API token) come from Workers Builds env vars / secrets — never commit them.
+No database credentials are needed (D1 is a native binding, not a connection string). The only secret Workers Builds needs is a Cloudflare API token with D1 + Workers permissions — never commit it.
+
+**Reminder:** all preview branches share `site-preview`. See the limitation and upgrade path in §12.
 
 ---
 
 ## 14. Migrations
 
 - Plain SQL migration files in `db/migrations/`, applied in order. No ORM-driven migrations.
-- A migration must apply cleanly to a freshly-branched database (previews depend on this).
+- A migration must apply cleanly to both `site-production` and `site-preview` from any prior state. Because all previews share `site-preview`, write migrations that don't break sibling branches mid-review.
 - Forward-only by default; if a migration is risky, gate it behind a manual step and note it in the PR.
 - Schema lives in `db/schema.sql` as the canonical reference; migrations are the mechanism.
 
@@ -357,7 +376,7 @@ Cloudflare ships changes constantly; do not trust memorized field names or limit
 
 - Fetch the docs index: `https://developers.cloudflare.com/llms.txt` (and product-specific `llms.txt`, e.g. D1's).
 - Request the **Markdown** version of any doc page (append `index.md` to the URL or send `Accept: text/markdown`) — it's the agent-friendly form.
-- Confirm: static-assets routing flags (worker-first vs asset-first, SPA/404 handling), `preview_urls` behavior, Hyperdrive setup, D1 environment bindings, and current free-tier limits.
+- Confirm: static-assets routing flags (worker-first vs asset-first, SPA/404 handling), `preview_urls` behavior, D1 environment bindings and `--env` semantics, `wrangler d1 migrations` usage, and current free-tier limits.
 
 If a documented behavior contradicts this file, the docs win — flag the discrepancy in your PR so this file gets updated.
 
@@ -377,7 +396,7 @@ If a documented behavior contradicts this file, the docs win — flag the discre
 
 ## 17. Local development
 
-- `npm run dev` runs the Worker locally via Wrangler (`wrangler dev`) with local static assets and a local database (local D1, or a Neon dev branch).
+- `npm run dev` runs the Worker locally via Wrangler (`wrangler dev`) with local static assets and a local D1 database (Wrangler's local SQLite state).
 - `npm run build` produces `dist/`.
 - `npm run check` runs `tsc --noEmit`.
 - `npm run test` runs the test suite.
@@ -391,6 +410,7 @@ If a documented behavior contradicts this file, the docs win — flag the discre
 - **Integration:** Worker request→response per route, asserting status codes, redirects, and that responses carry the correct HATEOAS controls for the actor's permissions.
 - **No-JS path is a test target**, not an afterthought: assert that core flows complete via plain form POSTs and `303` redirects.
 - Prefer the platform test runner / `vitest` with the Workers pool. Keep tests dependency-light.
+- Run tests against a **local** D1 database, never the shared `site-preview`. Tests must create and tear down their own state and must not assume exclusive ownership of any remote database.
 
 ---
 
@@ -401,6 +421,6 @@ If a documented behavior contradicts this file, the docs win — flag the discre
 - [ ] Dynamic responses share templates with the static build (no duplicated markup).
 - [ ] Responses carry correct HATEOAS controls and HTTP semantics.
 - [ ] `tsc` clean; tests pass.
-- [ ] Preview deployment is reachable at its branch URL and uses its **own** database branch (verified: no production data touched).
+- [ ] Preview deployment is reachable at its branch URL and binds the **preview** database (`site-preview`), not production — verified, no production data touched.
 - [ ] All HTML output is escaped; queries parameterized; security headers set.
 - [ ] Any doc-contradiction or assumption flagged in the PR description.
