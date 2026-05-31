@@ -1,0 +1,25 @@
+{
+	"devDependencies": {
+		"@cloudflare/vitest-pool-workers": "latest",
+		"@cloudflare/workers-types": "latest",
+		"@eslint/compat": "latest",
+		"@eslint/eslintrc": "latest",
+		"@eslint/js": "latest",
+		"@playwright/test": "latest",
+		"@types/node": "^25.9.1",
+		"eslint": "latest",
+		"typescript": "latest",
+		"vitest": "latest",
+		"wrangler": "latest"
+	},
+	"name": "jessehattabaugh-com",
+	"scripts": {
+		"build": "node build/build.js",
+		"check": "tsc --project tsconfig.worker.json --noEmit && tsc --project tsconfig.node.json --noEmit && tsc --project tsconfig.client.json --noEmit",
+		"deploy:prod": "node scripts/deploy.js",
+		"dev": "wrangler dev",
+		"test": "vitest run"
+	},
+	"type": "module",
+	"version": "1.0.0"
+}

@@ -1,0 +1,32 @@
+{
+	"name": "jessehattabaugh-com",
+	"main": "./dist/server/index.js",
+	"compatibility_date": "2026-05-01",
+	"assets": {
+		"directory": "./dist/client/",
+		"binding": "ASSETS"
+	},
+	"observability": {
+		"enabled": true
+	},
+	"d1_databases": [
+		{
+			"binding": "DB",
+			"database_name": "jessehattabaugh-com",
+			"database_id": "bc840c22-76e5-433b-8319-a98ee3ae3cc4",
+			"migrations_dir": "db/migrations"
+		},
+	],
+	"env": {
+		"preview": {
+			"d1_databases": [
+				{
+					"binding": "DB",
+					"database_name": "jessehattabaugh-com-preview",
+					"database_id": "replace-with-preview-d1-id",
+					"migrations_dir": "db/migrations"
+				},
+			],
+		},
+	},
+}
