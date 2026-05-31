@@ -11,6 +11,7 @@
  */
 
 import { execSync } from 'node:child_process';
+import { writeFileSync, unlinkSync } from 'node:fs';
 
 /** @param {string} cmd */
 function run(cmd) {
@@ -36,22 +37,44 @@ console.log(`DB:     ${dbName}`);
 // Build static assets + copy worker
 run('npm run build');
 
-if (!isMain) {
+if (isMain) {
+	run(`wrangler d1 migrations apply ${dbName} --remote --migrations-dir db/migrations`);
+	run('wrangler deploy');
+} else {
 	// Create the per-branch D1 database if it doesn't exist yet.
-	// wrangler d1 create exits non-zero if the DB already exists, so we swallow that.
 	try {
 		run(`wrangler d1 create ${dbName} --experimental-backend`);
 	} catch {
 		console.log(`D1 database "${dbName}" already exists, reusing.`);
 	}
-}
 
-// Apply migrations
-run(`wrangler d1 migrations apply ${dbName} --remote`);
+	run(`wrangler d1 migrations apply ${dbName} --remote --migrations-dir db/migrations`);
 
-// Deploy
-if (isMain) {
-	run('wrangler deploy');
-} else {
-	run(`wrangler versions upload --env preview`);
+	// Resolve the actual database ID so the Worker binds to the right database.
+	/** @type {{ name: string, uuid?: string, database_id?: string }[]} */
+	const databases = JSON.parse(execSync('wrangler d1 list --json', { encoding: 'utf8' }));
+	const db = databases.find((d) => { return d.name === dbName; });
+	if (!db) { throw new Error(`Could not find D1 database "${dbName}" after creation`); }
+	const dbId = db.uuid ?? db.database_id;
+	console.log(`DB ID: ${dbId}`);
+
+	// Write a temp config with the correct per-branch binding, then clean it up.
+	// Keys are quoted because they are JSON field names, not JS identifiers.
+	const previewConfig = {
+		'assets': { 'binding': 'ASSETS', 'directory': './dist/client/' },
+		'compatibility_date': '2026-05-01',
+		'd1_databases': [
+			{ 'binding': 'DB', 'database_id': dbId, 'database_name': dbName, 'migrations_dir': 'db/migrations' },
+		],
+		'main': './worker/index.js',
+		'name': 'jessehattabaugh-com',
+		'observability': { 'enabled': true },
+	};
+	const tempConfig = '.wrangler-preview.json';
+	writeFileSync(tempConfig, JSON.stringify(previewConfig, null, '\t'));
+	try {
+		run(`wrangler versions upload --config ${tempConfig}`);
+	} finally {
+		unlinkSync(tempConfig);
+	}
 }
