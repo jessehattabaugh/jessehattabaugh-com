@@ -6,6 +6,7 @@ import { html, Raw } from '../html.js';
  * @param {Raw | string} opts.body
  * @param {string} [opts.description]
  * @param {string} [opts.path]
+ * @param {Raw} [opts.scripts]
  * @returns {Raw}
  */
 export const layout = ({
@@ -13,6 +14,7 @@ export const layout = ({
 	body,
 	description = 'Personal website of Jesse Hattabaugh, a software engineer.',
 	path = '',
+	scripts = new Raw(''),
 }) => {
 	return html`<!doctype html>
 		<html lang="en">
@@ -73,6 +75,7 @@ export const layout = ({
 						<a href="/colophon">How this site works</a>
 					</p>
 				</footer>
+				${scripts}
 				<script type="module" src="/enhance/index.js"></script>
 			</body>
 		</html>`;
