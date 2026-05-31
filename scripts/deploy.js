@@ -18,8 +18,12 @@ function run(cmd) {
 	execSync(cmd, { stdio: 'inherit' });
 }
 
+const gitBranch = execSync('git rev-parse --abbrev-ref HEAD').toString().trim();
 const branch =
-	process.env.CF_PAGES_BRANCH ?? execSync('git rev-parse --abbrev-ref HEAD').toString().trim();
+	process.env.WORKERS_CI_BRANCH ??
+	process.env.CF_PAGES_BRANCH ??
+	(gitBranch !== 'HEAD' ? gitBranch : undefined) ??
+	(() => { throw new Error('Cannot determine branch: detached HEAD and no CI env var set'); })();
 
 const isMain = branch === 'main';
 const dbName = isMain
