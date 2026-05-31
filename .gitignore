@@ -4,3 +4,4 @@ dist/
 *.env
 .dev.vars
 .wrangler-preview.json
+*.tsbuildinfo
