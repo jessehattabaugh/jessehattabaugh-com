@@ -1,1 +1,14 @@
-{ "objectWrap": "collapse", "semi": true, "singleQuote": true, "trailingComma": "all" }
+{
+  "objectWrap": "collapse",
+  "semi": true,
+  "singleQuote": true,
+  "trailingComma": "all",
+  "overrides": [
+    {
+      "files": "*.jsonc",
+      "options": {
+        "trailingComma": "none"
+      }
+    }
+  ]
+}
