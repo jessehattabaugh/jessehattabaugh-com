@@ -38,17 +38,17 @@ console.log(`DB:     ${dbName}`);
 run('npm run build');
 
 if (isMain) {
-	run(`wrangler d1 migrations apply ${dbName} --remote --migrations-dir db/migrations`);
+	run(`wrangler d1 migrations apply ${dbName} --remote`);
 	run('wrangler deploy');
 } else {
 	// Create the per-branch D1 database if it doesn't exist yet.
 	try {
-		run(`wrangler d1 create ${dbName} --experimental-backend`);
+		run(`wrangler d1 create ${dbName}`);
 	} catch {
 		console.log(`D1 database "${dbName}" already exists, reusing.`);
 	}
 
-	run(`wrangler d1 migrations apply ${dbName} --remote --migrations-dir db/migrations`);
+	run(`wrangler d1 migrations apply ${dbName} --remote`);
 
 	// Resolve the actual database ID so the Worker binds to the right database.
 	/** @type {{ name: string, uuid?: string, database_id?: string }[]} */
