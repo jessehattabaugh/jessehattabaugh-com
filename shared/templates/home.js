@@ -4,8 +4,8 @@ import { layout } from './layout.js';
 /**
  * @returns {import('../html.js').Raw}
  */
-export const home = () =>
-	layout({
+export const home = () => {
+	return layout({
 		title: 'Home',
 		path: '/',
 		description: 'Jesse Hattabaugh — software engineer, web developer.',
@@ -24,3 +24,4 @@ export const home = () =>
 			</section>
 		`,
 	});
+};

@@ -13,8 +13,8 @@ export const layout = ({
 	body,
 	description = 'Personal website of Jesse Hattabaugh, a software engineer.',
 	path = '',
-}) =>
-	html`<!doctype html>
+}) => {
+	return html`<!doctype html>
 		<html lang="en">
 			<head>
 				<meta charset="utf-8" />
@@ -76,3 +76,4 @@ export const layout = ({
 				<script type="module" src="/enhance/index.js"></script>
 			</body>
 		</html>`;
+};

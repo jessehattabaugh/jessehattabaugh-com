@@ -12,6 +12,12 @@
 
 import { execSync } from 'node:child_process';
 
+/** @param {string} cmd */
+function run(cmd) {
+	console.log(`\n$ ${cmd}`);
+	execSync(cmd, { stdio: 'inherit' });
+}
+
 const branch =
 	process.env.CF_PAGES_BRANCH ?? execSync('git rev-parse --abbrev-ref HEAD').toString().trim();
 
@@ -44,10 +50,4 @@ if (isMain) {
 	run('wrangler deploy');
 } else {
 	run(`wrangler versions upload --env preview`);
-}
-
-/** @param {string} cmd */
-function run(cmd) {
-	console.log(`\n$ ${cmd}`);
-	execSync(cmd, { stdio: 'inherit' });
 }

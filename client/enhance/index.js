@@ -3,15 +3,27 @@
  * All enhancements are feature-detected; the page works without this script.
  */
 
+/**
+ * Extract the inner HTML of <main> from a full-page HTML string.
+ * @param {string} html
+ * @returns {string | null}
+ */
+function extractMain(html) {
+	const match = html.match(/<main[^>]*>([\s\S]*?)<\/main>/i);
+	return match ? match[1] : null;
+}
+
 // Fetch-and-swap for form submissions (HATEOAS-aware fragment swaps).
 // Reads action/method FROM the markup, never hardcodes endpoint knowledge.
 if ('startViewTransition' in document) {
 	document.addEventListener('submit', async (event) => {
 		const form = /** @type {HTMLFormElement | null} */ (event.target);
-		if (!form || form.dataset.noEnhance) return;
+		if (!form || form.dataset.noEnhance) {
+			return;
+		}
 
 		const method = (form.method || 'get').toUpperCase();
-		const action = form.action;
+		const { action } = form;
 
 		event.preventDefault();
 
@@ -42,7 +54,9 @@ if ('startViewTransition' in document) {
 				document.startViewTransition(() => {
 					// Replace main content with the error response
 					const main = document.querySelector('main');
-					if (main) main.innerHTML = extractMain(html) ?? html;
+					if (main) {
+						main.innerHTML = extractMain(html) ?? html;
+					}
 				});
 				return;
 			}
@@ -56,14 +70,4 @@ if ('startViewTransition' in document) {
 			form.submit();
 		}
 	});
-}
-
-/**
- * Extract the inner HTML of <main> from a full-page HTML string.
- * @param {string} html
- * @returns {string | null}
- */
-function extractMain(html) {
-	const match = html.match(/<main[^>]*>([\s\S]*?)<\/main>/i);
-	return match ? match[1] : null;
 }

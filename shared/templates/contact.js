@@ -7,8 +7,8 @@ import { layout } from './layout.js';
  * @param {{ name: string, email: string, message: string }} [opts.values]
  * @returns {import('../html.js').Raw}
  */
-export const contact = ({ error, values } = {}) =>
-	layout({
+export const contact = ({ error, values } = {}) => {
+	return layout({
 		title: 'Contact',
 		path: '/contact',
 		description: 'Get in touch with Jesse Hattabaugh.',
@@ -51,10 +51,13 @@ ${values?.message ?? ''}</textarea
 			</article>
 		`,
 	});
+};
 
 /**
  * Fragment: just the form, for fragment-swap responses.
  * @param {Parameters<typeof contact>[0]} [opts]
  * @returns {import('../html.js').Raw}
  */
-export const contactFragment = (opts) => html` ${contact(opts).value} `;
+export const contactFragment = (opts) => {
+	return html` ${contact(opts).value} `;
+};
