@@ -14,7 +14,7 @@
 			"binding": "DB",
 			"database_name": "jessehattabaugh-com",
 			"database_id": "bc840c22-76e5-433b-8319-a98ee3ae3cc4",
-			"migrations_dir": "db/migrations",
+			"migrations_dir": "db/migrations"
 		}
 	],
 	"env": {
@@ -24,9 +24,9 @@
 					"binding": "DB",
 					"database_name": "jessehattabaugh-com-preview",
 					"database_id": "replace-with-preview-d1-id",
-					"migrations_dir": "db/migrations",
-				},
-			],
-		},
+					"migrations_dir": "db/migrations"
+				}
+			]
+		}
 	}
 }
