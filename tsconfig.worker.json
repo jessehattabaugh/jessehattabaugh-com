@@ -4,6 +4,7 @@
 		"module": "ESNext",
 		"moduleResolution": "bundler",
 		"composite": true,
+		"tsBuildInfoFile": "./dist/types/worker/tsconfig.worker.tsbuildinfo",
 		"outDir": "./dist/types/worker",
 		"allowJs": true,
 		"checkJs": true,
