@@ -1,19 +1,11 @@
 {
-	"name": "jessehattabaugh-com",
-	"main": "./worker/index.js",
+	"assets": { "binding": "ASSETS", "directory": "./dist/client/" },
 	"compatibility_date": "2026-05-01",
-	"assets": {
-		"directory": "./dist/client/",
-		"binding": "ASSETS"
-	},
-	"observability": {
-		"enabled": true
-	},
 	"d1_databases": [
 		{
 			"binding": "DB",
-			"database_name": "jessehattabaugh-com",
 			"database_id": "bc840c22-76e5-433b-8319-a98ee3ae3cc4",
+			"database_name": "jessehattabaugh-com",
 			"migrations_dir": "db/migrations"
 		}
 	],
@@ -22,11 +14,18 @@
 			"d1_databases": [
 				{
 					"binding": "DB",
-					"database_name": "jessehattabaugh-com-preview",
 					"database_id": "replace-with-preview-d1-id",
+					"database_name": "jessehattabaugh-com-preview",
 					"migrations_dir": "db/migrations"
 				}
 			]
 		}
-	}
+	},
+	"main": "./worker/index.js",
+	"name": "jessehattabaugh-com",
+	"observability": { "enabled": true },
+	"routes": [
+		{ "custom_domain": true, "pattern": "jessehattabaugh.com" },
+		{ "custom_domain": true, "pattern": "www.jessehattabaugh.com" }
+	]
 }
