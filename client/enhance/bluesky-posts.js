@@ -119,6 +119,7 @@ class BlueskyPosts extends HTMLElement {
 			url.searchParams.set('repo', did);
 			url.searchParams.set('collection', 'app.bsky.feed.post');
 			url.searchParams.set('limit', String(Math.min(limit * 3, 100)));
+			url.searchParams.set('reverse', 'true');
 
 			const res = await fetch(url);
 			if (!res.ok) {
