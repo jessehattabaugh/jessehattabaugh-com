@@ -6,8 +6,8 @@ import { layout } from './layout.js';
  * @param {string} [opts.message]
  * @returns {import('../html.js').Raw}
  */
-export const error = ({ message } = {}) =>
-	layout({
+export const error = ({ message } = {}) => {
+	return layout({
 		title: '500 Server Error',
 		body: html`
 			<article>
@@ -17,3 +17,4 @@ export const error = ({ message } = {}) =>
 			</article>
 		`,
 	});
+};

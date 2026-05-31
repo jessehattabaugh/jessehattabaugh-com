@@ -4,8 +4,8 @@ import { layout } from './layout.js';
 /**
  * @returns {import('../html.js').Raw}
  */
-export const colophon = () =>
-	layout({
+export const colophon = () => {
+	return layout({
 		title: 'Colophon',
 		path: '/colophon',
 		description: 'How jessehattabaugh.com is built.',
@@ -71,3 +71,4 @@ export const colophon = () =>
 			</article>
 		`,
 	});
+};

@@ -4,8 +4,8 @@ import { layout } from './layout.js';
 /**
  * @returns {import('../html.js').Raw}
  */
-export const notFound = () =>
-	layout({
+export const notFound = () => {
+	return layout({
 		title: '404 Not Found',
 		body: html`
 			<article>
@@ -15,3 +15,4 @@ export const notFound = () =>
 			</article>
 		`,
 	});
+};

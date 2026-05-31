@@ -4,8 +4,8 @@ import { layout } from './layout.js';
 /**
  * @returns {import('../html.js').Raw}
  */
-export const thanks = () =>
-	layout({
+export const thanks = () => {
+	return layout({
 		title: 'Thanks',
 		body: html`
 			<article>
@@ -15,3 +15,4 @@ export const thanks = () =>
 			</article>
 		`,
 	});
+};

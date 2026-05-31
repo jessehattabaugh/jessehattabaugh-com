@@ -1,6 +1,5 @@
 import { render } from '../shared/html.js';
 import { contact } from '../shared/templates/contact.js';
-import { notFound } from '../shared/templates/not-found.js';
 import { error as errorPage } from '../shared/templates/error.js';
 import { insertContactMessage } from '../shared/data/contact.js';
 
@@ -23,43 +22,6 @@ function htmlResponse(html, status = 200) {
 		headers: { 'Content-Type': 'text/html;charset=utf-8', ...SECURITY_HEADERS },
 	});
 }
-
-/**
- * Detect whether this is a fragment request (JS progressive enhancement).
- * @param {Request} request
- * @returns {boolean}
- */
-function isFragment(request) {
-	return (
-		request.headers.get('Accept') === 'text/fragment+html' ||
-		request.headers.get('X-Fragment') === 'true'
-	);
-}
-
-/** @type {ExportedHandler<import('../shared/types.js').Env>} */
-export default {
-	async fetch(request, env) {
-		const url = new URL(request.url);
-
-		try {
-			// GET /contact
-			if (request.method === 'GET' && url.pathname === '/contact') {
-				return htmlResponse(render(contact()));
-			}
-
-			// POST /contact
-			if (request.method === 'POST' && url.pathname === '/contact') {
-				return handleContactPost(request, env);
-			}
-
-			// Fall through to static assets
-			return env.ASSETS.fetch(request);
-		} catch (err) {
-			console.error(err);
-			return htmlResponse(render(errorPage()), 500);
-		}
-	},
-};
 
 /**
  * @param {Request} request
@@ -99,3 +61,28 @@ async function handleContactPost(request, env) {
 	// PRG: redirect after POST so browser back button doesn't re-submit
 	return Response.redirect(new URL('/thanks', request.url).toString(), 303);
 }
+
+/** @type {ExportedHandler<import('../shared/types.js').Env>} */
+export default {
+	async fetch(request, env) {
+		const url = new URL(request.url);
+
+		try {
+			// GET /contact
+			if (request.method === 'GET' && url.pathname === '/contact') {
+				return htmlResponse(render(contact()));
+			}
+
+			// POST /contact
+			if (request.method === 'POST' && url.pathname === '/contact') {
+				return handleContactPost(request, env);
+			}
+
+			// Fall through to static assets
+			return env.ASSETS.fetch(request);
+		} catch (err) {
+			console.error(err);
+			return htmlResponse(render(errorPage()), 500);
+		}
+	},
+};
