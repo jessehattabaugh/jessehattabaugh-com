@@ -29,6 +29,14 @@ function htmlResponse(html, status = 200) {
  * @returns {Promise<Response>}
  */
 async function handleContactPost(request, env) {
+	const contentType = request.headers.get('content-type') ?? '';
+	if (
+		!contentType.includes('application/x-www-form-urlencoded') &&
+		!contentType.includes('multipart/form-data')
+	) {
+		return new Response('Unsupported Media Type', { status: 415, headers: SECURITY_HEADERS });
+	}
+
 	const form = await request.formData();
 	const name = (form.get('name') ?? '').toString().trim();
 	const email = (form.get('email') ?? '').toString().trim();
