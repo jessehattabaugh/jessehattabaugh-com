@@ -30,12 +30,19 @@ export const about = () => {
 				</ul>
 				<h2>Find me elsewhere</h2>
 				<ul>
+					<li><a href="mailto:web@jessehattabaugh.com">Email</a></li>
 					<li>
 						<a href="https://github.com/jessehattabaugh" rel="noopener noreferrer"
 							>GitHub</a
 						>
 					</li>
-					<li><a href="mailto:jesse@jessehattabaugh.com">Email</a></li>
+					<li>
+						<a
+							href="https://bsky.app/profile/jessehattabaugh.com"
+							rel="noopener noreferrer"
+							>Bluesky</a
+						>
+					</li>
 				</ul>
 			</article>
 		`,
