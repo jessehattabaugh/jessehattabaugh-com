@@ -59,7 +59,10 @@ async function handleContactPost(request, env) {
 	await insertContactMessage(env.DB, { name, email, message });
 
 	// PRG: redirect after POST so browser back button doesn't re-submit
-	return Response.redirect(new URL('/thanks', request.url).toString(), 303);
+	return new Response(null, {
+		status: 303,
+		headers: { Location: new URL('/thanks', request.url).toString(), ...SECURITY_HEADERS },
+	});
 }
 
 /** @type {ExportedHandler<import('../shared/types.js').Env>} */
