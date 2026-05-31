@@ -1,4 +1,4 @@
-import { html } from '../html.js';
+import { html, Raw } from '../html.js';
 import { layout } from './layout.js';
 
 /**
@@ -9,6 +9,7 @@ export const home = () => {
 		title: 'Home',
 		path: '/',
 		description: 'Jesse Hattabaugh — software engineer, web developer.',
+		scripts: new Raw('<script type="module" src="/enhance/bluesky-posts.js"></script>'),
 		body: html`
 			<section class="hero">
 				<h1>Jesse Hattabaugh</h1>
@@ -21,6 +22,18 @@ export const home = () => {
 					<a href="/about" class="button">About me</a>
 					<a href="/contact" class="button button--outline">Get in touch</a>
 				</nav>
+			</section>
+			<section>
+				<h2>Recent posts</h2>
+				<bluesky-posts actor="jessehattabaugh.com" limit="5">
+					<p>
+						<a
+							href="https://bsky.app/profile/jessehattabaugh.com"
+							rel="noopener noreferrer"
+							>View posts on Bluesky</a
+						>
+					</p>
+				</bluesky-posts>
 			</section>
 		`,
 	});
