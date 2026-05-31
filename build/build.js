@@ -1,4 +1,4 @@
-import { mkdir, writeFile, copyFile, readdir, cp } from 'node:fs/promises';
+import { mkdir, writeFile, cp } from 'node:fs/promises';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -41,9 +41,6 @@ async function build() {
 	// Copy static assets
 	const clientDir = join(ROOT, 'client');
 	await cp(clientDir, OUT, { recursive: true });
-
-	// Also copy the worker for bundling — Wrangler handles dist/server
-	await mkdir(join(ROOT, 'dist', 'server'), { recursive: true });
 
 	console.log('Build complete →', OUT);
 }
