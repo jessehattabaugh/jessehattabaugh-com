@@ -1,7 +1,9 @@
-node_modules/
-dist/
-.wrangler/
-*.env
 .dev.vars
 .wrangler-preview.json
+.wrangler/
+*.env
 *.tsbuildinfo
+dist/
+node_modules/
+playwright-report/
+test-results/

@@ -1,15 +1,14 @@
 {
 	"devDependencies": {
-		"@cloudflare/vitest-pool-workers": "latest",
 		"@cloudflare/workers-types": "latest",
 		"@eslint/compat": "latest",
 		"@eslint/eslintrc": "latest",
 		"@eslint/js": "latest",
 		"@playwright/test": "latest",
-		"@types/node": "^25.9.1",
+		"@types/node": "latest",
 		"eslint": "latest",
+		"lighthouse": "latest",
 		"typescript": "latest",
-		"vitest": "latest",
 		"wrangler": "latest"
 	},
 	"name": "jessehattabaugh-com",
@@ -19,7 +18,7 @@
 		"deploy": "node scripts/deploy.js",
 		"deploy:prod": "node scripts/deploy.js",
 		"dev": "wrangler dev",
-		"test": "vitest run"
+		"test": "playwright test"
 	},
 	"type": "module",
 	"version": "1.0.0"

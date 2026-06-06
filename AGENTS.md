@@ -99,11 +99,36 @@ Workers Builds (native git integration) handles deploys — no hand-rolled CI ne
 
 ## Testing
 
-- **Unit:** template functions (assert rendered HTML/escaping), the `html` helper, route matching, data functions against a test database.
-- **Integration:** Worker request→response per route, asserting status codes, redirects, and correct HATEOAS controls.
-- **The no-JS path is a test target**, not an afterthought: assert core flows complete via plain form POSTs and `303` redirects.
-- Prefer `vitest` with the Workers pool. Keep tests dependency-light.
-- Run against a **local** D1 database, never `site-preview`. Tests must create and tear down their own state.
+### Philosophy
+
+Unit tests are not used. Every test is an end-to-end functional test exercising real use cases through real browsers pointed at the deployed preview URL.
+
+- **E2E only.** No mocks, no unit tests, no local dev server. If it doesn't run against the deployed preview, it doesn't run.
+- **Real servers.** Tests target the Cloudflare preview URL (`PREVIEW_URL` env var). Set this to the branch preview URL before running. Never point tests at `localhost`.
+- **Semantic/ARIA selectors.** Use `getByRole`, `getByLabel`, `getByText`. Never select by CSS class or `data-testid`. This simultaneously validates accessibility and functionality.
+- **Minimum assertions.** Assert only what a user would notice. Never test implementation details or internal state.
+- **Progressive enhancement coverage.** Every test runs across four configurations automatically: Desktop Chrome (JS on), Desktop Chrome (JS off), Mobile Chrome (JS on), Mobile Chrome (JS off). A feature that only works with JS is broken.
+- **Lighthouse scores.** Core pages must score ≥ 90 in Performance, Accessibility, Best Practices, and SEO. Lighthouse tests run on Desktop Chrome only (skipped in other projects).
+
+### Running tests
+
+```sh
+PREVIEW_URL=https://your-branch.jessehattabaugh-com.workers.dev npx playwright test
+```
+
+Reports are written to `playwright-report/`.
+
+### Tool
+
+Playwright (`@playwright/test`). Tests live in `tests/`.
+
+### Coverage requirements
+
+Every named route gets:
+1. A render test — h1 heading visible, main navigation links present.
+2. A Lighthouse audit at Desktop Chrome.
+
+Interactive flows (forms) get a full happy-path submission test in all four configurations.
 
 ---
 
