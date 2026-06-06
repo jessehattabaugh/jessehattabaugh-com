@@ -153,6 +153,10 @@
 			padding: 0;
 			display: flex;
 			gap: var(--space-md);
+
+			li + li {
+				margin-top: 0;
+			}
 		}
 
 		a {
