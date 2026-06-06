@@ -154,7 +154,7 @@
 			display: flex;
 			gap: var(--space-md);
 
-			li + li {
+			li {
 				margin-top: 0;
 			}
 		}
