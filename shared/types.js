@@ -2,6 +2,11 @@
  * @typedef {Object} Env
  * @property {Fetcher} ASSETS
  * @property {D1Database} DB
+ * @property {string} [ADMIN_AUTH_SECRET]
+ * @property {string} [ADMIN_WEBAUTHN_CREDENTIAL_ID]
+ * @property {string} [ADMIN_WEBAUTHN_PUBLIC_KEY]
+ * @property {string} [ADMIN_WEBAUTHN_RP_ID]
+ * @property {string} [ADMIN_WEBAUTHN_ORIGIN]
  */
 
 /**

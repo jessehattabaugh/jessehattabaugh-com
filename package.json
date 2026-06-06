@@ -19,7 +19,8 @@
 		"deploy": "node scripts/deploy.js",
 		"deploy:prod": "node scripts/deploy.js",
 		"dev": "wrangler dev",
-		"test": "vitest run"
+		"test": "vitest run",
+		"test:e2e": "playwright test"
 	},
 	"type": "module",
 	"version": "1.0.0"

@@ -303,6 +303,23 @@
 			margin-top: var(--space-sm);
 		}
 	}
+
+	.submission-list {
+		list-style: none;
+		padding: 0;
+		margin-bottom: var(--space-lg);
+
+		li {
+			border: 1px solid var(--color-border);
+			border-radius: var(--radius);
+			padding: var(--space-md);
+			margin-bottom: var(--space-md);
+		}
+
+		h2 {
+			margin-top: 0;
+		}
+	}
 }
 
 @layer utilities {

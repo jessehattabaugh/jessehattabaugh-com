@@ -48,4 +48,20 @@ export const staticRoutes = [
 export const dynamicRoutes = [
 	{ method: 'GET', pattern: new URLPatternConstructor({ pathname: '/contact' }) },
 	{ method: 'POST', pattern: new URLPatternConstructor({ pathname: '/contact' }) },
+	{
+		method: 'GET',
+		pattern: new URLPatternConstructor({ pathname: '/admin/contact-submissions' }),
+	},
+	{
+		method: 'POST',
+		pattern: new URLPatternConstructor({ pathname: '/admin/contact-submissions/auth' }),
+	},
+	{
+		method: 'POST',
+		pattern: new URLPatternConstructor({ pathname: '/admin/contact-submissions/delete' }),
+	},
+	{
+		method: 'POST',
+		pattern: new URLPatternConstructor({ pathname: '/admin/contact-submissions/logout' }),
+	},
 ];
