@@ -3,6 +3,12 @@
  * All enhancements are feature-detected; the page works without this script.
  */
 
+if ('serviceWorker' in navigator) {
+	window.addEventListener('load', () => {
+		navigator.serviceWorker.register('/service-worker.js').catch(() => {});
+	});
+}
+
 /**
  * Extract the inner HTML of <main> from a full-page HTML string.
  * @param {string} html

@@ -19,10 +19,17 @@ export const layout = ({
 			<head>
 				<meta charset="utf-8" />
 				<meta name="viewport" content="width=device-width, initial-scale=1" />
+				<meta name="theme-color" content="#faf9f7" media="(prefers-color-scheme: light)" />
+				<meta name="theme-color" content="#111110" media="(prefers-color-scheme: dark)" />
+				<meta name="mobile-web-app-capable" content="yes" />
+				<meta name="apple-mobile-web-app-capable" content="yes" />
+				<meta name="apple-mobile-web-app-title" content="Jesse Hattabaugh" />
 				<title>${title} — Jesse Hattabaugh</title>
 				<meta name="description" content="${description}" />
+				<link rel="manifest" href="/manifest.webmanifest" />
 				<link rel="stylesheet" href="/styles/main.css" />
-				<link rel="icon" href="/favicon.ico" sizes="any" />
+				<link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+				<link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
 				<style>
 					@view-transition {
 						navigation: auto;

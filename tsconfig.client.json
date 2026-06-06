@@ -10,5 +10,6 @@
 		"strict": true,
 		"lib": ["ES2022", "DOM", "DOM.Iterable"]
 	},
-	"include": ["client/**/*.js"]
+	"include": ["client/**/*.js"],
+	"exclude": ["client/service-worker.js"]
 }

@@ -6,9 +6,9 @@
 		"@eslint/eslintrc": "latest",
 		"@eslint/js": "latest",
 		"@playwright/test": "latest",
-		"@types/node": "^25.9.1",
+		"@types/node": "^24.10.1",
 		"eslint": "latest",
-		"typescript": "latest",
+		"typescript": "^5.9.3",
 		"vitest": "latest",
 		"wrangler": "latest"
 	},
