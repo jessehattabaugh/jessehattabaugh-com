@@ -12,7 +12,7 @@ No SPA framework, no client-side router, no build-time UI framework. If you reac
 
 ---
 
-## Non-negotiable principles
+## Project principles
 
 1. **Web standards first.** Use platform APIs (`URLPattern`, `fetch`, `FormData`, `Request`/`Response`, History API, View Transitions, Speculation Rules) before any dependency. A dependency must justify its existence.
 2. **Progressive enhancement.** No-JS baseline is the product. JS must never be required for core functionality. If a feature breaks without JS, it is broken.
@@ -25,7 +25,7 @@ No SPA framework, no client-side router, no build-time UI framework. If you reac
 
 ## Architecture
 
-Three layers share one core: `shared/` holds templates, the `html` helper, route definitions, and data-access functions, imported by both `build/` (SSG) and `worker/` (runtime). The build renders static HTML to `dist/client/`; the Worker handles dynamic routes and falls through to `env.ASSETS` for everything else.
+Three layers share one core: `shared/` holds templates, the `html` helper, route definitions, and data-access functions, imported by both `build/` (SSG) and `worker/` (runtime). The build renders static HTML to `dist/client/`; the Worker handles dynamic routes and falls through to `env.ASSETS` for everything else. If `env.ASSETS.fetch()` returns a `404`, the Worker must intercept it and return the static `dist/client/404.html` page with a `404` status code. Never expose the raw Cloudflare asset `404` response.
 
 ---
 
@@ -35,7 +35,7 @@ Templates in `shared/templates/` are plain `(data) => Raw` functions using the `
 
 - Never concatenate untrusted data into HTML outside the `html` helper.
 - Templates are pure functions — no global state, no DOM access (they run in both build and Worker).
-- A fragment template must be a literal subtree of its page template. The Worker renders either `layout(fragment)` or the bare `fragment` based on request headers — same template either way.
+- A fragment template must be a function called directly inside its parent page template function (e.g., `html` template output like `<main>${fragmentFn(data)}</main>`), so that `layout(fragment(data))` and `fragment(data)` alone both produce markup from a single shared code path. The Worker renders either `layout(fragment)` or the bare `fragment` based on request headers — same template either way.
 
 ---
 
@@ -43,7 +43,9 @@ Templates in `shared/templates/` are plain `(data) => Raw` functions using the `
 
 - **Links navigate, forms mutate.** No `onclick` navigation; use real `<a href>`.
 - **Forms are affordances.** If the user can't perform an action, the server omits the form entirely.
+- If the site has protected routes, authentication state is determined by a signed cookie. Unauthenticated requests to protected routes return `302` to `/login`. All authorization checks happen in the Worker before template rendering; templates receive only pre-authorized data and affordances.
 - **Redirect-after-POST** (`303`). The no-JS path must never re-submit on reload.
+- On validation failure, return `422 Unprocessable Entity` with the full page (or fragment) re-rendered and error messages inline in the form. Do not redirect on failure — the `303` rule applies only to successful mutations. The re-rendered form must include all previously submitted values to avoid data loss.
 - **Content negotiation:** plain request → full HTML document; JS-enhanced request (e.g. `X-Fragment: true`) → bare fragment. Same URL, same template, two representations.
 - Correct HTTP semantics throughout: proper methods, status codes (`404`, `409`, etc.), and `Location` headers.
 
@@ -55,17 +57,22 @@ The baseline (no JS) is full-page navigation via links and `<form>` POSTs. JS ad
 
 - **Cross-document View Transitions** via `@view-transition { navigation: auto; }` — no JS router needed.
 - **Speculation Rules** for prerendering likely next pages.
-- **Fetch-and-swap for fragments:** intercept submits/clicks, send fragment header, swap result using `document.startViewTransition`. Must feature-detect, no-op if APIs missing, and fall back to native navigation on any error. Read action/method/target from the markup — never from hardcoded config.
+- **Fetch-and-swap for fragments:**
+	1. Check for `document.startViewTransition`, `fetch`, and `FormData` support; if any are missing, return immediately (no-op).
+	2. Wrap the entire handler in `try/catch`; on any caught error, call `form.submit()` or follow `a.href` natively.
+	3. Read `action`, `method`, and target selector exclusively from the element's HTML attributes.
+	4. Send the fragment request header.
+	5. Swap response HTML inside `document.startViewTransition`.
 
 **No enhancement may introduce a code path the no-JS baseline doesn't already satisfy.** Enhancement changes *how fast/smooth*, never *whether it works*.
 
-If a hypermedia library is ever needed, **htmx** is the only acceptable candidate. Default to hand-rolled first; introduce htmx only with explicit human sign-off.
+If a hypermedia library is ever needed, **htmx** is the only acceptable candidate. Default to hand-rolled first; introduce htmx only if the PR description contains the exact line: `Approved: use htmx` added by a human reviewer. Do not add this line yourself.
 
 ---
 
 ## Data layer (D1)
 
-All DB access goes through `shared/data/` behind a small interface — call sites never touch the driver directly. Always use prepared statements: `env.DB.prepare(sql).bind(...args)`. Never string-interpolate user input into SQL.
+All DB access goes through `shared/data/` behind a small interface — call sites never touch the driver directly. Always use prepared statements: `env.DB.prepare(sql).bind(...args)`. Never string-interpolate user input into SQL. If a `shared/data/` function throws, the Worker must catch the error, log it to `console.error`, and return a `500` response rendered with the standard error page template. Never let an unhandled D1 error propagate as an unformatted Cloudflare error response. Do not expose raw error messages to the client.
 
 Two physical databases, one binding name (`DB`):
 
@@ -83,7 +90,7 @@ Workers Builds (native git integration) handles deploys — no hand-rolled CI ne
 - `main` → production, binds `site-production`.
 - Any other branch → preview with `--env preview`, binds `site-preview`. Produces a stable branch preview URL posted to the PR.
 
-`scripts/deploy.js` selects the environment and applies migrations before deploy (`wrangler d1 migrations apply`). Migrations live in `db/migrations/` as plain SQL in order. `db/schema.sql` is the canonical schema reference. Write migrations that don't break sibling branches mid-review — they all share `site-preview`.
+`scripts/deploy.js` selects the environment and applies migrations before deploy (`wrangler d1 migrations apply`). Migrations live in `db/migrations/` as plain SQL in order. `db/schema.sql` is the canonical schema reference. Write only additive migrations (new tables, new nullable columns, new indexes). Never drop columns, rename columns, or change column types in a single migration while other branches are under review. Use a separate follow-up migration after all affected branches merge.
 
 ---
 
@@ -101,10 +108,11 @@ Workers Builds (native git integration) handles deploys — no hand-rolled CI ne
 
 ### Philosophy
 
-Unit tests are not used. Every test is an end-to-end functional test exercising real use cases through real browsers pointed at the deployed preview URL.
+Unit tests are not used in this repository, including for shared template functions. Every test is an end-to-end functional test exercising real use cases through real browsers pointed at the deployed preview URL.
 
 - **E2E only.** No mocks, no unit tests, no local dev server. If it doesn't run against the deployed preview, it doesn't run.
 - **Real servers.** Tests target the Cloudflare preview URL (`PREVIEW_URL` env var). Set this to the branch preview URL before running. Never point tests at `localhost`.
+- **Shared preview state.** Because `site-preview` is shared, all E2E tests must be state-independent: create unique test data with random identifiers (e.g., `crypto.randomUUID()`) at test start, assert only on that specific data, and delete it in `afterEach`. Tests must never assert on total record counts or assume a clean database state.
 - **Semantic/ARIA selectors.** Use `getByRole`, `getByLabel`, `getByText`. Never select by CSS class or `data-testid`. This simultaneously validates accessibility and functionality.
 - **Minimum assertions.** Assert only what a user would notice. Never test implementation details or internal state.
 - **Progressive enhancement coverage.** Every test runs across four configurations automatically: Desktop Chrome (JS on), Desktop Chrome (JS off), Mobile Chrome (JS on), Mobile Chrome (JS off). A feature that only works with JS is broken.
@@ -117,6 +125,8 @@ PREVIEW_URL=https://your-branch.jessehattabaugh-com.workers.dev npx playwright t
 ```
 
 Reports are written to `playwright-report/`.
+
+The Playwright global setup must assert that `process.env.PREVIEW_URL` is set and matches `https://*.workers.dev`. If missing or malformed, throw an error with the message: "PREVIEW_URL is not set. Run: export PREVIEW_URL=https://your-branch.jessehattabaugh-com.workers.dev" and abort the test run before any browser is launched.
 
 ### Tool
 
@@ -147,4 +157,4 @@ Interactive flows (forms) get a full happy-path submission test in all four conf
 
 ## Cloudflare docs
 
-The platform moves fast. Before relying on any wrangler config key, binding behavior, or quota, fetch `https://developers.cloudflare.com/llms.txt` and the relevant product-specific `llms.txt`. Request doc pages in Markdown form (append `index.md` to the URL). If docs contradict this file, docs win — flag the discrepancy in your PR.
+The platform moves fast. Before relying on any wrangler config key, binding behavior, or quota, fetch `https://developers.cloudflare.com/llms.txt` and the relevant product-specific `llms.txt`. Request doc pages in Markdown form (append `index.md` to the URL). For Cloudflare platform/API behavior, docs win — flag the discrepancy in your PR. For repository architecture and workflow rules in this file, this file remains authoritative.
