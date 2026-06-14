@@ -14,7 +14,7 @@
 	"name": "jessehattabaugh-com",
 	"scripts": {
 		"build": "node build/build.js",
-		"check": "tsc --project tsconfig.worker.json --noEmit && tsc --project tsconfig.node.json --noEmit && tsc --project tsconfig.client.json --noEmit",
+		"check": "tsc --project worker/tsconfig.json --noEmit && tsc --project build/tsconfig.json --noEmit && tsc --project client/tsconfig.json --noEmit",
 		"deploy": "node scripts/deploy.js",
 		"deploy:prod": "node scripts/deploy.js",
 		"dev": "wrangler dev",

@@ -4,13 +4,13 @@
 		"module": "ESNext",
 		"moduleResolution": "bundler",
 		"composite": true,
-		"tsBuildInfoFile": "./dist/types/worker/tsconfig.worker.tsbuildinfo",
-		"outDir": "./dist/types/worker",
+		"rootDir": "..",
+		"outDir": "../dist/types/node",
 		"allowJs": true,
 		"checkJs": true,
 		"strict": true,
 		"lib": ["ES2022"],
-		"types": ["@cloudflare/workers-types"]
+		"types": ["node"]
 	},
-	"include": ["shared/**/*.js", "worker/**/*.js"]
+	"include": ["../shared/html.js", "../shared/templates/**/*.js", "**/*.js", "../scripts/**/*.js"]
 }

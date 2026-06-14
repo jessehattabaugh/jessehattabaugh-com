@@ -1,8 +1,8 @@
 {
 	"files": [],
 	"references": [
-		{ "path": "./tsconfig.worker.json" },
-		{ "path": "./tsconfig.node.json" },
-		{ "path": "./tsconfig.client.json" }
+		{ "path": "./worker/tsconfig.json" },
+		{ "path": "./build/tsconfig.json" },
+		{ "path": "./client/tsconfig.json" }
 	]
 }
