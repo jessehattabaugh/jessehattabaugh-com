@@ -2,6 +2,7 @@ import { render } from '../shared/html.js';
 import { contact } from '../shared/templates/contact.js';
 import { error as errorPage } from '../shared/templates/error.js';
 import { insertContactMessage } from '../shared/data/contact.js';
+import { handleMessagesApi } from './messages-api.js';
 
 const SECURITY_HEADERS = {
 	'Content-Security-Policy':
@@ -51,7 +52,6 @@ async function handleContactPost(request, env) {
 		);
 	}
 
-	// Basic email format check
 	if (!email.includes('@')) {
 		return htmlResponse(
 			render(
@@ -66,7 +66,6 @@ async function handleContactPost(request, env) {
 
 	await insertContactMessage(env.DB, { name, email, message });
 
-	// PRG: redirect after POST so browser back button doesn't re-submit
 	return new Response(null, {
 		status: 303,
 		headers: { Location: new URL('/thanks', request.url).toString(), ...SECURITY_HEADERS },
@@ -79,20 +78,40 @@ export default {
 		const url = new URL(request.url);
 
 		try {
-			// GET /contact
+			// /contact → redirect to messaging app
 			if (request.method === 'GET' && url.pathname === '/contact') {
-				return htmlResponse(render(contact()));
+				return Response.redirect(new URL('/apps/messages/', request.url).toString(), 301);
 			}
 
-			// POST /contact
+			// Legacy contact form POST (keep functional for no-JS fallback)
 			if (request.method === 'POST' && url.pathname === '/contact') {
 				return handleContactPost(request, env);
 			}
 
+			// Messages app API and share-target routes
+			if (url.pathname.startsWith('/apps/messages/')) {
+				const apiResponse = await handleMessagesApi(request, env);
+				if (apiResponse !== null) {
+					return apiResponse;
+				}
+			}
+
 			// Fall through to static assets
-			return env.ASSETS.fetch(request);
-		} catch (err) {
-			console.error(err);
+			const assetResponse = await env.ASSETS.fetch(request);
+
+			// Serve 404 page with correct status when asset not found
+			if (assetResponse.status === 404) {
+				const notFoundPage = await env.ASSETS.fetch(new URL('/404/', request.url));
+				const headers = new Headers(notFoundPage.headers);
+				for (const [key, value] of Object.entries(SECURITY_HEADERS)) {
+					headers.set(key, value);
+				}
+				return new Response(notFoundPage.body, { status: 404, headers });
+			}
+
+			return assetResponse;
+		} catch (e) {
+			console.error(e);
 			return htmlResponse(render(errorPage()), 500);
 		}
 	},

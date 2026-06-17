@@ -19,7 +19,7 @@ export const home = () => {
 				</p>
 				<nav aria-label="Quick links">
 					<a href="/about" class="button">About me</a>
-					<a href="/contact" class="button button--outline">Get in touch</a>
+					<a href="/apps/messages/" class="button button--outline">Send me a message</a>
 				</nav>
 			</section>
 		`,

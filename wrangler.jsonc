@@ -27,5 +27,17 @@
 	"routes": [
 		{ "custom_domain": true, "pattern": "jessehattabaugh.com" },
 		{ "custom_domain": true, "pattern": "www.jessehattabaugh.com" }
-	]
+	],
+	// Non-secret config. Secrets are set via: wrangler secret put <NAME>
+	// Required secrets:
+	//   SESSION_SECRET     — random 32+ bytes, base64url-encoded
+	//   VAPID_PUBLIC_KEY   — P-256 uncompressed public key, base64url (65 bytes)
+	//   VAPID_PRIVATE_KEY  — P-256 PKCS8 private key, base64url
+	//   OWNER_SETUP_TOKEN  — any secret string; used once to mark Jesse as owner
+	//
+	// Generate VAPID keys with Node.js:
+	//   node scripts/generate-vapid-keys.js
+	"vars": {
+		"VAPID_CONTACT": "mailto:claude_ai@jessehattabaugh.com"
+	}
 }

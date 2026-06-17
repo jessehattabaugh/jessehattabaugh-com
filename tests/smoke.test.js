@@ -10,7 +10,9 @@ function freePort() {
 		const server = net.createServer();
 		server.listen(0, () => {
 			const { port } = /** @type {import('net').AddressInfo} */ (server.address());
-			server.close(() => resolve(port));
+			server.close(() => {
+				resolve(port);
+			});
 		});
 	});
 }
@@ -43,7 +45,7 @@ const PAGES = [
 	{ path: '/', heading: 'Jesse Hattabaugh' },
 	{ path: '/about', heading: 'About' },
 	{ path: '/colophon', heading: 'Colophon' },
-	{ path: '/contact', heading: 'Contact' },
+	{ path: '/apps', heading: 'Apps' },
 	{ path: '/thanks', heading: 'Thanks!' },
 ];
 
@@ -55,7 +57,7 @@ for (const { path, heading } of PAGES) {
 		await expect(page.getByRole('heading', { name: heading, level: 1 })).toBeVisible();
 		const nav = page.getByRole('navigation', { name: 'Main navigation' });
 		await expect(nav.getByRole('link', { name: 'About' })).toBeVisible();
-		await expect(nav.getByRole('link', { name: 'Contact' })).toBeVisible();
+		await expect(nav.getByRole('link', { name: 'Send me a message' })).toBeVisible();
 		await expect(nav.getByRole('link', { name: 'Colophon' })).toBeVisible();
 	});
 }
@@ -67,22 +69,10 @@ test('unknown route returns a 404 response', async ({ page }) => {
 	expect(response?.status()).toBe(404);
 });
 
-// ── Contact form (run in all 4 projects to verify progressive enhancement) ───
-
-test('contact form — happy path submits and lands on thanks page', async ({ page }) => {
-	await page.goto('/contact');
-	await page.getByLabel('Name').fill('Smoke Test');
-	await page.getByLabel('Email').fill('smoke@example.com');
-	await page.getByLabel('Message').fill('Automated smoke test — please ignore.');
-	await page.getByRole('button', { name: 'Send message' }).click();
-	await page.waitForURL(/\/thanks/);
-	await expect(page.getByRole('heading', { name: 'Thanks!', level: 1 })).toBeVisible();
-});
-
 // ── Lighthouse audits (Desktop Chrome only) ───────────────────────────────────
 
 test.describe('Lighthouse audits', () => {
-	test.beforeEach(({}, testInfo) => {
+	test.beforeEach((_, testInfo) => {
 		test.skip(
 			testInfo.project.name !== 'Desktop Chrome',
 			'Lighthouse only runs on Desktop Chrome',
@@ -91,14 +81,19 @@ test.describe('Lighthouse audits', () => {
 
 	const MIN_SCORE = 0.9;
 
-	for (const { path } of PAGES) {
+	const LIGHTHOUSE_PAGES = PAGES.filter((p) => {
+		return p.path !== '/apps/messages/';
+	});
+
+	for (const { path } of LIGHTHOUSE_PAGES) {
 		test(`${path} — scores ≥ ${MIN_SCORE * 100}`, async ({ baseURL }) => {
 			const categories = await lighthouseAudit(new URL(path, baseURL).href);
-			expect(categories.performance?.score ?? 0, 'performance').toBeGreaterThanOrEqual(MIN_SCORE);
-			expect(
-				categories.accessibility?.score ?? 0,
-				'accessibility',
-			).toBeGreaterThanOrEqual(MIN_SCORE);
+			expect(categories.performance?.score ?? 0, 'performance').toBeGreaterThanOrEqual(
+				MIN_SCORE,
+			);
+			expect(categories.accessibility?.score ?? 0, 'accessibility').toBeGreaterThanOrEqual(
+				MIN_SCORE,
+			);
 			expect(
 				categories['best-practices']?.score ?? 0,
 				'best-practices',

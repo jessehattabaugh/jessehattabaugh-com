@@ -7,6 +7,7 @@ import { home } from '../shared/templates/home.js';
 import { about } from '../shared/templates/about.js';
 import { colophon } from '../shared/templates/colophon.js';
 import { thanks } from '../shared/templates/thanks.js';
+import { apps } from '../shared/templates/apps.js';
 import { notFound } from '../shared/templates/not-found.js';
 import { error } from '../shared/templates/error.js';
 
@@ -35,10 +36,11 @@ async function build() {
 	await writePage('/about', render(about()));
 	await writePage('/colophon', render(colophon()));
 	await writePage('/thanks', render(thanks()));
+	await writePage('/apps', render(apps()));
 	await writePage('/404', render(notFound()));
 	await writePage('/500', render(error()));
 
-	// Copy static assets
+	// Copy static assets (includes client/apps/messages/* PWA files)
 	const clientDir = join(ROOT, 'client');
 	await cp(clientDir, OUT, { recursive: true });
 

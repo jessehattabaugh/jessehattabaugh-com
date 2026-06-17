@@ -1,7 +1,12 @@
 /**
  * @typedef {Object} Env
- * @property {Fetcher} ASSETS
- * @property {D1Database} DB
+ * @property {import('@cloudflare/workers-types').Fetcher} ASSETS
+ * @property {import('@cloudflare/workers-types').D1Database} DB
+ * @property {string} SESSION_SECRET      Secret for HMAC-SHA256 session signing (base64url, 32+ bytes)
+ * @property {string} [VAPID_PUBLIC_KEY]  Uncompressed P-256 public key for VAPID (base64url, 65 bytes)
+ * @property {string} [VAPID_PRIVATE_KEY] PKCS8 P-256 private key for VAPID (base64url)
+ * @property {string} [VAPID_CONTACT]     mailto: address used as VAPID JWT sub
+ * @property {string} [OWNER_SETUP_TOKEN] One-time secret to promote first registered user to owner
  */
 
 /**
@@ -24,7 +29,7 @@
  * @property {string} name
  * @property {string} email
  * @property {string} message
- * @property {string} created_at
+ * @property {string} createdAt
  */
 
 export {};
