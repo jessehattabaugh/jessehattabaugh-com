@@ -1,4 +1,4 @@
-import { fromBase64url, toBase64url } from './utils.js';
+import { ecdsaDerToRaw, fromBase64url, toBase64url } from './utils.js';
 
 /**
  * Sign a VAPID JWT for push service authorization.
@@ -29,7 +29,7 @@ export async function signVapidJwt({ audience, subject, privateKeyB64 }) {
 			new TextEncoder().encode(signingInput),
 		),
 	);
-	return `${signingInput}.${toBase64url(sig)}`;
+	return `${signingInput}.${toBase64url(ecdsaDerToRaw(sig))}`;
 }
 
 /**
