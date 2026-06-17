@@ -1,7 +1,22 @@
 import { decodeCbor } from './cbor.js';
-import { toBase64url, fromBase64url } from './utils.js';
+import { ecdsaDerToRaw, toBase64url, fromBase64url } from './utils.js';
 
 export { toBase64url, fromBase64url };
+
+/**
+ * Compare byte arrays without early return on first mismatch.
+ * @param {Uint8Array} a
+ * @param {Uint8Array} b
+ * @returns {boolean}
+ */
+function bytesEqualConstantTime(a, b) {
+	let diff = a.length ^ b.length;
+	const maxLength = Math.max(a.length, b.length);
+	for (let i = 0; i < maxLength; i += 1) {
+		diff |= (a[i] ?? 0) ^ (b[i] ?? 0);
+	}
+	return diff === 0;
+}
 
 /**
  * Parse the binary authenticator data block.
@@ -60,59 +75,6 @@ export function coseToPublicKey(coseKey) {
 	pub.set(x, 1);
 	pub.set(y, 33);
 	return pub;
-}
-
-/**
- * Convert DER-encoded ECDSA signature to the raw r‖s format WebCrypto expects.
- * @param {Uint8Array} der
- * @returns {Uint8Array} 64 bytes
- */
-function derToRaw(der) {
-	// Strict DER form: 0x30 <len|0x81 len> 0x02 <rLen> <r> 0x02 <sLen> <s>
-	if (der.length < 8 || der[0] !== 0x30) {
-		throw new Error('Invalid ECDSA DER signature');
-	}
-
-	let offset = 1;
-	let seqLen = der[offset++];
-	if (seqLen === 0x81) {
-		if (offset >= der.length) {
-			throw new Error('Invalid ECDSA DER signature length');
-		}
-		seqLen = der[offset++];
-	}
-	if (offset + seqLen !== der.length) {
-		throw new Error('Invalid ECDSA DER signature size');
-	}
-
-	if (der[offset++] !== 0x02 || offset >= der.length) {
-		throw new Error('Invalid ECDSA DER integer (r)');
-	}
-	const rLen = der[offset++];
-	if (rLen === 0 || offset + rLen > der.length) {
-		throw new Error('Invalid ECDSA DER r length');
-	}
-	const r = der.slice(offset, offset + rLen);
-	offset += rLen;
-
-	if (der[offset++] !== 0x02 || offset >= der.length) {
-		throw new Error('Invalid ECDSA DER integer (s)');
-	}
-	const sLen = der[offset++];
-	if (sLen === 0 || offset + sLen !== der.length) {
-		throw new Error('Invalid ECDSA DER s length');
-	}
-	const s = der.slice(offset, offset + sLen);
-
-	const raw = new Uint8Array(64);
-	const rClean = r[0] === 0 ? r.slice(1) : r;
-	const sClean = s[0] === 0 ? s.slice(1) : s;
-	if (rClean.length > 32 || sClean.length > 32) {
-		throw new Error('Invalid ECDSA DER integer width');
-	}
-	raw.set(rClean, 32 - rClean.length);
-	raw.set(sClean, 64 - sClean.length);
-	return raw;
 }
 
 /**
@@ -189,6 +151,14 @@ export async function verifyRegistration({
 
 	const attestationObject = fromBase64url(response.attestationObject);
 	const attestation = /** @type {Map<string,unknown>} */ (decodeCbor(attestationObject));
+	const fmt = /** @type {string | undefined} */ (attestation.get('fmt'));
+	const attStmt = /** @type {Map<unknown, unknown> | undefined} */ (attestation.get('attStmt'));
+	if (fmt !== 'none') {
+		throw new Error('Unsupported attestation format');
+	}
+	if (!attStmt || attStmt.size !== 0) {
+		throw new Error('Invalid attestation statement for none format');
+	}
 	const authData = /** @type {Uint8Array} */ (attestation.get('authData'));
 
 	const { rpIdHash, userPresent, credentialId, coseKey } = parseAuthData(authData);
@@ -202,11 +172,7 @@ export async function verifyRegistration({
 	const expectedHash = new Uint8Array(
 		await crypto.subtle.digest('SHA-256', new TextEncoder().encode(expectedRPID)),
 	);
-	if (
-		!expectedHash.every((b, i) => {
-			return b === rpIdHash[i];
-		})
-	) {
+	if (!bytesEqualConstantTime(expectedHash, rpIdHash)) {
 		throw new Error('RP ID hash mismatch');
 	}
 
@@ -260,11 +226,7 @@ export async function verifyAuthentication({
 	const expectedHash = new Uint8Array(
 		await crypto.subtle.digest('SHA-256', new TextEncoder().encode(expectedRPID)),
 	);
-	if (
-		!expectedHash.every((b, i) => {
-			return b === rpIdHash[i];
-		})
-	) {
+	if (!bytesEqualConstantTime(expectedHash, rpIdHash)) {
 		throw new Error('RP ID hash mismatch');
 	}
 
@@ -288,7 +250,7 @@ export async function verifyAuthentication({
 		['verify'],
 	);
 
-	const rawSig = derToRaw(fromBase64url(response.signature));
+	const rawSig = ecdsaDerToRaw(fromBase64url(response.signature));
 	const valid = await crypto.subtle.verify(
 		{ name: 'ECDSA', hash: 'SHA-256' },
 		publicKey,
