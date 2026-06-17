@@ -1,0 +1,10 @@
+# Copy this file to .dev.vars and fill in real values for local development.
+# Production secrets are set via: wrangler secret put <NAME>
+#
+# Generate VAPID keys: node scripts/generate-vapid-keys.js
+# Generate SESSION_SECRET: node -e "console.log(require('crypto').randomBytes(32).toString('base64url'))"
+
+SESSION_SECRET=
+VAPID_PUBLIC_KEY=
+VAPID_PRIVATE_KEY=
+OWNER_SETUP_TOKEN=

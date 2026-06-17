@@ -14,6 +14,8 @@ export const layout = ({
 	description = 'Personal website of Jesse Hattabaugh, a software engineer.',
 	path = '',
 }) => {
+	const normalizedPath = path !== '/' && path.endsWith('/') ? path.slice(0, -1) : path;
+
 	return html`<!doctype html>
 		<html lang="en">
 			<head>
@@ -40,26 +42,30 @@ export const layout = ({
 				<a class="skip-link" href="#main">Skip to content</a>
 				<header>
 					<nav aria-label="Main navigation">
-						<a class="site-title${path === '/' ? ' current' : ''}" href="/"
+						<a class="site-title${normalizedPath === '/' ? ' current' : ''}" href="/"
 							>Jesse Hattabaugh</a
 						>
 						<ul>
 							<li>
-								<a href="/about" ${path === '/about' ? ' aria-current="page"' : ''}
+								<a
+									href="/about"
+									${normalizedPath === '/about' ? ' aria-current="page"' : ''}
 									>About</a
 								>
 							</li>
 							<li>
 								<a
-									href="/contact"
-									${path === '/contact' ? ' aria-current="page"' : ''}
-									>Contact</a
+									href="/apps/messages/"
+									${normalizedPath === '/apps/messages'
+										? ' aria-current="page"'
+										: ''}
+									>Send me a message</a
 								>
 							</li>
 							<li>
 								<a
 									href="/colophon"
-									${path === '/colophon' ? ' aria-current="page"' : ''}
+									${normalizedPath === '/colophon' ? ' aria-current="page"' : ''}
 									>Colophon</a
 								>
 							</li>

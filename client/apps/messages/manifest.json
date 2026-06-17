@@ -1,0 +1,42 @@
+{
+  "name": "Messages — Jesse Hattabaugh",
+  "short_name": "Jessages",
+  "description": "Send a message to Jesse Hattabaugh.",
+  "start_url": "/apps/messages/?pwa=1",
+  "scope": "/apps/messages/",
+  "display": "standalone",
+  "orientation": "any",
+  "theme_color": "#06b6d4",
+  "background_color": "#06b6d4",
+  "icons": [
+    {
+      "src": "/apps/messages/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "/apps/messages/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "maskable"
+    }
+  ],
+  "share_target": {
+    "action": "/apps/messages/api/messages",
+    "method": "POST",
+    "enctype": "multipart/form-data",
+    "params": {
+      "title": "title",
+      "text": "text",
+      "url": "url"
+    }
+  },
+  "shortcuts": [
+    {
+      "name": "Send a message",
+      "url": "/apps/messages/",
+      "icons": [{ "src": "/apps/messages/icon.svg", "sizes": "any" }]
+    }
+  ]
+}

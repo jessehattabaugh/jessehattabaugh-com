@@ -1,0 +1,180 @@
+/* Shared foundation: reset + design tokens + typography.
+   Imported by main.css (site) and each app's stylesheet. */
+
+@layer reset, base;
+
+@layer reset {
+	*,
+	*::before,
+	*::after {
+		box-sizing: border-box;
+		margin: 0;
+		padding: 0;
+	}
+	img,
+	video {
+		max-width: 100%;
+		display: block;
+	}
+	input,
+	button,
+	textarea,
+	select {
+		font: inherit;
+	}
+}
+
+@layer base {
+	:root {
+		--color-bg: #faf9f7;
+		--color-surface: #ffffff;
+		--color-text: #1a1a1a;
+		--color-text-muted: #555;
+		--color-accent: #2563eb;
+		--color-accent-hover: #1d4ed8;
+		--color-border: #e2e0dc;
+		--color-error: #dc2626;
+		--color-success: #059669;
+		--font-sans: system-ui, -apple-system, sans-serif;
+		--font-mono: ui-monospace, 'Cascadia Code', monospace;
+		--space-xs: 0.25rem;
+		--space-sm: 0.5rem;
+		--space-md: 1rem;
+		--space-lg: 2rem;
+		--space-xl: 4rem;
+		--radius: 0.375rem;
+		--radius-lg: 1rem;
+		--max-width: 65ch;
+	}
+
+	@media (prefers-color-scheme: dark) {
+		:root {
+			--color-bg: #111110;
+			--color-surface: #1c1c1b;
+			--color-text: #e8e6e1;
+			--color-text-muted: #999;
+			--color-accent: #60a5fa;
+			--color-accent-hover: #93c5fd;
+			--color-border: #2e2d2a;
+			--color-error: #f87171;
+			--color-success: #34d399;
+		}
+	}
+
+	html {
+		font-family: var(--font-sans);
+		font-size: 1rem;
+		line-height: 1.6;
+		color: var(--color-text);
+		background: var(--color-bg);
+		-webkit-text-size-adjust: 100%;
+	}
+
+	body {
+		min-height: 100dvh;
+		display: flex;
+		flex-direction: column;
+	}
+
+	h1,
+	h2,
+	h3 {
+		line-height: 1.25;
+		font-weight: 700;
+	}
+	h1 {
+		font-size: clamp(1.75rem, 5vw, 2.5rem);
+	}
+	h2 {
+		font-size: clamp(1.25rem, 3vw, 1.75rem);
+		margin-top: var(--space-lg);
+	}
+	h3 {
+		font-size: 1.125rem;
+		margin-top: var(--space-md);
+	}
+
+	p {
+		max-width: var(--max-width);
+	}
+	p + p {
+		margin-top: var(--space-md);
+	}
+
+	a {
+		color: var(--color-accent);
+	}
+	a:hover {
+		color: var(--color-accent-hover);
+	}
+
+	ul,
+	ol {
+		padding-left: var(--space-lg);
+		max-width: var(--max-width);
+	}
+	li + li {
+		margin-top: var(--space-xs);
+	}
+
+	code {
+		font-family: var(--font-mono);
+		font-size: 0.875em;
+	}
+
+	/* Shared button base */
+	.btn {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		gap: var(--space-xs);
+		padding: 0.625rem 1.25rem;
+		background: var(--color-accent);
+		color: #fff;
+		text-decoration: none;
+		border-radius: var(--radius);
+		font-weight: 600;
+		border: 2px solid transparent;
+		cursor: pointer;
+		transition: background 0.15s, opacity 0.15s;
+
+		&:hover {
+			background: var(--color-accent-hover);
+			color: #fff;
+		}
+		&:disabled {
+			opacity: 0.5;
+			cursor: not-allowed;
+		}
+		&.btn--outline {
+			background: transparent;
+			border-color: var(--color-accent);
+			color: var(--color-accent);
+			&:hover {
+				background: var(--color-accent);
+				color: #fff;
+			}
+		}
+		&.btn--ghost {
+			background: transparent;
+			border-color: transparent;
+			color: var(--color-text-muted);
+			&:hover {
+				color: var(--color-text);
+				background: var(--color-border);
+			}
+		}
+	}
+
+	.sr-only {
+		position: absolute;
+		width: 1px;
+		height: 1px;
+		padding: 0;
+		margin: -1px;
+		overflow: hidden;
+		clip: rect(0, 0, 0, 0);
+		white-space: nowrap;
+		border-width: 0;
+	}
+}

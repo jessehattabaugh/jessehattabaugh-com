@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<title>Messages — Jesse Hattabaugh</title>
+		<meta name="description" content="Send Jesse Hattabaugh a message." />
+		<meta name="theme-color" content="#06b6d4" />
+
+		<link rel="manifest" href="/apps/messages/manifest.json" />
+		<link rel="icon" href="/apps/messages/icon.svg" type="image/svg+xml" />
+		<link rel="apple-touch-icon" href="/apps/messages/icon.svg" />
+		<link rel="stylesheet" href="/apps/messages/styles.css" />
+
+		<!-- Spec: View Transitions navigation -->
+		<style>
+			@view-transition { navigation: auto; }
+		</style>
+	</head>
+	<body>
+		<messages-app></messages-app>
+
+		<script type="module" src="/apps/messages/app.js"></script>
+
+		<!-- No-JS fallback: link back to main site -->
+		<noscript>
+			<div style="padding:2rem;text-align:center;font-family:system-ui,sans-serif">
+				<p>This messaging app requires JavaScript.</p>
+				<a href="/">Return to jessehattabaugh.com</a>
+			</div>
+		</noscript>
+	</body>
+</html>

@@ -1,0 +1,94 @@
+/**
+ * Minimal CBOR decoder for WebAuthn attestation objects and COSE keys.
+ * Handles: uint, negint, bstr, tstr, array, map, tag (value skipped).
+ * @param {Uint8Array} bytes
+ * @returns {unknown}
+ */
+export function decodeCbor(bytes) {
+	let offset = 0;
+
+	function readByte() {
+		return bytes[offset++];
+	}
+
+	/** @param {number} size */
+	function readUint(size) {
+		let v = 0;
+		for (let i = 0; i < size; i++) {
+			v = v * 256 + readByte();
+		}
+		return v;
+	}
+
+	/** @param {number} len */
+	function readByteSpan(len) {
+		const slice = bytes.slice(offset, offset + len);
+		offset += len;
+		return slice;
+	}
+
+	/** @param {number} info */
+	function readLength(info) {
+		if (info <= 23) {
+			return info;
+		}
+		if (info === 24) {
+			return readByte();
+		}
+		if (info === 25) {
+			return readUint(2);
+		}
+		if (info === 26) {
+			return readUint(4);
+		}
+		if (info === 27) {
+			return readUint(8);
+		}
+		throw new Error(`Unsupported CBOR additional info: ${info}`);
+	}
+
+	/** @returns {unknown} */
+	function read() {
+		const byte = readByte();
+		const major = byte >> 5;
+		const info = byte & 0x1f;
+
+		if (major === 6) {
+			return read();
+		} // tag — skip to tagged value
+		const length = readLength(info);
+
+		switch (major) {
+			case 0:
+				return length; // unsigned int
+			case 1:
+				return -1 - length; // negative int
+			case 2:
+				return readByteSpan(length); // byte string
+			case 3:
+				return new TextDecoder().decode(readByteSpan(length)); // text string
+			case 4: {
+				// array
+				const arr = [];
+				for (let i = 0; i < length; i++) {
+					arr.push(read());
+				}
+				return arr;
+			}
+			case 5: {
+				// map
+				const map = new Map();
+				for (let i = 0; i < length; i++) {
+					const k = read();
+					const v = read();
+					map.set(k, v);
+				}
+				return map;
+			}
+			default:
+				throw new Error(`Unsupported CBOR major type: ${major}`);
+		}
+	}
+
+	return read();
+}
