@@ -6,6 +6,42 @@ import {
 	serializeAuthenticationCredential,
 } from '../webauthn.js';
 
+const template = document.createElement('template');
+template.innerHTML = `
+	<div class="auth-card">
+		<img class="auth-card__icon" src="/apps/messages/icon.svg" alt="" width="80" height="80" />
+		<h1>Messages</h1>
+		<p>Send Jesse a message using a secure passkey — no password needed.</p>
+		<p class="auth-error" role="alert" hidden></p>
+		<label class="auth-label" for="auth-name"
+			>Your name
+			<input
+				type="text"
+				id="auth-name"
+				name="displayName"
+				autocomplete="name"
+				placeholder="e.g. Alice"
+				class="auth-input"
+				required
+			/>
+		</label>
+		<label class="auth-label auth-label--hidden" for="auth-token"
+			>Setup token (owner only)
+			<input
+				type="password"
+				id="auth-token"
+				name="setupToken"
+				autocomplete="off"
+				class="auth-input"
+				placeholder="Leave blank if not owner"
+			/>
+		</label>
+		<button type="button" class="btn btn--primary auth-register">Register with Passkey</button>
+		<div class="auth-divider" aria-hidden="true">or</div>
+		<button type="button" class="btn btn--outline auth-login">Sign in with Passkey</button>
+	</div>
+`;
+
 /**
  * <auth-screen> — Passkey registration and authentication UI.
  * Dispatches 'auth-success' with { user } on success.
@@ -17,86 +53,26 @@ export class AuthScreen extends HTMLElement {
 
 	#render() {
 		this.className = 'auth-screen';
-		this.innerHTML = '';
+		this.replaceChildren(template.content.cloneNode(true));
 
-		const card = document.createElement('div');
-		card.className = 'auth-card';
+		const nameInput = /** @type {HTMLInputElement} */ (this.querySelector('#auth-name'));
+		const tokenLabel = /** @type {HTMLLabelElement} */ (
+			this.querySelector('label[for="auth-token"]')
+		);
+		const tokenInput = /** @type {HTMLInputElement} */ (this.querySelector('#auth-token'));
+		this.#errorEl = /** @type {HTMLParagraphElement} */ (this.querySelector('.auth-error'));
 
-		// Icon
-		const icon = document.createElement('img');
-		icon.src = '/apps/messages/icon.svg';
-		icon.alt = '';
-		icon.className = 'auth-card__icon';
-		icon.width = 80;
-		icon.height = 80;
-
-		const h1 = document.createElement('h1');
-		h1.textContent = 'Messages';
-
-		const p = document.createElement('p');
-		p.textContent = 'Send Jesse a message using a secure passkey — no password needed.';
-
-		// Name input
-		const label = document.createElement('label');
-		label.className = 'auth-label';
-		label.htmlFor = 'auth-name';
-		label.textContent = 'Your name';
-		const nameInput = document.createElement('input');
-		nameInput.type = 'text';
-		nameInput.id = 'auth-name';
-		nameInput.name = 'displayName';
-		nameInput.autocomplete = 'name';
-		nameInput.placeholder = 'e.g. Alice';
-		nameInput.className = 'auth-input';
-		nameInput.required = true;
-		label.append(nameInput);
-
-		// Setup token input (hidden, for Jesse)
-		const tokenLabel = document.createElement('label');
-		tokenLabel.className = 'auth-label auth-label--hidden';
-		tokenLabel.htmlFor = 'auth-token';
-		tokenLabel.textContent = 'Setup token (owner only)';
-		const tokenInput = document.createElement('input');
-		tokenInput.type = 'password';
-		tokenInput.id = 'auth-token';
-		tokenInput.name = 'setupToken';
-		tokenInput.autocomplete = 'off';
-		tokenInput.className = 'auth-input';
-		tokenInput.placeholder = 'Leave blank if not owner';
-		tokenLabel.append(tokenInput);
-
-		const registerBtn = document.createElement('button');
-		registerBtn.type = 'button';
-		registerBtn.className = 'btn btn--primary';
-		registerBtn.textContent = 'Register with Passkey';
-		registerBtn.addEventListener('click', () => {
+		this.querySelector('.auth-register')?.addEventListener('click', () => {
 			this.#withError(() => {
 				return this.#register(nameInput.value, tokenInput.value);
 			});
 		});
 
-		const divider = document.createElement('div');
-		divider.className = 'auth-divider';
-		divider.setAttribute('aria-hidden', 'true');
-		divider.textContent = 'or';
-
-		const loginBtn = document.createElement('button');
-		loginBtn.type = 'button';
-		loginBtn.className = 'btn btn--outline';
-		loginBtn.textContent = 'Sign in with Passkey';
-		loginBtn.addEventListener('click', () => {
+		this.querySelector('.auth-login')?.addEventListener('click', () => {
 			this.#withError(() => {
 				return this.#login();
 			});
 		});
-
-		this.#errorEl = document.createElement('p');
-		this.#errorEl.className = 'auth-error';
-		this.#errorEl.setAttribute('role', 'alert');
-		this.#errorEl.hidden = true;
-
-		card.append(icon, h1, p, this.#errorEl, label, tokenLabel, registerBtn, divider, loginBtn);
-		this.append(card);
 
 		// Toggle token field when name has special trigger (dev UX)
 		nameInput.addEventListener('input', () => {

@@ -1,3 +1,12 @@
+const template = document.createElement('template');
+template.innerHTML = `
+	<div class="install-banner" role="region" aria-label="Install app">
+		<p>Install this app for quick access and notifications.</p>
+		<button type="button" class="btn install-banner__install">Install</button>
+		<button type="button" class="btn btn--ghost install-banner__dismiss" aria-label="Dismiss">✕</button>
+	</div>
+`;
+
 /**
  * <install-prompt> — Shows a banner if the app isn't installed.
  * Uses the beforeinstallprompt event (Chrome/Edge) or shows a manual guide.
@@ -28,34 +37,14 @@ export class InstallPrompt extends HTMLElement {
 	}
 
 	#render() {
-		this.innerHTML = '';
-		const banner = document.createElement('div');
-		banner.className = 'install-banner';
-		banner.setAttribute('role', 'region');
-		banner.setAttribute('aria-label', 'Install app');
+		this.replaceChildren(template.content.cloneNode(true));
 
-		const msg = document.createElement('p');
-		msg.textContent = 'Install this app for quick access and notifications.';
-
-		const installBtn = document.createElement('button');
-		installBtn.type = 'button';
-		installBtn.className = 'btn';
-		installBtn.textContent = 'Install';
-		installBtn.addEventListener('click', () => {
+		this.querySelector('.install-banner__install')?.addEventListener('click', () => {
 			this.#install();
 		});
-
-		const dismissBtn = document.createElement('button');
-		dismissBtn.type = 'button';
-		dismissBtn.className = 'btn btn--ghost';
-		dismissBtn.setAttribute('aria-label', 'Dismiss');
-		dismissBtn.textContent = '✕';
-		dismissBtn.addEventListener('click', () => {
+		this.querySelector('.install-banner__dismiss')?.addEventListener('click', () => {
 			this.remove();
 		});
-
-		banner.append(msg, installBtn, dismissBtn);
-		this.append(banner);
 	}
 
 	async #install() {

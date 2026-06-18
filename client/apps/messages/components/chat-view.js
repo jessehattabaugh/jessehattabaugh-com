@@ -1,6 +1,49 @@
 import './message-bubble.js';
 import './message-input.js';
 
+const layoutTemplate = document.createElement('template');
+layoutTemplate.innerHTML = `
+	<header class="chat-header">
+		<div class="chat-header__title">
+			<h1></h1>
+		</div>
+		<div class="chat-header__actions">
+			<button
+				type="button"
+				class="btn btn--ghost chat-header__notif"
+				aria-label="Enable notifications"
+				title="Enable notifications"
+			>🔔</button>
+			<button type="button" class="btn btn--ghost chat-header__logout">Sign out</button>
+		</div>
+	</header>
+	<div class="chat-layout">
+		<div class="chat-main">
+			<div class="chat-messages" role="log" aria-live="polite" aria-label="Messages"></div>
+			<p class="chat-empty"></p>
+			<message-input></message-input>
+		</div>
+	</div>
+`;
+
+const sidebarTemplate = document.createElement('template');
+sidebarTemplate.innerHTML = `
+	<nav class="chat-sidebar" aria-label="Conversations">
+		<h2 class="chat-sidebar__title">Conversations</h2>
+		<ul class="conv-list"></ul>
+	</nav>
+`;
+
+const convItemTemplate = document.createElement('template');
+convItemTemplate.innerHTML = `
+	<li class="conv-item">
+		<button type="button" class="conv-item__btn">
+			<span class="conv-item__name"></span>
+			<span class="conv-item__preview"></span>
+		</button>
+	</li>
+`;
+
 /**
  * <chat-view> — Full chat interface: conversation list (owner) + thread + compose.
  *
@@ -44,7 +87,7 @@ export class ChatView extends HTMLElement {
 		this.#user = user;
 		this.#conversationId = conversationId;
 		this.#ownerName = ownerName;
-		this.innerHTML = '';
+		this.replaceChildren();
 		this.#buildLayout(conversations);
 		this.#renderMessages(messages);
 		this.#checkNotificationStatus();
@@ -52,66 +95,38 @@ export class ChatView extends HTMLElement {
 
 	/** @param {Array<{ id: string, visitor_user_id: string, display_name: string, last_message: string | null }>} conversations */
 	#buildLayout(conversations) {
-		// Header
-		const header = document.createElement('header');
-		header.className = 'chat-header';
+		this.append(layoutTemplate.content.cloneNode(true));
 
-		const title = document.createElement('div');
-		title.className = 'chat-header__title';
+		/** @type {HTMLHeadingElement} */ (
+			this.querySelector('.chat-header__title h1')
+		).textContent = this.#user?.isOwner ? 'Messages' : this.#ownerName;
 
-		const h1 = document.createElement('h1');
-		h1.textContent = this.#user?.isOwner ? 'Messages' : this.#ownerName;
-		title.append(h1);
-
-		const actions = document.createElement('div');
-		actions.className = 'chat-header__actions';
-
-		this.#notifBtn = document.createElement('button');
-		this.#notifBtn.type = 'button';
-		this.#notifBtn.className = 'btn btn--ghost chat-header__notif';
-		this.#notifBtn.setAttribute('aria-label', 'Enable notifications');
-		this.#notifBtn.setAttribute('title', 'Enable notifications');
-		this.#notifBtn.textContent = '🔔';
+		this.#notifBtn = /** @type {HTMLButtonElement} */ (
+			this.querySelector('.chat-header__notif')
+		);
 		this.#notifBtn.addEventListener('click', () => {
 			this.dispatchEvent(new CustomEvent('push-subscribe', { bubbles: true }));
 		});
 
-		const logoutBtn = document.createElement('button');
-		logoutBtn.type = 'button';
-		logoutBtn.className = 'btn btn--ghost';
-		logoutBtn.textContent = 'Sign out';
-		logoutBtn.addEventListener('click', () => {
+		this.querySelector('.chat-header__logout')?.addEventListener('click', () => {
 			this.dispatchEvent(new CustomEvent('logout', { bubbles: true }));
 		});
 
-		actions.append(this.#notifBtn, logoutBtn);
-		header.append(title, actions);
+		this.#msgList = /** @type {HTMLDivElement} */ (this.querySelector('.chat-messages'));
 
-		// Conversation sidebar (owner only)
-		let sidebar = null;
-		if (this.#user?.isOwner && conversations.length > 0) {
-			sidebar = this.#buildSidebar(conversations);
-		}
-
-		// Message list
-		this.#msgList = document.createElement('div');
-		this.#msgList.className = 'chat-messages';
-		this.#msgList.setAttribute('role', 'log');
-		this.#msgList.setAttribute('aria-live', 'polite');
-		this.#msgList.setAttribute('aria-label', 'Messages');
-
-		// Empty state
-		this.#emptyState = document.createElement('p');
-		this.#emptyState.className = 'chat-empty';
+		this.#emptyState = /** @type {HTMLParagraphElement} */ (this.querySelector('.chat-empty'));
 		this.#emptyState.textContent = this.#user?.isOwner
 			? 'Select a conversation to view messages.'
 			: `No messages yet. Say hello to ${this.#ownerName}!`;
 
-		// Compose
 		this.#composeEl = /** @type {import('./message-input.js').MessageInput} */ (
-			document.createElement('message-input')
+			this.querySelector('message-input')
 		);
 		this.#composeEl.addEventListener('send-message', (e) => {
+			// Stop the original bubbling here — we re-dispatch below with
+			// conversationId attached, and letting both reach listeners above
+			// chat-view would send every message twice.
+			e.stopPropagation();
 			const { content } = /** @type {CustomEvent} */ (e).detail;
 			this.dispatchEvent(
 				new CustomEvent('send-message', {
@@ -121,43 +136,19 @@ export class ChatView extends HTMLElement {
 			);
 		});
 
-		// Main chat area
-		const main = document.createElement('div');
-		main.className = 'chat-main';
-		main.append(this.#msgList, this.#emptyState, this.#composeEl);
-
-		// Layout wrapper
-		const layout = document.createElement('div');
-		layout.className = `chat-layout ${sidebar ? 'chat-layout--with-sidebar' : ''}`;
-		if (sidebar) {
-			layout.append(sidebar);
+		if (this.#user?.isOwner && conversations.length > 0) {
+			const sidebar = sidebarTemplate.content.cloneNode(true);
+			const layout = /** @type {HTMLDivElement} */ (this.querySelector('.chat-layout'));
+			layout.classList.add('chat-layout--with-sidebar');
+			layout.prepend(sidebar);
+			this.#convList = this.querySelector('.conv-list');
+			this.#fillConversations(conversations);
 		}
-		layout.append(main);
-
-		this.append(header, layout);
 
 		// Disable compose for owner until they select a conversation
 		if (this.#user?.isOwner && !this.#conversationId) {
 			this.#composeEl.disable();
 		}
-	}
-
-	/** @param {Array<{ id: string, display_name: string, last_message: string | null }>} conversations */
-	#buildSidebar(conversations) {
-		const sidebar = document.createElement('nav');
-		sidebar.className = 'chat-sidebar';
-		sidebar.setAttribute('aria-label', 'Conversations');
-
-		const h2 = document.createElement('h2');
-		h2.className = 'chat-sidebar__title';
-		h2.textContent = 'Conversations';
-		sidebar.append(h2);
-
-		this.#convList = document.createElement('ul');
-		this.#convList.className = 'conv-list';
-		this.#fillConversations(conversations);
-		sidebar.append(this.#convList);
-		return sidebar;
 	}
 
 	/** @type {HTMLUListElement | null} */
@@ -176,20 +167,15 @@ export class ChatView extends HTMLElement {
 		if (!this.#convList) {
 			return;
 		}
-		this.#convList.innerHTML = '';
+		this.#convList.replaceChildren();
 		for (const conv of conversations) {
-			const li = document.createElement('li');
-			li.className = 'conv-item';
-			const btn = document.createElement('button');
-			btn.type = 'button';
-			btn.className = `conv-item__btn ${conv.id === this.#conversationId ? 'conv-item__btn--active' : ''}`;
-			const name = document.createElement('span');
-			name.className = 'conv-item__name';
-			name.textContent = conv.display_name;
-			const preview = document.createElement('span');
-			preview.className = 'conv-item__preview';
-			preview.textContent = conv.last_message ?? 'No messages yet';
-			btn.append(name, preview);
+			const item = /** @type {DocumentFragment} */ (convItemTemplate.content.cloneNode(true));
+			const btn = /** @type {HTMLButtonElement} */ (item.querySelector('.conv-item__btn'));
+			btn.classList.toggle('conv-item__btn--active', conv.id === this.#conversationId);
+			/** @type {HTMLSpanElement} */ (item.querySelector('.conv-item__name')).textContent =
+				conv.display_name;
+			/** @type {HTMLSpanElement} */ (item.querySelector('.conv-item__preview')).textContent =
+				conv.last_message ?? 'No messages yet';
 			btn.addEventListener('click', () => {
 				this.#conversationId = conv.id;
 				this.#composeEl.enable();
@@ -205,8 +191,7 @@ export class ChatView extends HTMLElement {
 					}),
 				);
 			});
-			li.append(btn);
-			this.#convList.append(li);
+			this.#convList.append(item);
 		}
 	}
 
@@ -219,7 +204,7 @@ export class ChatView extends HTMLElement {
 	 * @param {Array<{ id: string, sender_user_id: string, content: string, createdAt: string }>} messages
 	 */
 	#renderMessages(messages) {
-		this.#msgList.innerHTML = '';
+		this.#msgList.replaceChildren();
 		for (const msg of messages) {
 			this.#appendBubble(msg);
 		}
@@ -231,9 +216,7 @@ export class ChatView extends HTMLElement {
 	 * @param {{ id: string, sender_user_id: string, content: string, createdAt: string }} msg
 	 */
 	#appendBubble(msg) {
-		const sentByMe = this.#user?.isOwner
-			? msg.sender_user_id === this.#user?.id // owner's own messages
-			: msg.sender_user_id === this.#user?.id; // visitor's own messages
+		const sentByMe = msg.sender_user_id === this.#user?.id;
 
 		const bubble = /** @type {import('./message-bubble.js').MessageBubble} */ (
 			document.createElement('message-bubble')
@@ -279,11 +262,7 @@ export class ChatView extends HTMLElement {
 			return;
 		}
 		if (Notification.permission === 'granted') {
-			if (this.#notifBtn) {
-				this.#notifBtn.textContent = '🔕';
-				this.#notifBtn.setAttribute('aria-label', 'Notifications enabled');
-				this.#notifBtn.title = 'Notifications enabled';
-			}
+			this.markNotificationsEnabled();
 		}
 	}
 
@@ -291,6 +270,7 @@ export class ChatView extends HTMLElement {
 		if (this.#notifBtn) {
 			this.#notifBtn.textContent = '🔕';
 			this.#notifBtn.setAttribute('aria-label', 'Notifications enabled');
+			this.#notifBtn.title = 'Notifications enabled';
 		}
 	}
 }
