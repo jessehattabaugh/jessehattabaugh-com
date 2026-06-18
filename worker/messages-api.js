@@ -209,8 +209,9 @@ export async function handleMessagesApi(request, env) {
 		const user = await getUserById(DB, passkey.user_id);
 		if (!user) {
 			return err('User not found', 404);
+		if (!SESSION_SECRET) {
+			return err('Server not configured: SESSION_SECRET is missing', 500);
 		}
-
 		const session = await createSession(SESSION_SECRET, user.id);
 		return new Response(
 			JSON.stringify({
