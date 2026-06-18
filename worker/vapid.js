@@ -40,9 +40,8 @@ export async function signVapidJwt({ audience, subject, privateKeyB64 }) {
  */
 async function sendPush({ endpoint, jwt, vapidPublicKey, ttl = 86400 }) {
 	return fetch(endpoint, {
-		method: 'POST',
 		headers: {
-			Authorization: `vapid t=${jwt},k=${vapidPublicKey}`,
+			Authorization: `vapid t=${jwt}, k=${vapidPublicKey}`,
 			'Content-Length': '0',
 			'Content-Type': 'application/octet-stream',
 			TTL: String(ttl),
