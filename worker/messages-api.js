@@ -88,7 +88,7 @@ export async function handleMessagesApi(request, env) {
 		});
 
 		const challengeId = crypto.randomUUID();
-		await createChallenge(DB, { id: challengeId, challenge, type: 'register' });
+		await createChallenge(DB, { id: challengeId, challenge, userId, type: 'register' });
 		await cleanExpiredChallenges(DB);
 
 		return json({ challengeId, userId, challenge, options, rpId });
@@ -98,14 +98,8 @@ export async function handleMessagesApi(request, env) {
 
 	if (method === 'POST' && path === '/apps/messages/api/auth/register/complete') {
 		const body = /** @type {any} */ (await request.json());
-		const {
-			challengeId,
-			userId,
-			displayName: rawDisplayName,
-			setupToken,
-			credential,
-		} = body ?? {};
-		if (!challengeId || !userId || !credential) {
+		const { challengeId, displayName: rawDisplayName, setupToken, credential } = body ?? {};
+		if (!challengeId || !credential) {
 			return err('Missing required fields');
 		}
 		const displayName = String(rawDisplayName ?? '')
@@ -119,6 +113,13 @@ export async function handleMessagesApi(request, env) {
 		if (!stored || stored.expires_at < Date.now()) {
 			return err('Challenge expired or not found');
 		}
+		if (stored.type !== 'register') {
+			return err('Invalid challenge type');
+		}
+		if (!stored.user_id) {
+			return err('Challenge has no associated user ID');
+		}
+		const userId = stored.user_id;
 
 		const { origin, rpId } = rpInfo(request);
 		let regInfo;
@@ -178,6 +179,9 @@ export async function handleMessagesApi(request, env) {
 		const stored = await consumeChallenge(DB, challengeId);
 		if (!stored || stored.expires_at < Date.now()) {
 			return err('Challenge expired or not found');
+		}
+		if (stored.type !== 'login') {
+			return err('Invalid challenge type');
 		}
 
 		const passkey = await getPasskeyById(DB, credential.id);

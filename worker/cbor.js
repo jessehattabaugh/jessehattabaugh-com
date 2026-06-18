@@ -54,6 +54,7 @@ export function decodeCbor(bytes) {
 		const info = byte & 0x1f;
 
 		if (major === 6) {
+			readLength(info); // consume tag number bytes
 			return read();
 		} // tag — skip to tagged value
 		const length = readLength(info);

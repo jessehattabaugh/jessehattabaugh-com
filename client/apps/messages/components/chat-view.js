@@ -266,14 +266,7 @@ export class ChatView extends HTMLElement {
 	 * @param {Array<{ id: string, sender_user_id: string, content: string, createdAt: string }>} messages
 	 */
 	setMessages(messages) {
-		const currentCount = this.#msgList.children.length;
-		if (messages.length > currentCount) {
-			// New messages arrived
-			const newMsgs = messages.slice(currentCount);
-			for (const msg of newMsgs) {
-				this.addMessage(msg);
-			}
-		}
+		this.#renderMessages(messages);
 	}
 
 	#scrollToBottom() {

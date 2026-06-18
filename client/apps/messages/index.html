@@ -22,12 +22,17 @@
 
 		<script type="module" src="/apps/messages/app.js"></script>
 
-		<!-- No-JS fallback: link back to main site -->
+		<!-- No-JS fallback: contact form that posts to the legacy /contact endpoint -->
 		<noscript>
-			<div style="padding:2rem;text-align:center;font-family:system-ui,sans-serif">
-				<p>This messaging app requires JavaScript.</p>
-				<a href="/">Return to jessehattabaugh.com</a>
-			</div>
+			<main style="max-width:40rem;margin:4rem auto;padding:1rem;font-family:system-ui,sans-serif">
+				<h1>Send Jesse a message</h1>
+				<form method="POST" action="/contact">
+					<p><label>Name<br><input type="text" name="name" required /></label></p>
+					<p><label>Email<br><input type="email" name="email" required /></label></p>
+					<p><label>Message<br><textarea name="message" rows="5" required></textarea></label></p>
+					<p><button type="submit">Send</button></p>
+				</form>
+			</main>
 		</noscript>
 	</body>
 </html>
