@@ -117,11 +117,14 @@ test('/contact — redirects to /apps/messages/', async ({ page }) => {
 
 // ── Share target ──────────────────────────────────────────────────────────────
 
-test('/apps/messages/share — POST redirects to app', async ({ page }) => {
-	const res = await page.request.post('/apps/messages/share', {
+test('/apps/messages/api/messages — share target POST redirects unauthenticated user', async ({
+	page,
+}) => {
+	const res = await page.request.post('/apps/messages/api/messages', {
 		multipart: { title: 'Test', text: 'Hello' },
+		maxRedirects: 0,
 	});
-	// Server redirects to the app (SW would handle it for installed apps)
+	// Unauthenticated share target posts redirect to login
 	expect([301, 302, 303]).toContain(res.status());
 });
 

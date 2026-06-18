@@ -90,9 +90,20 @@ export default {
 
 			// Messages app API and share-target routes
 			if (url.pathname.startsWith('/apps/messages/')) {
-				const apiResponse = await handleMessagesApi(request, env);
-				if (apiResponse !== null) {
-					return apiResponse;
+				try {
+					const apiResponse = await handleMessagesApi(request, env);
+					if (apiResponse !== null) {
+						return apiResponse;
+					}
+				} catch (e) {
+					console.error(e);
+					if (url.pathname.startsWith('/apps/messages/api/')) {
+						return new Response(JSON.stringify({ error: 'Internal server error' }), {
+							status: 500,
+							headers: { 'Content-Type': 'application/json' },
+						});
+					}
+					throw e;
 				}
 			}
 

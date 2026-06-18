@@ -67,7 +67,10 @@ sw.addEventListener(
 		}
 
 		// App shell and static assets: cache-first, fall back to network
-		if (url.origin === sw.location.origin && url.pathname.startsWith('/apps/messages/')) {
+		if (
+			url.origin === sw.location.origin &&
+			(url.pathname.startsWith('/apps/messages/') || PRECACHE.includes(url.pathname))
+		) {
 			event.respondWith(
 				caches.match(event.request).then((cached) => {
 					return cached ?? fetch(event.request);
