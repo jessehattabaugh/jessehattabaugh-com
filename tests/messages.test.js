@@ -43,12 +43,19 @@ test('/apps/messages — service worker script is reachable', async ({ page }) =
 
 // ── Auth screen renders when not logged in ────────────────────────────────────
 
-test('/apps/messages — shows auth screen when unauthenticated', async ({ page }) => {
+test('/apps/messages — shows auth screen when unauthenticated', async ({ page }, testInfo) => {
 	// Ensure no session cookie
 	await page.context().clearCookies();
 	await page.goto('/apps/messages/');
 
-	// The JS app initialises and switches to auth view
+	if (testInfo.project.use.javaScriptEnabled === false) {
+		// No-JS baseline: <noscript> contact form should render
+		await expect(page.getByRole('heading', { name: 'Send Jesse a message', level: 1 })).toBeVisible();
+		await expect(page.getByRole('button', { name: 'Send' })).toBeVisible();
+		return;
+	}
+
+	// JS-enabled: app initialises and switches to auth view
 	await expect(page.locator('auth-screen')).toBeVisible({ timeout: 5000 });
 	await expect(page.locator('#auth-name')).toBeVisible();
 	await expect(page.getByRole('button', { name: 'Register with Passkey' })).toBeVisible();
