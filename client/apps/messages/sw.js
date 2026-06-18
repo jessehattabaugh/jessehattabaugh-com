@@ -2,12 +2,7 @@
 const sw = self;
 
 const CACHE = 'messages-v1';
-const PRECACHE = [
-	'/apps/messages/',
-	'/apps/messages/icon.svg',
-	'/styles/base.css',
-	'/apps/messages/styles.css',
-];
+const PRECACHE = ['/apps/messages/icon.svg', '/styles/base.css', '/apps/messages/styles.css'];
 
 // ── Install: pre-cache app shell ──────────────────────────────────────────────
 
@@ -60,8 +55,8 @@ sw.addEventListener(
 	/** @param {any} event */ (event) => {
 		const url = new URL(event.request.url);
 
-		// API calls: always network, never cache
-		if (url.pathname.startsWith('/apps/messages/api/')) {
+		// API calls and the dynamic SSR shell: always network, never cache
+		if (url.pathname.startsWith('/apps/messages/api/') || url.pathname === '/apps/messages/') {
 			event.respondWith(fetch(event.request));
 			return;
 		}
