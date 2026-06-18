@@ -1,3 +1,25 @@
+const template = document.createElement('template');
+template.innerHTML = `
+	<textarea
+		class="compose__input"
+		placeholder="Message…"
+		rows="1"
+		aria-label="Message"
+		autocomplete="off"
+	></textarea>
+	<button type="button" class="btn compose__send" aria-label="Send message">
+		<svg
+			aria-hidden="true"
+			viewBox="0 0 24 24"
+			fill="none"
+			stroke="currentColor"
+			stroke-width="2"
+			stroke-linecap="round"
+			stroke-linejoin="round"
+		><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+	</button>
+`;
+
 /**
  * <message-input> — Compose area with send button.
  * Dispatches 'send-message' with { content } on submit.
@@ -7,40 +29,28 @@
 export class MessageInput extends HTMLElement {
 	connectedCallback() {
 		this.className = 'compose';
+		this.append(template.content.cloneNode(true));
 
-		const textarea = document.createElement('textarea');
-		textarea.className = 'compose__input';
-		textarea.placeholder = 'Message…';
-		textarea.rows = 1;
-		textarea.setAttribute('aria-label', 'Message');
-		textarea.setAttribute('autocomplete', 'off');
+		this.#textarea = /** @type {HTMLTextAreaElement} */ (this.querySelector('.compose__input'));
+		this.#sendBtn = /** @type {HTMLButtonElement} */ (this.querySelector('.compose__send'));
 
 		// Auto-grow
-		textarea.addEventListener('input', () => {
-			textarea.style.height = 'auto';
-			textarea.style.height = `${textarea.scrollHeight}px`;
+		this.#textarea.addEventListener('input', () => {
+			this.#textarea.style.height = 'auto';
+			this.#textarea.style.height = `${this.#textarea.scrollHeight}px`;
 		});
 
 		// Send on Enter (Shift+Enter for newline)
-		textarea.addEventListener('keydown', (e) => {
+		this.#textarea.addEventListener('keydown', (e) => {
 			if (e.key === 'Enter' && !e.shiftKey) {
 				e.preventDefault();
 				this.#send();
 			}
 		});
 
-		const sendBtn = document.createElement('button');
-		sendBtn.type = 'button';
-		sendBtn.className = 'btn compose__send';
-		sendBtn.setAttribute('aria-label', 'Send message');
-		sendBtn.innerHTML = `<svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>`;
-		sendBtn.addEventListener('click', () => {
+		this.#sendBtn.addEventListener('click', () => {
 			this.#send();
 		});
-
-		this.#textarea = textarea;
-		this.#sendBtn = sendBtn;
-		this.append(textarea, sendBtn);
 	}
 
 	/** @type {HTMLTextAreaElement} */

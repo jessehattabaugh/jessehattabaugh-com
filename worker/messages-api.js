@@ -228,8 +228,18 @@ export async function handleMessagesApi(request, env) {
 		// Reuse the pre-auth guest identity (and its messages) if this browser
 		// already sent a message via the no-JS form and hasn't registered yet.
 		const guestUserId = await getSessionUser(request, SESSION_SECRET);
-		const userId =
-			guestUserId && !(await hasPasskey(DB, guestUserId)) ? guestUserId : crypto.randomUUID();
+		const reuseGuest = guestUserId && !(await hasPasskey(DB, guestUserId));
+
+		let userId;
+		if (reuseGuest) {
+			userId = guestUserId;
+		} else {
+			// auth_challenges.user_id is a foreign key — the row must exist before
+			// we can reference it below. register/complete fills in the real
+			// display name and owner flag once the passkey ceremony succeeds.
+			userId = crypto.randomUUID();
+			await createUser(DB, { id: userId, displayName, isOwner: false });
+		}
 
 		const { rpId } = rpInfo(request);
 		const { challenge, options } = createRegistrationOptions({
@@ -286,12 +296,15 @@ export async function handleMessagesApi(request, env) {
 			return err(`Registration failed: ${e instanceof Error ? e.message : String(e)}`);
 		}
 
-		// userId may already belong to a pre-auth guest (set in register/begin when
-		// a no-JS session with no passkey existed) — merge into it instead of
-		// minting a second user, so their prior messages stay attached.
+		// register/begin always creates (or reuses) the `users` row up front, so
+		// it should exist here — guard anyway since createPasskey below has a
+		// foreign key on userId and would otherwise fail with a confusing error.
 		const existingUser = await getUserById(DB, userId);
+		if (!existingUser) {
+			return err('Registration session expired. Please try again.', 400);
+		}
 
-		let isOwner = existingUser ? !!existingUser.is_owner : false;
+		let isOwner = !!existingUser.is_owner;
 		if (OWNER_SETUP_TOKEN && setupToken === OWNER_SETUP_TOKEN) {
 			const existingOwner = await DB.prepare(
 				'SELECT id FROM users WHERE is_owner = 1 LIMIT 1',
@@ -301,11 +314,7 @@ export async function handleMessagesApi(request, env) {
 			}
 		}
 
-		if (existingUser) {
-			await updateUserProfile(DB, { id: userId, displayName, isOwner });
-		} else {
-			await createUser(DB, { id: userId, displayName, isOwner });
-		}
+		await updateUserProfile(DB, { id: userId, displayName, isOwner });
 		await createPasskey(DB, {
 			id: regInfo.credentialId,
 			userId,
@@ -548,7 +557,10 @@ export async function handleMessagesApi(request, env) {
 		if (isShare) {
 			return Response.redirect(appUrl, 303);
 		}
-		return json({ id: msgId, conversationId, senderUserId: userId, content, createdAt }, 201);
+		// sender_user_id matches the shape getMessages() returns — chat-view's
+		// addMessage() reads this field to decide sent-vs-received styling.
+		// eslint-disable-next-line camelcase
+		return json({ id: msgId, conversationId, sender_user_id: userId, content, createdAt }, 201);
 	}
 
 	// ── Push: subscribe ────────────────────────────────────────────────────────
