@@ -148,8 +148,9 @@ export async function handleMessagesApi(request, env) {
 			publicKey: regInfo.publicKey,
 			counter: regInfo.counter,
 			transports: regInfo.transports,
-		});
-
+		if (!SESSION_SECRET) {
+			return err('Server not configured: SESSION_SECRET is missing', 500);
+		}
 		const session = await createSession(SESSION_SECRET, userId);
 		return new Response(JSON.stringify({ user: { id: userId, displayName, isOwner } }), {
 			status: 200,
