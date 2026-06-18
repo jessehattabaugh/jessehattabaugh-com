@@ -81,11 +81,7 @@ test.describe('Lighthouse audits', () => {
 
 	const MIN_SCORE = 0.9;
 
-	const LIGHTHOUSE_PAGES = PAGES.filter((p) => {
-		return p.path !== '/apps/messages/';
-	});
-
-	for (const { path } of LIGHTHOUSE_PAGES) {
+	for (const { path } of PAGES) {
 		test(`${path} — scores ≥ ${MIN_SCORE * 100}`, async ({ baseURL }) => {
 			const categories = await lighthouseAudit(new URL(path, baseURL).href);
 			expect(categories.performance?.score ?? 0, 'performance').toBeGreaterThanOrEqual(
