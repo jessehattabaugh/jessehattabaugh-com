@@ -47,6 +47,30 @@ export function getPasskeyById(db, id) {
 
 /**
  * @param {D1Database} db
+ * @param {string} userId
+ * @returns {Promise<boolean>}
+ */
+export async function hasPasskey(db, userId) {
+	const row = await db.prepare('SELECT 1 FROM passkeys WHERE user_id = ? LIMIT 1').bind(userId).first();
+	return !!row;
+}
+
+/**
+ * Update a user's profile in place — used when a pre-auth guest (identified by
+ * a no-JS session cookie) later registers a passkey, so their existing id and
+ * message history carry over instead of forking into a second user.
+ * @param {D1Database} db
+ * @param {{ id: string, displayName: string, isOwner: boolean }} opts
+ */
+export async function updateUserProfile(db, { id, displayName, isOwner }) {
+	await db
+		.prepare('UPDATE users SET display_name = ?, is_owner = ? WHERE id = ?')
+		.bind(displayName, isOwner ? 1 : 0, id)
+		.run();
+}
+
+/**
+ * @param {D1Database} db
  * @param {{ id: string, counter: number, backedUp?: boolean }} opts
  */
 export async function updatePasskeyCounter(db, { id, counter, backedUp = false }) {

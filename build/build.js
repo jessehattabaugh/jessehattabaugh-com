@@ -1,4 +1,4 @@
-import { mkdir, writeFile, cp } from 'node:fs/promises';
+import { mkdir, writeFile, cp, rm } from 'node:fs/promises';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -6,7 +6,6 @@ import { render } from '../shared/html.js';
 import { home } from '../shared/templates/home.js';
 import { about } from '../shared/templates/about.js';
 import { colophon } from '../shared/templates/colophon.js';
-import { thanks } from '../shared/templates/thanks.js';
 import { apps } from '../shared/templates/apps.js';
 import { notFound } from '../shared/templates/not-found.js';
 import { error } from '../shared/templates/error.js';
@@ -29,13 +28,15 @@ async function writePage(path, html) {
 async function build() {
 	console.log('Building static site...');
 
+	// Start clean — files deleted from client/ or the page list must not
+	// linger as stale artifacts from a previous build in the same working tree.
+	await rm(OUT, { recursive: true, force: true });
 	await mkdir(OUT, { recursive: true });
 
 	// Static pages
 	await writePage('/', render(home()));
 	await writePage('/about', render(about()));
 	await writePage('/colophon', render(colophon()));
-	await writePage('/thanks', render(thanks()));
 	await writePage('/apps', render(apps()));
 	await writePage('/404', render(notFound()));
 	await writePage('/500', render(error()));

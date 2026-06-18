@@ -1,6 +1,8 @@
 import {
 	createUser,
 	getUserById,
+	hasPasskey,
+	updateUserProfile,
 	createPasskey,
 	getPasskeyById,
 	updatePasskeyCounter,
@@ -24,6 +26,9 @@ import {
 } from './webauthn.js';
 import { getSessionUser, createSession, sessionCookieHeader } from './session.js';
 import { notifyAll } from './vapid.js';
+import { render } from '../shared/html.js';
+import { messagesPage } from '../shared/templates/messages.js';
+import { SECURITY_HEADERS } from './security-headers.js';
 
 const JSON_CT = { 'Content-Type': 'application/json' };
 
@@ -44,6 +49,145 @@ function rpInfo(req) {
 }
 
 /**
+ * Send a push notification to the other side of a conversation, if VAPID is configured.
+ * Shared by the JSON send endpoint and the no-JS guest form so the notify logic isn't duplicated.
+ * @param {import('../shared/types.js').Env} env
+ * @param {{ conversationId: string, senderIsOwner: boolean }} opts
+ */
+async function notifyNewMessage(env, { conversationId, senderIsOwner }) {
+	const { DB, VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY, VAPID_CONTACT } = env;
+	if (!VAPID_PUBLIC_KEY || !VAPID_PRIVATE_KEY) {
+		return;
+	}
+	const vapid = {
+		vapidPublicKey: VAPID_PUBLIC_KEY,
+		vapidPrivateKey: VAPID_PRIVATE_KEY,
+		vapidContact: VAPID_CONTACT ?? 'mailto:claude_ai@jessehattabaugh.com',
+	};
+	const onGone = (/** @type {string} */ ep) => {
+		return deletePushSubscription(DB, ep);
+	};
+
+	if (senderIsOwner) {
+		const convRow = await DB.prepare('SELECT visitor_user_id FROM conversations WHERE id = ?')
+			.bind(conversationId)
+			.first();
+		if (convRow) {
+			const subs = await getPushSubscriptionsByUser(DB, String(convRow.visitor_user_id));
+			await notifyAll(subs, vapid, onGone);
+		}
+	} else {
+		const ownerSubs = await getOwnerPushSubscriptions(DB);
+		await notifyAll(ownerSubs, vapid, onGone);
+	}
+}
+
+/**
+ * Render the Messages PWA document shell — the no-JS baseline and the mount
+ * point the client app upgrades once JS runs.
+ * @param {Request} request
+ * @param {import('../shared/types.js').Env} env
+ * @param {{ status?: number, error?: string, values?: { name?: string, message?: string }, sent?: boolean }} [opts]
+ * @returns {Promise<Response>}
+ */
+async function renderMessagesPage(request, env, { status = 200, error, values, sent } = {}) {
+	const { DB, SESSION_SECRET } = env;
+	const sessionUserId = await getSessionUser(request, SESSION_SECRET);
+	const user = sessionUserId ? await getUserById(DB, sessionUserId) : null;
+	const url = new URL(request.url);
+
+	const body = render(
+		messagesPage({
+			viewerRole: user?.is_owner ? 'owner' : 'guest',
+			sent: sent ?? url.searchParams.get('sent') === '1',
+			error,
+			values: values ?? { name: user?.display_name ?? '' },
+		}),
+	);
+	return new Response(body, {
+		status,
+		headers: { 'Content-Type': 'text/html;charset=utf-8', ...SECURITY_HEADERS },
+	});
+}
+
+/**
+ * No-JS fallback: a guest fills in name + message and the form POSTs here
+ * directly. Identity is tracked via the same signed session cookie used by
+ * passkey auth, so a guest's messages carry over if they later register.
+ * @param {Request} request
+ * @param {import('../shared/types.js').Env} env
+ * @returns {Promise<Response>}
+ */
+async function handleGuestMessagePost(request, env) {
+	const { DB, SESSION_SECRET } = env;
+	const contentType = request.headers.get('Content-Type') ?? '';
+	if (
+		!contentType.includes('application/x-www-form-urlencoded') &&
+		!contentType.includes('multipart/form-data')
+	) {
+		return new Response('Unsupported Media Type', { status: 415, headers: SECURITY_HEADERS });
+	}
+
+	const sessionUserId = await getSessionUser(request, SESSION_SECRET);
+	const existingUser = sessionUserId ? await getUserById(DB, sessionUserId) : null;
+
+	// The owner has no single recipient to send to from this form — they need the JS app.
+	if (existingUser?.is_owner) {
+		return Response.redirect(new URL('/apps/messages/', request.url).toString(), 303);
+	}
+
+	const form = await request.formData();
+	const name = String(form.get('name') ?? '')
+		.trim()
+		.slice(0, 100);
+	const message = String(form.get('message') ?? '').trim();
+
+	if (!name || !message) {
+		return renderMessagesPage(request, env, {
+			status: 422,
+			error: 'Name and message are required.',
+			values: { name, message },
+		});
+	}
+	if (message.length > 10000) {
+		return renderMessagesPage(request, env, {
+			status: 422,
+			error: 'Message is too long.',
+			values: { name, message },
+		});
+	}
+
+	let userId = existingUser?.id ?? null;
+	let setCookie = null;
+	if (!userId) {
+		if (!SESSION_SECRET) {
+			return err('Server not configured: SESSION_SECRET is missing', 500);
+		}
+		userId = crypto.randomUUID();
+		await createUser(DB, { id: userId, displayName: name, isOwner: false });
+		setCookie = sessionCookieHeader(await createSession(SESSION_SECRET, userId));
+	}
+
+	const conv = await getOrCreateConversation(DB, userId);
+	await createMessage(DB, {
+		id: crypto.randomUUID(),
+		conversationId: conv.id,
+		senderUserId: userId,
+		content: message,
+	});
+	await notifyNewMessage(env, { conversationId: conv.id, senderIsOwner: false });
+
+	const headers = new Headers({
+		Location: new URL('/apps/messages/?sent=1', request.url).toString(),
+		...SECURITY_HEADERS,
+	});
+	if (setCookie) {
+		headers.set('Set-Cookie', setCookie);
+	}
+	return new Response(null, { status: 303, headers });
+}
+
+/**
  * @param {Request} request
  * @param {import('../shared/types.js').Env} env
  * @returns {Promise<Response | null>}  null = route not matched here
@@ -52,14 +196,17 @@ export async function handleMessagesApi(request, env) {
 	const url = new URL(request.url);
 	const path = url.pathname;
 	const { method } = request;
-	const {
-		DB,
-		SESSION_SECRET,
-		VAPID_PUBLIC_KEY,
-		VAPID_PRIVATE_KEY,
-		VAPID_CONTACT,
-		OWNER_SETUP_TOKEN,
-	} = env;
+	const { DB, SESSION_SECRET, VAPID_PUBLIC_KEY, OWNER_SETUP_TOKEN } = env;
+
+	// ── Page: SSR shell (no-JS baseline + JS app mount point) ───────────────────
+
+	if (method === 'GET' && path === '/apps/messages/') {
+		return renderMessagesPage(request, env);
+	}
+
+	if (method === 'POST' && path === '/apps/messages/') {
+		return handleGuestMessagePost(request, env);
+	}
 
 	// ── Config ─────────────────────────────────────────────────────────────────
 
@@ -78,8 +225,13 @@ export async function handleMessagesApi(request, env) {
 			return err('displayName required');
 		}
 
+		// Reuse the pre-auth guest identity (and its messages) if this browser
+		// already sent a message via the no-JS form and hasn't registered yet.
+		const guestUserId = await getSessionUser(request, SESSION_SECRET);
+		const userId =
+			guestUserId && !(await hasPasskey(DB, guestUserId)) ? guestUserId : crypto.randomUUID();
+
 		const { rpId } = rpInfo(request);
-		const userId = crypto.randomUUID();
 		const { challenge, options } = createRegistrationOptions({
 			rpName: 'Jesse Hattabaugh',
 			rpId,
@@ -134,14 +286,26 @@ export async function handleMessagesApi(request, env) {
 			return err(`Registration failed: ${e instanceof Error ? e.message : String(e)}`);
 		}
 
-		let isOwner = false;
+		// userId may already belong to a pre-auth guest (set in register/begin when
+		// a no-JS session with no passkey existed) — merge into it instead of
+		// minting a second user, so their prior messages stay attached.
+		const existingUser = await getUserById(DB, userId);
+
+		let isOwner = existingUser ? !!existingUser.is_owner : false;
 		if (OWNER_SETUP_TOKEN && setupToken === OWNER_SETUP_TOKEN) {
 			const existingOwner = await DB.prepare(
 				'SELECT id FROM users WHERE is_owner = 1 LIMIT 1',
 			).first();
-			isOwner = !existingOwner;
+			if (!existingOwner) {
+				isOwner = true;
+			}
 		}
-		await createUser(DB, { id: userId, displayName, isOwner });
+
+		if (existingUser) {
+			await updateUserProfile(DB, { id: userId, displayName, isOwner });
+		} else {
+			await createUser(DB, { id: userId, displayName, isOwner });
+		}
 		await createPasskey(DB, {
 			id: regInfo.credentialId,
 			userId,
@@ -379,32 +543,7 @@ export async function handleMessagesApi(request, env) {
 		const createdAt = new Date().toISOString();
 		await createMessage(DB, { id: msgId, conversationId, senderUserId: userId, content });
 
-		if (VAPID_PUBLIC_KEY && VAPID_PRIVATE_KEY) {
-			const vapid = {
-				vapidPublicKey: VAPID_PUBLIC_KEY,
-				vapidPrivateKey: VAPID_PRIVATE_KEY,
-				vapidContact: VAPID_CONTACT ?? 'mailto:claude_ai@jessehattabaugh.com',
-			};
-			const onGone = (/** @type {string} */ ep) => { return deletePushSubscription(DB, ep); };
-
-			if (user.is_owner) {
-				const convRow = await DB.prepare(
-					'SELECT visitor_user_id FROM conversations WHERE id = ?',
-				)
-					.bind(conversationId)
-					.first();
-				if (convRow) {
-					const subs = await getPushSubscriptionsByUser(
-						DB,
-						String(convRow.visitor_user_id),
-					);
-					await notifyAll(subs, vapid, onGone);
-				}
-			} else {
-				const ownerSubs = await getOwnerPushSubscriptions(DB);
-				await notifyAll(ownerSubs, vapid, onGone);
-			}
-		}
+		await notifyNewMessage(env, { conversationId, senderIsOwner: !!user.is_owner });
 
 		if (isShare) {
 			return Response.redirect(appUrl, 303);

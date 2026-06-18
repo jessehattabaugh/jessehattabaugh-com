@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { randomUUID } from 'node:crypto';
 
 // ── /apps index page ──────────────────────────────────────────────────────────
 
@@ -60,6 +61,71 @@ test('/apps/messages — shows auth screen when unauthenticated', async ({ page 
 	await expect(page.locator('#auth-name')).toBeVisible();
 	await expect(page.getByRole('button', { name: 'Register with Passkey' })).toBeVisible();
 	await expect(page.getByRole('button', { name: 'Sign in with Passkey' })).toBeVisible();
+});
+
+// ── No-JS guest message flow ────────────────────────────────────────────────
+
+test('/apps/messages/ — no-JS guest can submit the fallback form and see a confirmation', async ({
+	page,
+}, testInfo) => {
+	test.skip(
+		testInfo.project.use.javaScriptEnabled !== false,
+		'No-JS fallback form is replaced by the JS app once JavaScript is enabled',
+	);
+	await page.context().clearCookies();
+	await page.goto('/apps/messages/');
+	await page.getByLabel('Name').fill('No JS Guest');
+	await page.getByLabel('Message').fill(`UI test message ${randomUUID()}`);
+	await page.getByRole('button', { name: 'Send' }).click();
+	await expect(page.getByText('Message sent')).toBeVisible();
+});
+
+test('/apps/messages/ — guest can send a message without JavaScript (HTTP fallback)', async ({
+	page,
+}) => {
+	await page.context().clearCookies();
+	const res = await page.request.post('/apps/messages/', {
+		form: { name: 'No JS Guest', message: `No-JS test message ${randomUUID()}` },
+		maxRedirects: 0,
+	});
+	expect(res.status()).toBe(303);
+	expect(res.headers().location).toMatch(/\/apps\/messages\/\?sent=1$/);
+	expect(res.headers()['set-cookie']).toMatch(/msgsession=/);
+});
+
+test('/apps/messages/ — no-JS form rejects missing fields with a 422 and preserves input', async ({
+	page,
+}) => {
+	await page.context().clearCookies();
+	const res = await page.request.post('/apps/messages/', {
+		form: { name: 'Validation Test', message: '' },
+	});
+	expect(res.status()).toBe(422);
+	const body = await res.text();
+	expect(body).toContain('Validation Test');
+});
+
+test('/apps/messages/api/auth/register/begin — reuses the guest identity from a prior no-JS message', async ({
+	page,
+}) => {
+	await page.context().clearCookies();
+	const sendRes = await page.request.post('/apps/messages/', {
+		form: { name: 'Merge Test Guest', message: `pre-auth message ${randomUUID()}` },
+		maxRedirects: 0,
+	});
+	const setCookie = sendRes.headers()['set-cookie'] ?? '';
+	const sessionValue = setCookie.match(/msgsession=([^;]+)/)?.[1] ?? '';
+	const payload = sessionValue.split('.')[0].replace(/-/g, '+').replace(/_/g, '/');
+	const { userId: guestUserId } = JSON.parse(Buffer.from(payload, 'base64').toString());
+	expect(guestUserId).toBeTruthy();
+
+	// page.request shares the browser context's cookie jar, so the guest
+	// session cookie set above is sent automatically on this next request.
+	const beginRes = await page.request.post('/apps/messages/api/auth/register/begin', {
+		data: { displayName: 'Merge Test Guest' },
+	});
+	const { userId } = await beginRes.json();
+	expect(userId).toBe(guestUserId);
 });
 
 // ── API endpoints ─────────────────────────────────────────────────────────────

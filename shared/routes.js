@@ -38,7 +38,6 @@ export const staticRoutes = [
 	{ method: 'GET', pattern: new URLPatternConstructor({ pathname: '/' }), static: true },
 	{ method: 'GET', pattern: new URLPatternConstructor({ pathname: '/about' }), static: true },
 	{ method: 'GET', pattern: new URLPatternConstructor({ pathname: '/colophon' }), static: true },
-	{ method: 'GET', pattern: new URLPatternConstructor({ pathname: '/thanks' }), static: true },
 ];
 
 /**
@@ -47,5 +46,6 @@ export const staticRoutes = [
  */
 export const dynamicRoutes = [
 	{ method: 'GET', pattern: new URLPatternConstructor({ pathname: '/contact' }) },
-	{ method: 'POST', pattern: new URLPatternConstructor({ pathname: '/contact' }) },
+	{ method: 'GET', pattern: new URLPatternConstructor({ pathname: '/apps/messages/' }) },
+	{ method: 'POST', pattern: new URLPatternConstructor({ pathname: '/apps/messages/' }) },
 ];

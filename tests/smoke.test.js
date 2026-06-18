@@ -46,7 +46,6 @@ const PAGES = [
 	{ path: '/about', heading: 'About' },
 	{ path: '/colophon', heading: 'Colophon' },
 	{ path: '/apps', heading: 'Apps' },
-	{ path: '/thanks', heading: 'Thanks!' },
 ];
 
 // ── Page render tests (run in all 4 projects) ────────────────────────────────

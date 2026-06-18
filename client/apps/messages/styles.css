@@ -25,6 +25,80 @@
 		overflow: hidden;
 	}
 
+	/* ── No-JS fallback ─────────────────────────────────────────────────── */
+	/* Baseline markup shown until app.js boots and removes #ssr-fallback;
+	   the full-screen overflow:hidden above is for the JS app shell only. */
+
+	html:has(#ssr-fallback),
+	body:has(#ssr-fallback) {
+		overflow: visible;
+	}
+
+	.ssr-fallback {
+		max-width: 40rem;
+		margin: 0 auto;
+		padding: var(--space-lg) var(--space-md);
+
+		.field {
+			display: flex;
+			flex-direction: column;
+			gap: var(--space-xs);
+			margin-bottom: var(--space-md);
+
+			label {
+				font-weight: 600;
+			}
+
+			input,
+			textarea {
+				padding: 0.5rem 0.75rem;
+				border: 1px solid var(--color-border);
+				border-radius: var(--radius);
+				background: var(--color-surface);
+				color: var(--color-text);
+				width: 100%;
+
+				&:focus {
+					outline: 2px solid var(--color-accent);
+					outline-offset: 1px;
+					border-color: transparent;
+				}
+			}
+		}
+
+		button[type='submit'] {
+			display: inline-block;
+			padding: 0.625rem 1.5rem;
+			background: var(--color-accent);
+			color: #fff;
+			border-radius: var(--radius);
+			font-weight: 600;
+			border: 2px solid transparent;
+			cursor: pointer;
+
+			&:hover {
+				background: var(--color-accent-hover);
+			}
+		}
+
+		.error,
+		.success {
+			padding: var(--space-sm) var(--space-md);
+			border-radius: var(--radius);
+			margin-bottom: var(--space-md);
+		}
+
+		.error {
+			color: var(--color-error);
+			border: 1px solid var(--color-error);
+		}
+
+		.success {
+			color: var(--color-success);
+			border: 1px solid var(--color-success);
+		}
+	}
+
 	/* Loading state */
 	.app-loading {
 		display: flex;

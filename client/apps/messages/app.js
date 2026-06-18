@@ -21,6 +21,7 @@ class MessagesApp extends HTMLElement {
 
 	async connectedCallback() {
 		this.className = 'messages-app';
+		document.getElementById('ssr-fallback')?.remove();
 		this.#showLoading();
 		this.#registerSW();
 		await this.#init();
