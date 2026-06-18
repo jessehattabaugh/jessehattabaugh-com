@@ -136,10 +136,9 @@ export async function getAllConversations(db) {
  * @param {string} conversationId
  * @returns {Promise<Array<{ id: string, sender_user_id: string, content: string, createdAt: string }>>}
  */
-export async function getMessages(db, conversationId) {
 	const { results } = await db
 		.prepare(
-			'SELECT id, sender_user_id, content, created_at AS createdAt FROM messages WHERE conversation_id = ? ORDER BY created_at ASC',
+			"SELECT id, sender_user_id, content, strftime('%Y-%m-%dT%H:%M:%fZ', created_at) AS createdAt FROM messages WHERE conversation_id = ? ORDER BY created_at ASC",
 		)
 		.bind(conversationId)
 		.all();
