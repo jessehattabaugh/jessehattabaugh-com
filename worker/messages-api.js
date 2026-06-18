@@ -148,6 +148,8 @@ export async function handleMessagesApi(request, env) {
 			publicKey: regInfo.publicKey,
 			counter: regInfo.counter,
 			transports: regInfo.transports,
+		});
+
 		if (!SESSION_SECRET) {
 			return err('Server not configured: SESSION_SECRET is missing', 500);
 		}
@@ -209,6 +211,8 @@ export async function handleMessagesApi(request, env) {
 		const user = await getUserById(DB, passkey.user_id);
 		if (!user) {
 			return err('User not found', 404);
+		}
+
 		if (!SESSION_SECRET) {
 			return err('Server not configured: SESSION_SECRET is missing', 500);
 		}
