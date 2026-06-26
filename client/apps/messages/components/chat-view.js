@@ -70,10 +70,6 @@ export class ChatView extends HTMLElement {
 		return this.#conversationId;
 	}
 
-	connectedCallback() {
-		this.className = 'chat-view';
-	}
-
 	/**
 	 * @param {{
 	 *   user: { id: string, displayName: string, isOwner: boolean },

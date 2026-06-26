@@ -52,7 +52,6 @@ export class AuthScreen extends HTMLElement {
 	}
 
 	#render() {
-		this.className = 'auth-screen';
 		this.replaceChildren(template.content.cloneNode(true));
 
 		const nameInput = /** @type {HTMLInputElement} */ (this.querySelector('#auth-name'));

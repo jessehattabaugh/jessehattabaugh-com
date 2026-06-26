@@ -42,7 +42,7 @@ export const layout = ({
 				<a class="skip-link" href="#main">Skip to content</a>
 				<header>
 					<nav aria-label="Main navigation">
-						<a class="site-title${normalizedPath === '/' ? ' current' : ''}" href="/"
+						<a href="/"${normalizedPath === '/' ? ' aria-current="page"' : ''}
 							>Jesse Hattabaugh</a
 						>
 						<ul>

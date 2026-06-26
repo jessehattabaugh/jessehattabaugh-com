@@ -71,9 +71,9 @@ test('unknown route returns a 404 response', async ({ page }) => {
 // ── Lighthouse audits (Desktop Chrome only) ───────────────────────────────────
 
 test.describe('Lighthouse audits', () => {
-	test.beforeEach((_, testInfo) => {
+	test.beforeEach(() => {
 		test.skip(
-			testInfo.project.name !== 'Desktop Chrome',
+			test.info().project.name !== 'Desktop Chrome',
 			'Lighthouse only runs on Desktop Chrome',
 		);
 	});

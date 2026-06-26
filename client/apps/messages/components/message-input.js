@@ -28,7 +28,6 @@ template.innerHTML = `
  */
 export class MessageInput extends HTMLElement {
 	connectedCallback() {
-		this.className = 'compose';
 		this.append(template.content.cloneNode(true));
 
 		this.#textarea = /** @type {HTMLTextAreaElement} */ (this.querySelector('.compose__input'));
