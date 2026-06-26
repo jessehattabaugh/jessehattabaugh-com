@@ -210,17 +210,22 @@ export class ChatView extends HTMLElement {
 
 	/**
 	 * @param {{ id: string, sender_user_id: string, content: string, createdAt: string }} msg
+	 * @param {boolean} [isNew]
+	 * @returns {import('./message-bubble.js').MessageBubble}
 	 */
-	#appendBubble(msg) {
+	#appendBubble(msg, isNew = false) {
 		const sentByMe = msg.sender_user_id === this.#user?.id;
 
 		const bubble = /** @type {import('./message-bubble.js').MessageBubble} */ (
 			document.createElement('message-bubble')
 		);
-		bubble.dataset.msgId = msg.id;
+		if (!isNew) {
+			bubble.dataset.msgId = msg.id;
+		}
 		const senderName = !sentByMe && !this.#user?.isOwner ? this.#ownerName : undefined;
 		bubble.setData({ content: msg.content, sentByMe, senderName, timestamp: msg.createdAt });
 		this.#msgList.append(bubble);
+		return bubble;
 	}
 
 	/**
