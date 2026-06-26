@@ -108,6 +108,15 @@ sw.addEventListener(
 					data: { url: '/apps/messages/' },
 					actions: [{ action: 'open', title: 'Open' }],
 				});
+
+				// Let any open clients refresh immediately (the app listens for this message).
+				const clientList = await sw.clients.matchAll({
+					type: 'window',
+					includeUncontrolled: true,
+				});
+				for (const client of clientList) {
+					client.postMessage({ type: 'PUSH_RECEIVED' });
+				}
 			})(),
 		);
 	},
