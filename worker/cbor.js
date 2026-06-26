@@ -8,20 +8,17 @@ export function decodeCbor(bytes) {
 	let offset = 0;
 
 	function readByte() {
-		return bytes[offset++];
-	}
-
-	/** @param {number} size */
-	function readUint(size) {
-		let v = 0;
-		for (let i = 0; i < size; i++) {
-			v = v * 256 + readByte();
+		if (offset >= bytes.length) {
+			throw new Error('CBOR decode overflow');
 		}
-		return v;
+		return bytes[offset++];
 	}
 
 	/** @param {number} len */
 	function readByteSpan(len) {
+		if (offset + len > bytes.length) {
+			throw new Error('CBOR byte string is truncated');
+		}
 		const slice = bytes.slice(offset, offset + len);
 		offset += len;
 		return slice;
