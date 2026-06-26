@@ -27,13 +27,15 @@ export const apps = () => {
 			<article>
 				<h1>Apps</h1>
 				<p>Standalone progressive web apps — install any of these on your device.</p>
-				<div class="apps-grid" role="list">
-					<a href="/apps/messages/" class="app-card" role="listitem">
-						<div class="app-card__icon" aria-hidden="true">${messagesIcon}</div>
-						<span class="app-card__name">Messages</span>
-						<span class="app-card__desc">Send me a message</span>
-					</a>
-				</div>
+				<ul class="apps-grid">
+					<li>
+						<a href="/apps/messages/" class="app-card">
+							<div class="app-card__icon" aria-hidden="true">${messagesIcon}</div>
+							<span class="app-card__name">Messages</span>
+							<span class="app-card__desc">Send me a message</span>
+						</a>
+					</li>
+				</ul>
 			</article>
 		`,
 	});

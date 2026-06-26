@@ -20,7 +20,6 @@ class MessagesApp extends HTMLElement {
 	#pollTimer = null;
 
 	async connectedCallback() {
-		this.className = 'messages-app';
 		document.getElementById('ssr-fallback')?.remove();
 		this.#showLoading();
 		this.#registerSW();

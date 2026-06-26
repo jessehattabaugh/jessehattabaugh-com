@@ -125,7 +125,7 @@
 
 	/* ── Auth Screen ─────────────────────────────────────────────────────── */
 
-	.auth-screen {
+	auth-screen {
 		display: flex;
 		flex-direction: column;
 		align-items: center;
@@ -233,13 +233,6 @@
 	/* ── Chat View ───────────────────────────────────────────────────────── */
 
 	chat-view {
-		display: flex;
-		flex-direction: column;
-		flex: 1;
-		overflow: hidden;
-	}
-
-	.chat-view {
 		display: flex;
 		flex-direction: column;
 		flex: 1;
@@ -403,38 +396,32 @@
 	message-bubble {
 		display: flex;
 		flex-direction: column;
-		max-width: min(72%, 380px);
-	}
-
-	.bubble {
-		display: flex;
-		flex-direction: column;
 		gap: 2px;
 		max-width: min(72%, 380px);
 		view-transition-name: none; /* individual bubbles set their own */
-	}
 
-	.bubble--sent {
-		align-self: flex-end;
+		&[data-sent='true'] {
+			align-self: flex-end;
 
-		.bubble__text {
-			background: var(--color-accent);
-			color: #fff;
-			border-radius: var(--radius-lg) var(--radius-lg) var(--space-xs) var(--radius-lg);
+			.bubble__text {
+				background: var(--color-accent);
+				color: #fff;
+				border-radius: var(--radius-lg) var(--radius-lg) var(--space-xs) var(--radius-lg);
+			}
+
+			.bubble__meta {
+				text-align: right;
+			}
 		}
 
-		.bubble__meta {
-			text-align: right;
-		}
-	}
+		&[data-sent='false'] {
+			align-self: flex-start;
 
-	.bubble--received {
-		align-self: flex-start;
-
-		.bubble__text {
-			background: var(--color-surface);
-			border: 1px solid var(--color-border);
-			border-radius: var(--radius-lg) var(--radius-lg) var(--radius-lg) var(--space-xs);
+			.bubble__text {
+				background: var(--color-surface);
+				border: 1px solid var(--color-border);
+				border-radius: var(--radius-lg) var(--radius-lg) var(--radius-lg) var(--space-xs);
+			}
 		}
 	}
 
@@ -468,10 +455,6 @@
 	/* ── Compose Area ────────────────────────────────────────────────────── */
 
 	message-input {
-		display: block;
-	}
-
-	.compose {
 		display: flex;
 		align-items: flex-end;
 		gap: var(--space-sm);

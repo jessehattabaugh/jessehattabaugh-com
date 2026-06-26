@@ -15,7 +15,6 @@ export class MessageBubble extends HTMLElement {
 	/** @param {{ content: string, sentByMe: boolean, senderName?: string, timestamp: string }} data */
 	setData({ content, sentByMe, senderName, timestamp }) {
 		this.dataset.sent = String(sentByMe);
-		this.className = `bubble ${sentByMe ? 'bubble--sent' : 'bubble--received'}`;
 		this.replaceChildren(template.content.cloneNode(true));
 
 		/** @type {HTMLParagraphElement} */ (this.querySelector('.bubble__text')).textContent =

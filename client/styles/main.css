@@ -54,7 +54,8 @@
 			}
 		}
 
-		.site-title {
+		/* The brand link is always the nav's first direct child — the rest live in the <ul>. */
+		> a:first-child {
 			font-weight: 700;
 			color: var(--color-text);
 			font-size: 1.125rem;
@@ -80,7 +81,8 @@
 }
 
 @layer components {
-	.hero {
+	/* The home page is the only template with a <section> — safe to style by tag. */
+	section {
 		nav {
 			margin-top: var(--space-lg);
 			display: flex;
@@ -90,95 +92,12 @@
 		h1 {
 			margin-bottom: var(--space-sm);
 		}
-		.lead {
+		/* The lead paragraph is always the first <p> in the hero section. */
+		p:first-of-type {
 			font-size: 1.25rem;
 			color: var(--color-text-muted);
 			margin-bottom: var(--space-md);
 		}
-	}
-
-	/* Alias .button → .btn for backward compatibility */
-	.button {
-		display: inline-block;
-		padding: 0.625rem 1.25rem;
-		background: var(--color-accent);
-		color: #fff;
-		text-decoration: none;
-		border-radius: var(--radius);
-		font-weight: 600;
-		border: 2px solid transparent;
-		cursor: pointer;
-		transition: background 0.15s;
-
-		&:hover {
-			background: var(--color-accent-hover);
-			color: #fff;
-		}
-
-		&.button--outline {
-			background: transparent;
-			border-color: var(--color-accent);
-			color: var(--color-accent);
-
-			&:hover {
-				background: var(--color-accent);
-				color: #fff;
-			}
-		}
-	}
-
-	.field {
-		display: flex;
-		flex-direction: column;
-		gap: var(--space-xs);
-		margin-bottom: var(--space-md);
-
-		label {
-			font-weight: 600;
-		}
-
-		input,
-		textarea {
-			padding: 0.5rem 0.75rem;
-			border: 1px solid var(--color-border);
-			border-radius: var(--radius);
-			background: var(--color-surface);
-			color: var(--color-text);
-			width: 100%;
-			max-width: var(--max-width);
-
-			&:focus {
-				outline: 2px solid var(--color-accent);
-				outline-offset: 1px;
-				border-color: transparent;
-			}
-		}
-	}
-
-	form button[type='submit'] {
-		display: inline-block;
-		padding: 0.625rem 1.5rem;
-		background: var(--color-accent);
-		color: #fff;
-		text-decoration: none;
-		border-radius: var(--radius);
-		font-weight: 600;
-		border: 2px solid transparent;
-		cursor: pointer;
-		transition: background 0.15s;
-
-		&:hover {
-			background: var(--color-accent-hover);
-		}
-	}
-
-	.error {
-		color: var(--color-error);
-		border: 1px solid var(--color-error);
-		padding: var(--space-sm) var(--space-md);
-		border-radius: var(--radius);
-		margin-bottom: var(--space-md);
-		max-width: var(--max-width);
 	}
 
 	article {
@@ -200,6 +119,12 @@
 		grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
 		gap: var(--space-lg);
 		margin-top: var(--space-lg);
+		padding-left: 0;
+		list-style: none;
+
+		> li {
+			margin-top: 0;
+		}
 	}
 
 	.app-card {
