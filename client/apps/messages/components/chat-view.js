@@ -280,13 +280,24 @@ export class ChatView extends HTMLElement {
 		this.#msgList.scrollTop = this.#msgList.scrollHeight;
 	}
 
-	#checkNotificationStatus() {
+	async #checkNotificationStatus() {
 		if (!('Notification' in window)) {
 			this.#notifBtn?.remove();
 			return;
 		}
-		if (Notification.permission === 'granted') {
-			this.markNotificationsEnabled();
+		if (Notification.permission !== 'granted') {
+			return;
+		}
+		try {
+			if ('serviceWorker' in navigator && 'PushManager' in window) {
+				const reg = await navigator.serviceWorker.ready;
+				const existing = await reg.pushManager.getSubscription();
+				if (existing) {
+					this.markNotificationsEnabled();
+				}
+			}
+		} catch {
+			// Ignore failures — leave the button in its default (disabled) state.
 		}
 	}
 
