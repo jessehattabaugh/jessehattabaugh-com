@@ -18,7 +18,8 @@
 		"deploy": "node scripts/deploy.js",
 		"deploy:prod": "node scripts/deploy.js",
 		"dev": "wrangler dev",
-		"test": "playwright test"
+		"test": "playwright test",
+		"test:preview": "node scripts/test-preview.js"
 	},
 	"type": "module",
 	"version": "1.0.0"

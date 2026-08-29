@@ -31,8 +31,21 @@ const dbName = isMain
 	? 'jessehattabaugh-com'
 	: `jessehattabaugh-com-preview-${branch.replace(/[^a-z0-9-]/gi, '-')}`;
 
+// Stable preview alias: one per branch, so each branch gets its own URL.
+// Workers Builds already aliases by branch name; adding it here keeps local
+// `npm run deploy` consistent and deterministic. Must be lowercase/alphanumeric
+// + dashes, start with a letter, and (combined with the Worker name) ≤ 63 chars.
+const alias = branch
+	.toLowerCase()
+	.replace(/[^a-z0-9-]/g, '-')
+	.replace(/^-+/, '')
+	.replace(/-+$/, '')
+	.replace(/^[^a-z]+/, '')
+	.slice(0, 63 - 'jessehattabaugh-com'.length - 1);
+
 console.log(`Branch: ${branch}`);
 console.log(`DB:     ${dbName}`);
+console.log(`Alias:  ${alias}`);
 
 // Build static assets + copy worker
 run('npm run build');
@@ -73,7 +86,7 @@ if (isMain) {
 	const tempConfig = '.wrangler-preview.json';
 	writeFileSync(tempConfig, JSON.stringify(previewConfig, null, '\t'));
 	try {
-		run(`wrangler versions upload --config ${tempConfig}`);
+		run(`wrangler versions upload --config ${tempConfig} --preview-alias ${alias}`);
 	} finally {
 		unlinkSync(tempConfig);
 	}
