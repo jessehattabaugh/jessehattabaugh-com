@@ -75,6 +75,7 @@ test('/apps/messages/ — no-JS guest can submit the fallback form and see a con
 	await page.context().clearCookies();
 	await page.goto('/apps/messages/');
 	await page.getByLabel('Name').fill('No JS Guest');
+	await page.getByLabel('Email').fill(`nojs-${randomUUID()}@example.com`);
 	await page.getByLabel('Message').fill(`UI test message ${randomUUID()}`);
 	await page.getByRole('button', { name: 'Send' }).click();
 	await expect(page.getByText('Message sent')).toBeVisible();
@@ -85,7 +86,11 @@ test('/apps/messages/ — guest can send a message without JavaScript (HTTP fall
 }) => {
 	await page.context().clearCookies();
 	const res = await page.request.post('/apps/messages/', {
-		form: { name: 'No JS Guest', message: `No-JS test message ${randomUUID()}` },
+		form: {
+			name: 'No JS Guest',
+			email: `nojs-${randomUUID()}@example.com`,
+			message: `No-JS test message ${randomUUID()}`,
+		},
 		maxRedirects: 0,
 	});
 	expect(res.status()).toBe(303);
@@ -98,7 +103,7 @@ test('/apps/messages/ — no-JS form rejects missing fields with a 422 and prese
 }) => {
 	await page.context().clearCookies();
 	const res = await page.request.post('/apps/messages/', {
-		form: { name: 'Validation Test', message: '' },
+		form: { name: 'Validation Test', email: 'validation@example.com', message: '' },
 	});
 	expect(res.status()).toBe(422);
 	const body = await res.text();
@@ -110,7 +115,11 @@ test('/apps/messages/api/auth/register/begin — reuses the guest identity from 
 }) => {
 	await page.context().clearCookies();
 	const sendRes = await page.request.post('/apps/messages/', {
-		form: { name: 'Merge Test Guest', message: `pre-auth message ${randomUUID()}` },
+		form: {
+			name: 'Merge Test Guest',
+			email: `merge-${randomUUID()}@example.com`,
+			message: `pre-auth message ${randomUUID()}`,
+		},
 		maxRedirects: 0,
 	});
 	const setCookie = sendRes.headers()['set-cookie'] ?? '';
@@ -122,7 +131,7 @@ test('/apps/messages/api/auth/register/begin — reuses the guest identity from 
 	// page.request shares the browser context's cookie jar, so the guest
 	// session cookie set above is sent automatically on this next request.
 	const beginRes = await page.request.post('/apps/messages/api/auth/register/begin', {
-		data: { displayName: 'Merge Test Guest' },
+		data: { displayName: 'Merge Test Guest', email: `merge-${randomUUID()}@example.com` },
 	});
 	const { userId } = await beginRes.json();
 	expect(userId).toBe(guestUserId);
@@ -153,7 +162,7 @@ test('/apps/messages/api/messages — 401 when not authenticated', async ({ page
 
 test('/apps/messages/api/auth/register/begin — rejects empty displayName', async ({ page }) => {
 	const res = await page.request.post('/apps/messages/api/auth/register/begin', {
-		data: { displayName: '' },
+		data: { displayName: '', email: 'test@example.com' },
 	});
 	expect(res.status()).toBe(400);
 });
@@ -162,7 +171,7 @@ test('/apps/messages/api/auth/register/begin — returns challenge for valid nam
 	page,
 }) => {
 	const res = await page.request.post('/apps/messages/api/auth/register/begin', {
-		data: { displayName: 'Test User' },
+		data: { displayName: 'Test User', email: `test-${randomUUID()}@example.com` },
 	});
 	expect(res.ok()).toBe(true);
 	const json = await res.json();

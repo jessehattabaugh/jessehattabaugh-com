@@ -25,6 +25,18 @@ template.innerHTML = `
 				required
 			/>
 		</label>
+		<label class="auth-label" for="auth-email"
+			>Email
+			<input
+				type="email"
+				id="auth-email"
+				name="email"
+				autocomplete="email"
+				placeholder="you@example.com"
+				class="auth-input"
+				required
+			/>
+		</label>
 		<label class="auth-label auth-label--hidden" for="auth-token"
 			>Setup token (owner only)
 			<input
@@ -55,6 +67,7 @@ export class AuthScreen extends HTMLElement {
 		this.replaceChildren(template.content.cloneNode(true));
 
 		const nameInput = /** @type {HTMLInputElement} */ (this.querySelector('#auth-name'));
+		const emailInput = /** @type {HTMLInputElement} */ (this.querySelector('#auth-email'));
 		const tokenLabel = /** @type {HTMLLabelElement} */ (
 			this.querySelector('label[for="auth-token"]')
 		);
@@ -63,7 +76,7 @@ export class AuthScreen extends HTMLElement {
 
 		this.querySelector('.auth-register')?.addEventListener('click', () => {
 			this.#withError(() => {
-				return this.#register(nameInput.value, tokenInput.value);
+				return this.#register(nameInput.value, emailInput.value, tokenInput.value);
 			});
 		});
 
@@ -104,14 +117,26 @@ export class AuthScreen extends HTMLElement {
 		}
 	}
 
-	/** @param {string} displayName @param {string} setupToken */
-	async #register(displayName, setupToken) {
+	/** @param {string} displayName @param {string} email @param {string} setupToken */
+	async #register(displayName, email, setupToken) {
 		const trimmedName = displayName.trim();
+		const trimmedEmail = email.trim();
 		if (!trimmedName) {
 			throw new Error('Please enter your name.');
 		}
+		if (!trimmedEmail) {
+			throw new Error('Please enter your email address.');
+		}
 
-		const beginData = await api.registerBegin({ displayName: trimmedName });
+		const beginData = await api.registerBegin({
+			displayName: trimmedName,
+			email: trimmedEmail,
+		});
+		if (beginData.needsVerification) {
+			throw new Error(
+				'Check your email and confirm the link before registering your passkey.',
+			);
+		}
 		const options = parseRegistrationOptions(beginData.options);
 
 		let credential;

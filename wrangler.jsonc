@@ -1,8 +1,5 @@
 {
-	"assets": {
-		"binding": "ASSETS",
-		"directory": "./dist/client/"
-	},
+	"assets": { "binding": "ASSETS", "directory": "./dist/client/" },
 	"compatibility_date": "2026-05-01",
 	"d1_databases": [
 		{
@@ -20,19 +17,20 @@
 	],
 	"main": "./worker/index.js",
 	"name": "jessehattabaugh-com",
-	"observability": {
-		"enabled": true
-	},
+	"observability": { "enabled": true },
 	"preview_urls": true,
-	"routes": [
+	"send_email": [
 		{
-			"custom_domain": true,
-			"pattern": "jessehattabaugh.com"
-		},
-		{
-			"custom_domain": true,
-			"pattern": "www.jessehattabaugh.com"
+			"name": "EMAIL",
+			"allowed_sender_addresses": [
+				"no-reply@jessehattabaugh.com",
+				"messages@jessehattabaugh.com"
+			]
 		}
+	],
+	"routes": [
+		{ "custom_domain": true, "pattern": "jessehattabaugh.com" },
+		{ "custom_domain": true, "pattern": "www.jessehattabaugh.com" }
 	],
 	// Non-secret config. Secrets are set via: wrangler secret put <NAME>
 	// Required secrets:
@@ -43,7 +41,11 @@
 	//
 	// Generate VAPID keys with Node.js:
 	//   node scripts/generate-vapid-keys.js
+	//
+	// Email Service: onboarding required before sending. Run once per account:
+	//   npx wrangler email sending enable jessehattabaugh.com
 	"vars": {
-		"VAPID_CONTACT": "mailto:claude_ai@jessehattabaugh.com"
+		"VAPID_CONTACT": "mailto:claude_ai@jessehattabaugh.com",
+		"EMAIL_FROM": "no-reply@jessehattabaugh.com"
 	}
 }

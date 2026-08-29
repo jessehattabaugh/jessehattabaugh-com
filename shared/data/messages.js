@@ -2,22 +2,57 @@
 
 /**
  * @param {D1Database} db
- * @param {{ id: string, displayName: string, isOwner?: boolean }} opts
+ * @param {{ id: string, displayName: string, isOwner?: boolean, email?: string | null }} opts
  */
-export async function createUser(db, { id, displayName, isOwner = false }) {
+export async function createUser(db, { id, displayName, isOwner = false, email = null }) {
 	await db
-		.prepare('INSERT INTO users (id, display_name, is_owner) VALUES (?, ?, ?)')
-		.bind(id, displayName, isOwner ? 1 : 0)
+		.prepare('INSERT INTO users (id, display_name, is_owner, email) VALUES (?, ?, ?, ?)')
+		.bind(id, displayName, isOwner ? 1 : 0, email)
 		.run();
 }
 
 /**
  * @param {D1Database} db
  * @param {string} id
- * @returns {Promise<{ id: string, display_name: string, is_owner: number, created_at: string } | null>}
+ * @returns {Promise<{ id: string, display_name: string, is_owner: number, email: string | null, email_verified: number, created_at: string } | null>}
  */
 export function getUserById(db, id) {
 	return db.prepare('SELECT * FROM users WHERE id = ?').bind(id).first();
+}
+
+/**
+ * Normalize an email address (trim + lowercase) for storage and comparison.
+ * @param {string} email
+ * @returns {string}
+ */
+export function normalizeEmail(email) {
+	return email.trim().toLowerCase();
+}
+
+/**
+ * Look up the verified user for an email, if any.
+ * @param {D1Database} db
+ * @param {string} email
+ * @returns {Promise<{ id: string, display_name: string, is_owner: number, email: string | null, email_verified: number, created_at: string } | null>}
+ */
+export function getUserByEmail(db, email) {
+	return db
+		.prepare('SELECT * FROM users WHERE email = ? AND email_verified = 1 LIMIT 1')
+		.bind(normalizeEmail(email))
+		.first();
+}
+
+/**
+ * Look up any user with this email, including unverified rows.
+ * @param {D1Database} db
+ * @param {string} email
+ * @returns {Promise<{ id: string, display_name: string, is_owner: number, email: string | null, email_verified: number, created_at: string } | null>}
+ */
+export function getUserByEmailAny(db, email) {
+	return db
+		.prepare('SELECT * FROM users WHERE email = ? LIMIT 1')
+		.bind(normalizeEmail(email))
+		.first();
 }
 
 /**
@@ -60,13 +95,81 @@ export async function hasPasskey(db, userId) {
  * a no-JS session cookie) later registers a passkey, so their existing id and
  * message history carry over instead of forking into a second user.
  * @param {D1Database} db
- * @param {{ id: string, displayName: string, isOwner: boolean }} opts
+ * @param {{ id: string, displayName: string, isOwner: boolean, email?: string | null }} opts
  */
-export async function updateUserProfile(db, { id, displayName, isOwner }) {
+export async function updateUserProfile(db, { id, displayName, isOwner, email = null }) {
+	const current = await getUserById(db, id);
+	const normalizedEmail = email ? normalizeEmail(email) : null;
+	const nextVerified = normalizedEmail && current?.email === normalizedEmail ? current.email_verified : 0;
 	await db
-		.prepare('UPDATE users SET display_name = ?, is_owner = ? WHERE id = ?')
-		.bind(displayName, isOwner ? 1 : 0, id)
+		.prepare(
+			'UPDATE users SET display_name = ?, is_owner = ?, email = ?, email_verified = ? WHERE id = ?',
+		)
+		.bind(displayName, isOwner ? 1 : 0, normalizedEmail, nextVerified, id)
 		.run();
+}
+
+/**
+ * Mark a user's email as verified.
+ * @param {D1Database} db
+ * @param {string} id
+ */
+export function markEmailVerified(db, id) {
+	return db.prepare('UPDATE users SET email_verified = 1 WHERE id = ?').bind(id).run();
+}
+
+/**
+ * @typedef {{ id: string, user_id: string, email: string, purpose: string, payload: string | null, expires_at: number }} EmailVerification
+ */
+
+/**
+ * Create a single-use email verification record.
+ * @param {D1Database} db
+ * @param {{ id: string, userId: string, email: string, purpose: string, payload?: string | null, ttlMs?: number }} opts
+ */
+export async function createEmailVerification(
+	db,
+	{ id, userId, email, purpose = 'register', payload = null, ttlMs = 15 * 60 * 1000 },
+) {
+	const expiresAt = Date.now() + ttlMs;
+	await db
+		.prepare(
+			'INSERT INTO email_verifications (id, user_id, email, purpose, payload, expires_at) VALUES (?, ?, ?, ?, ?, ?)',
+		)
+		.bind(id, userId, normalizeEmail(email), purpose, payload, expiresAt)
+		.run();
+}
+
+/**
+ * Fetch a verification record by token (does not consume it).
+ * @param {D1Database} db
+ * @param {string} id
+ * @returns {Promise<EmailVerification | null>}
+ */
+export function getEmailVerification(db, id) {
+	return db
+		.prepare('SELECT id, user_id, email, purpose, payload, expires_at FROM email_verifications WHERE id = ?')
+		.bind(id)
+		.first();
+}
+
+/**
+ * Atomically consume (delete) a verification record.
+ * @param {D1Database} db
+ * @param {string} id
+ * @returns {Promise<EmailVerification | null>}
+ */
+export function consumeEmailVerification(db, id) {
+	return db
+		.prepare('DELETE FROM email_verifications WHERE id = ? RETURNING id, user_id, email, purpose, payload, expires_at')
+		.bind(id)
+		.first();
+}
+
+/** Remove stale verification records to keep the table small. */
+/** @param {D1Database} db */
+export function cleanExpiredEmailVerifications(db) {
+	return db.prepare('DELETE FROM email_verifications WHERE expires_at < ?').bind(Date.now()).run();
 }
 
 /**
