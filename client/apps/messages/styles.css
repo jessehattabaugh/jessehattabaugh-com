@@ -273,6 +273,10 @@
 	.chat-header__notif {
 		font-size: 1.2rem;
 		line-height: 1;
+
+		&[aria-pressed='true'] {
+			color: var(--color-accent);
+		}
 	}
 
 	.chat-layout {

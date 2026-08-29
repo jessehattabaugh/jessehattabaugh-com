@@ -12,6 +12,7 @@ layoutTemplate.innerHTML = `
 				type="button"
 				class="btn btn--ghost chat-header__notif"
 				aria-label="Enable notifications"
+				aria-pressed="false"
 				title="Enable notifications"
 			>🔔</button>
 			<button type="button" class="btn btn--ghost chat-header__logout">Sign out</button>
@@ -101,7 +102,10 @@ export class ChatView extends HTMLElement {
 			this.querySelector('.chat-header__notif')
 		);
 		this.#notifBtn.addEventListener('click', () => {
-			this.dispatchEvent(new CustomEvent('push-subscribe', { bubbles: true }));
+			const enabled = this.#notifBtn?.getAttribute('aria-pressed') === 'true';
+			this.dispatchEvent(
+				new CustomEvent(enabled ? 'push-unsubscribe' : 'push-subscribe', { bubbles: true }),
+			);
 		});
 
 		this.querySelector('.chat-header__logout')?.addEventListener('click', () => {
@@ -244,8 +248,9 @@ export class ChatView extends HTMLElement {
 		};
 
 		const finalize = () => {
-			const bubble =
-				/** @type {import('./message-bubble.js').MessageBubble | null} */ (newBubble);
+			const bubble = /** @type {import('./message-bubble.js').MessageBubble | null} */ (
+				newBubble
+			);
 			if (bubble) {
 				bubble.dataset.msgId = msg.id;
 				bubble.style.viewTransitionName = `msg-${msg.id}`;
@@ -287,9 +292,17 @@ export class ChatView extends HTMLElement {
 
 	markNotificationsEnabled() {
 		if (this.#notifBtn) {
-			this.#notifBtn.textContent = '🔕';
+			this.#notifBtn.setAttribute('aria-pressed', 'true');
 			this.#notifBtn.setAttribute('aria-label', 'Notifications enabled');
 			this.#notifBtn.title = 'Notifications enabled';
+		}
+	}
+
+	markNotificationsDisabled() {
+		if (this.#notifBtn) {
+			this.#notifBtn.setAttribute('aria-pressed', 'false');
+			this.#notifBtn.setAttribute('aria-label', 'Enable notifications');
+			this.#notifBtn.title = 'Enable notifications';
 		}
 	}
 }

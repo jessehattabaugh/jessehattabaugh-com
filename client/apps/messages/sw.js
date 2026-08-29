@@ -85,19 +85,19 @@ sw.addEventListener(
 				const title = 'Messages';
 				let body = 'You have a new message';
 
-				// Fetch the actual message content using the session cookie (same origin)
+				// Read the encrypted payload the server delivered (RFC 8291). The
+				// browser decrypts it before firing 'push', so event.data holds our
+				// JSON. No follow-up fetch is needed — and iOS drops empty payloads.
 				try {
-					const res = await fetch('/apps/messages/api/messages/latest', {
-						credentials: 'include',
-					});
-					if (res.ok) {
-						const { senderName, content } = await res.json();
-						if (senderName && content) {
-							body = `${senderName}: ${content.slice(0, 100)}`;
+					const raw = event.data?.text();
+					if (raw) {
+						const data = JSON.parse(raw);
+						if (data?.senderName && data?.content) {
+							body = `${data.senderName}: ${data.content.slice(0, 100)}`;
 						}
 					}
 				} catch {
-					// Use generic message on fetch failure
+					// Fall back to generic message if the payload is missing/malformed.
 				}
 
 				await sw.registration.showNotification(title, {
