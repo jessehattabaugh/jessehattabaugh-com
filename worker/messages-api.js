@@ -444,13 +444,23 @@ export async function handleMessagesApi(request, env) {
 			// participant) so the chat interface is always usable and the owner can
 			// send a message to themself.
 			if (conversations.length === 0) {
-				const self = await getOrCreateConversation(DB, userId);
+				await getOrCreateConversation(DB, userId);
 				conversations = await getAllConversations(DB);
-				if (!convId) {
-					return json({ conversations, messages: [], conversationId: self.id });
-				}
 			}
+
 			if (!convId) {
+				// When the owner has only their self conversation, auto-select it so
+				// the composer isn't left disabled. This must also fire on later
+				// visits — not just the request that created the self conversation —
+				// e.g. after a reload or on a new device, where the mobile sidebar is
+				// hidden and there's otherwise no visible way to select it.
+				const self = conversations.find((c) => {
+					return c.visitor_user_id === userId;
+				});
+				if (conversations.length === 1 && self) {
+					const messages = await getMessages(DB, self.id);
+					return json({ conversations, messages, conversationId: self.id });
+				}
 				return json({ conversations, messages: [] });
 			}
 			const messages = await getMessages(DB, convId);
