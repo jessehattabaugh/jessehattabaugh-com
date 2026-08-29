@@ -11,7 +11,7 @@ const ownerNotice = () => {
 };
 
 /**
- * @param {{ sent: boolean, error?: string, values: { name?: string, message?: string } }} opts
+ * @param {{ sent: boolean, error?: string, values: { name?: string, email?: string, message?: string } }} opts
  * @returns {import('../html.js').Raw}
  */
 const guestForm = ({ sent, error, values }) => {
@@ -19,7 +19,9 @@ const guestForm = ({ sent, error, values }) => {
 		<main class="ssr-fallback">
 			<h1>Send Jesse a message</h1>
 			${sent
-				? html`<p class="success" role="status">Message sent — Jesse will get back to you.</p>`
+				? html`<p class="success" role="status">
+						Message sent — Jesse will get back to you.
+					</p>`
 				: html``}
 			${error ? html`<p class="error" role="alert">${error}</p>` : html``}
 			<p>Enable JavaScript to receive replies and see your message history.</p>
@@ -36,8 +38,21 @@ const guestForm = ({ sent, error, values }) => {
 					/>
 				</div>
 				<div class="field">
+					<label for="email">Email</label>
+					<input
+						id="email"
+						name="email"
+						type="email"
+						autocomplete="email"
+						required
+						value="${values.email ?? ''}"
+					/>
+				</div>
+				<div class="field">
 					<label for="message">Message</label>
-					<textarea id="message" name="message" rows="5" required>${values.message ?? ''}</textarea>
+					<textarea id="message" name="message" rows="5" required>
+${values.message ?? ''}</textarea
+					>
 				</div>
 				<button type="submit">Send</button>
 			</form>
@@ -58,7 +73,7 @@ const guestForm = ({ sent, error, values }) => {
  * @param {'guest' | 'owner'} [opts.viewerRole]
  * @param {boolean} [opts.sent]
  * @param {string} [opts.error]
- * @param {{ name?: string, message?: string }} [opts.values]
+ * @param {{ name?: string, email?: string, message?: string }} [opts.values]
  * @returns {import('../html.js').Raw}
  */
 export const messagesPage = ({ viewerRole = 'guest', sent = false, error, values = {} } = {}) => {

@@ -11,11 +11,16 @@ CREATE TABLE IF NOT EXISTS contact_messages (
 );
 
 CREATE TABLE IF NOT EXISTS users (
-  id           TEXT    PRIMARY KEY,
-  display_name TEXT    NOT NULL,
-  is_owner     INTEGER NOT NULL DEFAULT 0,
-  created_at   TEXT    NOT NULL DEFAULT (datetime('now'))
+  id             TEXT    PRIMARY KEY,
+  display_name   TEXT    NOT NULL,
+  is_owner       INTEGER NOT NULL DEFAULT 0,
+  email          TEXT,
+  email_verified INTEGER NOT NULL DEFAULT 0,
+  created_at     TEXT    NOT NULL DEFAULT (datetime('now'))
 );
+
+CREATE UNIQUE INDEX IF NOT EXISTS idx_users_email
+  ON users(email) WHERE email IS NOT NULL;
 
 CREATE TABLE IF NOT EXISTS passkeys (
   id         TEXT    PRIMARY KEY,  -- credential ID (base64url)
@@ -58,6 +63,19 @@ CREATE TABLE IF NOT EXISTS push_subscriptions (
   auth       TEXT NOT NULL,
   created_at TEXT NOT NULL DEFAULT (datetime('now'))
 );
+
+CREATE TABLE IF NOT EXISTS email_verifications (
+  id         TEXT    PRIMARY KEY,  -- token (random UUID), also the id
+  user_id    TEXT    NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  email      TEXT    NOT NULL,
+  purpose    TEXT    NOT NULL DEFAULT 'register',
+  payload    TEXT,
+  expires_at INTEGER NOT NULL,     -- Unix timestamp ms
+  created_at TEXT    NOT NULL DEFAULT (datetime('now'))
+);
+
+CREATE INDEX IF NOT EXISTS idx_email_verifications_user
+  ON email_verifications(user_id);
 
 CREATE INDEX IF NOT EXISTS idx_messages_conversation
   ON messages(conversation_id, created_at);

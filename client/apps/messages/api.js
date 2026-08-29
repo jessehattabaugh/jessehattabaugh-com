@@ -54,7 +54,7 @@ export const api = {
 		return get('/auth/me');
 	},
 
-	/** @param {{ displayName: string }} body */
+	/** @param {{ displayName: string, email: string }} body */
 	registerBegin(body) {
 		return post('/auth/register/begin', body);
 	},

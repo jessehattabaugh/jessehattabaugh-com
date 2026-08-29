@@ -1,10 +1,13 @@
 import {
 	createUser,
 	getUserById,
+	getUserByEmail,
+	getUserByEmailAny,
 	hasPasskey,
 	updateUserProfile,
 	createPasskey,
 	getPasskeyById,
+	getEmailVerification,
 	updatePasskeyCounter,
 	createChallenge,
 	consumeChallenge,
@@ -17,6 +20,10 @@ import {
 	getOwnerPushSubscriptions,
 	deletePushSubscription,
 	cleanExpiredChallenges,
+	normalizeEmail,
+	createEmailVerification,
+	consumeEmailVerification,
+	markEmailVerified,
 } from '../shared/data/messages.js';
 import {
 	verifyRegistration,
@@ -46,6 +53,77 @@ function err(msg, status = 400) {
 function rpInfo(req) {
 	const url = new URL(req.url);
 	return { rpId: url.hostname, origin: url.origin };
+}
+
+const EMAIL_VERIFICATION_TTL_MS = 15 * 60 * 1000;
+
+/** @param {string} email */
+function isValidEmail(email) {
+	return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+}
+
+/**
+ * @param {import('../shared/types.js').Env} env
+ * @param {{ email: string, token: string, purpose: 'register' | 'guest-message', displayName?: string, requestUrl: string }} opts
+ */
+async function sendVerificationEmail(env, { email, token, purpose, displayName, requestUrl }) {
+	if (!env.EMAIL || !env.EMAIL_FROM) {
+		return;
+	}
+	const link = new URL('/apps/messages/verify', requestUrl);
+	link.searchParams.set('token', token);
+	const subject =
+		purpose === 'register'
+			? 'Confirm your Messages registration'
+			: 'Confirm your message to Jesse';
+	const safeName = displayName?.trim() || 'there';
+	const text = [
+		`Hi ${safeName},`,
+		'',
+		`Please confirm this email to continue in Messages: ${link.toString()}`,
+		'',
+		'If you did not make this request, you can ignore this email.',
+	].join('\n');
+	try {
+		await env.EMAIL.send({
+			to: email,
+			from: env.EMAIL_FROM,
+			subject,
+			text,
+			html: `<p>Hi ${safeName},</p><p>Please confirm this email to continue in Messages:</p><p><a href="${link.toString()}">${link.toString()}</a></p><p>If you did not make this request, you can ignore this email.</p>`,
+		});
+	} catch (e) {
+		console.error('Email send failed', e);
+	}
+}
+
+/**
+ * @param {import('../shared/types.js').Env} env
+ * @param {Request} request
+ * @param {{ userId: string, email: string, purpose: 'register' | 'guest-message', displayName?: string, payload?: string | null }} opts
+ */
+async function createVerification(
+	env,
+	request,
+	{ userId, email, purpose, displayName, payload = null },
+) {
+	const token = crypto.randomUUID();
+	await createEmailVerification(env.DB, {
+		id: token,
+		userId,
+		email,
+		purpose,
+		payload,
+		ttlMs: EMAIL_VERIFICATION_TTL_MS,
+	});
+	await sendVerificationEmail(env, {
+		email,
+		token,
+		purpose,
+		displayName,
+		requestUrl: request.url,
+	});
+	return token;
 }
 
 /**
@@ -91,7 +169,7 @@ async function notifyNewMessage(env, { conversationId, senderIsOwner, senderName
  * point the client app upgrades once JS runs.
  * @param {Request} request
  * @param {import('../shared/types.js').Env} env
- * @param {{ status?: number, error?: string, values?: { name?: string, message?: string }, sent?: boolean }} [opts]
+ * @param {{ status?: number, error?: string, values?: { name?: string, email?: string, message?: string }, sent?: boolean }} [opts]
  * @returns {Promise<Response>}
  */
 async function renderMessagesPage(request, env, { status = 200, error, values, sent } = {}) {
@@ -105,7 +183,7 @@ async function renderMessagesPage(request, env, { status = 200, error, values, s
 			viewerRole: user?.is_owner ? 'owner' : 'guest',
 			sent: sent ?? url.searchParams.get('sent') === '1',
 			error,
-			values: values ?? { name: user?.display_name ?? '' },
+			values: values ?? { name: user?.display_name ?? '', email: user?.email ?? '' },
 		}),
 	);
 	return new Response(body, {
@@ -144,32 +222,53 @@ async function handleGuestMessagePost(request, env) {
 	const name = String(form.get('name') ?? '')
 		.trim()
 		.slice(0, 100);
+	const email = normalizeEmail(String(form.get('email') ?? ''));
 	const message = String(form.get('message') ?? '').trim();
 
-	if (!name || !message) {
+	if (!name || !message || !email) {
 		return renderMessagesPage(request, env, {
 			status: 422,
-			error: 'Name and message are required.',
-			values: { name, message },
+			error: 'Name, email, and message are required.',
+			values: { name, email, message },
+		});
+	}
+	if (!isValidEmail(email)) {
+		return renderMessagesPage(request, env, {
+			status: 422,
+			error: 'Please enter a valid email address.',
+			values: { name, email, message },
 		});
 	}
 	if (message.length > 10000) {
 		return renderMessagesPage(request, env, {
 			status: 422,
 			error: 'Message is too long.',
-			values: { name, message },
+			values: { name, email, message },
 		});
 	}
 
 	let userId = existingUser?.id ?? null;
-	let setCookie = null;
 	if (!userId) {
-		if (!SESSION_SECRET) {
-			return err('Server not configured: SESSION_SECRET is missing', 500);
-		}
 		userId = crypto.randomUUID();
-		await createUser(DB, { id: userId, displayName: name, isOwner: false });
-		setCookie = sessionCookieHeader(await createSession(SESSION_SECRET, userId));
+		await createUser(DB, { id: userId, displayName: name, isOwner: false, email });
+	} else {
+		await updateUserProfile(DB, { id: userId, displayName: name, isOwner: false, email });
+	}
+
+	if (!existingUser || existingUser.email !== email || existingUser.email_verified !== 1) {
+		const token = await createVerification(env, request, {
+			userId,
+			email,
+			purpose: 'guest-message',
+			displayName: name,
+			payload: JSON.stringify({ name, message }),
+		});
+		return renderMessagesPage(request, env, {
+			status: 200,
+			error: 'Check your email to confirm your message before it is sent.',
+			values: { name, email, message },
+			sent: false,
+		});
 	}
 
 	const conv = await getOrCreateConversation(DB, userId);
@@ -190,8 +289,8 @@ async function handleGuestMessagePost(request, env) {
 		Location: new URL('/apps/messages/?sent=1', request.url).toString(),
 		...SECURITY_HEADERS,
 	});
-	if (setCookie) {
-		headers.set('Set-Cookie', setCookie);
+	if (!sessionUserId && SESSION_SECRET) {
+		headers.set('Set-Cookie', sessionCookieHeader(await createSession(SESSION_SECRET, userId)));
 	}
 	return new Response(null, { status: 303, headers });
 }
@@ -223,6 +322,72 @@ export async function handleMessagesApi(request, env) {
 		return json({ vapidPublicKey: VAPID_PUBLIC_KEY ?? null });
 	}
 
+	// ── Email verification ────────────────────────────────────────────────────
+
+	if (method === 'GET' && path === '/apps/messages/verify') {
+		const token = url.searchParams.get('token');
+		if (!token) {
+			return renderMessagesPage(request, env, {
+				status: 400,
+				error: 'Verification link is missing.',
+			});
+		}
+		const verification = await getEmailVerification(DB, token);
+		if (!verification || verification.expires_at < Date.now()) {
+			return renderMessagesPage(request, env, {
+				status: 400,
+				error: 'That verification link has expired or is invalid.',
+			});
+		}
+		const user = await getUserById(DB, verification.user_id);
+		if (!user) {
+			return renderMessagesPage(request, env, {
+				status: 404,
+				error: 'The account for this verification link could not be found.',
+			});
+		}
+
+		await updateUserProfile(DB, {
+			id: user.id,
+			displayName: user.display_name,
+			isOwner: !!user.is_owner,
+			email: verification.email,
+		});
+		await markEmailVerified(DB, user.id);
+		await consumeEmailVerification(DB, token);
+
+		if (verification.purpose === 'guest-message') {
+			const payload = verification.payload ? JSON.parse(verification.payload) : null;
+			const name = String(payload?.name ?? user.display_name ?? '').trim();
+			const message = String(payload?.message ?? '').trim();
+			if (name && message) {
+				const conv = await getOrCreateConversation(DB, user.id);
+				await createMessage(DB, {
+					id: crypto.randomUUID(),
+					conversationId: conv.id,
+					senderUserId: user.id,
+					content: message,
+				});
+				await notifyNewMessage(env, {
+					conversationId: conv.id,
+					senderIsOwner: false,
+					senderName: name,
+					content: message,
+				});
+			}
+			const redirect = new URL('/apps/messages/?sent=1', request.url);
+			if (SESSION_SECRET) {
+				redirect.searchParams.set('sent', '1');
+			}
+			return Response.redirect(redirect.toString(), 303);
+		}
+
+		return Response.redirect(
+			new URL('/apps/messages/?verified=1', request.url).toString(),
+			303,
+		);
+	}
+
 	// ── Register: begin ────────────────────────────────────────────────────────
 
 	if (method === 'POST' && path === '/apps/messages/api/auth/register/begin') {
@@ -230,24 +395,45 @@ export async function handleMessagesApi(request, env) {
 		const displayName = String(body?.displayName ?? '')
 			.trim()
 			.slice(0, 100);
+		const email = normalizeEmail(String(body?.email ?? ''));
 		if (!displayName) {
 			return err('displayName required');
 		}
+		if (!email || !isValidEmail(email)) {
+			return err('Valid email required');
+		}
 
-		// Reuse the pre-auth guest identity (and its messages) if this browser
-		// already sent a message via the no-JS form and hasn't registered yet.
 		const guestUserId = await getSessionUser(request, SESSION_SECRET);
-		const reuseGuest = guestUserId && !(await hasPasskey(DB, guestUserId));
+		const existingGuest = guestUserId ? await getUserById(DB, guestUserId) : null;
+		const existingEmailUser = await getUserByEmailAny(DB, email);
 
-		let userId;
-		if (reuseGuest) {
-			userId = guestUserId;
-		} else {
-			// auth_challenges.user_id is a foreign key — the row must exist before
-			// we can reference it below. register/complete fills in the real
-			// display name and owner flag once the passkey ceremony succeeds.
+		let userId = null;
+		if (existingGuest && !existingGuest.is_owner && !(await hasPasskey(DB, existingGuest.id))) {
+			userId = existingGuest.id;
+		}
+		if (!userId && existingEmailUser) {
+			userId = existingEmailUser.id;
+		}
+		if (!userId) {
 			userId = crypto.randomUUID();
-			await createUser(DB, { id: userId, displayName, isOwner: false });
+			await createUser(DB, { id: userId, displayName, isOwner: false, email });
+		} else {
+			await updateUserProfile(DB, { id: userId, displayName, isOwner: false, email });
+		}
+
+		const user = await getUserById(DB, userId);
+		if (!user) {
+			return err('Registration session expired. Please try again.', 400);
+		}
+		const verifiedAlready = user.email === email && user.email_verified === 1;
+		if (!verifiedAlready) {
+			await createVerification(env, request, {
+				userId,
+				email,
+				purpose: 'register',
+				displayName,
+			});
+			return json({ challengeId: null, userId, needsVerification: true, email });
 		}
 
 		const { rpId } = rpInfo(request);
@@ -262,7 +448,7 @@ export async function handleMessagesApi(request, env) {
 		await createChallenge(DB, { id: challengeId, challenge, userId, type: 'register' });
 		await cleanExpiredChallenges(DB);
 
-		return json({ challengeId, userId, challenge, options, rpId });
+		return json({ challengeId, userId, challenge, options, rpId, needsVerification: false });
 	}
 
 	// ── Register: complete ─────────────────────────────────────────────────────
@@ -311,6 +497,9 @@ export async function handleMessagesApi(request, env) {
 		const existingUser = await getUserById(DB, userId);
 		if (!existingUser) {
 			return err('Registration session expired. Please try again.', 400);
+		}
+		if (!existingUser.email || existingUser.email_verified !== 1) {
+			return err('Please confirm your email before creating a passkey.', 422);
 		}
 
 		let isOwner = !!existingUser.is_owner;
