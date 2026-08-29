@@ -243,24 +243,23 @@ export class ChatView extends HTMLElement {
 			this.#scrollToBottom();
 		};
 
+		const finalize = () => {
+			const bubble =
+				/** @type {import('./message-bubble.js').MessageBubble | null} */ (newBubble);
+			if (bubble) {
+				bubble.dataset.msgId = msg.id;
+				bubble.style.viewTransitionName = `msg-${msg.id}`;
+			}
+		};
+
 		if ('startViewTransition' in document) {
 			const transition = document.startViewTransition(append);
-			transition.finished
-				.then(() => {
-					if (newBubble) {
-						newBubble.dataset.msgId = msg.id;
-						newBubble.style.viewTransitionName = `msg-${msg.id}`;
-					}
-				})
-				.catch(() => {
-					// Ignore view transition failures.
-				});
+			transition.finished.then(finalize).catch(() => {
+				// Ignore view transition failures.
+			});
 		} else {
 			append();
-			if (newBubble) {
-				newBubble.dataset.msgId = msg.id;
-				newBubble.style.viewTransitionName = `msg-${msg.id}`;
-			}
+			finalize();
 		}
 	}
 

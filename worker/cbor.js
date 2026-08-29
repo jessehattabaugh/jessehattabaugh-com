@@ -24,6 +24,20 @@ export function decodeCbor(bytes) {
 		return slice;
 	}
 
+	/** Read a big-endian unsigned integer of `len` bytes. */
+	/** @param {number} len */
+	function readUint(len) {
+		if (offset + len > bytes.length) {
+			throw new Error('CBOR integer is truncated');
+		}
+		let value = 0;
+		for (let i = 0; i < len; i++) {
+			value = value * 256 + bytes[offset + i];
+		}
+		offset += len;
+		return value;
+	}
+
 	/** @param {number} info */
 	function readLength(info) {
 		if (info <= 23) {
