@@ -89,10 +89,12 @@ export async function encryptPayload(plaintext, uaPublicKeyB64, authSecretB64) {
 	const authSecret = fromBase64url(authSecretB64);
 
 	// Ephemeral application-server ECDH key pair (P-256).
-	const keyPair = await crypto.subtle.generateKey({ name: 'ECDH', namedCurve: 'P-256' }, true, [
-		'deriveBits',
-	]);
-	const asPublic = new Uint8Array(await crypto.subtle.exportKey('raw', keyPair.publicKey));
+	const keyPair = /** @type {CryptoKeyPair} */ (
+		await crypto.subtle.generateKey({ name: 'ECDH', namedCurve: 'P-256' }, true, ['deriveBits'])
+	);
+	const asPublic = new Uint8Array(
+		/** @type {ArrayBuffer} */ (await crypto.subtle.exportKey('raw', keyPair.publicKey)),
+	);
 
 	const uaKey = await crypto.subtle.importKey(
 		'raw',
@@ -104,7 +106,13 @@ export async function encryptPayload(plaintext, uaPublicKeyB64, authSecretB64) {
 
 	// ecdh_secret = ECDH(as_private, ua_public)
 	const ecdhSecret = new Uint8Array(
-		await crypto.subtle.deriveBits({ name: 'ECDH', public: uaKey }, keyPair.privateKey, 256),
+		await crypto.subtle.deriveBits(
+			/** @type {{ name: string, $public: CryptoKey }} */ (
+				/** @type {unknown} */ ({ name: 'ECDH', public: uaKey })
+			),
+			keyPair.privateKey,
+			256,
+		),
 	);
 
 	// PRK_key = HMAC-SHA-256(auth_secret, ecdh_secret)
