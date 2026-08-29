@@ -103,10 +103,11 @@ test('notification bell toggles on/off and registers a push subscription', async
 	await mockPushManager(page, endpoint);
 	await registerPasskeyUser(context, page);
 
-	// Before permission is granted the bell is off.
+	// Before permission is granted the bell is off: 🔕 "muted bell" icon.
 	const bellOff = page.getByRole('button', { name: 'Enable notifications' });
 	await expect(bellOff).toBeVisible();
 	await expect(bellOff).toHaveAttribute('aria-pressed', 'false');
+	await expect(bellOff).toHaveText('🔕');
 
 	// Grant notification permission, then switch notifications ON.
 	await context.grantPermissions(['notifications'], { origin: new URL(page.url()).origin });
@@ -115,9 +116,10 @@ test('notification bell toggles on/off and registers a push subscription', async
 	});
 	await bellOff.click();
 
-	// The bell now reflects the enabled state (accent, no "red slash" stuck).
+	// The bell now reflects the enabled state (🔔 accent bell, no "red slash" stuck).
 	const bellOn = page.getByRole('button', { name: 'Notifications enabled' });
 	await expect(bellOn).toHaveAttribute('aria-pressed', 'true');
+	await expect(bellOn).toHaveText('🔔');
 
 	// The subscription reached the server with a usable shape.
 	const subReq = await subscribeRequest;
@@ -131,10 +133,9 @@ test('notification bell toggles on/off and registers a push subscription', async
 		return req.method() === 'DELETE' && req.url().includes('/api/push/subscribe');
 	});
 	await bellOn.click();
-	await expect(page.getByRole('button', { name: 'Enable notifications' })).toHaveAttribute(
-		'aria-pressed',
-		'false',
-	);
+	const bellOffAgain = page.getByRole('button', { name: 'Enable notifications' });
+	await expect(bellOffAgain).toHaveAttribute('aria-pressed', 'false');
+	await expect(bellOffAgain).toHaveText('🔕');
 
 	// And the server-side subscription was removed.
 	const unsubReq = await unsubscribeRequest;
