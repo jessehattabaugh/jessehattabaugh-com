@@ -89,11 +89,9 @@ export async function encryptPayload(plaintext, uaPublicKeyB64, authSecretB64) {
 	const authSecret = fromBase64url(authSecretB64);
 
 	// Ephemeral application-server ECDH key pair (P-256).
-	const keyPair = await crypto.subtle.generateKey(
-		{ name: 'ECDH', namedCurve: 'P-256' },
-		true,
-		['deriveBits'],
-	);
+	const keyPair = await crypto.subtle.generateKey({ name: 'ECDH', namedCurve: 'P-256' }, true, [
+		'deriveBits',
+	]);
 	const asPublic = new Uint8Array(await crypto.subtle.exportKey('raw', keyPair.publicKey));
 
 	const uaKey = await crypto.subtle.importKey(
@@ -127,11 +125,17 @@ export async function encryptPayload(plaintext, uaPublicKeyB64, authSecretB64) {
 	const prk = await hmac(salt, ikm);
 
 	// CEK = HMAC-SHA-256(PRK, "Content-Encoding: aes128gcm" || 0x00 || 0x01)[0..15]
-	const cekInfo = concat(new TextEncoder().encode('Content-Encoding: aes128gcm'), new Uint8Array([0]));
+	const cekInfo = concat(
+		new TextEncoder().encode('Content-Encoding: aes128gcm'),
+		new Uint8Array([0]),
+	);
 	const cek = (await hmac(prk, concat(cekInfo, new Uint8Array([1])))).slice(0, 16);
 
 	// NONCE = HMAC-SHA-256(PRK, "Content-Encoding: nonce" || 0x00 || 0x01)[0..11]
-	const nonceInfo = concat(new TextEncoder().encode('Content-Encoding: nonce'), new Uint8Array([0]));
+	const nonceInfo = concat(
+		new TextEncoder().encode('Content-Encoding: nonce'),
+		new Uint8Array([0]),
+	);
 	const nonce = (await hmac(prk, concat(nonceInfo, new Uint8Array([1])))).slice(0, 12);
 
 	// Header = salt (16) || rs (4 = 4096) || idlen (1 = 65) || as_public (65)
@@ -140,13 +144,14 @@ export async function encryptPayload(plaintext, uaPublicKeyB64, authSecretB64) {
 	// Plaintext = content || 0x02 (padding delimiter)
 	const plaintextBytes = concat(new TextEncoder().encode(plaintext), new Uint8Array([2]));
 
-	const aesKey = await crypto.subtle.importKey('raw', cek, { name: 'AES-GCM' }, false, ['encrypt']);
+	const aesKey = await crypto.subtle.importKey('raw', cek, { name: 'AES-GCM' }, false, [
+		'encrypt',
+	]);
+	// RFC 8188 aes128gcm records are decrypted with ZERO-length AAD. Authenticating
+	// the local `header` here would produce a GCM tag the browser won't reproduce,
+	// so the payload would be rejected before `event.data` can be read.
 	const ciphertext = new Uint8Array(
-		await crypto.subtle.encrypt(
-			{ name: 'AES-GCM', iv: nonce, additionalData: header },
-			aesKey,
-			plaintextBytes,
-		),
+		await crypto.subtle.encrypt({ name: 'AES-GCM', iv: nonce }, aesKey, plaintextBytes),
 	);
 
 	return concat(header, ciphertext);
