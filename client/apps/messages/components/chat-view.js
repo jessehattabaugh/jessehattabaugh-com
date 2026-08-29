@@ -14,7 +14,7 @@ layoutTemplate.innerHTML = `
 				aria-label="Enable notifications"
 				aria-pressed="false"
 				title="Enable notifications"
-			>🔔</button>
+			>🔕</button>
 			<button type="button" class="btn btn--ghost chat-header__logout">Sign out</button>
 		</div>
 	</header>
@@ -306,6 +306,7 @@ export class ChatView extends HTMLElement {
 			this.#notifBtn.setAttribute('aria-pressed', 'true');
 			this.#notifBtn.setAttribute('aria-label', 'Notifications enabled');
 			this.#notifBtn.title = 'Notifications enabled';
+			this.#notifBtn.textContent = '🔔';
 		}
 	}
 
@@ -314,6 +315,7 @@ export class ChatView extends HTMLElement {
 			this.#notifBtn.setAttribute('aria-pressed', 'false');
 			this.#notifBtn.setAttribute('aria-label', 'Enable notifications');
 			this.#notifBtn.title = 'Enable notifications';
+			this.#notifBtn.textContent = '🔕';
 		}
 	}
 }
