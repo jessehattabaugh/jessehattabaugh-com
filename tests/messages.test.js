@@ -180,6 +180,45 @@ test('/apps/messages/api/auth/login/begin — returns challenge', async ({ page 
 	expect(json.options).toBeTruthy();
 });
 
+// ── Happy-path: register a test user and send a message (JS + WebAuthn) ──────
+
+test('/apps/messages — registered user can send and see their own message', async ({
+	page,
+	context,
+}, testInfo) => {
+	test.skip(testInfo.project.use.javaScriptEnabled === false, 'Requires JavaScript');
+
+	// Clear any prior session and register a fresh passkey-backed test user via a
+	// CDP virtual authenticator (real WebAuthn ceremony, no browser UI prompts).
+	await context.clearCookies();
+	const cdp = await context.newCDPSession(page);
+	await cdp.send('WebAuthn.enable');
+	await cdp.send('WebAuthn.addVirtualAuthenticator', {
+		options: {
+			protocol: 'ctap2',
+			transport: 'internal',
+			hasResidentKey: true,
+			hasUserVerification: true,
+			isUserVerified: true,
+		},
+	});
+
+	const displayName = `E2E Test User ${randomUUID().slice(0, 8)}`;
+	await page.goto('/apps/messages/');
+	await page.locator('#auth-name').fill(displayName);
+	await page.getByRole('button', { name: 'Register with Passkey' }).click();
+
+	// After registration the auth screen is replaced by the chat view.
+	await expect(page.locator('chat-view')).toBeVisible({ timeout: 10000 });
+	await expect(page.getByRole('heading', { name: 'Jesse', level: 1 })).toBeVisible();
+
+	// Send a message and confirm it renders back in the thread.
+	const message = `UI happy-path message ${randomUUID()}`;
+	await page.getByRole('textbox', { name: 'Message' }).fill(message);
+	await page.getByRole('button', { name: 'Send message' }).click();
+	await expect(page.locator('message-bubble')).toContainText(message);
+});
+
 // ── /contact redirect ─────────────────────────────────────────────────────────
 
 test('/contact — redirects to /apps/messages/', async ({ page }) => {

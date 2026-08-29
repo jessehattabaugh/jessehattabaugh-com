@@ -12,6 +12,7 @@
 	"main": "./worker/index.js",
 	"name": "jessehattabaugh-com",
 	"observability": { "enabled": true },
+	"preview_urls": true,
 	"routes": [
 		{ "custom_domain": true, "pattern": "jessehattabaugh.com" },
 		{ "custom_domain": true, "pattern": "www.jessehattabaugh.com" }
@@ -25,7 +26,5 @@
 	//
 	// Generate VAPID keys with Node.js:
 	//   node scripts/generate-vapid-keys.js
-	"vars": {
-		"VAPID_CONTACT": "mailto:claude_ai@jessehattabaugh.com"
-	}
+	"vars": { "VAPID_CONTACT": "mailto:claude_ai@jessehattabaugh.com" }
 }
