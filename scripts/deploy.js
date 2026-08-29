@@ -61,8 +61,6 @@ if (isMain) {
 		console.log(`D1 database "${dbName}" already exists, reusing.`);
 	}
 
-	run(`wrangler d1 migrations apply ${dbName} --remote`);
-
 	// Resolve the actual database ID so the Worker binds to the right database.
 	/** @type {{ name: string, uuid?: string, database_id?: string }[]} */
 	const databases = JSON.parse(execSync('wrangler d1 list --json', { encoding: 'utf8' }));
@@ -74,18 +72,27 @@ if (isMain) {
 	// Write a temp config with the correct per-branch binding, then clean it up.
 	// Keys are quoted because they are JSON field names, not JS identifiers.
 	const previewConfig = {
-		'assets': { 'binding': 'ASSETS', 'directory': './dist/client/' },
-		'compatibility_date': '2026-05-01',
-		'd1_databases': [
-			{ 'binding': 'DB', 'database_id': dbId, 'database_name': dbName, 'migrations_dir': 'db/migrations' },
+		assets: { binding: 'ASSETS', directory: './dist/client/' },
+		compatibility_date: '2026-05-01',
+		d1_databases: [
+			{
+				binding: 'DB',
+				database_id: dbId,
+				database_name: dbName,
+				migrations_dir: 'db/migrations',
+			},
 		],
-		'main': './worker/index.js',
-		'name': 'jessehattabaugh-com',
-		'observability': { 'enabled': true },
+		main: './worker/index.js',
+		name: 'jessehattabaugh-com',
+		observability: { enabled: true },
+		preview_urls: true,
 	};
 	const tempConfig = '.wrangler-preview.json';
 	writeFileSync(tempConfig, JSON.stringify(previewConfig, null, '\t'));
 	try {
+		// Migrations must run against the temp config so the per-branch DB is
+		// resolved by binding (the default wrangler.jsonc only declares prod).
+		run(`wrangler d1 migrations apply ${dbName} --config ${tempConfig} --remote`);
 		run(`wrangler versions upload --config ${tempConfig} --preview-alias ${alias}`);
 	} finally {
 		unlinkSync(tempConfig);

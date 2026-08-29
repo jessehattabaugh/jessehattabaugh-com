@@ -33,6 +33,11 @@ async function lighthouseAudit(url) {
 			output: 'json',
 			logLevel: 'error',
 			onlyCategories: ['performance', 'accessibility', 'best-practices', 'seo'],
+			// Cloudflare appends `X-Robots-Tag: noindex` to every *.workers.dev
+			// subdomain (preview URLs) at the edge, which is unoverridable by the
+			// Worker. Production (custom domain) is unaffected, so skip this
+			// environment-specific audit rather than asserting on a platform artifact.
+			skipAudits: ['is-crawlable'],
 		});
 		return result.lhr.categories;
 	} finally {

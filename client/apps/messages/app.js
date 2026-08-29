@@ -125,6 +125,14 @@ class MessagesApp extends HTMLElement {
 
 			/** @type {import('./components/chat-view.js').ChatView} */
 			const chat = /** @type {any} */ (document.createElement('chat-view'));
+
+			// Attach the chat view to the document *before* calling init(). Custom
+			// elements nested in chat-view's template (e.g. <message-input>) are only
+			// upgraded — and their connectedCallback run — once the tree is connected
+			// to the document. init() calls composeEl.disable()/enable(), which would
+			// otherwise throw on the still-unupgraded element and leave a blank screen.
+			this.append(prompt, chat);
+
 			chat.init({
 				user,
 				messages: chatData.messages ?? [],
@@ -152,8 +160,6 @@ class MessagesApp extends HTMLElement {
 			chat.addEventListener('logout', () => {
 				this.#logout().catch(console.error);
 			});
-
-			this.append(prompt, chat);
 		};
 
 		if ('startViewTransition' in document) {

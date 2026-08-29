@@ -437,7 +437,19 @@ export async function handleMessagesApi(request, env) {
 
 		if (user.is_owner) {
 			const convId = url.searchParams.get('conversationId');
-			const conversations = await getAllConversations(DB);
+			let conversations = await getAllConversations(DB);
+			// Owner-only edge case: with no visitors yet there are no conversations
+			// to reply to, which used to leave the owner staring at a disabled,
+			// empty shell. Give the owner a "self" conversation (they are its sole
+			// participant) so the chat interface is always usable and the owner can
+			// send a message to themself.
+			if (conversations.length === 0) {
+				const self = await getOrCreateConversation(DB, userId);
+				conversations = await getAllConversations(DB);
+				if (!convId) {
+					return json({ conversations, messages: [], conversationId: self.id });
+				}
+			}
 			if (!convId) {
 				return json({ conversations, messages: [] });
 			}
