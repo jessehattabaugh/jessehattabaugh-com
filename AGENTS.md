@@ -19,7 +19,7 @@ No SPA framework, no client-side router, no build-time UI framework. If you reac
 3. **HATEOAS.** Responses carry their own controls — links and forms — describing valid next actions. Clients follow what the server gives them; they never hardcode endpoint knowledge.
 4. **One template source.** Build and Worker import the same template functions from `shared/`. Never maintain two copies of markup.
 5. **JavaScript with JSDoc.** `.js`/`.mjs` with JSDoc annotations. `tsc --checkJs --strict --noEmit` for type checking. No `.ts` transpile step.
-6. **Preview isolation.** Every branch gets its own preview URL bound to `site-preview`, never production data.
+6. **Preview isolation.** Every branch deploys as a version with its own per-branch D1 database and a versioned preview URL, never production data.
 
 ---
 
@@ -74,12 +74,12 @@ If a hypermedia library is ever needed, **htmx** is the only acceptable candidat
 
 All DB access goes through `shared/data/` behind a small interface — call sites never touch the driver directly. Always use prepared statements: `env.DB.prepare(sql).bind(...args)`. Never string-interpolate user input into SQL. If a `shared/data/` function throws, the Worker must catch the error, log it to `console.error`, and return a `500` response rendered with the standard error page template. Never let an unhandled D1 error propagate as an unformatted Cloudflare error response. Do not expose raw error messages to the client.
 
-Two physical databases, one binding name (`DB`):
+One production database plus one disposable database per preview branch, all behind the single `DB` binding:
 
-- `site-production` — default (production) environment.
-- `site-preview` — `--env preview`, shared by **all** branch/preview deployments.
+- `jessehattabaugh-com` — production, bound by the default environment.
+- `jessehattabaugh-com-preview-<branch>` — one per non-`main` branch, created on demand by `scripts/deploy.js`.
 
-**Known limitation:** D1 has no per-branch database branching today. All previews share `site-preview` — isolated from production but not from each other. Treat `site-preview` as disposable shared scratch state; never assume exclusive ownership.
+**Known limitation:** D1 has no per-branch database branching natively, so `scripts/deploy.js` creates a dedicated database per branch (named after the branch) to isolate preview state. These per-branch databases are disposable scratch state; delete them when the branch merges. Preview versions run on the production Worker and therefore share its secrets.
 
 ---
 
@@ -87,10 +87,10 @@ Two physical databases, one binding name (`DB`):
 
 Workers Builds (native git integration) handles deploys — no hand-rolled CI needed:
 
-- `main` → production, binds `site-production`.
-- Any other branch → preview with `--env preview`, binds `site-preview`. Produces a stable branch preview URL posted to the PR.
+- `main` → production. `wrangler deploy` promotes the version and binds `jessehattabaugh-com`.
+- Any other branch → `wrangler versions upload`, which creates a version with a **versioned preview URL** (`<VERSION_PREFIX>-jessehattabaugh-com.<subdomain>.workers.dev`) but does not promote it to production. The preview URL is posted to the PR.
 
-`scripts/deploy.js` selects the environment and applies migrations before deploy (`wrangler d1 migrations apply`). Migrations live in `db/migrations/` as plain SQL in order. `db/schema.sql` is the canonical schema reference. Write only additive migrations (new tables, new nullable columns, new indexes). Never drop columns, rename columns, or change column types in a single migration while other branches are under review. Use a separate follow-up migration after all affected branches merge.
+`scripts/deploy.js` selects the environment, creates the per-branch D1 database, and applies migrations before deploy (`wrangler d1 migrations apply`). Migrations live in `db/migrations/` as plain SQL in order. `db/schema.sql` is the canonical schema reference. Write only additive migrations (new tables, new nullable columns, new indexes). Never drop columns, rename columns, or change column types in a single migration while other branches are under review. Use a separate follow-up migration after all affected branches merge.
 
 ---
 
@@ -113,8 +113,8 @@ Workers Builds (native git integration) handles deploys — no hand-rolled CI ne
 Unit tests are not used in this repository, including for shared template functions. Every test is an end-to-end functional test exercising real use cases through real browsers pointed at the deployed preview URL.
 
 - **E2E only.** No mocks, no unit tests, no local dev server. If it doesn't run against the deployed preview, it doesn't run.
-- **Real servers.** Tests target the Cloudflare preview URL (`PREVIEW_URL` env var). Set this to the branch preview URL before running. Never point tests at `localhost`.
-- **Shared preview state.** Because `site-preview` is shared, all E2E tests must be state-independent: create unique test data with random identifiers (e.g., `crypto.randomUUID()`) at test start, assert only on that specific data, and delete it in `afterEach`. Tests must never assert on total record counts or assume a clean database state.
+- **Real servers.** Tests target the versioned preview URL (`PREVIEW_URL` env var). Set this to the branch's version preview URL before running (find it in the dashboard under the version, or in the PR comment). Never point tests at `localhost`.
+- **State independence.** Each branch has its own D1 database, but E2E tests must still be state-independent: create unique test data with random identifiers (e.g., `crypto.randomUUID()`) at test start, assert only on that specific data, and delete it in `afterEach`. Tests must never assert on total record counts or assume a clean database state.
 - **Semantic/ARIA selectors.** Use `getByRole`, `getByLabel`, `getByText`. Never select by CSS class or `data-testid`. This simultaneously validates accessibility and functionality.
 - **Minimum assertions.** Assert only what a user would notice. Never test implementation details or internal state.
 - **Progressive enhancement coverage.** Every test runs across four configurations automatically: Desktop Chrome (JS on), Desktop Chrome (JS off), Mobile Chrome (JS on), Mobile Chrome (JS off). A feature that only works with JS is broken.
@@ -123,12 +123,12 @@ Unit tests are not used in this repository, including for shared template functi
 ### Running tests
 
 ```sh
-PREVIEW_URL=https://your-branch.jessehattabaugh-com.workers.dev npx playwright test
+PREVIEW_URL=https://<version-prefix>-jessehattabaugh-com.<subdomain>.workers.dev npx playwright test
 ```
 
 Reports are written to `playwright-report/`.
 
-The Playwright global setup must assert that `process.env.PREVIEW_URL` is set and matches `https://*.workers.dev`. If missing or malformed, throw an error with the message: "PREVIEW_URL is not set. Run: export PREVIEW_URL=https://your-branch.jessehattabaugh-com.workers.dev" and abort the test run before any browser is launched.
+The Playwright global setup must assert that `process.env.PREVIEW_URL` is set and matches `https://*.workers.dev`. If missing or malformed, throw an error with the message: "PREVIEW_URL is not set. Run: export PREVIEW_URL=https://<version-prefix>-jessehattabaugh-com.<subdomain>.workers.dev" and abort the test run before any browser is launched.
 
 ### Tool
 
@@ -151,7 +151,7 @@ Interactive flows (forms) get a full happy-path submission test in all four conf
 - [ ] Dynamic responses share templates with the static build (no duplicated markup).
 - [ ] Correct HATEOAS controls and HTTP semantics.
 - [ ] `tsc` clean; tests pass.
-- [ ] Preview deployment binds `site-preview`, not production — verified before merging.
+- [ ] Preview deployment is a version (not promoted to production) using a per-branch D1 database — verified before merging.
 - [ ] All HTML escaped; queries parameterized; security headers set.
 - [ ] Any doc contradiction or assumption flagged in PR description.
 

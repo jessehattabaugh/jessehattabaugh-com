@@ -9,18 +9,6 @@
 			"migrations_dir": "db/migrations"
 		}
 	],
-	"env": {
-		"preview": {
-			"d1_databases": [
-				{
-					"binding": "DB",
-					"database_id": "bc840c22-76e5-433b-8319-a98ee3ae3cc4",
-					"database_name": "jessehattabaugh-com-preview",
-					"migrations_dir": "db/migrations"
-				}
-			]
-		}
-	},
 	"main": "./worker/index.js",
 	"name": "jessehattabaugh-com",
 	"observability": { "enabled": true },
