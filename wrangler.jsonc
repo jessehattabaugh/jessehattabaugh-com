@@ -1,5 +1,8 @@
 {
-	"assets": { "binding": "ASSETS", "directory": "./dist/client/" },
+	"assets": {
+		"binding": "ASSETS",
+		"directory": "./dist/client/"
+	},
 	"compatibility_date": "2026-05-01",
 	"d1_databases": [
 		{
@@ -7,15 +10,29 @@
 			"database_id": "bc840c22-76e5-433b-8319-a98ee3ae3cc4",
 			"database_name": "jessehattabaugh-com",
 			"migrations_dir": "db/migrations"
+		},
+		{
+			"binding": "jessehattabaugh_com_preview_214_messages_app_is_blank_after_registering",
+			"database_name": "jessehattabaugh-com-preview-214-messages-app-is-blank-after-registering",
+			"database_id": "e6cdb609-2cb7-4eb5-b402-745032821680",
+			"remote": true
 		}
 	],
 	"main": "./worker/index.js",
 	"name": "jessehattabaugh-com",
-	"observability": { "enabled": true },
+	"observability": {
+		"enabled": true
+	},
 	"preview_urls": true,
 	"routes": [
-		{ "custom_domain": true, "pattern": "jessehattabaugh.com" },
-		{ "custom_domain": true, "pattern": "www.jessehattabaugh.com" }
+		{
+			"custom_domain": true,
+			"pattern": "jessehattabaugh.com"
+		},
+		{
+			"custom_domain": true,
+			"pattern": "www.jessehattabaugh.com"
+		}
 	],
 	// Non-secret config. Secrets are set via: wrangler secret put <NAME>
 	// Required secrets:
@@ -26,5 +43,7 @@
 	//
 	// Generate VAPID keys with Node.js:
 	//   node scripts/generate-vapid-keys.js
-	"vars": { "VAPID_CONTACT": "mailto:claude_ai@jessehattabaugh.com" }
+	"vars": {
+		"VAPID_CONTACT": "mailto:claude_ai@jessehattabaugh.com"
+	}
 }
