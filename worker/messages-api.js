@@ -51,10 +51,12 @@ function rpInfo(req) {
 /**
  * Send a push notification to the other side of a conversation, if VAPID is configured.
  * Shared by the JSON send endpoint and the no-JS guest form so the notify logic isn't duplicated.
+ * The message content is encrypted into the payload so iOS (and all browsers) can show it
+ * without the service worker making a follow-up fetch — empty payloads are silently dropped.
  * @param {import('../shared/types.js').Env} env
- * @param {{ conversationId: string, senderIsOwner: boolean }} opts
+ * @param {{ conversationId: string, senderIsOwner: boolean, senderName: string, content: string }} opts
  */
-async function notifyNewMessage(env, { conversationId, senderIsOwner }) {
+async function notifyNewMessage(env, { conversationId, senderIsOwner, senderName, content }) {
 	const { DB, VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY, VAPID_CONTACT } = env;
 	if (!VAPID_PUBLIC_KEY || !VAPID_PRIVATE_KEY) {
 		return;
@@ -68,17 +70,19 @@ async function notifyNewMessage(env, { conversationId, senderIsOwner }) {
 		return deletePushSubscription(DB, ep);
 	};
 
+	const payload = JSON.stringify({ type: 'message', senderName, content: content.slice(0, 200) });
+
 	if (senderIsOwner) {
 		const convRow = await DB.prepare('SELECT visitor_user_id FROM conversations WHERE id = ?')
 			.bind(conversationId)
 			.first();
 		if (convRow) {
 			const subs = await getPushSubscriptionsByUser(DB, String(convRow.visitor_user_id));
-			await notifyAll(subs, vapid, onGone);
+			await notifyAll(subs, vapid, onGone, payload);
 		}
 	} else {
 		const ownerSubs = await getOwnerPushSubscriptions(DB);
-		await notifyAll(ownerSubs, vapid, onGone);
+		await notifyAll(ownerSubs, vapid, onGone, payload);
 	}
 }
 
@@ -175,7 +179,12 @@ async function handleGuestMessagePost(request, env) {
 		senderUserId: userId,
 		content: message,
 	});
-	await notifyNewMessage(env, { conversationId: conv.id, senderIsOwner: false });
+	await notifyNewMessage(env, {
+		conversationId: conv.id,
+		senderIsOwner: false,
+		senderName: name,
+		content: message,
+	});
 
 	const headers = new Headers({
 		Location: new URL('/apps/messages/?sent=1', request.url).toString(),
@@ -574,7 +583,12 @@ export async function handleMessagesApi(request, env) {
 		const createdAt = new Date().toISOString();
 		await createMessage(DB, { id: msgId, conversationId, senderUserId: userId, content });
 
-		await notifyNewMessage(env, { conversationId, senderIsOwner: !!user.is_owner });
+		await notifyNewMessage(env, {
+			conversationId,
+			senderIsOwner: !!user.is_owner,
+			senderName: user.display_name,
+			content,
+		});
 
 		if (isShare) {
 			return Response.redirect(appUrl, 303);

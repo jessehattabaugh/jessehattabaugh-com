@@ -157,6 +157,10 @@ class MessagesApp extends HTMLElement {
 				this.#setupPush(chat).catch(console.error);
 			});
 
+			chat.addEventListener('push-unsubscribe', () => {
+				this.#teardownPush(chat).catch(console.error);
+			});
+
 			chat.addEventListener('logout', () => {
 				this.#logout().catch(console.error);
 			});
@@ -275,6 +279,24 @@ class MessagesApp extends HTMLElement {
 		});
 		await api.subscribePush(subscription);
 		chat.markNotificationsEnabled();
+	}
+
+	/** @param {import('./components/chat-view.js').ChatView} chat */
+	async #teardownPush(chat) {
+		if (!('serviceWorker' in navigator)) {
+			return;
+		}
+		try {
+			const reg = await navigator.serviceWorker.ready;
+			const existing = await reg.pushManager.getSubscription();
+			if (existing) {
+				await existing.unsubscribe();
+				await api.unsubscribePush(existing.endpoint);
+			}
+		} catch {
+			// Ignore teardown failures.
+		}
+		chat.markNotificationsDisabled();
 	}
 
 	/**
