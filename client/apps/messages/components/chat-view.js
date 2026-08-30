@@ -10,6 +10,12 @@ layoutTemplate.innerHTML = `
 		<div class="chat-header__actions">
 			<button
 				type="button"
+				class="btn btn--ghost chat-header__sidebar-toggle"
+				aria-label="Open conversations sidebar"
+				aria-expanded="false"
+			>Conversations</button>
+			<button
+				type="button"
 				class="btn btn--ghost chat-header__notif"
 				aria-label="Enable notifications"
 				aria-pressed="false"
@@ -98,6 +104,18 @@ export class ChatView extends HTMLElement {
 			this.querySelector('.chat-header__title h1')
 		).textContent = this.#user?.isOwner ? 'Messages' : this.#ownerName;
 
+		this.#sidebarToggle = /** @type {HTMLButtonElement | null} */ (
+			this.querySelector('.chat-header__sidebar-toggle')
+		);
+		this.#sidebarToggle?.addEventListener('click', () => {
+			const layout = /** @type {HTMLDivElement | null} */ (this.querySelector('.chat-layout'));
+			if (!layout || !layout.classList.contains('chat-layout--with-sidebar')) {
+				return;
+			}
+			this.#setSidebarOpen(!layout.classList.contains('chat-layout--sidebar-open'));
+		});
+		this.#sidebarToggle && (this.#sidebarToggle.style.display = this.#user?.isOwner ? '' : 'none');
+
 		this.#notifBtn = /** @type {HTMLButtonElement} */ (
 			this.querySelector('.chat-header__notif')
 		);
@@ -143,6 +161,7 @@ export class ChatView extends HTMLElement {
 			layout.prepend(sidebar);
 			this.#convList = this.querySelector('.conv-list');
 			this.#fillConversations(conversations);
+			this.#setSidebarOpen(false);
 		}
 
 		// Disable compose for owner until they select a conversation
@@ -159,8 +178,25 @@ export class ChatView extends HTMLElement {
 	#emptyState = /** @type {any} */ (null);
 	/** @type {import('./message-input.js').MessageInput} */
 	#composeEl = /** @type {any} */ (null);
+	/** @type {HTMLButtonElement | null} */
+	#sidebarToggle = null;
 	/** @type {HTMLButtonElement} */
 	#notifBtn = /** @type {any} */ (null);
+
+	/** @param {boolean} isOpen */
+	#setSidebarOpen(isOpen) {
+		const layout = /** @type {HTMLDivElement | null} */ (this.querySelector('.chat-layout'));
+		const toggle = this.#sidebarToggle;
+		if (!layout || !toggle) {
+			return;
+		}
+		layout.classList.toggle('chat-layout--sidebar-open', isOpen);
+		toggle.setAttribute('aria-expanded', String(isOpen));
+		toggle.setAttribute(
+			'aria-label',
+			isOpen ? 'Close conversations sidebar' : 'Open conversations sidebar',
+		);
+	}
 
 	/** @param {Array<{ id: string, display_name: string, last_message: string | null }>} conversations */
 	#fillConversations(conversations) {
@@ -184,6 +220,7 @@ export class ChatView extends HTMLElement {
 					b.classList.remove('conv-item__btn--active');
 				});
 				btn.classList.add('conv-item__btn--active');
+				this.#setSidebarOpen(false);
 				this.dispatchEvent(
 					new CustomEvent('conversation-select', {
 						detail: { conversationId: conv.id },

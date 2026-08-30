@@ -270,6 +270,12 @@
 		flex-shrink: 0;
 	}
 
+	.chat-header__sidebar-toggle {
+		display: inline-flex;
+		white-space: nowrap;
+		font-size: 0.82rem;
+	}
+
 	.chat-header__notif {
 		font-size: 1.2rem;
 		line-height: 1;
@@ -294,6 +300,25 @@
 					flex-shrink: 0;
 				}
 			}
+
+			@media (max-width: 639px) {
+				.chat-sidebar {
+					display: none;
+					position: absolute;
+					inset: 0 auto 0 0;
+					width: min(82vw, 280px);
+					z-index: 10;
+					box-shadow: 0 0 0 1px var(--color-border), 8px 0 20px rgb(0 0 0 / 0.12);
+				}
+			}
+		}
+
+		&.chat-layout--sidebar-open {
+			@media (max-width: 639px) {
+				.chat-sidebar {
+					display: flex;
+				}
+			}
 		}
 	}
 
@@ -306,6 +331,7 @@
 			display: flex;
 		}
 	}
+
 
 	.chat-sidebar__title {
 		font-size: 0.8rem;
