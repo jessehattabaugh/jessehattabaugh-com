@@ -228,6 +228,41 @@ test('/apps/messages — registered user can send and see their own message', as
 	await expect(page.locator('message-bubble')).toContainText(message);
 });
 
+test('/apps/messages — owner can open the conversations sidebar', async ({
+	page,
+	context,
+}, testInfo) => {
+	test.skip(testInfo.project.use.javaScriptEnabled === false, 'Requires JavaScript');
+	const ownerSetupToken = process.env.OWNER_SETUP_TOKEN;
+	test.skip(!ownerSetupToken, 'OWNER_SETUP_TOKEN is required for owner tests');
+
+	await context.clearCookies();
+	const cdp = await context.newCDPSession(page);
+	await cdp.send('WebAuthn.enable');
+	await cdp.send('WebAuthn.addVirtualAuthenticator', {
+		options: {
+			protocol: 'ctap2',
+			transport: 'internal',
+			hasResidentKey: true,
+			hasUserVerification: true,
+			isUserVerified: true,
+		},
+	});
+
+	await page.goto('/apps/messages/');
+	await page.locator('#auth-name').fill('Jesse');
+	await page.locator('#auth-email').fill(`owner-${randomUUID()}@example.com`);
+	await page.locator('#auth-token').fill(ownerSetupToken);
+	await page.getByRole('button', { name: 'Register with Passkey' }).click();
+
+	await expect(page.locator('chat-view')).toBeVisible({ timeout: 10000 });
+	const sidebarToggle = page.getByRole('button', { name: 'Open conversations sidebar' });
+	await expect(sidebarToggle).toBeVisible();
+	await sidebarToggle.click();
+	await expect(page.getByRole('navigation', { name: 'Conversations' })).toBeVisible();
+	await expect(page.getByRole('button', { name: /Select conversation/i })).toBeVisible();
+});
+
 // ── /contact redirect ─────────────────────────────────────────────────────────
 
 test('/contact — redirects to /apps/messages/', async ({ page }) => {
