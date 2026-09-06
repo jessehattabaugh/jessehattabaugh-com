@@ -289,6 +289,7 @@
 		display: flex;
 		flex: 1;
 		overflow: hidden;
+		position: relative;
 
 		&.chat-layout--with-sidebar {
 			@media (min-width: 640px) {
