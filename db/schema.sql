@@ -71,6 +71,7 @@ CREATE TABLE IF NOT EXISTS email_verifications (
   purpose    TEXT    NOT NULL DEFAULT 'register',
   payload    TEXT,
   expires_at INTEGER NOT NULL,     -- Unix timestamp ms
+  consumed_at INTEGER,             -- Unix timestamp ms when the token was used (single-use)
   created_at TEXT    NOT NULL DEFAULT (datetime('now'))
 );
 

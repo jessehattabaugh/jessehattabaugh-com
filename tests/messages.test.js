@@ -167,7 +167,7 @@ test('/apps/messages/api/auth/register/begin — rejects empty displayName', asy
 	expect(res.status()).toBe(400);
 });
 
-test('/apps/messages/api/auth/register/begin — returns challenge for valid name', async ({
+test('/apps/messages/api/auth/register/begin — requires email verification for a new email', async ({
 	page,
 }) => {
 	const res = await page.request.post('/apps/messages/api/auth/register/begin', {
@@ -175,10 +175,38 @@ test('/apps/messages/api/auth/register/begin — returns challenge for valid nam
 	});
 	expect(res.ok()).toBe(true);
 	const json = await res.json();
-	expect(json.challengeId).toBeTruthy();
-	expect(json.challenge).toBeTruthy();
-	expect(json.options).toBeTruthy();
-	expect(json.options.rp).toBeTruthy();
+	expect(json.userId).toBeTruthy();
+	expect(json.needsVerification).toBe(true);
+	// No challenge is issued until the email owner confirms the verification link.
+	expect(json.challengeId).toBeNull();
+	expect(json.challenge).toBeUndefined();
+});
+
+test('/apps/messages/api/auth/register/begin — unauthenticated caller cannot claim an existing user\'s email', async ({
+	page,
+}) => {
+	await page.context().clearCookies();
+	const email = `claim-${randomUUID()}@example.com`;
+
+	// First caller registers a fresh email; the user row exists but is unverified.
+	const first = await page.request.post('/apps/messages/api/auth/register/begin', {
+		data: { displayName: 'Original Owner', email },
+	});
+	const firstJson = await first.json();
+	expect(firstJson.userId).toBeTruthy();
+	expect(firstJson.needsVerification).toBe(true);
+
+	// A different, unauthenticated caller supplying the same email must get a
+	// fresh verification requirement — never a registration challenge — so they
+	// can't attach their own passkey to the victim's account. The account is also
+	// never forked into a second row.
+	const second = await page.request.post('/apps/messages/api/auth/register/begin', {
+		data: { displayName: 'Would-be Attacker', email },
+	});
+	const secondJson = await second.json();
+	expect(secondJson.needsVerification).toBe(true);
+	expect(secondJson.challengeId).toBeNull();
+	expect(secondJson.userId).toBe(firstJson.userId);
 });
 
 test('/apps/messages/api/auth/login/begin — returns challenge', async ({ page }) => {

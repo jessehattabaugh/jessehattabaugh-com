@@ -119,7 +119,7 @@ export function markEmailVerified(db, id) {
 }
 
 /**
- * @typedef {{ id: string, user_id: string, email: string, purpose: string, payload: string | null, expires_at: number }} EmailVerification
+ * @typedef {{ id: string, user_id: string, email: string, purpose: string, payload: string | null, expires_at: number, consumed_at: number | null }} EmailVerification
  */
 
 /**
@@ -148,22 +148,56 @@ export async function createEmailVerification(
  */
 export function getEmailVerification(db, id) {
 	return db
-		.prepare('SELECT id, user_id, email, purpose, payload, expires_at FROM email_verifications WHERE id = ?')
+		.prepare(
+			'SELECT id, user_id, email, purpose, payload, expires_at, consumed_at FROM email_verifications WHERE id = ?',
+		)
 		.bind(id)
 		.first();
 }
 
 /**
- * Atomically consume (delete) a verification record.
+ * Atomically mark a verification record as consumed (single-use). The row is
+ * kept (not deleted) so register/begin can require a freshly-completed
+ * verification before attaching a passkey to an existing user.
  * @param {D1Database} db
  * @param {string} id
  * @returns {Promise<EmailVerification | null>}
  */
 export function consumeEmailVerification(db, id) {
 	return db
-		.prepare('DELETE FROM email_verifications WHERE id = ? RETURNING id, user_id, email, purpose, payload, expires_at')
-		.bind(id)
+		.prepare(
+			'UPDATE email_verifications SET consumed_at = ? WHERE id = ? AND consumed_at IS NULL RETURNING id, user_id, email, purpose, payload, expires_at, consumed_at',
+		)
+		.bind(Date.now(), id)
 		.first();
+}
+
+/**
+ * Find the most recent verification for a user+email completed after a cutoff.
+ * Used to prove a caller just verified ownership of an existing account.
+ * @param {D1Database} db
+ * @param {{ userId: string, email: string, purpose: string, consumedAfter: number }} opts
+ * @returns {Promise<EmailVerification | null>}
+ */
+export function getRecentEmailVerification(db, { userId, email, purpose, consumedAfter }) {
+	return db
+		.prepare(
+			`SELECT id, user_id, email, purpose, payload, expires_at, consumed_at
+       FROM email_verifications
+       WHERE user_id = ? AND email = ? AND purpose = ? AND consumed_at IS NOT NULL AND consumed_at >= ?
+       ORDER BY consumed_at DESC LIMIT 1`,
+		)
+		.bind(userId, normalizeEmail(email), purpose, consumedAfter)
+		.first();
+}
+
+/**
+ * Permanently delete a verification record (single-use registration proof).
+ * @param {D1Database} db
+ * @param {string} id
+ */
+export function deleteEmailVerification(db, id) {
+	return db.prepare('DELETE FROM email_verifications WHERE id = ?').bind(id).run();
 }
 
 /** Remove stale verification records to keep the table small. */
