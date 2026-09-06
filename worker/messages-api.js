@@ -23,6 +23,9 @@ import {
 	normalizeEmail,
 	createEmailVerification,
 	consumeEmailVerification,
+	getRecentEmailVerification,
+	deleteEmailVerification,
+	cleanExpiredEmailVerifications,
 	markEmailVerified,
 } from '../shared/data/messages.js';
 import {
@@ -333,7 +336,7 @@ export async function handleMessagesApi(request, env) {
 			});
 		}
 		const verification = await getEmailVerification(DB, token);
-		if (!verification || verification.expires_at < Date.now()) {
+		if (!verification || verification.expires_at < Date.now() || verification.consumed_at) {
 			return renderMessagesPage(request, env, {
 				status: 400,
 				error: 'That verification link has expired or is invalid.',
@@ -408,24 +411,74 @@ export async function handleMessagesApi(request, env) {
 		const existingEmailUser = await getUserByEmailAny(DB, email);
 
 		let userId = null;
+		let verificationProof = null;
+
+		// Session-proven: a pre-auth guest (identified by a no-JS session cookie)
+		// who hasn't registered a passkey yet may attach one to their own account.
 		if (existingGuest && !existingGuest.is_owner && !(await hasPasskey(DB, existingGuest.id))) {
 			userId = existingGuest.id;
 		}
+
+		// Email-proven: the email maps to an existing account. Attach a credential
+		// to it only when the caller already holds a session for that account, or
+		// has just completed an email verification in this registration attempt.
+		// An unauthenticated caller who merely supplies a stranger's verified email
+		// must NOT get a registration challenge — that would let them take over the
+		// victim's conversation (and demote an owner via is_owner: false).
 		if (!userId && existingEmailUser) {
-			userId = existingEmailUser.id;
-		}
-		if (!userId) {
-			userId = crypto.randomUUID();
-			await createUser(DB, { id: userId, displayName, isOwner: false, email });
-		} else {
-			await updateUserProfile(DB, { id: userId, displayName, isOwner: false, email });
+			if (existingGuest?.id === existingEmailUser.id) {
+				userId = existingEmailUser.id;
+			} else {
+				verificationProof = await getRecentEmailVerification(DB, {
+					userId: existingEmailUser.id,
+					email,
+					purpose: 'register',
+					consumedAfter: Date.now() - EMAIL_VERIFICATION_TTL_MS,
+				});
+				if (verificationProof) {
+					userId = existingEmailUser.id;
+				}
+			}
 		}
 
-		const user = await getUserById(DB, userId);
-		if (!user) {
+		if (!userId) {
+			// New account — or an existing account whose email the caller has not
+			// proven ownership of this attempt. Either way a fresh email verification
+			// is required before a credential can be attached. Existing accounts are
+			// not mutated (profile / verified / owner status) until verification passes.
+			if (!existingEmailUser) {
+				userId = crypto.randomUUID();
+				await createUser(DB, { id: userId, displayName, isOwner: false, email });
+			} else {
+				userId = existingEmailUser.id;
+			}
+			await createVerification(env, request, {
+				userId,
+				email,
+				purpose: 'register',
+				displayName,
+			});
+			return json({ challengeId: null, userId, needsVerification: true, email });
+		}
+
+		// A completed verification authorizes exactly one registration — consume it
+		// so it can't be replayed to attach a second, attacker-controlled credential.
+		if (verificationProof) {
+			await deleteEmailVerification(DB, verificationProof.id);
+		}
+
+		const currentUser = await getUserById(DB, userId);
+		if (!currentUser) {
 			return err('Registration session expired. Please try again.', 400);
 		}
-		const verifiedAlready = user.email === email && user.email_verified === 1;
+		await updateUserProfile(DB, {
+			id: userId,
+			displayName,
+			isOwner: !!currentUser.is_owner,
+			email,
+		});
+
+		const verifiedAlready = currentUser.email === email && currentUser.email_verified === 1;
 		if (!verifiedAlready) {
 			await createVerification(env, request, {
 				userId,
@@ -447,6 +500,7 @@ export async function handleMessagesApi(request, env) {
 		const challengeId = crypto.randomUUID();
 		await createChallenge(DB, { id: challengeId, challenge, userId, type: 'register' });
 		await cleanExpiredChallenges(DB);
+		await cleanExpiredEmailVerifications(DB);
 
 		return json({ challengeId, userId, challenge, options, rpId, needsVerification: false });
 	}
