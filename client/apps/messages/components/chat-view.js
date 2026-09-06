@@ -208,6 +208,7 @@ export class ChatView extends HTMLElement {
 			const item = /** @type {DocumentFragment} */ (convItemTemplate.content.cloneNode(true));
 			const btn = /** @type {HTMLButtonElement} */ (item.querySelector('.conv-item__btn'));
 			btn.classList.toggle('conv-item__btn--active', conv.id === this.#conversationId);
+			btn.setAttribute('aria-label', `Select conversation with ${conv.display_name}`);
 			/** @type {HTMLSpanElement} */ (item.querySelector('.conv-item__name')).textContent =
 				conv.display_name;
 			/** @type {HTMLSpanElement} */ (item.querySelector('.conv-item__preview')).textContent =
