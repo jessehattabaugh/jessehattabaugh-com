@@ -99,8 +99,8 @@ export async function hasPasskey(db, userId) {
  */
 export async function updateUserProfile(db, { id, displayName, isOwner, email = null }) {
 	const current = await getUserById(db, id);
-	const normalizedEmail = email ? normalizeEmail(email) : null;
-	const nextVerified = normalizedEmail && current?.email === normalizedEmail ? current.email_verified : 0;
+	const normalizedEmail = email ? normalizeEmail(email) : current?.email || null;
+	const nextVerified = email && current?.email === normalizedEmail ? current.email_verified : (current?.email_verified || 0);
 	await db
 		.prepare(
 			'UPDATE users SET display_name = ?, is_owner = ?, email = ?, email_verified = ? WHERE id = ?',
