@@ -88,7 +88,7 @@ test('/apps/messages/ — guest can send a message without JavaScript (HTTP fall
 	const res = await page.request.post('/apps/messages/', {
 		form: {
 			name: 'No JS Guest',
-			email: `nojs-${randomUUID()}@example.com`,
+			email: 'test@example.com',
 			message: `No-JS test message ${randomUUID()}`,
 		},
 		maxRedirects: 0,
