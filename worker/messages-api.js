@@ -350,6 +350,15 @@ export async function handleMessagesApi(request, env) {
 			});
 		}
 
+		// Consume the verification token atomically before applying side effects
+		const consumed = await consumeEmailVerification(DB, token);
+		if (!consumed) {
+			return renderMessagesPage(request, env, {
+				status: 400,
+				error: 'That verification link has expired or is invalid.',
+			});
+		}
+
 		await updateUserProfile(DB, {
 			id: user.id,
 			displayName: user.display_name,
@@ -357,7 +366,6 @@ export async function handleMessagesApi(request, env) {
 			email: verification.email,
 		});
 		await markEmailVerified(DB, user.id);
-		await consumeEmailVerification(DB, token);
 
 		if (verification.purpose === 'guest-message') {
 			const payload = verification.payload ? JSON.parse(verification.payload) : null;
