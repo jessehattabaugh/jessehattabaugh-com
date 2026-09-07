@@ -36,7 +36,7 @@ import {
 } from './webauthn.js';
 import { getSessionUser, createSession, sessionCookieHeader } from './session.js';
 import { notifyAll } from './vapid.js';
-import { render } from '../shared/html.js';
+import { render, html } from '../shared/html.js';
 import { messagesPage } from '../shared/templates/messages.js';
 import { SECURITY_HEADERS } from './security-headers.js';
 
@@ -93,7 +93,7 @@ async function sendVerificationEmail(env, { email, token, purpose, displayName, 
 			from: env.EMAIL_FROM,
 			subject,
 			text,
-			html: `<p>Hi ${safeName},</p><p>Please confirm this email to continue in Messages:</p><p><a href="${link.toString()}">${link.toString()}</a></p><p>If you did not make this request, you can ignore this email.</p>`,
+			html: html`<p>Hi ${safeName},</p><p>Please confirm this email to continue in Messages:</p><p><a href="${link.toString()}">${link.toString()}</a></p><p>If you did not make this request, you can ignore this email.</p>`,
 		});
 	} catch (e) {
 		console.error('Email send failed', e);
