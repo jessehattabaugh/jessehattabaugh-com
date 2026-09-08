@@ -4,17 +4,34 @@ import './message-input.js';
 const layoutTemplate = document.createElement('template');
 layoutTemplate.innerHTML = `
 	<header class="chat-header">
+		<button
+			type="button"
+			class="btn btn--ghost chat-header__sidebar-toggle"
+			aria-label="Open conversations sidebar"
+			aria-expanded="false"
+			aria-haspopup="dialog"
+		>
+			<svg
+				class="chat-header__sidebar-icon"
+				viewBox="0 0 24 24"
+				width="20"
+				height="20"
+				fill="none"
+				stroke="currentColor"
+				stroke-width="2"
+				stroke-linecap="round"
+				aria-hidden="true"
+			>
+				<path d="M4 6h16"></path>
+				<path d="M4 12h16"></path>
+				<path d="M4 18h16"></path>
+			</svg>
+			<span class="chat-header__sidebar-label">Conversations</span>
+		</button>
 		<div class="chat-header__title">
 			<h1></h1>
 		</div>
 		<div class="chat-header__actions">
-			<button
-				type="button"
-				class="btn btn--ghost chat-header__sidebar-toggle"
-				aria-label="Open conversations sidebar"
-				aria-expanded="false"
-				aria-haspopup="dialog"
-			>Conversations</button>
 			<button
 				type="button"
 				class="btn btn--ghost chat-header__notif"
