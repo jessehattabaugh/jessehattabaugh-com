@@ -13,6 +13,7 @@ layoutTemplate.innerHTML = `
 				class="btn btn--ghost chat-header__sidebar-toggle"
 				aria-label="Open conversations sidebar"
 				aria-expanded="false"
+				aria-haspopup="dialog"
 			>Conversations</button>
 			<button
 				type="button"
@@ -35,10 +36,19 @@ layoutTemplate.innerHTML = `
 
 const sidebarTemplate = document.createElement('template');
 sidebarTemplate.innerHTML = `
-	<nav class="chat-sidebar" aria-label="Conversations">
-		<h2 class="chat-sidebar__title">Conversations</h2>
-		<ul class="conv-list"></ul>
-	</nav>
+	<dialog class="chat-sidebar-dialog" aria-labelledby="chat-sidebar-title">
+		<nav class="chat-sidebar" aria-label="Conversations">
+			<div class="chat-sidebar__header">
+				<h2 id="chat-sidebar-title" class="chat-sidebar__title">Conversations</h2>
+				<button
+					type="button"
+					class="chat-sidebar__close"
+					aria-label="Close conversations"
+				>✕</button>
+			</div>
+			<ul class="conv-list"></ul>
+		</nav>
+	</dialog>
 `;
 
 const convItemTemplate = document.createElement('template');
@@ -108,11 +118,20 @@ export class ChatView extends HTMLElement {
 			this.querySelector('.chat-header__sidebar-toggle')
 		);
 		this.#sidebarToggle?.addEventListener('click', () => {
-			const layout = /** @type {HTMLDivElement | null} */ (this.querySelector('.chat-layout'));
-			if (!layout || !layout.classList.contains('chat-layout--with-sidebar')) {
+			const dialog = this.#sidebarDialog;
+			if (!dialog) {
 				return;
 			}
-			this.#setSidebarOpen(!layout.classList.contains('chat-layout--sidebar-open'));
+			if (window.matchMedia('(min-width: 640px)').matches) {
+				// On desktop the sidebar is always visible inline; nothing to toggle.
+				return;
+			}
+			if (dialog.open) {
+				dialog.close();
+			} else {
+				dialog.showModal();
+				this.#syncSidebarToggle();
+			}
 		});
 		this.#sidebarToggle && (this.#sidebarToggle.style.display = this.#user?.isOwner ? '' : 'none');
 
@@ -155,13 +174,30 @@ export class ChatView extends HTMLElement {
 		});
 
 		if (this.#user?.isOwner && conversations.length > 0) {
-			const sidebar = sidebarTemplate.content.cloneNode(true);
 			const layout = /** @type {HTMLDivElement} */ (this.querySelector('.chat-layout'));
-			layout.classList.add('chat-layout--with-sidebar');
-			layout.prepend(sidebar);
-			this.#convList = this.querySelector('.conv-list');
+			const frag = /** @type {DocumentFragment} */ (sidebarTemplate.content.cloneNode(true));
+			/** @type {HTMLDialogElement} */
+			const dialog = /** @type {HTMLDialogElement} */ (frag.querySelector('dialog'));
+			layout.prepend(frag);
+			this.#sidebarDialog = dialog;
+			this.#convList = dialog.querySelector('.conv-list');
 			this.#fillConversations(conversations);
-			this.#setSidebarOpen(false);
+
+			dialog.addEventListener('close', () => {
+				this.#syncSidebarToggle();
+			});
+			dialog.querySelector('.chat-sidebar__close')?.addEventListener('click', () => {
+				dialog.close();
+			});
+
+			// Collapse the modal back into the static sidebar when the screen
+			// is rotated wide enough for the inline layout.
+			const wideScreen = window.matchMedia('(min-width: 640px)');
+			wideScreen.addEventListener('change', (e) => {
+				if (e.matches && dialog.open) {
+					dialog.close();
+				}
+			});
 		}
 
 		// Disable compose for owner until they select a conversation
@@ -180,17 +216,17 @@ export class ChatView extends HTMLElement {
 	#composeEl = /** @type {any} */ (null);
 	/** @type {HTMLButtonElement | null} */
 	#sidebarToggle = null;
+	/** @type {HTMLDialogElement | null} */
+	#sidebarDialog = null;
 	/** @type {HTMLButtonElement} */
 	#notifBtn = /** @type {any} */ (null);
 
-	/** @param {boolean} isOpen */
-	#setSidebarOpen(isOpen) {
-		const layout = /** @type {HTMLDivElement | null} */ (this.querySelector('.chat-layout'));
+	#syncSidebarToggle() {
 		const toggle = this.#sidebarToggle;
-		if (!layout || !toggle) {
+		if (!toggle) {
 			return;
 		}
-		layout.classList.toggle('chat-layout--sidebar-open', isOpen);
+		const isOpen = Boolean(this.#sidebarDialog?.open);
 		toggle.setAttribute('aria-expanded', String(isOpen));
 		toggle.setAttribute(
 			'aria-label',
@@ -220,8 +256,8 @@ export class ChatView extends HTMLElement {
 				this.#convList?.querySelectorAll('.conv-item__btn').forEach((b) => {
 					b.classList.remove('conv-item__btn--active');
 				});
-				btn.classList.add('conv-item__btn--active');
-				this.#setSidebarOpen(false);
+btn.classList.add('conv-item__btn--active');
+				this.#sidebarDialog?.close();
 				this.dispatchEvent(
 					new CustomEvent('conversation-select', {
 						detail: { conversationId: conv.id },

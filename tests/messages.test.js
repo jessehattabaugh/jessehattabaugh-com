@@ -289,6 +289,13 @@ test('/apps/messages — owner can open the conversations sidebar', async ({
 	await sidebarToggle.click();
 	await expect(page.getByRole('navigation', { name: 'Conversations' })).toBeVisible();
 	await expect(page.getByRole('button', { name: /Select conversation/i })).toBeVisible();
+
+	if (testInfo.project.name.includes('Mobile')) {
+		// On mobile the conversations menu opens as a modal dialog via showModal().
+		await expect(page.getByRole('dialog', { name: 'Conversations' })).toBeVisible();
+		await page.getByRole('button', { name: 'Close conversations' }).click();
+		await expect(page.getByRole('navigation', { name: 'Conversations' })).not.toBeVisible();
+	}
 });
 
 // ── /contact redirect ─────────────────────────────────────────────────────────
