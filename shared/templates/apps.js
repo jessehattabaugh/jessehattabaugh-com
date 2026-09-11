@@ -22,17 +22,25 @@ export const apps = () => {
 	return layout({
 		title: 'Apps',
 		path: '/apps',
-		description: 'Mini-apps by Jesse Hattabaugh.',
+		description: 'Standalone progressive web apps by Jesse Hattabaugh.',
 		body: html`
 			<article>
 				<h1>Apps</h1>
-				<p>Standalone progressive web apps — install any of these on your device.</p>
+				<p>Standalone progressive web apps &mdash; install any of these on your device.</p>
 				<ul class="apps-grid">
 					<li>
 						<a href="/apps/messages/" class="app-card">
 							<div class="app-card__icon" aria-hidden="true">${messagesIcon}</div>
 							<span class="app-card__name">Messages</span>
 							<span class="app-card__desc">Send me a message</span>
+							<div class="app-card__tags">
+								<span class="app-tag">WebAuthn</span>
+								<span class="app-tag">FIDO2</span>
+								<span class="app-tag">Push API</span>
+								<span class="app-tag">Service Workers</span>
+								<span class="app-tag">Cloudflare D1</span>
+								<span class="app-tag">Custom Elements</span>
+							</div>
 						</a>
 					</li>
 				</ul>

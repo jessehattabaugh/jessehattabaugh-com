@@ -55,6 +55,13 @@ export const layout = ({
 							</li>
 							<li>
 								<a
+									href="/apps/"
+									${normalizedPath === '/apps' ? ' aria-current="page"' : ''}
+									>Apps</a
+								>
+							</li>
+							<li>
+								<a
 									href="/apps/messages/"
 									${normalizedPath === '/apps/messages'
 										? ' aria-current="page"'
