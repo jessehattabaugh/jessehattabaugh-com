@@ -32,6 +32,12 @@
 		{ "custom_domain": true, "pattern": "jessehattabaugh.com" },
 		{ "custom_domain": true, "pattern": "www.jessehattabaugh.com" }
 	],
+	// Rainbow Hour wake cron: push a "check the sky" wake-up to devices whose
+	// sun is inside the rainbow band. Crons only fire on the active (production)
+	// deployment — preview versions uploaded for branches never run this.
+	"triggers": {
+		"crons": ["*/15 * * * *"]
+	},
 	// Non-secret config. Secrets are set via: wrangler secret put <NAME>
 	// Required secrets:
 	//   SESSION_SECRET     — random 32+ bytes, base64url-encoded

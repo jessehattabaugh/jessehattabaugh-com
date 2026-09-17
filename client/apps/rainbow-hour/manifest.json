@@ -1,0 +1,32 @@
+{
+	"name": "Rainbow Hour — Jesse Hattabaugh",
+	"short_name": "Rainbow Hour",
+	"description": "A nudge when rain clears under a low sun and a rainbow is likely.",
+	"start_url": "/apps/rainbow-hour/?pwa=1",
+	"scope": "/apps/rainbow-hour/",
+	"display": "standalone",
+	"orientation": "any",
+	"theme_color": "#0ea5e9",
+	"background_color": "#bae6fd",
+	"icons": [
+		{
+			"src": "/apps/rainbow-hour/icon.svg",
+			"sizes": "any",
+			"type": "image/svg+xml",
+			"purpose": "any"
+		},
+		{
+			"src": "/apps/rainbow-hour/icon.svg",
+			"sizes": "any",
+			"type": "image/svg+xml",
+			"purpose": "maskable"
+		}
+	],
+	"shortcuts": [
+		{
+			"name": "Check the sky",
+			"url": "/apps/rainbow-hour/",
+			"icons": [{ "src": "/apps/rainbow-hour/icon.svg", "sizes": "any" }]
+		}
+	]
+}

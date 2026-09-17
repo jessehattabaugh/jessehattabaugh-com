@@ -84,3 +84,20 @@ CREATE INDEX IF NOT EXISTS idx_push_subscriptions_user
   ON push_subscriptions(user_id);
 CREATE INDEX IF NOT EXISTS idx_passkeys_user
   ON passkeys(user_id);
+
+-- Rainbow Hour app: anonymous push subscriptions keyed by endpoint (no accounts).
+-- Coordinates are rounded to 2 decimals (~1 km) before storage.
+CREATE TABLE IF NOT EXISTS rainbow_subscriptions (
+  id               TEXT PRIMARY KEY,
+  endpoint         TEXT    NOT NULL UNIQUE,
+  p256dh           TEXT    NOT NULL,
+  auth             TEXT    NOT NULL,
+  latitude         REAL    NOT NULL,
+  longitude        REAL    NOT NULL,
+  timezone         TEXT    NOT NULL,
+  last_notified_at INTEGER,
+  created_at       TEXT    NOT NULL DEFAULT (datetime('now'))
+);
+
+CREATE INDEX IF NOT EXISTS idx_rainbow_subscriptions_endpoint
+  ON rainbow_subscriptions(endpoint);

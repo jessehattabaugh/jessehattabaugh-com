@@ -1,6 +1,8 @@
 import { render } from '../shared/html.js';
 import { error as errorPage } from '../shared/templates/error.js';
 import { handleMessagesApi } from './messages-api.js';
+import { handleRainbowApi } from './rainbow-api.js';
+import { rainbowWakeCron } from './rainbow-cron.js';
 import { SECURITY_HEADERS } from './security-headers.js';
 
 /**
@@ -17,8 +19,7 @@ function htmlResponse(html, status = 200) {
 
 /** @type {ExportedHandler<import('../shared/types.js').Env>} */
 export default {
-	async fetch(request, env) {
-		const url = new URL(request.url);
+	async fetch(request, env) {		const url = new URL(request.url);
 
 		try {
 			// /contact → redirect to messaging app (old bookmarks/links)
@@ -36,6 +37,26 @@ export default {
 				} catch (e) {
 					console.error(e);
 					if (url.pathname.startsWith('/apps/messages/api/')) {
+						return new Response(JSON.stringify({ error: 'Internal server error' }), {
+							status: 500,
+							headers: { 'Content-Type': 'application/json' },
+						});
+					}
+					throw e;
+				}
+			}
+
+			// Rainbow Hour app: SSR shell and alerts API (weather itself is
+			// checked on the device, never server-side)
+			if (url.pathname.startsWith('/apps/rainbow-hour/')) {
+				try {
+					const apiResponse = await handleRainbowApi(request, env);
+					if (apiResponse !== null) {
+						return apiResponse;
+					}
+				} catch (e) {
+					console.error(e);
+					if (url.pathname.startsWith('/apps/rainbow-hour/api/')) {
 						return new Response(JSON.stringify({ error: 'Internal server error' }), {
 							status: 500,
 							headers: { 'Content-Type': 'application/json' },
@@ -63,5 +84,17 @@ export default {
 			console.error(e);
 			return htmlResponse(render(errorPage()), 500);
 		}
+	},
+
+	/**
+	 * Rainbow Hour wake cron (see wrangler.jsonc triggers.crons): every 15
+	 * minutes, push a wake-up to devices whose sun is inside the rainbow band.
+	 */
+	async scheduled(controller, env, ctx) {
+		ctx.waitUntil(
+			rainbowWakeCron(env).catch((e) => {
+				console.error('Rainbow Hour wake cron failed', e);
+			}),
+		);
 	},
 };

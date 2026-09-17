@@ -6,6 +6,7 @@ export default defineConfig({
 	forbidOnly: !!process.env.CI,
 	retries: process.env.CI ? 2 : 0,
 	reporter: [['html', { open: 'never' }]],
+	globalSetup: './tests/global-setup.js',
 	use: {
 		baseURL: process.env.PREVIEW_URL,
 		trace: 'on-first-retry',

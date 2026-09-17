@@ -41,9 +41,17 @@ async function build() {
 	await writePage('/404', render(notFound()));
 	await writePage('/500', render(error()));
 
-	// Copy static assets (includes client/apps/messages/* PWA files)
+	// Copy static assets (includes client/apps/* PWA files)
 	const clientDir = join(ROOT, 'client');
 	await cp(clientDir, OUT, { recursive: true });
+
+	// Client-side runtime modules imported by the Rainbow Hour app
+	// (page dashboard + module service worker) from /shared/*.js — one source
+	// of truth shared with the Worker, copied into the served asset tree.
+	const sharedOut = join(OUT, 'shared');
+	await mkdir(sharedOut, { recursive: true });
+	await cp(join(ROOT, 'shared', 'solar.js'), join(sharedOut, 'solar.js'));
+	await cp(join(ROOT, 'shared', 'rainbow.js'), join(sharedOut, 'rainbow.js'));
 
 	console.log('Build complete →', OUT);
 }

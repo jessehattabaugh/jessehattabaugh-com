@@ -48,4 +48,5 @@ export const dynamicRoutes = [
 	{ method: 'GET', pattern: new URLPatternConstructor({ pathname: '/contact' }) },
 	{ method: 'GET', pattern: new URLPatternConstructor({ pathname: '/apps/messages/' }) },
 	{ method: 'POST', pattern: new URLPatternConstructor({ pathname: '/apps/messages/' }) },
+	{ method: 'GET', pattern: new URLPatternConstructor({ pathname: '/apps/rainbow-hour/' }) },
 ];

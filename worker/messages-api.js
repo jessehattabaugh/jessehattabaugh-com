@@ -93,7 +93,8 @@ async function sendVerificationEmail(env, { email, token, purpose, displayName, 
 			from: env.EMAIL_FROM,
 			subject,
 			text,
-			html: html`<p>Hi ${safeName},</p><p>Please confirm this email to continue in Messages:</p><p><a href="${link.toString()}">${link.toString()}</a></p><p>If you did not make this request, you can ignore this email.</p>`,
+			// .value: SendEmail wants a string, not the html helper's Raw wrapper
+		html: html`<p>Hi ${safeName},</p><p>Please confirm this email to continue in Messages:</p><p><a href="${link.toString()}">${link.toString()}</a></p><p>If you did not make this request, you can ignore this email.</p>`.value,
 		});
 	} catch (e) {
 		console.error('Email send failed', e);

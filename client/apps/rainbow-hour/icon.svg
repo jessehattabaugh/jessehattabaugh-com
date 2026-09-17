@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512" role="img" aria-label="A rainbow rising from a rain cloud under a smiling sun">
+  <defs>
+    <linearGradient id="rh-sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#38bdf8"/>
+      <stop offset="100%" stop-color="#bae6fd"/>
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" rx="96" fill="url(#rh-sky)"/>
+
+  <!-- Sun, upper left -->
+  <g stroke="#fbbf24" stroke-width="12" stroke-linecap="round">
+    <path d="M150,58 v22"/>
+    <path d="M88,92 l16,16"/>
+    <path d="M212,92 l-16,16"/>
+    <path d="M68,150 h22"/>
+    <path d="M104,206 l14,-14"/>
+  </g>
+  <circle cx="150" cy="150" r="48" fill="#fde047"/>
+  <circle cx="136" cy="140" r="6" fill="#92400e" opacity="0.55"/>
+  <circle cx="164" cy="140" r="6" fill="#92400e" opacity="0.55"/>
+  <path d="M136,162 q14,12 28,0" fill="none" stroke="#92400e" stroke-width="6" stroke-linecap="round" opacity="0.55"/>
+
+  <!-- Rainbow arcs (ROYGBV), rising from the lower right -->
+  <g fill="none" stroke-linecap="round">
+    <path d="M170,392 A150,150 0 0 1 470,392" stroke="#ef4444" stroke-width="19"/>
+    <path d="M192,392 A128,128 0 0 1 448,392" stroke="#f97316" stroke-width="19"/>
+    <path d="M214,392 A106,106 0 0 1 426,392" stroke="#facc15" stroke-width="19"/>
+    <path d="M236,392 A84,84 0 0 1 404,392" stroke="#22c55e" stroke-width="19"/>
+    <path d="M258,392 A62,62 0 0 1 382,392" stroke="#3b82f6" stroke-width="19"/>
+    <path d="M280,392 A40,40 0 0 1 360,392" stroke="#8b5cf6" stroke-width="19"/>
+  </g>
+
+  <!-- Rain cloud sitting on the rainbow's right foot -->
+  <g fill="#ffffff">
+    <ellipse cx="404" cy="356" rx="58" ry="34"/>
+    <circle cx="378" cy="336" r="26"/>
+    <circle cx="416" cy="330" r="30"/>
+    <circle cx="444" cy="350" r="22"/>
+  </g>
+
+  <!-- Raindrops falling from the cloud -->
+  <g fill="#0ea5e9">
+    <path d="M382,398 c6,9 10,14 10,19 a10,10 0 0 1 -20,0 c0,-5 4,-10 10,-19"/>
+    <path d="M414,402 c6,9 10,14 10,19 a10,10 0 0 1 -20,0 c0,-5 4,-10 10,-19"/>
+    <path d="M446,398 c6,9 10,14 10,19 a10,10 0 0 1 -20,0 c0,-5 4,-10 10,-19"/>
+    <path d="M398,444 c5,7 8,11 8,15 a8,8 0 0 1 -16,0 c0,-4 3,-8 8,-15"/>
+    <path d="M430,448 c5,7 8,11 8,15 a8,8 0 0 1 -16,0 c0,-4 3,-8 8,-15"/>
+  </g>
+</svg>

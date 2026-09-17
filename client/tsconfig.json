@@ -5,10 +5,15 @@
 		"moduleResolution": "bundler",
 		"composite": true,
 		"outDir": "../dist/types/client",
+		"rootDir": "..",
 		"allowJs": true,
 		"checkJs": true,
 		"strict": true,
 		"lib": ["ES2022", "DOM", "DOM.Iterable"]
 	},
-	"include": ["**/*.js"]
+	"include": [
+		"**/*.js",
+		"../shared/solar.js",
+		"../shared/rainbow.js"
+	]
 }
