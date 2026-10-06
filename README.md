@@ -61,7 +61,7 @@ For a manual preview, use a non-`main` branch:
 
 ```sh
 npm run deploy:preview
-npm run test:preview
+npm test
 ```
 
 Authenticate Wrangler or provide `CLOUDFLARE_API_TOKEN` and
@@ -94,7 +94,8 @@ Tests run desktop/mobile Chrome with JS on/off; Lighthouse runs only in desktop
 Chrome. Install Chromium once with `npx playwright install chromium`. The stateful
 suites also require `CLOUDFLARE_API_TOKEN` with D1 read/write permissions,
 `CLOUDFLARE_ACCOUNT_ID`, and `E2E_EMAIL_DOMAIN` for a controlled catch-all mailbox.
-`test:preview` supplies `PREVIEW_URL` and `PREVIEW_DB_NAME`; override
+`npm test` automatically supplies `PREVIEW_URL`
+and `PREVIEW_DB_NAME` from the current branch; no manual URL setup is needed. Override
 `WORKERS_DEV_SUBDOMAIN` for a different Cloudflare account. To target a particular
 version, set `PREVIEW_URL` explicitly. Reports go to `playwright-report/`.
 
