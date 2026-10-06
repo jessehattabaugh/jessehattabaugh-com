@@ -18,9 +18,11 @@ if ('startViewTransition' in document && 'fetch' in window && 'FormData' in wind
 			headers: { 'X-Fragment': 'true', Accept: 'text/html' },
 		});
 		if (response.redirected) { location.assign(response.url); return; }
-		if (response.status !== 422 && !response.ok) { throw new Error('Fragment request failed'); }
 		if (!response.headers.get('Content-Type')?.includes('text/html')) { throw new Error('Expected HTML'); }
 		const markup = await response.text();
+		// Unformatted infrastructure errors use native navigation. Server-rendered
+		// fragments (including validation/conflict/unavailable responses) stay visible.
+		if (/<!doctype|<html[\s>]/i.test(markup)) { throw new Error('Expected a fragment'); }
 		await document.startViewTransition(() => {
 			target.innerHTML = markup;
 		}).finished;
@@ -40,6 +42,18 @@ if ('startViewTransition' in document && 'fetch' in window && 'FormData' in wind
 		try {
 			await follow(form, new FormData(form, event.submitter));
 		} catch {
+			// submit() has no submitter. Retain its named action without re-entering
+			// this enhancement's submit handler through requestSubmit().
+			const submitter = event.submitter;
+			if (submitter instanceof HTMLButtonElement || submitter instanceof HTMLInputElement) {
+				if (submitter.name) {
+					const action = document.createElement('input');
+					action.type = 'hidden';
+					action.name = submitter.name;
+					action.value = submitter.value;
+					form.append(action);
+				}
+			}
 			HTMLFormElement.prototype.submit.call(form);
 		}
 	});

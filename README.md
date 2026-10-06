@@ -27,6 +27,9 @@ visitor can add a passkey; the first owner can claim the role with
 `OWNER_SETUP_TOKEN`. Existing account data survives this change, but legacy
 sessions must sign in again. Verification links display a confirmation form;
 only its POST consumes the token or sends a held message.
+Confirmation commits its database changes atomically, so failed publication can
+be retried with the same link. Notification controls check server registration
+for the current account before reporting alerts as enabled.
 Legacy passkey accounts can still sign in and confirm a recovery email without
 losing their conversations or owner role.
 
@@ -106,7 +109,8 @@ Email sign-in, history, replies, and manual sky checks are the no-JS baseline.
 WebAuthn, geolocation, Web Push, and browser installation prompts intrinsically
 require browser APIs; these optional capabilities are feature-detected, with
 email sign-in/manual coordinates available throughout. Passkey credential
-exchanges carry protocol JSON; regular navigation and application mutations use
+exchanges and optional push-registration status checks carry protocol JSON;
+regular navigation and application mutations use
 server-rendered links/forms and HTML. These capability exceptions narrow the
 literal “every enhancement has a no-JS equivalent” rule in `AGENTS.md`.
 

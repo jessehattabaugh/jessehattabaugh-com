@@ -58,9 +58,10 @@ test('enhanced requests fall back to native navigation when the network returns'
 	await page.getByLabel('Longitude', { exact: true }).fill('0');
 	await context.setOffline(true);
 	const navigation = page.waitForEvent('framenavigated', { predicate: (frame) => frame === page.mainFrame() });
-	await page.getByRole('button', { name: 'Show rainbow windows', exact: true }).click();
-	await navigation;
-	await context.setOffline(false);
+	try {
+		await page.getByRole('button', { name: 'Check the sky now', exact: true }).click();
+		await navigation;
+	} finally { await context.setOffline(false); }
 	await page.reload();
-	await expect(page.getByRole('region', { name: 'Rainbow windows' })).toBeVisible();
+	await expect(page.getByRole('region', { name: 'Sky check result' }).or(page.getByRole('alert').filter({ hasText: 'Weather is unavailable' }))).toBeVisible({ timeout: 20000 });
 });

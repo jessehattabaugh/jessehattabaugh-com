@@ -173,6 +173,37 @@ export function consumeEmailVerification(db, id) {
 }
 
 /**
+ * Commit proof, profile, conversation and a held message together. Every write
+ * checks the same pending token; competing submissions become no-ops. D1 batch
+ * rolls back all writes on failure, keeping the original link retryable.
+ * @param {D1Database} db
+ * @param {EmailVerification} verification
+ * @param {string | null} content
+ */
+export async function completeEmailVerification(db, verification, content = null) {
+	const now = Date.now();
+	const pending = `EXISTS (SELECT 1 FROM email_verifications v WHERE v.id = ? AND v.consumed_at IS NULL AND v.expires_at >= ?
+		AND (v.purpose = 'profile' OR v.email = (SELECT email FROM users WHERE id = v.user_id)))`;
+	const statements = [
+		db.prepare(`UPDATE users SET email = CASE WHEN ? = 'profile' THEN ? ELSE email END, email_verified = 1 WHERE id = ? AND ${pending}`)
+			.bind(verification.purpose, verification.email, verification.user_id, verification.id, now),
+		db.prepare(`INSERT INTO conversations (id, visitor_user_id) SELECT ?, id FROM users WHERE id = ? AND (is_owner = 0 OR ? IS NOT NULL) AND ${pending} ON CONFLICT(visitor_user_id) DO NOTHING`)
+			.bind(crypto.randomUUID(), verification.user_id, content, verification.id, now),
+	];
+	if (content !== null) {
+		statements.push(db.prepare(`INSERT INTO messages (id, conversation_id, sender_user_id, content)
+			SELECT ?, id, visitor_user_id, ? FROM conversations WHERE visitor_user_id = ? AND ${pending} RETURNING conversation_id`)
+			.bind(crypto.randomUUID(), content, verification.user_id, verification.id, now));
+	}
+	statements.push(db.prepare(`UPDATE email_verifications SET consumed_at = ? WHERE id = ? AND ${pending} RETURNING id`)
+		.bind(now, verification.id, verification.id, now));
+	const results = await db.batch(statements);
+	if (!results.at(-1)?.results.length) { return null; }
+	const message = content === null ? null : results[2].results[0];
+	return { conversationId: message ? String(/** @type {{ conversation_id: string }} */ (message).conversation_id) : null };
+}
+
+/**
  * Find the most recent verification for a user+email completed after a cutoff.
  * Used to prove a caller just verified ownership of an existing account.
  * @param {D1Database} db
@@ -336,6 +367,11 @@ export async function claimOwner(db, id) {
 /** @param {D1Database} db @param {string} endpoint @param {string} userId */
 export function deleteUserPushSubscription(db, endpoint, userId) {
 	return db.prepare('DELETE FROM push_subscriptions WHERE endpoint = ? AND user_id = ?').bind(endpoint, userId).run();
+}
+
+/** @param {D1Database} db @param {string} endpoint @param {string} userId */
+export async function hasUserPushSubscription(db, endpoint, userId) {
+	return !!(await db.prepare('SELECT 1 FROM push_subscriptions WHERE endpoint = ? AND user_id = ?').bind(endpoint, userId).first());
 }
 
 /**

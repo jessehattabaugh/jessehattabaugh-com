@@ -16,6 +16,15 @@ test('message notifications can be enabled, disabled, and enabled again', async 
 	try {
 		await enable.click();
 		await expect(disable).toBeVisible({ timeout: 30000 });
+		// The same browser endpoint must not masquerade as enabled for a new
+		// account. Explicit enable transfers it; reloading confirms server state.
+		await page.getByRole('button', { name: 'Sign out', exact: true }).click();
+		await signIn(page, identities.create());
+		await expect(enable).toBeEnabled();
+		await enable.click();
+		await expect(disable).toBeVisible({ timeout: 30000 });
+		await page.reload();
+		await expect(disable).toBeEnabled();
 		await disable.click();
 		await expect(enable).toBeVisible();
 		await enable.click();

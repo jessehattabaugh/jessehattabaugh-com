@@ -1,9 +1,34 @@
 import { randomUUID } from 'node:crypto';
 import { test, expect, signIn, confirmationLink } from './helpers/messages.js';
 import { previewDatabase } from './helpers/database.js';
-import { expireVerification } from '../shared/data/fixtures.js';
+import { expireVerification, failFixtureMessage } from '../shared/data/fixtures.js';
 
 // Each core flow runs in desktop/mobile Chrome with JS both on and off.
+test('a held message survives a database failure and its confirmation can be retried', async ({ page, identities }) => {
+	const identity = identities.create();
+	const message = randomUUID();
+	await page.goto('/apps/messages/');
+	await page.getByLabel('Name', { exact: true }).fill(identity.name);
+	await page.getByLabel('Email', { exact: true }).fill(identity.email);
+	await page.getByLabel('Message', { exact: true }).fill(message);
+	await page.getByRole('button', { name: 'Send', exact: true }).click();
+	await expect(page.getByRole('status').filter({ hasText: 'Check your email' })).toBeVisible();
+	const link = await confirmationLink(page, identity.email);
+	const db = await previewDatabase();
+	try {
+		await failFixtureMessage(db, message, true);
+		await page.goto(link);
+		const failed = page.waitForResponse((response) => response.request().method() === 'POST' && new URL(response.url()).pathname === '/apps/messages/verify');
+		await page.getByRole('button', { name: 'Confirm email', exact: true }).click();
+		expect((await failed).status()).toBe(500);
+		await expect(page.getByRole('heading', { level: 1, name: 'Something went wrong', exact: true })).toBeVisible();
+	} finally { await failFixtureMessage(db, message, false); }
+	await page.goto(link);
+	await page.getByRole('button', { name: 'Confirm email', exact: true }).click();
+	await expect(page.getByText(`Signed in as ${identity.name}.`, { exact: true })).toBeVisible();
+	await expect(page.getByRole('list', { name: 'Messages', exact: true }).getByText(message, { exact: true })).toHaveCount(1);
+});
+
 test('a guest confirms their email, reads history, sends another message, and signs out', async ({ page, identities }) => {
 	const identity = identities.create();
 	const first = `First message ${randomUUID()} <script>alert(1)</script>`;
@@ -129,8 +154,12 @@ test('passkeys provide an optional alternative to email sign-in', async ({ page,
 	await cdp.send('WebAuthn.enable');
 	await cdp.send('WebAuthn.addVirtualAuthenticator', { options: { protocol: 'ctap2', transport: 'internal', hasResidentKey: true, hasUserVerification: true, isUserVerified: true } });
 	await signIn(page, identities.create());
-	await page.getByRole('button', { name: 'Add a passkey', exact: true }).click();
-	await expect(page.getByRole('button', { name: 'Sign out', exact: true })).toBeVisible();
+	// Sign out exists before enrollment; wait for the completed enrollment's
+	// navigation rather than allowing logout to interrupt the credential request.
+	await Promise.all([
+		page.waitForEvent('load'),
+		page.getByRole('button', { name: 'Add a passkey', exact: true }).click(),
+	]);
 	await page.getByRole('button', { name: 'Sign out', exact: true }).click();
 	await page.getByRole('link', { name: 'Sign in to your conversation' }).click();
 	await page.getByRole('button', { name: 'Sign in with a passkey', exact: true }).click();

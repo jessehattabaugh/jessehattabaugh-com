@@ -3,7 +3,7 @@ import { rainbowHourPage, rainbowHourFragment } from '../shared/templates/rainbo
 import { rainbowWindows, sunPosition } from '../shared/solar.js';
 import { evaluateRainbowConditions } from '../shared/rainbow.js';
 import { fetchRainbowWeather } from '../shared/weather.js';
-import { saveRainbowSubscription, deleteRainbowSubscription } from '../shared/data/rainbow.js';
+import { saveRainbowSubscription, deleteRainbowSubscription, hasRainbowSubscription } from '../shared/data/rainbow.js';
 import { paths } from '../shared/routes.js';
 import { readForm } from './request.js';
 
@@ -45,6 +45,9 @@ export async function handleRainbowApi(request, env) {
 		const form = await readForm(request);
 		const endpoint = String(form.get('endpoint') ?? '');
 		if (!endpoint.startsWith('https://')) { return page(request, { error: 'A valid push subscription is required.' }, 422); }
+		if (form.get('operation') === 'status') {
+			return Response.json({ enabled: await hasRainbowSubscription(env.DB, endpoint) });
+		}
 		if (form.get('operation') === 'unsubscribe') {
 			await deleteRainbowSubscription(env.DB, endpoint);
 		} else {
