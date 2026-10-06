@@ -92,7 +92,7 @@ Workers Builds (native git integration) handles deploys — no hand-rolled CI ne
 
 `scripts/deploy.js` selects the environment, creates the per-branch D1 database, applies migrations (`wrangler d1 migrations apply`), and uploads the preview version with a per-branch alias — all automatically on each build. Migrations live in `db/migrations/` as plain SQL in order. `db/schema.sql` is the canonical schema reference. Write only additive migrations (new tables, new nullable columns, new indexes). Never drop columns, rename columns, or change column types in a single migration while other branches are under review. Use a separate follow-up migration after all affected branches merge.
 
-The preview URL is derived automatically — see the `test:preview` npm script, which constructs `https://<branch>-jessehattabaugh-com.<subdomain>.workers.dev` from the current git branch so you never copy it by hand.
+The preview URL is derived automatically — see the `test` npm script, which constructs `https://<branch>-jessehattabaugh-com.<subdomain>.workers.dev` from the current git branch so you never copy it by hand.
 
 ---
 
