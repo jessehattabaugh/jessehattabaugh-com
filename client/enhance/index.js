@@ -1,73 +1,57 @@
-/**
- * Progressive enhancement entry point.
- * All enhancements are feature-detected; the page works without this script.
- */
-
-/**
- * Extract the inner HTML of <main> from a full-page HTML string.
- * @param {string} html
- * @returns {string | null}
- */
-function extractMain(html) {
-	const match = html.match(/<main[^>]*>([\s\S]*?)<\/main>/i);
-	return match ? match[1] : null;
-}
-
-// Fetch-and-swap for form submissions (HATEOAS-aware fragment swaps).
-// Reads action/method FROM the markup, never hardcodes endpoint knowledge.
-if ('startViewTransition' in document) {
-	document.addEventListener('submit', async (event) => {
-		const form = /** @type {HTMLFormElement | null} */ (event.target);
-		if (!form || form.dataset.noEnhance) {
-			return;
+/** Optional navigation acceleration. The markup owns URLs, methods and targets. */
+import './install.js';
+if ('startViewTransition' in document && 'fetch' in window && 'FormData' in window) {
+	/** @param {HTMLFormElement | HTMLAnchorElement} control @param {FormData} [body] */
+	async function follow(control, body) {
+		const selector = control.getAttribute('data-target');
+		if (!selector) { throw new Error('Missing fragment target'); }
+		const target = document.querySelector(selector);
+		if (!target) { throw new Error('Fragment target missing'); }
+		const form = control instanceof HTMLFormElement;
+		const url = new URL(form ? control.getAttribute('action') ?? '' : control.getAttribute('href') ?? '', location.href);
+		const method = form ? (control.getAttribute('method') ?? 'get').toUpperCase() : 'GET';
+		if (method === 'GET' && body) {
+			for (const [name, value] of body) { url.searchParams.set(name, String(value)); }
 		}
+		const response = await fetch(url, {
+			method, body: method === 'GET' ? undefined : body,
+			headers: { 'X-Fragment': 'true', Accept: 'text/html' },
+		});
+		if (response.redirected) { location.assign(response.url); return; }
+		if (response.status !== 422 && !response.ok) { throw new Error('Fragment request failed'); }
+		if (!response.headers.get('Content-Type')?.includes('text/html')) { throw new Error('Expected HTML'); }
+		const markup = await response.text();
+		await document.startViewTransition(() => {
+			target.innerHTML = markup;
+		}).finished;
+		if (method === 'GET') { history.pushState(null, '', url); }
+		document.dispatchEvent(new Event('fragment-loaded'));
+		const heading = target.querySelector('h1');
+		if (heading instanceof HTMLElement) {
+			heading.tabIndex = -1;
+			heading.focus();
+		}
+	}
 
-		const method = (form.method || 'get').toUpperCase();
-		const { action } = form;
-
+	document.addEventListener('submit', async (event) => {
+		const form = event.target;
+		if (!(form instanceof HTMLFormElement) || !form.hasAttribute('data-target') || form.hasAttribute('data-no-enhance')) { return; }
 		event.preventDefault();
-
 		try {
-			const body = method === 'GET' ? undefined : new FormData(form);
-			const url =
-				method === 'GET'
-					? `${action}?${new URLSearchParams(/** @type {any} */ (new FormData(form))).toString()}`
-					: action;
-
-			const res = await fetch(url, {
-				method,
-				body,
-				headers: { 'X-Fragment': 'true', Accept: 'text/fragment+html' },
-				redirect: 'follow',
-			});
-
-			if (res.redirected) {
-				// Server issued a PRG redirect; navigate there
-				document.startViewTransition(() => {
-					window.location.assign(res.url);
-				});
-				return;
-			}
-
-			if (!res.ok) {
-				const html = await res.text();
-				document.startViewTransition(() => {
-					// Replace main content with the error response
-					const main = document.querySelector('main');
-					if (main) {
-						main.innerHTML = extractMain(html) ?? html;
-					}
-				});
-				return;
-			}
-
-			// Success: navigate to the redirect target or refresh
-			document.startViewTransition(() => {
-				window.location.reload();
-			});
+			await follow(form, new FormData(form, event.submitter));
 		} catch {
-			// Enhancement failed — let the browser handle it natively
-			form.submit();
+			HTMLFormElement.prototype.submit.call(form);
 		}
 	});
+
+	document.addEventListener('click', async (event) => {
+		if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) { return; }
+		const link = event.target instanceof Element ? event.target.closest('a[data-target]') : null;
+		if (!(link instanceof HTMLAnchorElement) || link.target || link.hasAttribute('download')) { return; }
+		event.preventDefault();
+		try { await follow(link); } catch { location.assign(link.href); }
+	});
+
+	// Reload from the server on back/forward so URL and representation stay in sync.
+	window.addEventListener('popstate', () => location.reload());
 }

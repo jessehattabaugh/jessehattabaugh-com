@@ -1,52 +1,44 @@
-/**
- * Shared route definitions used by both the build step and the Worker.
- * The pattern base is intentionally left empty — callers supply the base URL.
- *
- * @typedef {{
- *   test: (input: string | URL) => boolean,
- *   exec: (input: string | URL) => { pathname: { groups: Record<string, string> } } | null,
- * }} RoutePattern
- */
-
-class PathnamePattern {
-	/** @param {{ pathname: string }} init */
-	constructor(init) {
-		this.pathname = init.pathname;
-	}
-
-	/** @param {string | URL} input */
-	test(input) {
-		const url = input instanceof URL ? input : new URL(String(input), 'https://local.invalid');
-		return url.pathname === this.pathname;
-	}
-
-	/** @param {string | URL} input */
-	exec(input) {
-		if (!this.test(input)) {
-			return null;
-		}
-
-		return { pathname: { groups: {} } };
-	}
-}
-
-const GlobalScope =
-	/** @type {{ URLPattern?: new (init: { pathname: string }) => RoutePattern }} */ (globalThis);
-const URLPatternConstructor = GlobalScope.URLPattern ?? PathnamePattern;
+/** The URL vocabulary belongs to the server. Clients follow rendered controls. */
+export const paths = {
+	home: '/', about: '/about', colophon: '/colophon', apps: '/apps/',
+	notFound: '/404/', error: '/500/', contact: '/contact', login: '/login',
+	messages: '/apps/messages/', verify: '/apps/messages/verify',
+	logout: '/apps/messages/logout', setup: '/apps/messages/setup', profile: '/apps/messages/profile',
+	registerBegin: '/apps/messages/api/auth/register/begin',
+	registerComplete: '/apps/messages/api/auth/register/complete',
+	loginBegin: '/apps/messages/api/auth/login/begin',
+	loginComplete: '/apps/messages/api/auth/login/complete',
+	messagePush: '/apps/messages/push',
+	rainbow: '/apps/rainbow-hour/', rainbowPush: '/apps/rainbow-hour/push',
+};
 
 export const staticRoutes = [
-	{ method: 'GET', pattern: new URLPatternConstructor({ pathname: '/' }), static: true },
-	{ method: 'GET', pattern: new URLPatternConstructor({ pathname: '/about' }), static: true },
-	{ method: 'GET', pattern: new URLPatternConstructor({ pathname: '/colophon' }), static: true },
+	{ name: 'home', path: paths.home },
+	{ name: 'about', path: paths.about },
+	{ name: 'colophon', path: paths.colophon },
+	{ name: 'apps', path: paths.apps },
+	{ name: 'notFound', path: paths.notFound },
+	{ name: 'error', path: paths.error },
 ];
 
-/**
- * Dynamic routes handled by the Worker (not pre-rendered).
- * @type {Array<{ method: string, pattern: RoutePattern }>}
- */
 export const dynamicRoutes = [
-	{ method: 'GET', pattern: new URLPatternConstructor({ pathname: '/contact' }) },
-	{ method: 'GET', pattern: new URLPatternConstructor({ pathname: '/apps/messages/' }) },
-	{ method: 'POST', pattern: new URLPatternConstructor({ pathname: '/apps/messages/' }) },
-	{ method: 'GET', pattern: new URLPatternConstructor({ pathname: '/apps/rainbow-hour/' }) },
+	{ path: paths.contact, methods: ['GET'], handler: 'contact' },
+	{ path: paths.login, methods: ['GET', 'POST'], handler: 'messages' },
+	{ path: paths.messages, methods: ['GET', 'POST'], handler: 'messages' },
+	{ path: paths.verify, methods: ['GET', 'POST'], handler: 'messages' },
+	{ path: paths.logout, methods: ['POST'], handler: 'messages' },
+	{ path: paths.setup, methods: ['POST'], handler: 'messages' },
+	{ path: paths.profile, methods: ['POST'], handler: 'messages' },
+	{ path: paths.messagePush, methods: ['POST'], handler: 'messages' },
+	{ path: paths.registerBegin, methods: ['POST'], handler: 'messages' },
+	{ path: paths.registerComplete, methods: ['POST'], handler: 'messages' },
+	{ path: paths.loginBegin, methods: ['POST'], handler: 'messages' },
+	{ path: paths.loginComplete, methods: ['POST'], handler: 'messages' },
+	{ path: paths.rainbow, methods: ['GET'], handler: 'rainbow' },
+	{ path: paths.rainbowPush, methods: ['POST'], handler: 'rainbow' },
 ];
+
+/** @param {string} pathname */
+export function findDynamicRoute(pathname) {
+	return dynamicRoutes.find((route) => route.path === pathname);
+}

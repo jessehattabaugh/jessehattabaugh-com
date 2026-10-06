@@ -1,6 +1,8 @@
 import { toBase64url, fromBase64url } from './utils.js';
 
-const SESSION_COOKIE = 'msgsession';
+// A new host-only name retires legacy cookies scoped to /apps/messages, which
+// otherwise survive sign-out after moving email sign-in to /login.
+const SESSION_COOKIE = '__Host-msgsession';
 const SESSION_DAYS = 30;
 
 /** @param {string} secretB64 */
@@ -88,5 +90,5 @@ export async function getSessionUser(request, sessionSecret) {
  */
 export function sessionCookieHeader(value, clear = false) {
 	const maxAge = clear ? 0 : SESSION_DAYS * 86400;
-	return `${SESSION_COOKIE}=${clear ? '' : value}; HttpOnly; Secure; SameSite=Lax; Path=/apps/messages; Max-Age=${maxAge}`;
+	return `${SESSION_COOKIE}=${clear ? '' : value}; HttpOnly; Secure; SameSite=Lax; Path=/; Max-Age=${maxAge}`;
 }

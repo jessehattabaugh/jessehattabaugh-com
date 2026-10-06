@@ -100,10 +100,7 @@ export async function hasPasskey(db, userId) {
 export async function updateUserProfile(db, { id, displayName, isOwner, email = null }) {
 	const current = await getUserById(db, id);
 	const normalizedEmail = email ? normalizeEmail(email) : current?.email || null;
-	const nextVerified =
-		email && current?.email === normalizedEmail
-			? current.email_verified
-			: current?.email_verified || 0;
+	const nextVerified = current?.email === normalizedEmail ? current.email_verified : 0;
 	await db
 		.prepare(
 			'UPDATE users SET display_name = ?, is_owner = ?, email = ?, email_verified = ? WHERE id = ?',
@@ -169,9 +166,9 @@ export function getEmailVerification(db, id) {
 export function consumeEmailVerification(db, id) {
 	return db
 		.prepare(
-			'UPDATE email_verifications SET consumed_at = ? WHERE id = ? AND consumed_at IS NULL RETURNING id, user_id, email, purpose, payload, expires_at, consumed_at',
+			'UPDATE email_verifications SET consumed_at = ? WHERE id = ? AND consumed_at IS NULL AND expires_at >= ? RETURNING id, user_id, email, purpose, payload, expires_at, consumed_at',
 		)
-		.bind(Date.now(), id)
+		.bind(Date.now(), id, Date.now())
 		.first();
 }
 
@@ -298,18 +295,47 @@ export async function getAllConversations(db) {
 /**
  * @param {D1Database} db
  * @param {string} conversationId
- * @returns {Promise<Array<{ id: string, sender_user_id: string, content: string, createdAt: string }>>}
+ * @returns {Promise<Array<{ id: string, sender_user_id: string, content: string, senderName: string, createdAt: string }>>}
  */
 export async function getMessages(db, conversationId) {
 	const { results } = await db
 		.prepare(
-			"SELECT id, sender_user_id, content, strftime('%Y-%m-%dT%H:%M:%fZ', created_at) AS createdAt FROM messages WHERE conversation_id = ? ORDER BY created_at ASC",
+			"SELECT m.id, m.sender_user_id, m.content, u.display_name AS senderName, strftime('%Y-%m-%dT%H:%M:%fZ', m.created_at) AS createdAt FROM messages m JOIN users u ON u.id = m.sender_user_id WHERE m.conversation_id = ? ORDER BY m.created_at ASC, m.rowid ASC",
 		)
 		.bind(conversationId)
 		.all();
-	return /** @type {Array<{ id: string, sender_user_id: string, content: string, createdAt: string }>} */ (
+	return /** @type {Array<{ id: string, sender_user_id: string, content: string, senderName: string, createdAt: string }>} */ (
 		results
 	);
+}
+
+/** @param {D1Database} db @param {string} id @returns {Promise<{ id: string, visitor_user_id: string } | null>} */
+export function getConversation(db, id) {
+	return db.prepare('SELECT id, visitor_user_id FROM conversations WHERE id = ?').bind(id)
+		.first();
+}
+
+/** @param {D1Database} db @param {string} userId @returns {Promise<{ id: string, visitor_user_id: string } | null>} */
+export function getUserConversation(db, userId) {
+	return db.prepare('SELECT id, visitor_user_id FROM conversations WHERE visitor_user_id = ?').bind(userId).first();
+}
+
+/** @param {D1Database} db @returns {Promise<{ id: string, display_name: string } | null>} */
+export function getOwner(db) {
+	return db.prepare('SELECT id, display_name FROM users WHERE is_owner = 1 LIMIT 1').first();
+}
+
+/** Claim once, atomically; parallel setup requests cannot create two owners. */
+/** @param {D1Database} db @param {string} id */
+export async function claimOwner(db, id) {
+	const result = await db.prepare('UPDATE users SET is_owner = 1 WHERE id = ? AND email_verified = 1 AND NOT EXISTS (SELECT 1 FROM users WHERE is_owner = 1)')
+		.bind(id).run();
+	return result.meta.changes === 1;
+}
+
+/** @param {D1Database} db @param {string} endpoint @param {string} userId */
+export function deleteUserPushSubscription(db, endpoint, userId) {
+	return db.prepare('DELETE FROM push_subscriptions WHERE endpoint = ? AND user_id = ?').bind(endpoint, userId).run();
 }
 
 /**

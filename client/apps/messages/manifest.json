@@ -23,7 +23,7 @@
 		}
 	],
 	"share_target": {
-		"action": "/apps/messages/api/messages",
+		"action": "/apps/messages/",
 		"method": "POST",
 		"enctype": "multipart/form-data",
 		"params": { "title": "title", "text": "text", "url": "url" }

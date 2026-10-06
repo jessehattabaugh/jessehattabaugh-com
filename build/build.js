@@ -3,12 +3,8 @@ import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import { render } from '../shared/html.js';
-import { home } from '../shared/templates/home.js';
-import { about } from '../shared/templates/about.js';
-import { colophon } from '../shared/templates/colophon.js';
-import { apps } from '../shared/templates/apps.js';
-import { notFound } from '../shared/templates/not-found.js';
-import { error } from '../shared/templates/error.js';
+import { staticRoutes } from '../shared/routes.js';
+import { staticPages } from '../shared/pages.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(__dirname, '..');
@@ -34,12 +30,10 @@ async function build() {
 	await mkdir(OUT, { recursive: true });
 
 	// Static pages
-	await writePage('/', render(home()));
-	await writePage('/about', render(about()));
-	await writePage('/colophon', render(colophon()));
-	await writePage('/apps', render(apps()));
-	await writePage('/404', render(notFound()));
-	await writePage('/500', render(error()));
+	for (const route of staticRoutes) {
+		await writePage(route.path, render(staticPages[route.name]()));
+	}
+	await writeFile(join(OUT, '404.html'), render(staticPages.notFound()), 'utf8');
 
 	// Copy static assets (includes client/apps/* PWA files)
 	const clientDir = join(ROOT, 'client');
@@ -52,6 +46,7 @@ async function build() {
 	await mkdir(sharedOut, { recursive: true });
 	await cp(join(ROOT, 'shared', 'solar.js'), join(sharedOut, 'solar.js'));
 	await cp(join(ROOT, 'shared', 'rainbow.js'), join(sharedOut, 'rainbow.js'));
+	await cp(join(ROOT, 'shared', 'weather.js'), join(sharedOut, 'weather.js'));
 
 	console.log('Build complete →', OUT);
 }

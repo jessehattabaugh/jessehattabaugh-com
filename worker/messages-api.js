@@ -1,892 +1,350 @@
 import {
-	createUser,
-	getUserById,
-	getUserByEmail,
-	getUserByEmailAny,
-	hasPasskey,
-	updateUserProfile,
-	createPasskey,
-	getPasskeyById,
-	getEmailVerification,
-	updatePasskeyCounter,
-	createChallenge,
-	consumeChallenge,
-	getOrCreateConversation,
-	getAllConversations,
-	getMessages,
-	createMessage,
-	savePushSubscription,
-	getPushSubscriptionsByUser,
-	getOwnerPushSubscriptions,
-	deletePushSubscription,
-	cleanExpiredChallenges,
-	normalizeEmail,
-	createEmailVerification,
-	consumeEmailVerification,
-	getRecentEmailVerification,
-	deleteEmailVerification,
-	cleanExpiredEmailVerifications,
-	markEmailVerified,
+	createUser, getUserById, getUserByEmailAny, getOwner, claimOwner,
+	createPasskey, getPasskeyById, updatePasskeyCounter,
+	createChallenge, consumeChallenge, getOrCreateConversation, getConversation, getUserConversation,
+	getAllConversations, getMessages, createMessage,
+	savePushSubscription, getPushSubscriptionsByUser, getOwnerPushSubscriptions,
+	deletePushSubscription, deleteUserPushSubscription, normalizeEmail,
+	createEmailVerification, getEmailVerification, consumeEmailVerification,
+	deleteEmailVerification, markEmailVerified, updateUserProfile,
 } from '../shared/data/messages.js';
 import {
-	verifyRegistration,
-	verifyAuthentication,
-	createRegistrationOptions,
-	createAuthenticationOptions,
+	verifyRegistration, verifyAuthentication, createRegistrationOptions, createAuthenticationOptions,
 } from './webauthn.js';
 import { getSessionUser, createSession, sessionCookieHeader } from './session.js';
 import { notifyAll } from './vapid.js';
 import { render, html } from '../shared/html.js';
-import { messagesPage } from '../shared/templates/messages.js';
+import { messagesPage, messagesFragment } from '../shared/templates/messages.js';
+import { paths } from '../shared/routes.js';
 import { SECURITY_HEADERS } from './security-headers.js';
+import { readForm, readJson } from './request.js';
 
-const JSON_CT = { 'Content-Type': 'application/json' };
-
-/** @param {unknown} data @param {number} [status] */
-function json(data, status = 200) {
-	return new Response(JSON.stringify(data), { status, headers: JSON_CT });
+/** @param {unknown} data @param {number} [status] @param {Record<string, string>} [headers] */
+function json(data, status = 200, headers = {}) {
+	return new Response(JSON.stringify(data), { status, headers: { 'Content-Type': 'application/json', ...headers } });
 }
 
-/** @param {string} msg @param {number} [status] */
-function err(msg, status = 400) {
-	return json({ error: msg }, status);
+/** @param {string} href @param {Record<string, string>} [headers] @param {number} [status] */
+function redirect(href, headers = {}, status = 303) {
+	return new Response(null, { status, headers: { Location: href, ...headers } });
 }
 
-/** @param {Request} req */
-function rpInfo(req) {
-	const url = new URL(req.url);
-	return { rpId: url.hostname, origin: url.origin };
+/** @param {Request} request @param {import('../shared/templates/messages.js').MessagesData} data @param {number} [status] */
+function page(request, data, status = 200) {
+	const fragment = request.headers.get('X-Fragment') === 'true';
+	return new Response(render(fragment ? messagesFragment(data) : messagesPage(data)), {
+		status,
+		headers: { 'Content-Type': 'text/html;charset=utf-8', Vary: 'X-Fragment', 'Cache-Control': 'no-store', ...SECURITY_HEADERS },
+	});
 }
 
-const EMAIL_VERIFICATION_TTL_MS = 15 * 60 * 1000;
+/** @param {Request} request @param {import('../shared/types.js').Env} env */
+async function sessionUser(request, env) {
+	const id = await getSessionUser(request, env.SESSION_SECRET);
+	const user = id ? await getUserById(env.DB, id) : null;
+	// This release's host-only cookie is issued only after email or passkey proof.
+	// Legacy passkey accounts can enroll a recovery email after signing in.
+	return user;
+}
+
+/** @param {Request} request @param {import('../shared/types.js').Env} env @param {import('../shared/templates/messages.js').MessagesData} [extra] @param {number} [status] */
+async function renderMessagesPage(request, env, extra = {}, status = 200) {
+	const user = await sessionUser(request, env);
+	const url = new URL(request.url);
+	if (!user && url.searchParams.has('conversationId')) {
+		return redirect(paths.login, {}, 302);
+	}
+	/** @type {import('../shared/templates/messages.js').MessagesData} */
+	const data = { user, notice: url.searchParams.has('sent') ? 'Message sent — Jesse will get back to you.' : undefined };
+	if (url.searchParams.has('checkEmail')) {
+		data.notice = 'Check your email to confirm your request.';
+	}
+	if (user) {
+		data.values = { name: user.display_name, email: user.email ?? '' };
+		data.canRegister = true;
+		data.canUpdateEmail = true;
+		data.canSetup = !!env.OWNER_SETUP_TOKEN && user.email_verified === 1 && !user.is_owner && !(await getOwner(env.DB));
+		data.vapidPublicKey = env.VAPID_PRIVATE_KEY ? env.VAPID_PUBLIC_KEY : undefined;
+		let conversationId = extra.conversationId ?? url.searchParams.get('conversationId') ?? undefined;
+		if (user.is_owner) {
+			data.conversations = (await getAllConversations(env.DB)).map((conversation) => ({
+				id: conversation.id, display_name: conversation.display_name,
+				href: `${paths.messages}?conversationId=${encodeURIComponent(conversation.id)}`,
+			}));
+		} else {
+			const own = await getUserConversation(env.DB, user.id);
+			if (conversationId && conversationId !== own?.id) {
+				return page(request, { user, error: 'Conversation not found.' }, 404);
+			}
+			conversationId = own?.id;
+		}
+		if (conversationId) {
+			const conversation = await getConversation(env.DB, conversationId);
+			if (!conversation || (!user.is_owner && conversation.visitor_user_id !== user.id)) {
+				return page(request, { user, error: 'Conversation not found.' }, 404);
+			}
+			data.conversationId = conversationId;
+			data.refreshHref = `${paths.messages}?conversationId=${encodeURIComponent(conversationId)}`;
+			data.messages = (await getMessages(env.DB, conversationId)).map((message) => ({
+				...message, sent: message.sender_user_id === user.id,
+			}));
+		}
+	}
+	return page(request, { ...data, ...extra, values: { ...data.values, ...extra.values } }, status);
+}
 
 /** @param {string} email */
-function isValidEmail(email) {
-	return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-}
+function validEmail(email) { return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) && email.length <= 254; }
 
 /**
- * @param {import('../shared/types.js').Env} env
- * @param {{ email: string, token: string, purpose: 'register' | 'guest-message', displayName?: string, requestUrl: string }} opts
- */
-async function sendVerificationEmail(env, { email, token, purpose, displayName, requestUrl }) {
-	if (!env.EMAIL || !env.EMAIL_FROM) {
-		return;
-	}
-	const link = new URL('/apps/messages/verify', requestUrl);
-	link.searchParams.set('token', token);
-	const subject =
-		purpose === 'register'
-			? 'Confirm your Messages registration'
-			: 'Confirm your message to Jesse';
-	const safeName = displayName?.trim() || 'there';
-	const text = [
-		`Hi ${safeName},`,
-		'',
-		`Please confirm this email to continue in Messages: ${link.toString()}`,
-		'',
-		'If you did not make this request, you can ignore this email.',
-	].join('\n');
-	try {
-		await env.EMAIL.send({
-			to: email,
-			from: env.EMAIL_FROM,
-			subject,
-			text,
-			// .value: SendEmail wants a string, not the html helper's Raw wrapper
-		html: html`<p>Hi ${safeName},</p><p>Please confirm this email to continue in Messages:</p><p><a href="${link.toString()}">${link.toString()}</a></p><p>If you did not make this request, you can ignore this email.</p>`.value,
-		});
-	} catch (e) {
-		console.error('Email send failed', e);
-	}
-}
-
-/**
+ * Delivery failures are failures, never a misleading "check your inbox" success.
+ * No raw binding errors are shown to the user; the outer Worker renders 500.
  * @param {import('../shared/types.js').Env} env
  * @param {Request} request
- * @param {{ userId: string, email: string, purpose: 'register' | 'guest-message', displayName?: string, payload?: string | null }} opts
+ * @param {{ userId: string, email: string, purpose: string, message?: string, name: string }} data
  */
-async function createVerification(
-	env,
-	request,
-	{ userId, email, purpose, displayName, payload = null },
-) {
+async function emailVerification(env, request, data) {
+	if (!env.EMAIL || !env.EMAIL_FROM || !env.SESSION_SECRET) {
+		throw new Error('Email sign-in is not configured');
+	}
 	const token = crypto.randomUUID();
 	await createEmailVerification(env.DB, {
-		id: token,
-		userId,
-		email,
-		purpose,
-		payload,
-		ttlMs: EMAIL_VERIFICATION_TTL_MS,
+		id: token, userId: data.userId, email: data.email, purpose: data.purpose,
+		payload: data.message ? JSON.stringify({ name: data.name, message: data.message }) : null,
 	});
-	await sendVerificationEmail(env, {
-		email,
-		token,
-		purpose,
-		displayName,
-		requestUrl: request.url,
-	});
-	return token;
-}
-
-/**
- * Send a push notification to the other side of a conversation, if VAPID is configured.
- * Shared by the JSON send endpoint and the no-JS guest form so the notify logic isn't duplicated.
- * The message content is encrypted into the payload so iOS (and all browsers) can show it
- * without the service worker making a follow-up fetch — empty payloads are silently dropped.
- * @param {import('../shared/types.js').Env} env
- * @param {{ conversationId: string, senderIsOwner: boolean, senderName: string, content: string }} opts
- */
-async function notifyNewMessage(env, { conversationId, senderIsOwner, senderName, content }) {
-	const { DB, VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY, VAPID_CONTACT } = env;
-	if (!VAPID_PUBLIC_KEY || !VAPID_PRIVATE_KEY) {
-		return;
-	}
-	const vapid = {
-		vapidPublicKey: VAPID_PUBLIC_KEY,
-		vapidPrivateKey: VAPID_PRIVATE_KEY,
-		vapidContact: VAPID_CONTACT ?? 'mailto:claude_ai@jessehattabaugh.com',
-	};
-	const onGone = (/** @type {string} */ ep) => {
-		return deletePushSubscription(DB, ep);
-	};
-
-	const payload = JSON.stringify({ type: 'message', senderName, content: content.slice(0, 200) });
-
-	if (senderIsOwner) {
-		const convRow = await DB.prepare('SELECT visitor_user_id FROM conversations WHERE id = ?')
-			.bind(conversationId)
-			.first();
-		if (convRow) {
-			const subs = await getPushSubscriptionsByUser(DB, String(convRow.visitor_user_id));
-			await notifyAll(subs, vapid, onGone, payload);
-		}
-	} else {
-		const ownerSubs = await getOwnerPushSubscriptions(DB);
-		await notifyAll(ownerSubs, vapid, onGone, payload);
+	const link = new URL(paths.verify, request.url);
+	link.searchParams.set('token', token);
+	try {
+		await env.EMAIL.send({
+			to: data.email, from: env.EMAIL_FROM,
+			subject: 'Confirm your Messages request',
+			text: `Hi ${data.name},\n\nConfirm your email to continue: ${link}\n\nThis link expires in 15 minutes and can be used once. Ignore it if you did not make this request.`,
+			html: html`<p>Hi ${data.name},</p><p><a href="${link.toString()}">Confirm your email</a></p><p>This link expires in 15 minutes and can be used once. Ignore it if you did not make this request.</p>`.value,
+		});
+	} catch (error) {
+		await deleteEmailVerification(env.DB, token);
+		throw error;
 	}
 }
 
-/**
- * Render the Messages PWA document shell — the no-JS baseline and the mount
- * point the client app upgrades once JS runs.
- * @param {Request} request
- * @param {import('../shared/types.js').Env} env
- * @param {{ status?: number, error?: string, values?: { name?: string, email?: string, message?: string }, sent?: boolean }} [opts]
- * @returns {Promise<Response>}
- */
-async function renderMessagesPage(request, env, { status = 200, error, values, sent } = {}) {
-	const { DB, SESSION_SECRET } = env;
-	const sessionUserId = await getSessionUser(request, SESSION_SECRET);
-	const user = sessionUserId ? await getUserById(DB, sessionUserId) : null;
-	const url = new URL(request.url);
-
-	const body = render(
-		messagesPage({
-			viewerRole: user?.is_owner ? 'owner' : 'guest',
-			sent: sent ?? url.searchParams.get('sent') === '1',
-			error,
-			values: values ?? { name: user?.display_name ?? '', email: user?.email ?? '' },
-		}),
-	);
-	return new Response(body, {
-		status,
-		headers: { 'Content-Type': 'text/html;charset=utf-8', ...SECURITY_HEADERS },
-	});
+/** @param {import('../shared/types.js').Env} env @param {{ conversationId: string, senderIsOwner: boolean, senderName: string, content: string }} data */
+async function notifyNewMessage(env, data) {
+	if (!env.VAPID_PUBLIC_KEY || !env.VAPID_PRIVATE_KEY) { return; }
+	const conversation = await getConversation(env.DB, data.conversationId);
+	if (!conversation) { return; }
+	const subscriptions = data.senderIsOwner
+		? await getPushSubscriptionsByUser(env.DB, String(conversation.visitor_user_id))
+		: await getOwnerPushSubscriptions(env.DB);
+	await notifyAll(subscriptions, {
+		vapidPublicKey: env.VAPID_PUBLIC_KEY, vapidPrivateKey: env.VAPID_PRIVATE_KEY,
+		vapidContact: env.VAPID_CONTACT ?? 'mailto:jesse@jessehattabaugh.com',
+	}, (endpoint) => deletePushSubscription(env.DB, endpoint), JSON.stringify({ ...data, url: `${paths.messages}?conversationId=${encodeURIComponent(data.conversationId)}` }));
 }
 
-/**
- * No-JS fallback: a guest fills in name + message and the form POSTs here
- * directly. Identity is tracked via the same signed session cookie used by
- * passkey auth, so a guest's messages carry over if they later register.
- * @param {Request} request
- * @param {import('../shared/types.js').Env} env
- * @returns {Promise<Response>}
- */
-async function handleGuestMessagePost(request, env) {
-	const { DB, SESSION_SECRET } = env;
-	const contentType = request.headers.get('Content-Type') ?? '';
-	if (
-		!contentType.includes('application/x-www-form-urlencoded') &&
-		!contentType.includes('multipart/form-data')
-	) {
-		return new Response('Unsupported Media Type', { status: 415, headers: SECURITY_HEADERS });
-	}
-
-	const sessionUserId = await getSessionUser(request, SESSION_SECRET);
-	const existingUser = sessionUserId ? await getUserById(DB, sessionUserId) : null;
-
-	// The owner has no single recipient to send to from this form — they need the JS app.
-	if (existingUser?.is_owner) {
-		return Response.redirect(new URL('/apps/messages/', request.url).toString(), 303);
-	}
-
-	const form = await request.formData();
-	const name = String(form.get('name') ?? '')
-		.trim()
-		.slice(0, 100);
+/** @param {Request} request @param {import('../shared/types.js').Env} env */
+async function submitMessage(request, env) {
+	const form = await readForm(request);
+	const user = await sessionUser(request, env);
+	const shared = ['title', 'text', 'url'].map((name) => String(form.get(name) ?? '').trim()).filter(Boolean).join('\n');
+	const message = String(form.get('message') ?? shared).trim();
+	const name = String(form.get('name') ?? '').trim();
 	const email = normalizeEmail(String(form.get('email') ?? ''));
-	const message = String(form.get('message') ?? '').trim();
-
-	if (!name || !message || !email) {
-		return renderMessagesPage(request, env, {
-			status: 422,
-			error: 'Name, email, and message are required.',
-			values: { name, email, message },
-		});
+	const values = user ? { message } : { name, email, message };
+	let conversationId = String(form.get('conversationId') ?? '');
+	const draft = { values, conversationId: conversationId || undefined };
+	if (!message || message.length > 10000) {
+		return renderMessagesPage(request, env, { ...draft, error: 'Enter a message of at most 10,000 characters.' }, 422);
 	}
-	if (!isValidEmail(email)) {
-		return renderMessagesPage(request, env, {
-			status: 422,
-			error: 'Please enter a valid email address.',
-			values: { name, email, message },
-		});
+	if (!user && (!name || name.length > 100 || !validEmail(email))) {
+		return renderMessagesPage(request, env, { ...draft, error: 'Enter your name and a valid email address.' }, 422);
 	}
-	if (message.length > 10000) {
-		return renderMessagesPage(request, env, {
-			status: 422,
-			error: 'Message is too long.',
-			values: { name, email, message },
-		});
+	if (!user) {
+		let guest = await getUserByEmailAny(env.DB, email);
+		if (!guest) {
+			const id = crypto.randomUUID();
+			await createUser(env.DB, { id, displayName: name, email });
+			guest = await getUserById(env.DB, id);
+		}
+		if (!guest) { throw new Error('Guest account missing'); }
+		// An existing email is never sufficient to acquire its session or modify it.
+		await emailVerification(env, request, { userId: guest.id, email, name, message, purpose: 'guest-message' });
+		return redirect(`${paths.messages}?checkEmail=1`);
 	}
-
-	let userId = existingUser?.id ?? null;
-	if (!userId) {
-		userId = crypto.randomUUID();
-		await createUser(DB, { id: userId, displayName: name, isOwner: false, email });
-	} else {
-		await updateUserProfile(DB, { id: userId, displayName: name, isOwner: false, email });
+	if (!user.is_owner) {
+		const own = await getOrCreateConversation(env.DB, user.id);
+		if (conversationId && conversationId !== own.id) {
+			return page(request, { user, error: 'Conversation not found.' }, 404);
+		}
+		conversationId = own.id;
 	}
-
-	if (!existingUser || existingUser.email !== email || existingUser.email_verified !== 1) {
-		const token = await createVerification(env, request, {
-			userId,
-			email,
-			purpose: 'guest-message',
-			displayName: name,
-			payload: JSON.stringify({ name, message }),
-		});
-		return renderMessagesPage(request, env, {
-			status: 200,
-			error: 'Check your email to confirm your message before it is sent.',
-			values: { name, email, message },
-			sent: false,
-		});
+	const conversation = await getConversation(env.DB, conversationId);
+	if (!conversation) {
+		return renderMessagesPage(request, env, { error: 'Select a conversation before sending a reply.', values }, 422);
 	}
-
-	const conv = await getOrCreateConversation(DB, userId);
-	await createMessage(DB, {
-		id: crypto.randomUUID(),
-		conversationId: conv.id,
-		senderUserId: userId,
-		content: message,
-	});
-	await notifyNewMessage(env, {
-		conversationId: conv.id,
-		senderIsOwner: false,
-		senderName: name,
-		content: message,
-	});
-
-	const headers = new Headers({
-		Location: new URL('/apps/messages/?sent=1', request.url).toString(),
-		...SECURITY_HEADERS,
-	});
-	if (!sessionUserId && SESSION_SECRET) {
-		headers.set('Set-Cookie', sessionCookieHeader(await createSession(SESSION_SECRET, userId)));
-	}
-	return new Response(null, { status: 303, headers });
+	await createMessage(env.DB, { id: crypto.randomUUID(), conversationId, senderUserId: user.id, content: message });
+	await notifyNewMessage(env, { conversationId, senderIsOwner: !!user.is_owner, senderName: user.display_name, content: message });
+	return redirect(`${paths.messages}?conversationId=${encodeURIComponent(conversationId)}&sent=1`);
 }
 
-/**
- * @param {Request} request
- * @param {import('../shared/types.js').Env} env
- * @returns {Promise<Response | null>}  null = route not matched here
- */
+/** @param {Request} request @param {import('../shared/types.js').Env} env */
 export async function handleMessagesApi(request, env) {
 	const url = new URL(request.url);
 	const path = url.pathname;
-	const { method } = request;
-	const { DB, SESSION_SECRET, VAPID_PUBLIC_KEY, OWNER_SETUP_TOKEN } = env;
-
-	// ── Page: SSR shell (no-JS baseline + JS app mount point) ───────────────────
-
-	if (method === 'GET' && path === '/apps/messages/') {
-		return renderMessagesPage(request, env);
+	if (path === paths.messages) {
+		return request.method === 'GET' ? renderMessagesPage(request, env) : submitMessage(request, env);
 	}
-
-	if (method === 'POST' && path === '/apps/messages/') {
-		return handleGuestMessagePost(request, env);
-	}
-
-	// ── Config ─────────────────────────────────────────────────────────────────
-
-	if (method === 'GET' && path === '/apps/messages/api/config') {
-		return json({ vapidPublicKey: VAPID_PUBLIC_KEY ?? null });
-	}
-
-	// ── Email verification ────────────────────────────────────────────────────
-
-	if (method === 'GET' && path === '/apps/messages/verify') {
-		const token = url.searchParams.get('token');
-		if (!token) {
-			return renderMessagesPage(request, env, {
-				status: 400,
-				error: 'Verification link is missing.',
-			});
+	if (path === paths.login) {
+		if (request.method === 'GET') {
+			return page(request, { screen: 'login', notice: url.searchParams.has('checkEmail') ? 'Check your email to confirm your request.' : undefined });
 		}
-		const verification = await getEmailVerification(DB, token);
-		if (!verification || verification.expires_at < Date.now() || verification.consumed_at) {
-			return renderMessagesPage(request, env, {
-				status: 400,
-				error: 'That verification link has expired or is invalid.',
-			});
+		const form = await readForm(request);
+		const name = String(form.get('name') ?? '').trim();
+		const email = normalizeEmail(String(form.get('email') ?? ''));
+		if (!name || name.length > 100 || !validEmail(email)) {
+			return page(request, { screen: 'login', error: 'Enter your name and a valid email address.', values: { name, email } }, 422);
 		}
-		const user = await getUserById(DB, verification.user_id);
+		let user = await getUserByEmailAny(env.DB, email);
 		if (!user) {
-			return renderMessagesPage(request, env, {
-				status: 404,
-				error: 'The account for this verification link could not be found.',
-			});
+			const id = crypto.randomUUID();
+			await createUser(env.DB, { id, displayName: name, email });
+			user = await getUserById(env.DB, id);
 		}
-
-		// Consume the verification token atomically before applying side effects
-		const consumed = await consumeEmailVerification(DB, token);
-		if (!consumed) {
-			return renderMessagesPage(request, env, {
-				status: 400,
-				error: 'That verification link has expired or is invalid.',
-			});
+		if (!user) { throw new Error('Account missing'); }
+		await emailVerification(env, request, { userId: user.id, email, name, purpose: 'login' });
+		return redirect(`${paths.login}?checkEmail=1`);
+	}
+	if (path === paths.verify) {
+		const token = request.method === 'GET' ? url.searchParams.get('token') : String((await readForm(request)).get('token') ?? '');
+		const verification = token ? await getEmailVerification(env.DB, token) : null;
+		if (!verification || verification.expires_at < Date.now() || verification.consumed_at) {
+			return page(request, { screen: 'verify', error: 'That verification link has expired or is invalid.' }, 400);
 		}
-
-		await updateUserProfile(DB, {
-			id: user.id,
-			displayName: user.display_name,
-			isOwner: !!user.is_owner,
-			email: verification.email,
-		});
-		await markEmailVerified(DB, user.id);
-
+		if (request.method === 'GET') {
+			return page(request, { screen: 'verify', token: verification.id });
+		}
+		if (!env.SESSION_SECRET) { throw new Error('Session signing is not configured'); }
+		const user = await getUserById(env.DB, verification.user_id);
+		if (!user || (verification.purpose !== 'profile' && user.email !== verification.email)) {
+			return page(request, { screen: 'verify', error: 'That verification link is no longer valid.' }, 400);
+		}
+		if (verification.purpose === 'profile') {
+			const existing = await getUserByEmailAny(env.DB, verification.email);
+			if (existing && existing.id !== user.id) {
+				return page(request, { screen: 'verify', error: 'That email belongs to another account.' }, 409);
+			}
+		}
+		if (!(await consumeEmailVerification(env.DB, verification.id))) {
+			return page(request, { screen: 'verify', error: 'That verification link has already been used.' }, 400);
+		}
+		if (verification.purpose === 'profile') {
+			await updateUserProfile(env.DB, { id: user.id, displayName: user.display_name, isOwner: !!user.is_owner, email: verification.email });
+		}
+		await markEmailVerified(env.DB, user.id);
+		if (!user.is_owner) { await getOrCreateConversation(env.DB, user.id); }
+		let destination = paths.messages;
 		if (verification.purpose === 'guest-message') {
-			const payload = verification.payload ? JSON.parse(verification.payload) : null;
-			const name = String(payload?.name ?? user.display_name ?? '').trim();
-			const message = String(payload?.message ?? '').trim();
-			if (name && message) {
-				const conv = await getOrCreateConversation(DB, user.id);
-				await createMessage(DB, {
-					id: crypto.randomUUID(),
-					conversationId: conv.id,
-					senderUserId: user.id,
-					content: message,
-				});
-				await notifyNewMessage(env, {
-					conversationId: conv.id,
-					senderIsOwner: false,
-					senderName: name,
-					content: message,
-				});
-			}
-			const redirect = new URL('/apps/messages/?sent=1', request.url);
-			if (SESSION_SECRET) {
-				redirect.searchParams.set('sent', '1');
-			}
-			return Response.redirect(redirect.toString(), 303);
+			const payload = JSON.parse(verification.payload ?? '{}');
+			const content = String(payload.message ?? '').trim();
+			if (!content || content.length > 10000) { throw new Error('Invalid held message'); }
+			const conversation = await getOrCreateConversation(env.DB, user.id);
+			await createMessage(env.DB, { id: crypto.randomUUID(), conversationId: conversation.id, senderUserId: user.id, content });
+			await notifyNewMessage(env, { conversationId: conversation.id, senderIsOwner: !!user.is_owner, senderName: user.display_name, content });
+			destination += '?sent=1';
 		}
-
-		return Response.redirect(
-			new URL('/apps/messages/?verified=1', request.url).toString(),
-			303,
-		);
+		return redirect(destination, { 'Set-Cookie': sessionCookieHeader(await createSession(env.SESSION_SECRET, user.id)) });
 	}
-
-	// ── Register: begin ────────────────────────────────────────────────────────
-
-	if (method === 'POST' && path === '/apps/messages/api/auth/register/begin') {
-		const body = /** @type {any} */ (await request.json());
-		const displayName = String(body?.displayName ?? '')
-			.trim()
-			.slice(0, 100);
-		const email = normalizeEmail(String(body?.email ?? ''));
-		if (!displayName) {
-			return err('displayName required');
+	if (path === paths.logout) {
+		return redirect(paths.messages, { 'Set-Cookie': sessionCookieHeader('', true) });
+	}
+	const user = await sessionUser(request, env);
+	if (path === paths.profile) {
+		if (!user) { return redirect(paths.login, {}, 302); }
+		const email = normalizeEmail(String((await readForm(request)).get('email') ?? ''));
+		if (!validEmail(email)) { return renderMessagesPage(request, env, { error: 'Enter a valid recovery email address.', values: { email } }, 422); }
+		const existing = await getUserByEmailAny(env.DB, email);
+		if (existing && existing.id !== user.id) { return renderMessagesPage(request, env, { error: 'That email belongs to another account.', values: { email } }, 409); }
+		await emailVerification(env, request, { userId: user.id, email, name: user.display_name, purpose: 'profile' });
+		return redirect(`${paths.messages}?checkEmail=1`);
+	}
+	if (path === paths.setup) {
+		if (!user) { return redirect(paths.login, {}, 302); }
+		const token = String((await readForm(request)).get('setupToken') ?? '');
+		if (!env.OWNER_SETUP_TOKEN || token !== env.OWNER_SETUP_TOKEN) {
+			return renderMessagesPage(request, env, { error: 'The owner setup token is invalid.' }, 422);
 		}
-		if (!email || !isValidEmail(email)) {
-			return err('Valid email required');
+		if (!(await claimOwner(env.DB, user.id))) {
+			return renderMessagesPage(request, env, { error: 'A site owner has already been configured.' }, 409);
 		}
-
-		const guestUserId = await getSessionUser(request, SESSION_SECRET);
-		const existingGuest = guestUserId ? await getUserById(DB, guestUserId) : null;
-		const existingEmailUser = await getUserByEmailAny(DB, email);
-
-		let userId = null;
-		let verificationProof = null;
-
-		// Session-proven: a pre-auth guest (identified by a no-JS session cookie)
-		// who hasn't registered a passkey yet may attach one to their own account.
-		if (existingGuest && !existingGuest.is_owner && !(await hasPasskey(DB, existingGuest.id))) {
-			userId = existingGuest.id;
+		return redirect(paths.messages);
+	}
+	if (path === paths.messagePush) {
+		if (!user) { return redirect(paths.login, {}, 302); }
+		const form = await readForm(request);
+		const endpoint = String(form.get('endpoint') ?? '');
+		if (!endpoint.startsWith('https://')) {
+			return renderMessagesPage(request, env, { error: 'A valid push subscription is required.' }, 422);
 		}
-
-		// Email-proven: the email maps to an existing account. Attach a credential
-		// to it only when the caller already holds a session for that account, or
-		// has just completed an email verification in this registration attempt.
-		// An unauthenticated caller who merely supplies a stranger's verified email
-		// must NOT get a registration challenge — that would let them take over the
-		// victim's conversation (and demote an owner via is_owner: false).
-		if (!userId && existingEmailUser) {
-			if (existingGuest?.id === existingEmailUser.id) {
-				userId = existingEmailUser.id;
-			} else {
-				verificationProof = await getRecentEmailVerification(DB, {
-					userId: existingEmailUser.id,
-					email,
-					purpose: 'register',
-					consumedAfter: Date.now() - EMAIL_VERIFICATION_TTL_MS,
-				});
-				if (verificationProof) {
-					userId = existingEmailUser.id;
-				}
-			}
+		if (form.get('operation') === 'unsubscribe') {
+			await deleteUserPushSubscription(env.DB, endpoint, user.id);
+		} else {
+			const p256dh = String(form.get('p256dh') ?? '');
+			const auth = String(form.get('auth') ?? '');
+			if (!p256dh || !auth) { return renderMessagesPage(request, env, { error: 'Subscription keys are required.' }, 422); }
+			await savePushSubscription(env.DB, { id: crypto.randomUUID(), userId: user.id, endpoint, p256dh, auth });
 		}
-
-		if (!userId) {
-			// New account — or an existing account whose email the caller has not
-			// proven ownership of this attempt. Either way a fresh email verification
-			// is required before a credential can be attached. Existing accounts are
-			// not mutated (profile / verified / owner status) until verification passes.
-			if (!existingEmailUser) {
-				userId = crypto.randomUUID();
-				await createUser(DB, { id: userId, displayName, isOwner: false, email });
-			} else {
-				userId = existingEmailUser.id;
-			}
-			await createVerification(env, request, {
-				userId,
-				email,
-				purpose: 'register',
-				displayName,
-			});
-			return json({ challengeId: null, userId, needsVerification: true, email });
-		}
-
-		// A completed verification authorizes exactly one registration — consume it
-		// so it can't be replayed to attach a second, attacker-controlled credential.
-		if (verificationProof) {
-			await deleteEmailVerification(DB, verificationProof.id);
-		}
-
-		const currentUser = await getUserById(DB, userId);
-		if (!currentUser) {
-			return err('Registration session expired. Please try again.', 400);
-		}
-		await updateUserProfile(DB, {
-			id: userId,
-			displayName,
-			isOwner: !!currentUser.is_owner,
-			email,
-		});
-
-		const verifiedAlready = currentUser.email === email && currentUser.email_verified === 1;
-		if (!verifiedAlready) {
-			await createVerification(env, request, {
-				userId,
-				email,
-				purpose: 'register',
-				displayName,
-			});
-			return json({ challengeId: null, userId, needsVerification: true, email });
-		}
-
-		const { rpId } = rpInfo(request);
-		const { challenge, options } = createRegistrationOptions({
-			rpName: 'Jesse Hattabaugh',
-			rpId,
-			userId,
-			displayName,
-		});
-
+		return redirect(paths.messages);
+	}
+	// Credential APIs are protocol exchanges; every sign-in also has the email-form path.
+	const { hostname: rpId, origin } = url;
+	if (path === paths.registerBegin) {
+		if (!user) { return redirect(paths.login, {}, 302); }
+		const { challenge, options } = createRegistrationOptions({ rpName: 'Jesse Hattabaugh', rpId, userId: user.id, displayName: user.display_name });
 		const challengeId = crypto.randomUUID();
-		await createChallenge(DB, { id: challengeId, challenge, userId, type: 'register' });
-		await cleanExpiredChallenges(DB);
-		await cleanExpiredEmailVerifications(DB);
-
-		return json({ challengeId, userId, challenge, options, rpId, needsVerification: false });
+		await createChallenge(env.DB, { id: challengeId, challenge, userId: user.id, type: 'register' });
+		return json({ challengeId, options });
 	}
-
-	// ── Register: complete ─────────────────────────────────────────────────────
-
-	if (method === 'POST' && path === '/apps/messages/api/auth/register/complete') {
-		const body = /** @type {any} */ (await request.json());
-		const { challengeId, displayName: rawDisplayName, setupToken, credential } = body ?? {};
-		if (!challengeId || !credential) {
-			return err('Missing required fields');
-		}
-		const displayName = String(rawDisplayName ?? '')
-			.trim()
-			.slice(0, 100);
-		if (!displayName) {
-			return err('displayName required');
-		}
-
-		const stored = await consumeChallenge(DB, challengeId);
-		if (!stored || stored.expires_at < Date.now()) {
-			return err('Challenge expired or not found');
-		}
-		if (stored.type !== 'register') {
-			return err('Invalid challenge type');
-		}
-		if (!stored.user_id) {
-			return err('Challenge has no associated user ID');
-		}
-		const userId = stored.user_id;
-
-		const { origin, rpId } = rpInfo(request);
-		let regInfo;
-		try {
-			regInfo = await verifyRegistration({
-				credential,
-				expectedChallenge: stored.challenge,
-				expectedOrigin: origin,
-				expectedRPID: rpId,
-			});
-		} catch (e) {
-			return err(`Registration failed: ${e instanceof Error ? e.message : String(e)}`);
-		}
-
-		// register/begin always creates (or reuses) the `users` row up front, so
-		// it should exist here — guard anyway since createPasskey below has a
-		// foreign key on userId and would otherwise fail with a confusing error.
-		const existingUser = await getUserById(DB, userId);
-		if (!existingUser) {
-			return err('Registration session expired. Please try again.', 400);
-		}
-		if (!existingUser.email || existingUser.email_verified !== 1) {
-			return err('Please confirm your email before creating a passkey.', 422);
-		}
-
-		let isOwner = !!existingUser.is_owner;
-		if (OWNER_SETUP_TOKEN && setupToken === OWNER_SETUP_TOKEN) {
-			const existingOwner = await DB.prepare(
-				'SELECT id FROM users WHERE is_owner = 1 LIMIT 1',
-			).first();
-			if (!existingOwner) {
-				isOwner = true;
-			}
-		}
-
-		await updateUserProfile(DB, { id: userId, displayName, isOwner });
-		await createPasskey(DB, {
-			id: regInfo.credentialId,
-			userId,
-			publicKey: regInfo.publicKey,
-			counter: regInfo.counter,
-			transports: regInfo.transports,
-		});
-
-		if (!SESSION_SECRET) {
-			return err('Server not configured: SESSION_SECRET is missing', 500);
-		}
-		const session = await createSession(SESSION_SECRET, userId);
-		return new Response(JSON.stringify({ user: { id: userId, displayName, isOwner } }), {
-			status: 200,
-			headers: { ...JSON_CT, 'Set-Cookie': sessionCookieHeader(session) },
-		});
-	}
-
-	// ── Login: begin ───────────────────────────────────────────────────────────
-
-	if (method === 'POST' && path === '/apps/messages/api/auth/login/begin') {
-		const { rpId } = rpInfo(request);
+	if (path === paths.loginBegin) {
 		const { challenge, options } = createAuthenticationOptions({ rpId });
 		const challengeId = crypto.randomUUID();
-		await createChallenge(DB, { id: challengeId, challenge, type: 'login' });
-		return json({ challengeId, challenge, options, rpId });
+		await createChallenge(env.DB, { id: challengeId, challenge, type: 'login' });
+		return json({ challengeId, options });
 	}
-
-	// ── Login: complete ────────────────────────────────────────────────────────
-
-	if (method === 'POST' && path === '/apps/messages/api/auth/login/complete') {
-		const body = /** @type {any} */ (await request.json());
-		const { challengeId, credential } = body ?? {};
-		if (!challengeId || !credential) {
-			return err('Missing required fields');
+	if (path === paths.registerComplete || path === paths.loginComplete) {
+		const body = /** @type {any} */ (await readJson(request));
+		const stored = await consumeChallenge(env.DB, String(body.challengeId ?? ''));
+		const registration = path === paths.registerComplete;
+		if (!stored || stored.expires_at < Date.now() || stored.type !== (registration ? 'register' : 'login')) {
+			return json({ error: 'The credential request expired. Please try again.' }, 422);
 		}
-
-		const stored = await consumeChallenge(DB, challengeId);
-		if (!stored || stored.expires_at < Date.now()) {
-			return err('Challenge expired or not found');
-		}
-		if (stored.type !== 'login') {
-			return err('Invalid challenge type');
-		}
-
-		const passkey = await getPasskeyById(DB, credential.id);
-		if (!passkey) {
-			return err('Passkey not found', 404);
-		}
-
-		const { origin, rpId } = rpInfo(request);
-		let authInfo;
-		try {
-			authInfo = await verifyAuthentication({
-				credential,
-				expectedChallenge: stored.challenge,
-				expectedOrigin: origin,
-				expectedRPID: rpId,
-				storedPublicKey: passkey.public_key,
-				storedCounter: passkey.counter,
-			});
-		} catch (e) {
-			return err(`Authentication failed: ${e instanceof Error ? e.message : String(e)}`);
-		}
-
-		await updatePasskeyCounter(DB, { id: passkey.id, counter: authInfo.newCounter });
-		const user = await getUserById(DB, passkey.user_id);
-		if (!user) {
-			return err('User not found', 404);
-		}
-
-		if (!SESSION_SECRET) {
-			return err('Server not configured: SESSION_SECRET is missing', 500);
-		}
-		const session = await createSession(SESSION_SECRET, user.id);
-		return new Response(
-			JSON.stringify({
-				user: { id: user.id, displayName: user.display_name, isOwner: !!user.is_owner },
-			}),
-			{ status: 200, headers: { ...JSON_CT, 'Set-Cookie': sessionCookieHeader(session) } },
-		);
-	}
-
-	// ── Logout ─────────────────────────────────────────────────────────────────
-
-	if (method === 'POST' && path === '/apps/messages/api/auth/logout') {
-		return new Response(JSON.stringify({ ok: true }), {
-			status: 200,
-			headers: { ...JSON_CT, 'Set-Cookie': sessionCookieHeader('', true) },
-		});
-	}
-
-	// ── Current user ───────────────────────────────────────────────────────────
-
-	if (method === 'GET' && path === '/apps/messages/api/auth/me') {
-		const userId = await getSessionUser(request, SESSION_SECRET);
-		if (!userId) {
-			return json({ user: null });
-		}
-		const user = await getUserById(DB, userId);
-		if (!user) {
-			return json({ user: null });
-		}
-		return json({
-			user: { id: user.id, displayName: user.display_name, isOwner: !!user.is_owner },
-		});
-	}
-
-	// ── Messages: list ─────────────────────────────────────────────────────────
-
-	if (method === 'GET' && path === '/apps/messages/api/messages') {
-		const userId = await getSessionUser(request, SESSION_SECRET);
-		if (!userId) {
-			return err('Not authenticated', 401);
-		}
-		const user = await getUserById(DB, userId);
-		if (!user) {
-			return err('User not found', 404);
-		}
-
-		if (user.is_owner) {
-			const convId = url.searchParams.get('conversationId');
-			let conversations = await getAllConversations(DB);
-			// Owner-only edge case: with no visitors yet there are no conversations
-			// to reply to, which used to leave the owner staring at a disabled,
-			// empty shell. Give the owner a "self" conversation (they are its sole
-			// participant) so the chat interface is always usable and the owner can
-			// send a message to themself.
-			if (conversations.length === 0) {
-				await getOrCreateConversation(DB, userId);
-				conversations = await getAllConversations(DB);
+		let authenticatedUser = user;
+		if (registration) {
+			if (!user || user.id !== stored.user_id) { return redirect(paths.login, {}, 302); }
+			let info;
+			try {
+				info = await verifyRegistration({ credential: body.credential, expectedChallenge: stored.challenge, expectedOrigin: origin, expectedRPID: rpId });
+			} catch (error) {
+				console.error(error);
+				return json({ error: 'The passkey could not be verified.' }, 422);
 			}
-
-			if (!convId) {
-				// When the owner has only their self conversation, auto-select it so
-				// the composer isn't left disabled. This must also fire on later
-				// visits — not just the request that created the self conversation —
-				// e.g. after a reload or on a new device, where the mobile sidebar is
-				// hidden and there's otherwise no visible way to select it.
-				const self = conversations.find((c) => {
-					return c.visitor_user_id === userId;
-				});
-				if (conversations.length === 1 && self) {
-					const messages = await getMessages(DB, self.id);
-					return json({ conversations, messages, conversationId: self.id });
-				}
-				return json({ conversations, messages: [] });
-			}
-			const messages = await getMessages(DB, convId);
-			return json({ conversations, messages, conversationId: convId });
+			await createPasskey(env.DB, { id: info.credentialId, userId: user.id, publicKey: info.publicKey, counter: info.counter, transports: info.transports });
 		} else {
-			const conv = await getOrCreateConversation(DB, userId);
-			const messages = await getMessages(DB, conv.id);
-			const ownerRow = await DB.prepare(
-				'SELECT id, display_name FROM users WHERE is_owner = 1 LIMIT 1',
-			).first();
-			return json({
-				messages,
-				conversationId: conv.id,
-				ownerName: ownerRow?.display_name ?? 'Jesse',
-				ownerUserId: ownerRow?.id ?? null,
-			});
-		}
-	}
-
-	// ── Messages: latest (service worker fetches on push) ─────────────────────
-
-	if (method === 'GET' && path === '/apps/messages/api/messages/latest') {
-		const userId = await getSessionUser(request, SESSION_SECRET);
-		if (!userId) {
-			return err('Not authenticated', 401);
-		}
-		const user = await getUserById(DB, userId);
-		if (!user) {
-			return err('User not found', 404);
-		}
-
-		if (user.is_owner) {
-			const row = await DB.prepare(
-				`SELECT m.conversation_id as conversationId, u.display_name as senderName, m.content
-         FROM messages m JOIN users u ON m.sender_user_id = u.id
-         WHERE u.is_owner = 0
-         ORDER BY m.created_at DESC LIMIT 1`,
-			).first();
-			if (!row) {
-				return err('No messages', 404);
+			const passkey = await getPasskeyById(env.DB, String(body.credential?.id ?? ''));
+			if (!passkey) { return json({ error: 'The passkey could not be verified.' }, 422); }
+			let info;
+			try {
+				info = await verifyAuthentication({ credential: body.credential, expectedChallenge: stored.challenge, expectedOrigin: origin, expectedRPID: rpId, storedPublicKey: passkey.public_key, storedCounter: passkey.counter });
+			} catch (error) {
+				console.error(error);
+				return json({ error: 'The passkey could not be verified.' }, 422);
 			}
-			return json(row);
-		} else {
-			const conv = await getOrCreateConversation(DB, userId);
-			const row = await DB.prepare(
-				`SELECT u.display_name as senderName, m.content
-         FROM messages m JOIN users u ON m.sender_user_id = u.id
-         WHERE m.conversation_id = ? AND u.is_owner = 1
-         ORDER BY m.created_at DESC LIMIT 1`,
-			)
-				.bind(conv.id)
-				.first();
-			if (!row) {
-				return err('No messages', 404);
-			}
-			return json(row);
+			await updatePasskeyCounter(env.DB, { id: passkey.id, counter: info.newCounter });
+			authenticatedUser = await getUserById(env.DB, passkey.user_id);
 		}
+		if (!authenticatedUser) {
+			return json({ error: 'The account could not be found.' }, 422);
+		}
+		if (!authenticatedUser.is_owner) { await getOrCreateConversation(env.DB, authenticatedUser.id); }
+		return json({ location: paths.messages }, 200, { 'Set-Cookie': sessionCookieHeader(await createSession(env.SESSION_SECRET, authenticatedUser.id)) });
 	}
-
-	// ── Messages: send ─────────────────────────────────────────────────────────
-
-	if (method === 'POST' && path === '/apps/messages/api/messages') {
-		const ct = request.headers.get('Content-Type') ?? '';
-		const isShare = ct.includes('multipart/form-data');
-		const appUrl = new URL('/apps/messages/', request.url).toString();
-
-		const userId = await getSessionUser(request, SESSION_SECRET);
-		if (!userId) {
-			return isShare ? Response.redirect(appUrl, 303) : err('Not authenticated', 401);
-		}
-		const user = await getUserById(DB, userId);
-		if (!user) {
-			return isShare ? Response.redirect(appUrl, 303) : err('User not found', 404);
-		}
-
-		let content, conversationId;
-		if (isShare) {
-			const formData = await request.formData();
-			const title = String(formData.get('title') ?? '').trim();
-			const text = String(formData.get('text') ?? '').trim();
-			const sharedUrl = String(formData.get('url') ?? '').trim();
-			content = [title, text, sharedUrl].filter(Boolean).join('\n');
-			if (!user.is_owner) {
-				const conv = await getOrCreateConversation(DB, userId);
-				conversationId = conv.id;
-			}
-		} else {
-			const body = /** @type {any} */ (await request.json());
-			content = String(body?.content ?? '').trim();
-			conversationId = body?.conversationId;
-			if (user.is_owner && !conversationId) {
-				return err('conversationId required');
-			}
-			if (!user.is_owner) {
-				const conv = await getOrCreateConversation(DB, userId);
-				conversationId = conv.id;
-			}
-		}
-
-		if (!content) {
-			return isShare ? Response.redirect(appUrl, 303) : err('Content required');
-		}
-		if (content.length > 10000) {
-			return isShare ? Response.redirect(appUrl, 303) : err('Message too long');
-		}
-		if (!conversationId) {
-			return isShare ? Response.redirect(appUrl, 303) : err('conversationId required');
-		}
-
-		const msgId = crypto.randomUUID();
-		const createdAt = new Date().toISOString();
-		await createMessage(DB, { id: msgId, conversationId, senderUserId: userId, content });
-
-		await notifyNewMessage(env, {
-			conversationId,
-			senderIsOwner: !!user.is_owner,
-			senderName: user.display_name,
-			content,
-		});
-
-		if (isShare) {
-			return Response.redirect(appUrl, 303);
-		}
-		// sender_user_id matches the shape getMessages() returns — chat-view's
-		// addMessage() reads this field to decide sent-vs-received styling.
-		// eslint-disable-next-line camelcase
-		return json({ id: msgId, conversationId, sender_user_id: userId, content, createdAt }, 201);
-	}
-
-	// ── Push: subscribe ────────────────────────────────────────────────────────
-
-	if (method === 'POST' && path === '/apps/messages/api/push/subscribe') {
-		const userId = await getSessionUser(request, SESSION_SECRET);
-		if (!userId) {
-			return err('Not authenticated', 401);
-		}
-		const body = /** @type {any} */ (await request.json());
-		const { endpoint, keys } = body ?? {};
-		if (!endpoint || !keys?.p256dh || !keys?.auth) {
-			return err('Missing subscription fields');
-		}
-		await savePushSubscription(DB, {
-			id: crypto.randomUUID(),
-			userId,
-			endpoint,
-			p256dh: keys.p256dh,
-			auth: keys.auth,
-		});
-		return json({ ok: true });
-	}
-
-	// ── Push: unsubscribe ──────────────────────────────────────────────────────
-
-	if (method === 'DELETE' && path === '/apps/messages/api/push/subscribe') {
-		const userId = await getSessionUser(request, SESSION_SECRET);
-		if (!userId) {
-			return err('Not authenticated', 401);
-		}
-		const body = /** @type {any} */ (await request.json());
-		if (!body?.endpoint) {
-			return err('endpoint required');
-		}
-		await deletePushSubscription(DB, body.endpoint);
-		return json({ ok: true });
-	}
-
 	return null;
 }
