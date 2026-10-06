@@ -45,6 +45,11 @@ export async function deleteRainbowSubscription(db, endpoint) {
 	await db.prepare('DELETE FROM rainbow_subscriptions WHERE endpoint = ?').bind(endpoint).run();
 }
 
+/** @param {D1Database} db @param {string} endpoint */
+export async function hasRainbowSubscription(db, endpoint) {
+	return !!(await db.prepare('SELECT 1 FROM rainbow_subscriptions WHERE endpoint = ?').bind(endpoint).first());
+}
+
 /**
  * All subscriptions, for the wake cron to filter by sun position.
  * @param {D1Database} db

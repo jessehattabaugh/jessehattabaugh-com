@@ -25,8 +25,25 @@ export function setupPushForm(form, registration, extra = async () => ({}), onUn
 	}
 	registration.then(async (reg) => {
 		if (!reg) { return; }
+		button.disabled = true;
 		form.hidden = false;
-		reflect(!!(await reg.pushManager.getSubscription()));
+		try {
+			const subscription = await reg.pushManager.getSubscription();
+			if (!subscription) { reflect(false); button.disabled = false; return; }
+			// A service-worker subscription belongs to the browser, not its signed-in
+			// user. Check the server before claiming this account receives alerts.
+			const body = new FormData(form);
+			body.set('endpoint', subscription.endpoint);
+			body.set('operation', 'status');
+			const response = await fetch(form.getAttribute('action') ?? '', { method: form.getAttribute('method') ?? 'post', body });
+			if (!response.ok || response.redirected || !response.headers.get('Content-Type')?.includes('application/json')) { throw new Error('Could not check notification settings. Reload to retry.'); }
+			reflect((await response.json()).enabled === true);
+			button.disabled = false;
+		} catch (error) {
+			const status = document.querySelector('[data-browser-status]');
+			if (status) { status.textContent = error instanceof Error ? error.message : 'Could not check notification settings.'; }
+			return;
+		}
 	}).catch(() => {});
 	form.addEventListener('submit', async (event) => {
 		event.preventDefault();

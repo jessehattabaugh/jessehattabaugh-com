@@ -4,9 +4,9 @@ import {
 	createChallenge, consumeChallenge, getOrCreateConversation, getConversation, getUserConversation,
 	getAllConversations, getMessages, createMessage,
 	savePushSubscription, getPushSubscriptionsByUser, getOwnerPushSubscriptions,
-	deletePushSubscription, deleteUserPushSubscription, normalizeEmail,
-	createEmailVerification, getEmailVerification, consumeEmailVerification,
-	deleteEmailVerification, markEmailVerified, updateUserProfile,
+	deletePushSubscription, deleteUserPushSubscription, hasUserPushSubscription, normalizeEmail,
+	createEmailVerification, getEmailVerification, completeEmailVerification,
+	deleteEmailVerification,
 } from '../shared/data/messages.js';
 import {
 	verifyRegistration, verifyAuthentication, createRegistrationOptions, createAuthenticationOptions,
@@ -233,25 +233,26 @@ export async function handleMessagesApi(request, env) {
 				return page(request, { screen: 'verify', error: 'That email belongs to another account.' }, 409);
 			}
 		}
-		if (!(await consumeEmailVerification(env.DB, verification.id))) {
-			return page(request, { screen: 'verify', error: 'That verification link has already been used.' }, 400);
-		}
-		if (verification.purpose === 'profile') {
-			await updateUserProfile(env.DB, { id: user.id, displayName: user.display_name, isOwner: !!user.is_owner, email: verification.email });
-		}
-		await markEmailVerified(env.DB, user.id);
-		if (!user.is_owner) { await getOrCreateConversation(env.DB, user.id); }
-		let destination = paths.messages;
+		let content = null;
 		if (verification.purpose === 'guest-message') {
 			const payload = JSON.parse(verification.payload ?? '{}');
-			const content = String(payload.message ?? '').trim();
+			content = String(payload.message ?? '').trim();
 			if (!content || content.length > 10000) { throw new Error('Invalid held message'); }
-			const conversation = await getOrCreateConversation(env.DB, user.id);
-			await createMessage(env.DB, { id: crypto.randomUUID(), conversationId: conversation.id, senderUserId: user.id, content });
-			await notifyNewMessage(env, { conversationId: conversation.id, senderIsOwner: !!user.is_owner, senderName: user.display_name, content });
-			destination += '?sent=1';
 		}
-		return redirect(destination, { 'Set-Cookie': sessionCookieHeader(await createSession(env.SESSION_SECRET, user.id)) });
+		// Prepare the cookie before committing so signing failures cannot burn proof.
+		const cookie = sessionCookieHeader(await createSession(env.SESSION_SECRET, user.id));
+		const completed = await completeEmailVerification(env.DB, verification, content);
+		if (!completed) {
+			return page(request, { screen: 'verify', error: 'That verification link has already been used or is no longer valid.' }, 400);
+		}
+		if (content && completed.conversationId) {
+			// Push is best effort after commit; delivery failures must not prevent
+			// the sender receiving their session and successful POST redirect.
+			try {
+				await notifyNewMessage(env, { conversationId: completed.conversationId, senderIsOwner: !!user.is_owner, senderName: user.display_name, content });
+			} catch (error) { console.error('Message notification failed', error); }
+		}
+		return redirect(paths.messages + (content ? '?sent=1' : ''), { 'Set-Cookie': cookie });
 	}
 	if (path === paths.logout) {
 		return redirect(paths.messages, { 'Set-Cookie': sessionCookieHeader('', true) });
@@ -283,6 +284,9 @@ export async function handleMessagesApi(request, env) {
 		const endpoint = String(form.get('endpoint') ?? '');
 		if (!endpoint.startsWith('https://')) {
 			return renderMessagesPage(request, env, { error: 'A valid push subscription is required.' }, 422);
+		}
+		if (form.get('operation') === 'status') {
+			return json({ enabled: await hasUserPushSubscription(env.DB, endpoint, user.id) });
 		}
 		if (form.get('operation') === 'unsubscribe') {
 			await deleteUserPushSubscription(env.DB, endpoint, user.id);
