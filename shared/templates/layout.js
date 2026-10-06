@@ -6,6 +6,8 @@ import { html, Raw } from '../html.js';
  * @param {Raw | string} opts.body
  * @param {string} [opts.description]
  * @param {string} [opts.path]
+ * @param {Raw} [opts.head]
+ * @param {Raw} [opts.scripts]
  * @returns {Raw}
  */
 export const layout = ({
@@ -13,6 +15,8 @@ export const layout = ({
 	body,
 	description = 'Personal website of Jesse Hattabaugh, a software engineer.',
 	path = '',
+	head = html``,
+	scripts = html``,
 }) => {
 	const normalizedPath = path !== '/' && path.endsWith('/') ? path.slice(0, -1) : path;
 
@@ -24,7 +28,8 @@ export const layout = ({
 				<title>${title} — Jesse Hattabaugh</title>
 				<meta name="description" content="${description}" />
 				<link rel="stylesheet" href="/styles/main.css" />
-				<link rel="icon" href="/favicon.ico" sizes="any" />
+				<link rel="icon" href="/icon.svg" type="image/svg+xml" />
+				${head}
 				<style>
 					@view-transition {
 						navigation: auto;
@@ -79,7 +84,7 @@ export const layout = ({
 						</ul>
 					</nav>
 				</header>
-				<main id="main">${body instanceof Raw ? body : new Raw(String(body))}</main>
+				<main id="main">${body}</main>
 				<footer>
 					<p>
 						&copy; Jesse Hattabaugh &middot;
@@ -87,6 +92,7 @@ export const layout = ({
 					</p>
 				</footer>
 				<script type="module" src="/enhance/index.js"></script>
+				${scripts}
 			</body>
 		</html>`;
 };

@@ -1,16 +1,16 @@
 /**
- * Device-side weather lookup for Rainbow Hour.
+ * Shared weather lookup for manual server checks and device-side alerts.
  *
  * Uses Open-Meteo (free, keyless, CORS-enabled) so the check runs on the
- * device — in the page for the manual "check now" button and in the service
- * worker when a wake push arrives. The server never sees weather data.
+ * service worker when a wake push arrives. Manual sky checks run on the server
+ * so the same feature is available without JavaScript.
  *
  * "Now" is anchored on the API's own current.time rather than the device
  * clock, so a skewed clock (or a faked one in tests) can't misalign the
  * recent-rain window.
  */
 
-/** @typedef {import('../../../shared/rainbow.js').RainbowWeather} RainbowWeather */
+/** @typedef {import('./rainbow.js').RainbowWeather} RainbowWeather */
 
 /** How far back (seconds) rain still counts as "drops in the air". */
 const RECENT_WINDOW_SEC = 3 * 3600;

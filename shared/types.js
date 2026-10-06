@@ -9,6 +9,8 @@
  * @property {string} [VAPID_PRIVATE_KEY] PKCS8 P-256 private key for VAPID (base64url)
  * @property {string} [VAPID_CONTACT]     mailto: address used as VAPID JWT sub
  * @property {string} [OWNER_SETUP_TOKEN] One-time secret to promote first registered user to owner
+ * @property {string} [PREVIEW_BRANCH] Non-production preview alias
+ * @property {string} [PREVIEW_DB_NAME] Isolated preview database name
  */
 
 /**

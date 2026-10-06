@@ -1,8 +1,10 @@
 /** @type {any} */
 const sw = self;
+const APP_URL = sw.registration.scope;
+const ICON_URL = new URL('icon.svg', APP_URL).pathname;
 
-const CACHE = 'messages-v1';
-const PRECACHE = ['/apps/messages/icon.svg', '/styles/base.css', '/apps/messages/styles.css'];
+const CACHE = 'messages-v2';
+const PRECACHE = ['/apps/messages/icon.svg', '/styles/base.css', '/styles/main.css', '/apps/messages/styles.css'];
 
 // ── Install: pre-cache app shell ──────────────────────────────────────────────
 
@@ -34,7 +36,7 @@ sw.addEventListener(
 					return Promise.all(
 						keys
 							.filter((k) => {
-								return k !== CACHE;
+								return k.startsWith('messages-') && k !== CACHE;
 							})
 							.map((k) => {
 								return caches.delete(k);
@@ -55,8 +57,9 @@ sw.addEventListener(
 	/** @param {any} event */ (event) => {
 		const url = new URL(event.request.url);
 
-		// API calls and the dynamic SSR shell: always network, never cache
-		if (url.pathname.startsWith('/apps/messages/api/') || url.pathname === '/apps/messages/') {
+		// Documents, fragments and mutations always reach the server. Only the
+		// explicitly precached static files below can be served from a cache.
+		if (event.request.method !== 'GET' || event.request.mode === 'navigate' || event.request.headers.get('X-Fragment')) {
 			event.respondWith(fetch(event.request));
 			return;
 		}
@@ -64,7 +67,7 @@ sw.addEventListener(
 		// App shell and static assets: cache-first, fall back to network
 		if (
 			url.origin === sw.location.origin &&
-			(url.pathname.startsWith('/apps/messages/') || PRECACHE.includes(url.pathname))
+			PRECACHE.includes(url.pathname)
 		) {
 			event.respondWith(
 				caches.match(event.request).then((cached) => {
@@ -84,6 +87,7 @@ sw.addEventListener(
 			(async () => {
 				const title = 'Messages';
 				let body = 'You have a new message';
+				let destination = APP_URL;
 
 				// Read the encrypted payload the server delivered (RFC 8291). The
 				// browser decrypts it before firing 'push', so event.data holds our
@@ -95,6 +99,10 @@ sw.addEventListener(
 						if (data?.senderName && data?.content) {
 							body = `${data.senderName}: ${data.content.slice(0, 100)}`;
 						}
+						if (data?.url) {
+							const target = new URL(data.url, APP_URL);
+							if (target.origin === sw.location.origin && target.href.startsWith(APP_URL)) { destination = target.href; }
+						}
 					}
 				} catch {
 					// Fall back to generic message if the payload is missing/malformed.
@@ -102,10 +110,10 @@ sw.addEventListener(
 
 				await sw.registration.showNotification(title, {
 					body,
-					icon: '/apps/messages/icon.svg',
-					badge: '/apps/messages/icon.svg',
+					icon: ICON_URL,
+					badge: ICON_URL,
 					vibrate: [200, 100, 200],
-					data: { url: '/apps/messages/' },
+					data: { url: destination },
 					actions: [{ action: 'open', title: 'Open' }],
 				});
 
@@ -128,16 +136,19 @@ sw.addEventListener(
 	'notificationclick',
 	/** @param {any} event */ (event) => {
 		event.notification.close();
+		const target = new URL(event.notification.data?.url ?? APP_URL, APP_URL);
+		const destination = target.origin === sw.location.origin && target.href.startsWith(APP_URL) ? target.href : APP_URL;
 		event.waitUntil(
 			sw.clients
 				.matchAll({ type: 'window', includeUncontrolled: true })
-				.then((/** @type {any[]} */ clientList) => {
+				.then(async (/** @type {any[]} */ clientList) => {
 					for (const client of clientList) {
-						if (client.url.includes('/apps/messages/')) {
+						if (client.url.startsWith(APP_URL)) {
+							await client.navigate(destination);
 							return client.focus();
 						}
 					}
-					return sw.clients.openWindow('/apps/messages/');
+					return sw.clients.openWindow(destination);
 				}),
 		);
 	},

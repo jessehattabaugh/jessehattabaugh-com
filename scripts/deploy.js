@@ -1,100 +1,49 @@
-/**
- * Per-branch deploy script for Cloudflare Workers.
- * Invoked by Workers Builds (or locally) for every build.
- *
- * D1 path: creates/reuses a per-branch D1 database, applies migrations,
- * then deploys the Worker with the correct binding.
- *
- * Requires env vars:
- *   CLOUDFLARE_API_TOKEN  — scoped to Workers + D1
- *   CLOUDFLARE_ACCOUNT_ID
- */
-
-import { execSync } from 'node:child_process';
+/** Use the canonical config for every version; only DB, domains and cron differ. */
+import { execFileSync } from 'node:child_process';
 import { writeFileSync, unlinkSync } from 'node:fs';
+import { join } from 'node:path';
+import { readConfig, currentBranch, previewIdentity, wrangler, ROOT } from './preview.js';
 
-/** @param {string} cmd */
-function run(cmd) {
-	console.log(`\n$ ${cmd}`);
-	execSync(cmd, { stdio: 'inherit' });
-}
+const branch = currentBranch();
+const config = readConfig();
+const production = branch === 'main';
+if (process.argv.includes('--production') && !production) { throw new Error('Production deployment requires main.'); }
+if (process.argv.includes('--preview') && production) { throw new Error('Preview deployment requires a non-main branch.'); }
+execFileSync(process.execPath, [join(ROOT, 'build/build.js')], { cwd: ROOT, stdio: 'inherit' });
 
-const gitBranch = execSync('git rev-parse --abbrev-ref HEAD').toString().trim();
-const branch =
-	process.env.WORKERS_CI_BRANCH ??
-	process.env.CF_PAGES_BRANCH ??
-	(gitBranch !== 'HEAD' ? gitBranch : undefined) ??
-	(() => { throw new Error('Cannot determine branch: detached HEAD and no CI env var set'); })();
-
-const isMain = branch === 'main';
-const dbName = isMain
-	? 'jessehattabaugh-com'
-	: `jessehattabaugh-com-preview-${branch.replace(/[^a-z0-9-]/gi, '-')}`;
-
-// Stable preview alias: one per branch, so each branch gets its own URL.
-// Workers Builds already aliases by branch name; adding it here keeps local
-// `npm run deploy` consistent and deterministic. Must be lowercase/alphanumeric
-// + dashes, start with a letter, and (combined with the Worker name) ≤ 63 chars.
-const alias = branch
-	.toLowerCase()
-	.replace(/[^a-z0-9-]/g, '-')
-	.replace(/^-+/, '')
-	.replace(/-+$/, '')
-	.replace(/^[^a-z]+/, '')
-	.slice(0, 63 - 'jessehattabaugh-com'.length - 1);
-
-console.log(`Branch: ${branch}`);
-console.log(`DB:     ${dbName}`);
-console.log(`Alias:  ${alias}`);
-
-// Build static assets + copy worker
-run('npm run build');
-
-if (isMain) {
-	run(`wrangler d1 migrations apply ${dbName} --remote`);
-	run('wrangler deploy');
+if (production) {
+	wrangler(['d1', 'migrations', 'apply', config.d1_databases[0].database_name, '--remote']);
+	wrangler(['deploy']);
 } else {
-	// Create the per-branch D1 database if it doesn't exist yet.
-	try {
-		run(`wrangler d1 create ${dbName}`);
-	} catch {
-		console.log(`D1 database "${dbName}" already exists, reusing.`);
+	const { alias, databaseName } = previewIdentity(branch, config.name);
+	/** @type {Array<{ name: string, uuid?: string, database_id?: string }>} */
+	let databases = JSON.parse(wrangler(['d1', 'list', '--json'], true));
+	let database = databases.find((item) => item.name === databaseName);
+	if (!database) {
+		// A creation failure is an error; never disguise auth/network failures as reuse.
+		wrangler(['d1', 'create', databaseName]);
+		databases = JSON.parse(wrangler(['d1', 'list', '--json'], true));
+		database = databases.find((item) => item.name === databaseName);
 	}
-
-	// Resolve the actual database ID so the Worker binds to the right database.
-	/** @type {{ name: string, uuid?: string, database_id?: string }[]} */
-	const databases = JSON.parse(execSync('wrangler d1 list --json', { encoding: 'utf8' }));
-	const db = databases.find((d) => { return d.name === dbName; });
-	if (!db) { throw new Error(`Could not find D1 database "${dbName}" after creation`); }
-	const dbId = db.uuid ?? db.database_id;
-	console.log(`DB ID: ${dbId}`);
-
-	// Write a temp config with the correct per-branch binding, then clean it up.
-	// Keys are quoted because they are JSON field names, not JS identifiers.
+	const databaseId = database?.uuid ?? database?.database_id;
+	if (!databaseId) { throw new Error(`Could not resolve preview database ${databaseName}.`); }
+	if (config.d1_databases.some((/** @type {{ database_id: string }} */ db) => db.database_id === databaseId)) {
+		throw new Error('Refusing to bind a production database to a preview version.');
+	}
 	const previewConfig = {
-		assets: { binding: 'ASSETS', directory: './dist/client/' },
-		compatibility_date: '2026-05-01',
-		d1_databases: [
-			{
-				binding: 'DB',
-				database_id: dbId,
-				database_name: dbName,
-				migrations_dir: 'db/migrations',
-			},
-		],
-		main: './worker/index.js',
-		name: 'jessehattabaugh-com',
-		observability: { enabled: true },
+		...config,
+		vars: { .../** @type {Record<string, string>} */ (config.vars ?? {}), PREVIEW_BRANCH: alias, PREVIEW_DB_NAME: databaseName },
+		d1_databases: [{ ...config.d1_databases[0], binding: 'DB', database_name: databaseName, database_id: databaseId }],
 		preview_urls: true,
 	};
-	const tempConfig = '.wrangler-preview.json';
-	writeFileSync(tempConfig, JSON.stringify(previewConfig, null, '\t'));
+	delete previewConfig.routes;
+	delete previewConfig.triggers;
+	const configPath = join(ROOT, '.wrangler-preview.json');
+	writeFileSync(configPath, JSON.stringify(previewConfig, null, '\t'));
 	try {
-		// Migrations must run against the temp config so the per-branch DB is
-		// resolved by binding (the default wrangler.jsonc only declares prod).
-		run(`wrangler d1 migrations apply ${dbName} --config ${tempConfig} --remote`);
-		run(`wrangler versions upload --config ${tempConfig} --preview-alias ${alias}`);
+		wrangler(['d1', 'migrations', 'apply', databaseName, '--config', configPath, '--remote']);
+		wrangler(['versions', 'upload', '--config', configPath, '--preview-alias', alias]);
 	} finally {
-		unlinkSync(tempConfig);
+		unlinkSync(configPath);
 	}
 }

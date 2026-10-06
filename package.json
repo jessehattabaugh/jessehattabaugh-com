@@ -16,7 +16,8 @@
 		"build": "node build/build.js",
 		"check": "tsc --project worker/tsconfig.json --noEmit && tsc --project build/tsconfig.json --noEmit && tsc --project client/tsconfig.json --noEmit",
 		"deploy": "node scripts/deploy.js",
-		"deploy:prod": "node scripts/deploy.js",
+		"deploy:prod": "node scripts/deploy.js --production",
+		"deploy:preview": "node scripts/deploy.js --preview",
 		"dev": "wrangler dev",
 		"test": "playwright test",
 		"test:preview": "node scripts/test-preview.js"

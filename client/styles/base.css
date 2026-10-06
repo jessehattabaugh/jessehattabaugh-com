@@ -32,6 +32,7 @@
 		--color-text-muted: #555;
 		--color-accent: #2563eb;
 		--color-accent-hover: #1d4ed8;
+		--color-on-accent: #fff;
 		--color-border: #e2e0dc;
 		--color-error: #dc2626;
 		--color-success: #059669;
@@ -55,6 +56,7 @@
 			--color-text-muted: #999;
 			--color-accent: #60a5fa;
 			--color-accent-hover: #93c5fd;
+			--color-on-accent: #111110;
 			--color-border: #2e2d2a;
 			--color-error: #f87171;
 			--color-success: #34d399;
@@ -107,6 +109,27 @@
 	a:hover {
 		color: var(--color-accent-hover);
 	}
+	:focus-visible {
+		outline: 2px solid var(--color-accent);
+		outline-offset: 3px;
+	}
+	[hidden] { display: none !important; }
+	form {
+		display: grid;
+		gap: var(--space-sm);
+		margin-block: var(--space-md);
+		label { font-weight: 600; }
+		input, textarea, select {
+			width: 100%;
+			padding: var(--space-sm);
+			background: var(--color-surface);
+			color: var(--color-text);
+			border: 1px solid var(--color-border);
+			border-radius: var(--radius);
+		}
+		button { justify-self: start; }
+	}
+	[role='alert'] { color: var(--color-error); }
 
 	ul,
 	ol {
@@ -130,7 +153,7 @@
 		gap: var(--space-xs);
 		padding: 0.625rem 1.25rem;
 		background: var(--color-accent);
-		color: #fff;
+		color: var(--color-on-accent);
 		text-decoration: none;
 		border-radius: var(--radius);
 		font-weight: 600;
@@ -140,7 +163,7 @@
 
 		&:hover {
 			background: var(--color-accent-hover);
-			color: #fff;
+			color: var(--color-on-accent);
 		}
 		&:disabled {
 			opacity: 0.5;
@@ -152,7 +175,7 @@
 			color: var(--color-accent);
 			&:hover {
 				background: var(--color-accent);
-				color: #fff;
+				color: var(--color-on-accent);
 			}
 		}
 		&.btn--ghost {

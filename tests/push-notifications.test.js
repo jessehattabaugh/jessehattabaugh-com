@@ -1,144 +1,61 @@
-import { test, expect } from '@playwright/test';
-import { randomUUID } from 'node:crypto';
+import { test, expect, signIn } from './helpers/messages.js';
+import { previewDatabase } from './helpers/database.js';
+import { deleteRainbowSubscription } from '../shared/data/rainbow.js';
 
-// ── Push notification & bell toggle E2E tests ────────────────────────────────
-//
-// These exercise the two fixes for the "push notifications not received" bug:
-//   1. The notification bell must toggle OFF and back ON (a second click used to
-//      leave the 🔕 "red slash" state stuck on).
-//   2. Enabling notifications registers a push subscription with the server
-//      (endpoint + client keys) so a real, non-empty push can be delivered; and
-//      disabling it removes that subscription.
+// Real PushManager and real push service. No forged subscriptions or API mocks.
+// Browsers expose these capabilities only with JavaScript; all core messaging
+// and sky-check flows are tested with JavaScript disabled in the other suites.
+test('message notifications can be enabled, disabled, and enabled again', async ({ page, context, identities }, testInfo) => {
+	test.skip(testInfo.project.use.javaScriptEnabled === false, 'Web Push is a browser JavaScript API.');
+	test.setTimeout(90000);
+	await context.grantPermissions(['notifications']);
+	await signIn(page, identities.create());
+	const enable = page.getByRole('button', { name: 'Enable message notifications', exact: true });
+	await expect(enable).toBeVisible();
+	const disable = page.getByRole('button', { name: 'Disable notifications', exact: true });
+	try {
+		await enable.click();
+		await expect(disable).toBeVisible({ timeout: 30000 });
+		await disable.click();
+		await expect(enable).toBeVisible();
+		await enable.click();
+		await expect(disable).toBeVisible({ timeout: 30000 });
+		await disable.click();
+		await expect(enable).toBeVisible();
+	} finally {
+		await page.evaluate(async () => {
+			const registration = await navigator.serviceWorker.getRegistration();
+			const subscription = await registration?.pushManager.getSubscription();
+			if (subscription) { await subscription.unsubscribe(); }
+		});
+	}
+});
 
-/**
- * Register a fresh passkey-backed user via a CDP virtual authenticator and wait
- * for the chat view to render. Mirrors the setup in messages.test.js.
- * @param {import('@playwright/test').BrowserContext} context
- * @param {import('@playwright/test').Page} page
- */
-async function registerPasskeyUser(context, page) {
-	await context.clearCookies();
-	const cdp = await context.newCDPSession(page);
-	await cdp.send('WebAuthn.enable');
-	await cdp.send('WebAuthn.addVirtualAuthenticator', {
-		options: {
-			protocol: 'ctap2',
-			transport: 'internal',
-			hasResidentKey: true,
-			hasUserVerification: true,
-			isUserVerified: true,
-		},
-	});
-
-	const displayName = `Push Test User ${randomUUID().slice(0, 8)}`;
-	await page.goto('/apps/messages/');
-	await page.locator('#auth-name').fill(displayName);
-	await page.getByRole('button', { name: 'Register with Passkey' }).click();
-	await expect(page.locator('chat-view')).toBeVisible({ timeout: 10000 });
-	await expect(page.getByRole('heading', { name: 'Jesse', level: 1 })).toBeVisible();
-}
-
-/**
- * Stub the browser's PushManager with a deterministic subscription lifecycle so
- * the test isolates our subscribe/unsubscribe logic from the external push
- * service (FCM) and service-worker activation timing.
- * @param {import('@playwright/test').Page} page
- * @param {string} endpoint  unique push endpoint, state-independent per test
- */
-async function mockPushManager(page, endpoint) {
-	await page.addInitScript(
-		({ endpoint }) => {
-			let currentSubscription = null;
-
-			const fakeSubscription = {
-				endpoint,
-				expirationTime: null,
-				toJSON() {
-					return {
-						endpoint: this.endpoint,
-						expirationTime: this.expirationTime,
-						keys: {
-							p256dh: 'BCVxsr7N_eNgVRqvHtD0zTZsEc6-VV-JvLexhqUzORcxaOzi6-AYWXvTBHm4bjyPjs7Vd8pZGH6SRpkNtoIAiw4',
-							auth: 'BTBZMqHH6r4Tts7J_aSIgg',
-						},
-					};
-				},
-				unsubscribe() {
-					currentSubscription = null;
-					return Promise.resolve(true);
-				},
-			};
-
-			const fakePushManager = {
-				getSubscription() {
-					return Promise.resolve(currentSubscription);
-				},
-				subscribe() {
-					currentSubscription = fakeSubscription;
-					return Promise.resolve(fakeSubscription);
-				},
-			};
-
-			const fakeRegistration = { pushManager: fakePushManager };
-
-			// Resolve `serviceWorker.ready` immediately with our mock registration.
-			Object.defineProperty(navigator.serviceWorker, 'ready', {
-				configurable: true,
-				get() {
-					return Promise.resolve(fakeRegistration);
-				},
-			});
-		},
-		{ endpoint },
-	);
-}
-
-test('notification bell toggles on/off and registers a push subscription', async ({
-	page,
-	context,
-}, testInfo) => {
-	test.skip(testInfo.project.use.javaScriptEnabled === false, 'Requires JavaScript');
-
-	const endpoint = `https://push.example.test/${randomUUID()}`;
-	await mockPushManager(page, endpoint);
-	await registerPasskeyUser(context, page);
-
-	// Before permission is granted the bell is off: 🔕 "muted bell" icon.
-	const bellOff = page.getByRole('button', { name: 'Enable notifications' });
-	await expect(bellOff).toBeVisible();
-	await expect(bellOff).toHaveAttribute('aria-pressed', 'false');
-	await expect(bellOff).toHaveText('🔕');
-
-	// Grant notification permission, then switch notifications ON.
-	await context.grantPermissions(['notifications'], { origin: new URL(page.url()).origin });
-	const subscribeRequest = page.waitForRequest((req) => {
-		return req.method() === 'POST' && req.url().includes('/api/push/subscribe');
-	});
-	await bellOff.click();
-
-	// The bell now reflects the enabled state (🔔 accent bell, no "red slash" stuck).
-	const bellOn = page.getByRole('button', { name: 'Notifications enabled' });
-	await expect(bellOn).toHaveAttribute('aria-pressed', 'true');
-	await expect(bellOn).toHaveText('🔔');
-
-	// The subscription reached the server with a usable shape.
-	const subReq = await subscribeRequest;
-	const subBody = /** @type {any} */ (subReq.postDataJSON());
-	expect(subBody.endpoint).toBe(endpoint);
-	expect(subBody.keys.p256dh).toBeTruthy();
-	expect(subBody.keys.auth).toBeTruthy();
-
-	// Toggle OFF — regression: a second click must clear the enabled state.
-	const unsubscribeRequest = page.waitForRequest((req) => {
-		return req.method() === 'DELETE' && req.url().includes('/api/push/subscribe');
-	});
-	await bellOn.click();
-	const bellOffAgain = page.getByRole('button', { name: 'Enable notifications' });
-	await expect(bellOffAgain).toHaveAttribute('aria-pressed', 'false');
-	await expect(bellOffAgain).toHaveText('🔕');
-
-	// And the server-side subscription was removed.
-	const unsubReq = await unsubscribeRequest;
-	const unsubBody = /** @type {any} */ (unsubReq.postDataJSON());
-	expect(unsubBody.endpoint).toBe(endpoint);
+test('rainbow alerts require a location and unsubscribe cleanly', async ({ page, context }, testInfo) => {
+	test.skip(testInfo.project.use.javaScriptEnabled === false, 'Web Push is a browser JavaScript API.');
+	test.setTimeout(90000);
+	await context.grantPermissions(['notifications']);
+	await page.goto('/apps/rainbow-hour/');
+	const enable = page.getByRole('button', { name: 'Enable rainbow alerts', exact: true });
+	await expect(enable).toBeVisible();
+	await enable.click();
+	await expect(page.getByRole('status', { name: 'Browser features' })).toContainText('Enter valid coordinates');
+	await page.getByLabel('Latitude', { exact: true }).fill('40.7128');
+	await page.getByLabel('Longitude', { exact: true }).fill('-74.006');
+	try {
+		await enable.click();
+		const disable = page.getByRole('button', { name: 'Disable notifications', exact: true });
+		await expect(disable).toBeVisible({ timeout: 30000 });
+		await disable.click();
+		await expect(enable).toBeVisible();
+	} finally {
+		// Real browser subscription cleanup even if an assertion above failed.
+		const endpoint = await page.evaluate(async () => {
+			const registration = await navigator.serviceWorker.getRegistration();
+			const subscription = await registration?.pushManager.getSubscription();
+			if (subscription) { await subscription.unsubscribe(); }
+			return subscription?.endpoint;
+		});
+		if (endpoint) { await deleteRainbowSubscription(await previewDatabase(), endpoint); }
+	}
 });

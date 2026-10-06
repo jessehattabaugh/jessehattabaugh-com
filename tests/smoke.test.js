@@ -1,60 +1,47 @@
 import { test, expect } from '@playwright/test';
 import { lighthouseAudit } from './helpers/lighthouse.js';
+import { staticRoutes, paths } from '../shared/routes.js';
 
-/** All named routes with their expected h1 text. */
-const PAGES = [
-	{ path: '/', heading: 'Jesse Hattabaugh' },
-	{ path: '/about', heading: 'About' },
-	{ path: '/colophon', heading: 'Colophon' },
-	{ path: '/apps', heading: 'Apps' },
+const headings = { home: 'Jesse Hattabaugh', about: 'About', colophon: 'Colophon', apps: 'Apps' };
+const pages = [
+	...staticRoutes.filter((route) => route.name in headings).map((route) => ({ path: route.path, heading: headings[route.name] })),
+	{ path: paths.login, heading: 'Sign in' },
+	{ path: paths.messages, heading: 'Messages' },
+	{ path: paths.rainbow, heading: 'Rainbow Hour' },
 ];
 
-// ── Page render tests (run in all 4 projects) ────────────────────────────────
-
-for (const { path, heading } of PAGES) {
-	test(`${path} — heading and main navigation`, async ({ page }) => {
+for (const { path, heading } of pages) {
+	test(`${path} renders its heading and main navigation`, async ({ page }) => {
 		await page.goto(path);
-		await expect(page.getByRole('heading', { name: heading, level: 1 })).toBeVisible();
+		await expect(page.getByRole('heading', { name: heading, level: 1, exact: true })).toBeVisible();
 		const nav = page.getByRole('navigation', { name: 'Main navigation' });
-		await expect(nav.getByRole('link', { name: 'About' })).toBeVisible();
-		await expect(nav.getByRole('link', { name: 'Send me a message' })).toBeVisible();
-		await expect(nav.getByRole('link', { name: 'Colophon' })).toBeVisible();
+		for (const name of ['About', 'Apps', 'Send me a message', 'Colophon']) {
+			await expect(nav.getByRole('link', { name, exact: true })).toBeVisible();
+		}
+	});
+	test(`${path} scores at least 90 in every Lighthouse category`, async ({ baseURL }, testInfo) => {
+		test.skip(testInfo.project.name !== 'Desktop Chrome', 'Lighthouse runs on Desktop Chrome.');
+		test.setTimeout(90000);
+		const categories = await lighthouseAudit(new URL(path, baseURL).href);
+		for (const name of ['performance', 'accessibility', 'best-practices', 'seo']) {
+			expect(categories[name]?.score ?? 0, name).toBeGreaterThanOrEqual(0.9);
+		}
 	});
 }
 
-// ── 404 ───────────────────────────────────────────────────────────────────────
-
-test('unknown route returns a 404 response', async ({ page }) => {
-	const response = await page.goto('/this-page-does-not-exist-xyz');
-	expect(response?.status()).toBe(404);
+test('unknown URLs show the site’s 404 page', async ({ page }) => {
+	const response = await page.goto(`/missing-${crypto.randomUUID()}`);
+	expect(response.status()).toBe(404);
+	await expect(page.getByRole('heading', { level: 1 })).toContainText('Page not found');
 });
 
-// ── Lighthouse audits (Desktop Chrome only) ───────────────────────────────────
+test('old contact bookmarks lead to Messages', async ({ page }) => {
+	await page.goto(paths.contact);
+	await expect(page.getByRole('heading', { name: 'Messages', exact: true })).toBeVisible();
+});
 
-test.describe('Lighthouse audits', () => {
-	test.beforeEach(() => {
-		test.skip(
-			test.info().project.name !== 'Desktop Chrome',
-			'Lighthouse only runs on Desktop Chrome',
-		);
-	});
-
-	const MIN_SCORE = 0.9;
-
-	for (const { path } of PAGES) {
-		test(`${path} — scores ≥ ${MIN_SCORE * 100}`, async ({ baseURL }) => {
-			const categories = await lighthouseAudit(new URL(path, baseURL).href);
-			expect(categories.performance?.score ?? 0, 'performance').toBeGreaterThanOrEqual(
-				MIN_SCORE,
-			);
-			expect(categories.accessibility?.score ?? 0, 'accessibility').toBeGreaterThanOrEqual(
-				MIN_SCORE,
-			);
-			expect(
-				categories['best-practices']?.score ?? 0,
-				'best-practices',
-			).toBeGreaterThanOrEqual(MIN_SCORE);
-			expect(categories.seo?.score ?? 0, 'seo').toBeGreaterThanOrEqual(MIN_SCORE);
-		});
-	}
+test('apps gallery links open the apps', async ({ page }) => {
+	await page.goto(paths.apps);
+	await page.getByRole('link', { name: /Rainbow Hour Know when rainbows/ }).click();
+	await expect(page.getByRole('heading', { name: 'Rainbow Hour', exact: true })).toBeVisible();
 });
