@@ -141,6 +141,13 @@ test('an expired confirmation link cannot sign in or publish a held message', as
 	await expect(page.getByRole('status').filter({ hasText: 'Check your email' })).toBeVisible();
 	const link = await confirmationLink(page, identity.email);
 	await expireVerification(await previewDatabase(), new URL(link).searchParams.get('token'));
+	// A new email request performs expired-proof maintenance. An old held
+	// message still cannot be published after that cleanup, in JS/no-JS browsers.
+	await page.goto('/login');
+	await page.getByLabel('Name', { exact: true }).fill(identity.name);
+	await page.getByLabel('Email', { exact: true }).fill(identity.email);
+	await page.getByRole('button', { name: 'Email me a sign-in link', exact: true }).click();
+	await expect(page.getByRole('status').filter({ hasText: 'Check your email' })).toBeVisible();
 	const response = await page.goto(link);
 	expect(response.status()).toBe(400);
 	await expect(page.getByRole('alert')).toContainText('expired or is invalid');

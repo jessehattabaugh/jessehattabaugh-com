@@ -138,7 +138,14 @@ async function notifyNewMessage(env, data) {
 	await notifyAll(subscriptions, {
 		vapidPublicKey: env.VAPID_PUBLIC_KEY, vapidPrivateKey: env.VAPID_PRIVATE_KEY,
 		vapidContact: env.VAPID_CONTACT ?? 'mailto:jesse@jessehattabaugh.com',
-	}, (endpoint) => deletePushSubscription(env.DB, endpoint), JSON.stringify({ ...data, url: `${paths.messages}?conversationId=${encodeURIComponent(data.conversationId)}` }));
+	}, (endpoint) => deletePushSubscription(env.DB, endpoint), JSON.stringify({
+		// Push carries a preview, not the full stored message. Bound both text
+		// fields (including legacy display names), preserving Unicode code points
+		// so JSON + UTF-8 + encryption overhead fit the single Web Push record.
+		senderName: Array.from(data.senderName).slice(0, 100).join(''),
+		content: Array.from(data.content).slice(0, 200).join(''),
+		url: `${paths.messages}?conversationId=${encodeURIComponent(data.conversationId)}`,
+	}));
 }
 
 /** @param {Request} request @param {import('../shared/types.js').Env} env */

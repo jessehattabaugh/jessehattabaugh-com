@@ -131,6 +131,9 @@ export async function createEmailVerification(
 	db,
 	{ id, userId, email, purpose = 'register', payload = null, ttlMs = 15 * 60 * 1000 },
 ) {
+	// Opportunistic maintenance runs on every email request, including previews
+	// without scheduled triggers. Valid and retryable proofs remain untouched.
+	await cleanExpiredEmailVerifications(db);
 	const expiresAt = Date.now() + ttlMs;
 	await db
 		.prepare(
@@ -253,6 +256,9 @@ export async function updatePasskeyCounter(db, { id, counter, backedUp = false }
  * @param {{ id: string, challenge: string, userId?: string | null, type?: string }} opts
  */
 export async function createChallenge(db, { id, challenge, userId = null, type = 'register' }) {
+	// Canceled WebAuthn prompts never complete their challenges. Reclaim only
+	// expired records before starting another ceremony, without relying on cron.
+	await cleanExpiredChallenges(db);
 	const expiresAt = Date.now() + 5 * 60 * 1000;
 	await db
 		.prepare(
