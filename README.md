@@ -30,6 +30,8 @@ only its POST consumes the token or sends a held message.
 Confirmation commits its database changes atomically, so failed publication can
 be retried with the same link. Notification controls check server registration
 for the current account before reporting alerts as enabled.
+Push notifications carry bounded previews; message history retains the full text.
+New email and passkey requests remove expired authentication records.
 Legacy passkey accounts can still sign in and confirm a recovery email without
 losing their conversations or owner role.
 
