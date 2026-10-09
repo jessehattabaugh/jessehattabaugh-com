@@ -1,6 +1,6 @@
 # jessehattabaugh.com
 
-Personal site and two installable web apps on Cloudflare Workers. Plain JavaScript
+Personal site and three installable web apps on Cloudflare Workers. Plain JavaScript
 ES modules with JSDoc, native CSS, shared HTML templates, and D1. No UI framework
 or runtime dependencies.
 
@@ -47,6 +47,8 @@ Use Node.js 22 or newer and tabs for indentation.
 
 ```sh
 npm ci
+cp .dev.vars.example .dev.vars
+# Fill the values needed for your task in .dev.vars.
 npm run check
 npm run build
 ```
@@ -64,11 +66,11 @@ npm run deploy:preview
 npm test
 ```
 
-Authenticate Wrangler or provide `CLOUDFLARE_API_TOKEN` and
-`CLOUDFLARE_ACCOUNT_ID`. Deployment creates/reuses an isolated preview D1 database,
+Authenticate Wrangler with `npx wrangler login`, or set `CLOUDFLARE_API_TOKEN`
+and `CLOUDFLARE_ACCOUNT_ID` in `.dev.vars`. Deployment creates/reuses an isolated preview D1 database,
 applies migrations, and uploads a version without promoting production. The
-preview config inherits email bindings, variables, and asset behavior from
-`wrangler.jsonc`; production domains and cron triggers are omitted. Deployment
+preview config inherits email bindings and asset behavior from `wrangler.jsonc`
+and resolves public settings from `.dev.vars`; production domains and cron triggers are omitted. Deployment
 and tests share the alias calculation, including a hash when branch names need
 normalization or truncation. Preview responses identify their database so tests
 can reject a mismatched deployment before touching fixture data.
@@ -79,25 +81,29 @@ preview databases when their branches merge. Preview versions share Worker
 secrets, so use controlled addresses for test email. See Cloudflare's
 [version URL documentation](https://developers.cloudflare.com/workers/versions-and-deployments/version-urls/).
 
-Configure the email sending domain with Cloudflare Email Service and set the
-Worker secrets:
+Cloudflare Email Sending uses `notify.jessehattabaugh.com` and the sender
+`no-reply@notify.jessehattabaugh.com`; root-domain incoming mail stays with Proton.
+Configure the sending subdomain in Cloudflare Email Service and set the
+Worker runtime secrets (documented in `.dev.vars.example`):
 
 - `SESSION_SECRET`: random 32+ bytes, base64url encoded.
 - `VAPID_PUBLIC_KEY` and `VAPID_PRIVATE_KEY`: generate with
 	`node scripts/generate-vapid-keys.js`.
 - `OWNER_SETUP_TOKEN`: one-time owner setup credential.
 
-`EMAIL_FROM` and `VAPID_CONTACT` are non-secret variables in `wrangler.jsonc`.
+`EMAIL_FROM`, `VAPID_CONTACT`, and optional `OSRM_URL` in `.dev.vars` are
+allow-listed into deployment configuration; `.dev.vars.example` supplies defaults.
 Email delivery/configuration failures return the standard error page.
 
 Tests run desktop/mobile Chrome with JS on/off; Lighthouse runs only in desktop
 Chrome. Install Chromium once with `npx playwright install chromium`. The stateful
-suites also require `CLOUDFLARE_API_TOKEN` with D1 read/write permissions,
-`CLOUDFLARE_ACCOUNT_ID`, and `E2E_EMAIL_DOMAIN` for a controlled catch-all mailbox.
+suites also require `E2E_CLOUDFLARE_API_TOKEN` with D1 read/write permissions,
+`CLOUDFLARE_ACCOUNT_ID`, and `E2E_EMAIL_DOMAIN` in `.dev.vars` for a controlled
+catch-all mailbox.
 `npm test` automatically supplies `PREVIEW_URL`
-and `PREVIEW_DB_NAME` from the current branch; no manual URL setup is needed. Override
-`WORKERS_DEV_SUBDOMAIN` for a different Cloudflare account. To target a particular
-version, set `PREVIEW_URL` explicitly. Reports go to `playwright-report/`.
+and `PREVIEW_DB_NAME` from the current branch; no manual URL setup is needed. Set
+`WORKERS_DEV_SUBDOMAIN` in `.dev.vars` for a different Cloudflare account. To target a particular
+version, set `PREVIEW_URL` in `.dev.vars`. Reports go to `playwright-report/`.
 
 Tests use unique identities, real email-binding calls, genuine confirmation
 records from the preview D1 database, and cleanup of their own rows. Token
@@ -119,4 +125,58 @@ literal “every enhancement has a no-JS equivalent” rule in `AGENTS.md`.
 
 Lighthouse skips the preview environment's `is-crawlable` audit because preview
 URLs are intentionally not indexed. Error/confirmation endpoints are covered by
-functional flows; Lighthouse covers the seven public pages.
+functional flows; Lighthouse covers the public pages and Lightsfinder’s four views.
+
+## Lightsfinder
+
+`/apps/lightsfinder/` offers a themed map, photo sightings, ratings/reports,
+regional season standings, and budgeted driving loops. Server code lives in
+`apps/lightsfinder/`; browser/PWA assets in `client/apps/lightsfinder/`.
+Only cross-app infrastructure stays in `shared/`. Core forms work without JS;
+GPS, resizing, sharing, and installation are optional enhancements.
+
+Verified accounts can publish 10 sightings and upload 20 raster photos per day.
+Photos are limited to 750 KB, stripped of metadata, and stored in isolated D1;
+valid drafts survive field validation for 24 hours. Move photos to branch-isolated
+R2 before large-scale usage. Historical sightings are marked as unconfirmed and
+excluded from current driving plans. The default view starts in Seattle and
+selects the upcoming fixed-date holiday; Other supports named festivals.
+
+Maps use OpenStreetMap; routes use public OSRM. Set `OSRM_URL` for a self-hosted
+HTTPS road service. Loops consider 20 candidate addresses/up to eight stops and
+verify the actual return distance/time; they are approximate optimizations with
+no live traffic. Service failures show a 503 retry form. Complete road directions
+remain in the app if a navigation handoff omits mobile waypoints.
+
+Awards use community-supplied regions and one averaged vote per account/address;
+results can change with moderation and late submissions. Three distinct reports
+quarantine spam or mark lights taken down. Authors can mark their own displays
+taken down immediately; the existing site owner reviews `?view=moderation`.
+The offline PWA shell explains connectivity needs and caches no private pages,
+photos, or map tiles. See `tests/lightsfinder.test.js` for functional flows/errors.
+
+## Environment configuration
+
+Use the ignored `.dev.vars` file; copy `.dev.vars.example` for all documented
+keys. Node commands and direct Playwright runs load it using Node's native dotenv
+parser; no dependency or `.env` file is needed. Nonempty CI/environment values
+take precedence, and empty example values are ignored by Node commands. Wrangler
+reads `.dev.vars` for local development. Derived preview identity remains
+automatic; tests reject production or mismatched fixture databases.
+
+`node scripts/generate-vapid-keys.js` fills missing runtime secrets in
+`.dev.vars` without printing or rotating existing values. For an existing
+deployment, keep its current secret values; generating a new session key signs
+users out if later deployed. `npm run secrets:upload` sends only the four
+allow-listed runtime secrets to an **unpromoted** Cloudflare Worker version.
+Select/deploy that version explicitly when ready. Ordinary app preview deploys
+preserve the remote secrets. Cloudflare's deployed bindings are separate from
+local files; editing `.dev.vars` alone cannot change a running Worker.
+The D1-only `E2E_CLOUDFLARE_API_TOKEN` is separate from Wrangler deployment
+credentials, so it cannot override OAuth login. A general `CLOUDFLARE_API_TOKEN`
+can also supply fixtures when it has D1 permission. Tooling credentials and the
+test mailbox domain are never uploaded.
+
+Lightsfinder opts out of cross-document View Transitions because JS-disabled
+Chromium left snapshots intercepting native controls in deployed tests. Its
+optional fetch-and-swap form enhancement still uses View Transitions.

@@ -1,4 +1,6 @@
 /** Shared branch identity for deployment and browser tests. */
+import './environment.js';
+import { workerVariables } from './environment.js';
 import { execFileSync } from 'node:child_process';
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
@@ -14,7 +16,9 @@ export function readConfig() {
 	const source = readFileSync(new URL('../wrangler.jsonc', import.meta.url), 'utf8');
 	const json = source.replace(/"(?:\\.|[^"\\])*"|\/\/[^\n]*|\/\*[\s\S]*?\*\//g, (match) => match.startsWith('"') ? match : ' ')
 		.replace(/"(?:\\.|[^"\\])*"|,(\s*[}\]])/g, (match, close) => close ?? match);
-	return JSON.parse(json);
+	const config = JSON.parse(json);
+	config.vars = { ...config.vars, ...workerVariables() };
+	return config;
 }
 
 export function currentBranch() {

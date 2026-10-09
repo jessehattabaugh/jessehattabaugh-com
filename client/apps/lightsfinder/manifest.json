@@ -1,0 +1,20 @@
+{
+	"id": "/apps/lightsfinder/",
+	"name": "Lightsfinder",
+	"short_name": "Lightsfinder",
+	"description": "Find holiday lights and take the scenic route.",
+	"start_url": "/apps/lightsfinder/",
+	"scope": "/apps/lightsfinder/",
+	"display": "standalone",
+	"background_color": "#faf5e9",
+	"theme_color": "#593475",
+	"icons": [
+		{ "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" },
+		{ "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
+		{ "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+	],
+	"shortcuts": [
+		{ "name": "Share lights", "url": "/apps/lightsfinder/?view=share" },
+		{ "name": "Plan a drive", "url": "/apps/lightsfinder/?view=route" }
+	]
+}

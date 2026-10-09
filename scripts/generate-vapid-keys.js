@@ -1,42 +1,27 @@
-/**
- * Generate VAPID key pair and SESSION_SECRET for the messaging app.
- * Run once: node scripts/generate-vapid-keys.js
- * Then set with: wrangler secret put VAPID_PUBLIC_KEY, etc.
- */
+/** Fill missing runtime secrets in .dev.vars; never rotate existing values.
+ * Remote secrets are updated separately using npm run secrets:upload. */
+import { webcrypto } from 'node:crypto';
+import { readFileSync, writeFileSync, chmodSync, existsSync } from 'node:fs';
+import { localVariables } from './environment.js';
 
-/** @param {ArrayBuffer | Uint8Array} buf */
-function toBase64url(buf) {
-	const bytes = buf instanceof Uint8Array ? buf : new Uint8Array(buf);
-	return Buffer.from(bytes.buffer, bytes.byteOffset, bytes.byteLength).toString('base64url');
+const file = new URL('../.dev.vars', import.meta.url);
+let source = existsSync(file) ? readFileSync(file, 'utf8') : readFileSync(new URL('../.dev.vars.example', import.meta.url), 'utf8');
+/** @type {Record<string,string>} */
+const generated = {};
+if (!!localVariables.VAPID_PUBLIC_KEY !== !!localVariables.VAPID_PRIVATE_KEY) {
+	throw new Error('The VAPID key pair is incomplete in .dev.vars. Restore the matching key before generating anything.');
 }
-
-async function main() {
-	const { webcrypto } = await import('node:crypto');
-
-	// Generate VAPID key pair (ECDSA P-256 — used for both signing JWTs and identifying the server)
-	const keyPair = await webcrypto.subtle.generateKey(
-		{ name: 'ECDSA', namedCurve: 'P-256' },
-		true,
-		['sign', 'verify'],
-	);
-	const publicKeyRaw = await webcrypto.subtle.exportKey('raw', keyPair.publicKey);
-	const privateKeyPkcs8 = await webcrypto.subtle.exportKey('pkcs8', keyPair.privateKey);
-
-	// Generate SESSION_SECRET (32 random bytes)
-	const sessionSecret = webcrypto.getRandomValues(new Uint8Array(32));
-
-	// Generate OWNER_SETUP_TOKEN (16 random bytes → readable hex)
-	const ownerToken = Buffer.from(webcrypto.getRandomValues(new Uint8Array(16))).toString('hex');
-
-	console.log('\nSet these Cloudflare secrets (wrangler secret put <NAME>):\n');
-	console.log('VAPID_PUBLIC_KEY=', toBase64url(publicKeyRaw));
-	console.log('VAPID_PRIVATE_KEY=', toBase64url(privateKeyPkcs8));
-	console.log('SESSION_SECRET=', toBase64url(sessionSecret));
-	console.log('OWNER_SETUP_TOKEN=', ownerToken);
-	console.log('\n');
+if (!localVariables.VAPID_PUBLIC_KEY && !localVariables.VAPID_PRIVATE_KEY) {
+	const pair = await webcrypto.subtle.generateKey({ name: 'ECDSA', namedCurve: 'P-256' }, true, ['sign', 'verify']);
+	generated.VAPID_PUBLIC_KEY = Buffer.from(await webcrypto.subtle.exportKey('raw', pair.publicKey)).toString('base64url');
+	generated.VAPID_PRIVATE_KEY = Buffer.from(await webcrypto.subtle.exportKey('pkcs8', pair.privateKey)).toString('base64url');
 }
-
-main().catch((error) => {
-	console.error(error);
-	process.exitCode = 1;
-});
+if (!localVariables.SESSION_SECRET) { generated.SESSION_SECRET = Buffer.from(webcrypto.getRandomValues(new Uint8Array(32))).toString('base64url'); }
+if (!localVariables.OWNER_SETUP_TOKEN) { generated.OWNER_SETUP_TOKEN = Buffer.from(webcrypto.getRandomValues(new Uint8Array(16))).toString('hex'); }
+for (const [name, value] of Object.entries(generated)) {
+	const pattern = new RegExp(`^${name}=.*$`, 'm');
+	source = pattern.test(source) ? source.replace(pattern, `${name}=${value}`) : `${source}\n${name}=${value}\n`;
+}
+writeFileSync(file, source, { mode: 0o600 });
+chmodSync(file, 0o600);
+console.log(`Saved ${Object.keys(generated).length} missing runtime secrets to .dev.vars; existing values preserved.`);

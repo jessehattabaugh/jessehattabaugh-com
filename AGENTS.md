@@ -20,6 +20,7 @@ No SPA framework, no client-side router, no build-time UI framework. If you reac
 4. **One template source.** Build and Worker import the same template functions from `shared/`. Never maintain two copies of markup.
 5. **JavaScript with JSDoc.** `.js`/`.mjs` with JSDoc annotations. `tsc --checkJs --strict --noEmit` for type checking. No `.ts` transpile step.
 6. **Preview isolation.** Every branch deploys as a version with its own per-branch D1 database and a versioned preview URL, never production data.
+7. **Environment variables.** Secrets and configuration are injected via the `.dev.vars` file. All required variables must be documented in `.dev.vars.example`. Never hardcode secrets or config in source code.
 
 ---
 

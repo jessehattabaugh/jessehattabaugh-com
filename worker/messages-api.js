@@ -17,7 +17,7 @@ import { render, html } from '../shared/html.js';
 import { messagesPage, messagesFragment } from '../shared/templates/messages.js';
 import { paths } from '../shared/routes.js';
 import { SECURITY_HEADERS } from './security-headers.js';
-import { readForm, readJson } from './request.js';
+import { ServiceError, readForm, readJson } from './request.js';
 
 /** @param {unknown} data @param {number} [status] @param {Record<string, string>} [headers] */
 function json(data, status = 200, headers = {}) {
@@ -105,7 +105,7 @@ function validEmail(email) { return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) && 
  */
 async function emailVerification(env, request, data) {
 	if (!env.EMAIL || !env.EMAIL_FROM || !env.SESSION_SECRET) {
-		throw new Error('Email sign-in is not configured');
+		throw new ServiceError(!env.EMAIL ? 'EMAIL_BINDING_MISSING' : !env.EMAIL_FROM ? 'EMAIL_SENDER_MISSING' : 'SESSION_SECRET_MISSING');
 	}
 	const token = crypto.randomUUID();
 	await createEmailVerification(env.DB, {
@@ -123,7 +123,9 @@ async function emailVerification(env, request, data) {
 		});
 	} catch (error) {
 		await deleteEmailVerification(env.DB, token);
-		throw error;
+		const code = error && typeof error === 'object' && 'code' in error ? String(error.code) : '';
+		const known = ['E_SENDER_NOT_VERIFIED', 'E_SENDER_DOMAIN_NOT_AVAILABLE', 'E_RECIPIENT_NOT_ALLOWED', 'E_RECIPIENT_SUPPRESSED', 'E_VALIDATION_ERROR', 'E_FIELD_MISSING', 'E_UNVERIFIED_SENDER', 'E_INVALID_EMAIL', 'E_INVALID_ARGUMENT', 'E_DELIVERY_FAILED', 'E_RATE_LIMIT_EXCEEDED', 'E_DAILY_LIMIT_EXCEEDED', 'E_INTERNAL_SERVER_ERROR', 'E_UNAUTHORIZED', 'E_NOT_AUTHORIZED'];
+		throw new ServiceError(known.includes(code) ? code : 'EMAIL_DELIVERY_FAILED', error);
 	}
 }
 
@@ -202,7 +204,9 @@ export async function handleMessagesApi(request, env) {
 	}
 	if (path === paths.login) {
 		if (request.method === 'GET') {
-			return page(request, { screen: 'login', notice: url.searchParams.has('checkEmail') ? 'Check your email to confirm your request.' : undefined });
+			const response = page(request, { screen: 'login', notice: url.searchParams.has('checkEmail') ? 'Check your email to confirm your request.' : undefined });
+			if (url.searchParams.get('returnTo') === 'lightsfinder') { response.headers.append('Set-Cookie', '__Host-appReturn=lightsfinder; HttpOnly; Secure; SameSite=Lax; Path=/; Max-Age=1800'); }
+			return response;
 		}
 		const form = await readForm(request);
 		const name = String(form.get('name') ?? '').trim();
@@ -259,7 +263,10 @@ export async function handleMessagesApi(request, env) {
 				await notifyNewMessage(env, { conversationId: completed.conversationId, senderIsOwner: !!user.is_owner, senderName: user.display_name, content });
 			} catch (error) { console.error('Message notification failed', error); }
 		}
-		return redirect(paths.messages + (content ? '?sent=1' : ''), { 'Set-Cookie': cookie });
+		const appReturn = /(?:^|;\s*)__Host-appReturn=lightsfinder(?:;|$)/.test(request.headers.get('Cookie') ?? '');
+		const response = redirect(appReturn && verification.purpose === 'login' ? paths.lightsfinder : paths.messages + (content ? '?sent=1' : ''), { 'Set-Cookie': cookie });
+		response.headers.append('Set-Cookie', '__Host-appReturn=; HttpOnly; Secure; SameSite=Lax; Path=/; Max-Age=0');
+		return response;
 	}
 	if (path === paths.logout) {
 		return redirect(paths.messages, { 'Set-Cookie': sessionCookieHeader('', true) });

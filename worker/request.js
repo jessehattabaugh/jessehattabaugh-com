@@ -16,3 +16,9 @@ export async function readJson(request) {
 	if (request.headers.get('Content-Type')?.split(';')[0].trim().toLowerCase() !== 'application/json') { throw new RequestBodyError(415); }
 	try { return await request.json(); } catch { throw new RequestBodyError(400); }
 }
+
+/** A fixed public diagnostic code; the underlying error stays server-side. */
+export class ServiceError extends Error {
+	/** @param {string} code @param {unknown} [cause] */
+	constructor(code, cause) { super('Service unavailable', { cause }); this.code = code; }
+}
