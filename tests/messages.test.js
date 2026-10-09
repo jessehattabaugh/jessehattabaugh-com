@@ -18,7 +18,12 @@ test('a held message survives a database failure and its confirmation can be ret
 	try {
 		await failFixtureMessage(db, message, true);
 		await page.goto(link);
-		const failed = page.waitForResponse((response) => response.request().method() === 'POST' && new URL(response.url()).pathname === '/apps/messages/verify');
+		const failed = page.waitForResponse((response) => {
+			return (
+				response.request().method() === 'POST' &&
+				new URL(response.url()).pathname === '/apps/messages/verify'
+			);
+		});
 		await page.getByRole('button', { name: 'Confirm email', exact: true }).click();
 		expect((await failed).status()).toBe(500);
 		await expect(page.getByRole('heading', { level: 1, name: 'Something went wrong', exact: true })).toBeVisible();

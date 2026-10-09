@@ -28,13 +28,23 @@ async function connect() {
 		if (!response.ok || !data.success) { throw new Error('Cloudflare D1 fixture request failed. Check account and token permissions.'); }
 		return data.result;
 	}
-	let database;
-	for (let pageNumber = 1; !database; pageNumber++) {
+	async function findDatabase(pageNumber = 1) {
 		const databases = await api(`?per_page=100&page=${pageNumber}`);
-		database = databases.find((/** @type {{ name: string }} */ item) => item.name === name);
-		if (databases.length < 100) { break; }
+		const database = databases.find((/** @type {{ name: string }} */ item) => {
+			return item.name === name;
+		});
+		if (database || databases.length < 100) {
+			return database;
+		}
+		return findDatabase(pageNumber + 1);
 	}
-	if (!database || config.d1_databases.some((item) => item.database_id === database.uuid)) {
+	const database = await findDatabase();
+	if (
+		!database ||
+		config.d1_databases.some((item) => {
+			return item.database_id === database.uuid;
+		})
+	) {
 		throw new Error('Refusing to use an unverified or production database for test fixtures.');
 	}
 	const response = await fetch(new URL('/apps/messages/', process.env.PREVIEW_URL));
@@ -52,10 +62,17 @@ async function connect() {
 				return result;
 			}
 			return {
-				bind(/** @type {unknown[]} */ ...values) { params = values.map((value) => value === null ? null : String(value)); return this; },
+				bind(/** @type {unknown[]} */ ...values) {
+					params = values.map((value) => {
+						return value === null ? null : String(value);
+					});
+					return this;
+				},
 				run: execute,
 				all: execute,
-				async first() { return (await execute()).results[0] ?? null; },
+				async first() {
+					return (await execute()).results[0] ?? null;
+				},
 			};
 		},
 	};

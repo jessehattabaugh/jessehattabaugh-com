@@ -34,7 +34,11 @@ export const test = base.extend({
 			},
 		}); } finally {
 			const db = await previewDatabase();
-			for (const email of emails) { await deleteFixtureUser(db, email); }
+			await Promise.all(
+				emails.map((email) => {
+					return deleteFixtureUser(db, email);
+				}),
+			);
 		}
 	},
 });
