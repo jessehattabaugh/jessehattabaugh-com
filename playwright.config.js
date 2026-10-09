@@ -1,3 +1,4 @@
+import './scripts/environment.js';
 import { defineConfig, devices } from '@playwright/test';
 
 export default defineConfig({

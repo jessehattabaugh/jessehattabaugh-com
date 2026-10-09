@@ -6,6 +6,7 @@ import { html, Raw } from '../html.js';
  * @param {Raw | string} opts.body
  * @param {string} [opts.description]
  * @param {string} [opts.path]
+ * @param {boolean} [opts.viewTransitions]
  * @param {Raw} [opts.head]
  * @param {Raw} [opts.scripts]
  * @returns {Raw}
@@ -15,6 +16,7 @@ export const layout = ({
 	body,
 	description = 'Personal website of Jesse Hattabaugh, a software engineer.',
 	path = '',
+	viewTransitions = true,
 	head = html``,
 	scripts = html``,
 }) => {
@@ -32,7 +34,7 @@ export const layout = ({
 				${head}
 				<style>
 					@view-transition {
-						navigation: auto;
+						navigation: ${viewTransitions ? 'auto' : 'none'};
 					}
 				</style>
 				<script type="speculationrules">

@@ -13,7 +13,11 @@ execFileSync(process.execPath, [join(ROOT, 'build/build.js')], { cwd: ROOT, stdi
 
 if (production) {
 	wrangler(['d1', 'migrations', 'apply', config.d1_databases[0].database_name, '--remote']);
-	wrangler(['deploy']);
+	// Use the same resolved public settings for production as for preview.
+	const configPath = join(ROOT, '.wrangler-production.json');
+	writeFileSync(configPath, JSON.stringify(config, null, '\t'));
+	try { wrangler(['deploy', '--config', configPath]); }
+	finally { unlinkSync(configPath); }
 } else {
 	const { alias, databaseName } = previewIdentity(branch, config.name);
 	/** @type {Array<{ name: string, uuid?: string, database_id?: string }>} */

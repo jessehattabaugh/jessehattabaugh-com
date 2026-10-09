@@ -62,7 +62,13 @@ export async function signIn(page, identity) {
 	await page.goto('/login');
 	await page.getByLabel('Name', { exact: true }).fill(identity.name);
 	await page.getByLabel('Email', { exact: true }).fill(identity.email);
-	await page.getByRole('button', { name: 'Email me a sign-in link', exact: true }).click();
+	const [response] = await Promise.all([
+		page.waitForResponse((response) => new URL(response.url()).pathname === '/login' && response.request().method() === 'POST'),
+		page.getByRole('button', { name: 'Email me a sign-in link', exact: true }).click(),
+	]);
+	if (response.status() >= 400) {
+		throw new Error(`Email sign-in failed: HTTP ${response.status()}, service code ${response.headers()['x-preview-service-error'] ?? 'unavailable'}.`);
+	}
 	await expect(page.getByRole('status').filter({ hasText: 'Check your email' })).toBeVisible();
 	await page.goto(await confirmationLink(page, identity.email));
 	await page.getByRole('button', { name: 'Confirm email', exact: true }).click();

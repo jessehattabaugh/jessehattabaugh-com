@@ -9,8 +9,22 @@
 		"allowJs": true,
 		"checkJs": true,
 		"strict": true,
-		"lib": ["ES2022"],
-		"types": ["node"]
+		"lib": [
+			"ES2022"
+		],
+		"types": [
+			"node"
+		]
 	},
-	"include": ["../shared/html.js", "../shared/routes.js", "../shared/pages.js", "../shared/templates/**/*.js", "**/*.js", "../scripts/**/*.js"]
+	"include": [
+		"../shared/html.js",
+		"../shared/routes.js",
+		"../shared/pages.js",
+		"../shared/templates/**/*.js",
+		"**/*.js",
+		"../scripts/**/*.js",
+		"../apps/lightsfinder/templates.js",
+		"../apps/lightsfinder/model.js",
+		"../apps/lightsfinder/data.js"
+	]
 }

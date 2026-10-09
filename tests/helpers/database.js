@@ -10,12 +10,12 @@ export function previewDatabase() {
 }
 
 async function connect() {
-	const token = process.env.CLOUDFLARE_API_TOKEN;
+	const token = process.env.E2E_CLOUDFLARE_API_TOKEN || process.env.CLOUDFLARE_API_TOKEN;
 	const account = process.env.CLOUDFLARE_ACCOUNT_ID;
 	const name = process.env.PREVIEW_DB_NAME;
 	const config = readConfig();
 	if (!token || !account || !name?.startsWith(`${config.name}-preview-`)) {
-		throw new Error('Stateful E2E tests require CLOUDFLARE_API_TOKEN, CLOUDFLARE_ACCOUNT_ID, and PREVIEW_DB_NAME for an isolated preview database.');
+		throw new Error('Stateful E2E tests require E2E_CLOUDFLARE_API_TOKEN (or CLOUDFLARE_API_TOKEN), CLOUDFLARE_ACCOUNT_ID, and PREVIEW_DB_NAME for an isolated preview database.');
 	}
 	/** @param {string} path @param {unknown} [body] */
 	async function api(path, body) {

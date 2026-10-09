@@ -19,7 +19,8 @@
 		"deploy:prod": "node scripts/deploy.js --production",
 		"deploy:preview": "node scripts/deploy.js --preview",
 		"dev": "wrangler dev",
-		"test": "node scripts/test-preview.js"
+		"test": "node scripts/test-preview.js",
+		"secrets:upload": "node scripts/upload-secrets.js"
 	},
 	"type": "module",
 	"version": "1.0.0"

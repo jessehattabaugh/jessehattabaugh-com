@@ -61,6 +61,7 @@ export const apps = () => {
 				<h1>Apps</h1>
 				<p>Standalone progressive web apps &mdash; install any of these on your device.</p>
 				<ul class="apps-grid">
+					<li><a href="/apps/lightsfinder/" class="app-card"><div class="app-card__icon" aria-hidden="true"><img src="/apps/lightsfinder/icon.svg" alt="" width="64" height="64" /></div><span class="app-card__name">Lightsfinder</span><span class="app-card__desc">Discover holiday lights and take the scenic route</span><div class="app-card__tags"><span class="app-tag">Photo sightings</span><span class="app-tag">Season awards</span><span class="app-tag">Driving loops</span></div></a></li>
 					<li>
 						<a href="/apps/messages/" class="app-card">
 							<div class="app-card__icon" aria-hidden="true">${messagesIcon}</div>

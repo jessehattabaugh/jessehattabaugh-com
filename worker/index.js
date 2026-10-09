@@ -3,9 +3,10 @@ import { error as errorPage } from '../shared/templates/error.js';
 import { findDynamicRoute, paths } from '../shared/routes.js';
 import { handleMessagesApi } from './messages-api.js';
 import { handleRainbowApi } from './rainbow-api.js';
+import { handleLightsfinder } from '../apps/lightsfinder/worker.js';
 import { rainbowWakeCron } from './rainbow-cron.js';
 import { SECURITY_HEADERS } from './security-headers.js';
-import { RequestBodyError } from './request.js';
+import { RequestBodyError, ServiceError } from './request.js';
 
 /** Apply security headers to every representation, including assets and redirects. */
 /** @param {Response} response @param {boolean} [head] */
@@ -48,7 +49,7 @@ export default {
 				if (route.handler === 'contact') {
 					response = new Response(null, { status: 301, headers: { Location: paths.messages } });
 				} else {
-					response = route.handler === 'messages' ? await handleMessagesApi(request, env) : await handleRainbowApi(request, env);
+					response = route.handler === 'lightsfinder' ? await handleLightsfinder(request, env) : route.handler === 'messages' ? await handleMessagesApi(request, env) : await handleRainbowApi(request, env);
 				}
 				if (response) {
 					const headers = new Headers(response.headers);
@@ -68,7 +69,9 @@ export default {
 			return secure(response, head);
 		} catch (error) {
 			console.error(error);
-			return secure(failure(error instanceof RequestBodyError ? error.status : 500), head);
+			/** @type {Record<string,string>} */
+			const diagnostics = env.PREVIEW_BRANCH && error instanceof ServiceError ? { 'X-Preview-Service-Error': error.code } : {};
+			return secure(failure(error instanceof RequestBodyError ? error.status : 500, diagnostics), head);
 		}
 	},
 	async scheduled(controller, env, ctx) {

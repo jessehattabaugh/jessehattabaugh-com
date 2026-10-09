@@ -10,8 +10,16 @@
 		"allowJs": true,
 		"checkJs": true,
 		"strict": true,
-		"lib": ["ES2022"],
-		"types": ["@cloudflare/workers-types"]
+		"lib": [
+			"ES2022"
+		],
+		"types": [
+			"@cloudflare/workers-types"
+		]
 	},
-	"include": ["../shared/**/*.js", "**/*.js"]
+	"include": [
+		"../shared/**/*.js",
+		"**/*.js",
+		"../apps/lightsfinder/**/*.js"
+	]
 }
