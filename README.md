@@ -56,6 +56,9 @@ npm run build
 `npm run check` checks Worker, build/scripts, and browser code. `dist/` is generated.
 Do not run functional tests against a local server.
 
+Regenerate the lockfile without an existing `node_modules` directory so optional
+platform packages are preserved. Verify dependency changes with `npm ci`.
+
 ## Deploy and test a branch
 
 Cloudflare Workers Builds runs `npm run deploy` for the checked-out branch.
