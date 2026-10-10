@@ -7,7 +7,7 @@ const script = document.querySelector('script[data-service-worker]');
 const workerUrl = script?.getAttribute('data-service-worker');
 const scope = script?.getAttribute('data-scope');
 const registration = workerUrl && scope && 'serviceWorker' in navigator
-	? navigator.serviceWorker.register(workerUrl, { scope, type: 'module' }).catch(() => null)
+	? navigator.serviceWorker.register(workerUrl, { scope, type: 'module' }).catch(() => {return null})
 	: Promise.resolve(null);
 
 function coordinates() {

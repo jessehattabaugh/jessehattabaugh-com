@@ -11,11 +11,11 @@ export const holidays = [
 /** @param {Date} [now] */
 export function upcomingHoliday(now = new Date()) {
 	const today = now.toISOString().slice(0, 10);
-	return holidays.filter((h) => h.month).map((h) => {
+	return holidays.filter((h) => {return h.month}).map((h) => {
 		let date = new Date(Date.UTC(now.getUTCFullYear(), h.month - 1, h.day));
 		if (date.toISOString().slice(0, 10) < today) { date = new Date(Date.UTC(now.getUTCFullYear() + 1, h.month - 1, h.day)); }
 		return { ...h, date };
-	}).sort((a, b) => a.date.getTime() - b.date.getTime())[0];
+	}).sort((a, b) => {return a.date.getTime() - b.date.getTime()})[0];
 }
 
 /** @param {number} lat @param {number} lon @param {number} zoom */
@@ -34,7 +34,7 @@ export function distance(a, b) {
 }
 
 /** @param {string} value */
-export const normalize = (value) => value.normalize('NFKC').trim().toLocaleLowerCase('en').replace(/\s+/g, ' ');
+export const normalize = (value) => {return value.normalize('NFKC').trim().toLocaleLowerCase('en').replace(/\s+/g, ' ')};
 
 /** Named festivals get their own map and awards, rather than one mixed Other bucket.
  * @param {string} id @param {string} [custom] */
@@ -44,5 +44,5 @@ export function holidayKey(id, custom = '') {
 }
 /** @param {string} id */
 export function validHoliday(id) {
-	return holidays.some((h) => h.id === id) || (id.startsWith('custom:') && id.length > 7 && id.length <= 107);
+	return holidays.some((h) => {return h.id === id}) || (id.startsWith('custom:') && id.length > 7 && id.length <= 107);
 }

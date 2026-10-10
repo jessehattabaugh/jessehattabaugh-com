@@ -1,4 +1,5 @@
-import { html, Raw } from '../html.js';
+import { html } from '../html.js';
+/** @import { Raw } from '../html.js' */
 
 /**
  * @param {object} opts
@@ -83,6 +84,7 @@ export const layout = ({
 									>Colophon</a
 								>
 							</li>
+							<li><a href="/account"${normalizedPath === '/account' ? ' aria-current="page"' : ''}>Account</a></li>
 						</ul>
 					</nav>
 				</header>

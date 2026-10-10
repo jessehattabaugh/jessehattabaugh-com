@@ -20,7 +20,10 @@ document.addEventListener('fragment-loaded', reveal);
 document.addEventListener('click', async (event) => {
 	const button = event.target instanceof Element ? event.target.closest('[data-install]') : null;
 	if (!(button instanceof HTMLButtonElement) || !installationRequest) { return; }
-	try { await installationRequest.prompt(); await installationRequest.userChoice; }
+	const pendingInstallation = installationRequest;
+	installationRequest = null;
+	reveal();
+	try { await pendingInstallation.prompt(); await pendingInstallation.userChoice; }
 	catch { /* Manual installation instructions remain visible. */ }
-	finally { installationRequest = null; reveal(); }
+	finally { reveal(); }
 });

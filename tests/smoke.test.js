@@ -4,8 +4,9 @@ import { staticRoutes, paths } from '../shared/routes.js';
 
 const headings = { home: 'Jesse Hattabaugh', about: 'About', colophon: 'Colophon', apps: 'Apps' };
 const pages = [
-	...staticRoutes.filter((route) => route.name in headings).map((route) => ({ path: route.path, heading: headings[route.name] })),
+	...staticRoutes.filter((route) => {return route.name in headings}).map((route) => {return { path: route.path, heading: headings[route.name] }}),
 	{ path: paths.login, heading: 'Sign in' },
+	{ path: paths.account, heading: 'Sign in' },
 	{ path: paths.messages, heading: 'Messages' },
 	{ path: paths.rainbow, heading: 'Rainbow Hour' },
 ];
@@ -16,6 +17,7 @@ for (const { path, heading } of pages) {
 		await expect(page.getByRole('heading', { name: heading, level: 1, exact: true })).toBeVisible();
 		const nav = page.getByRole('navigation', { name: 'Main navigation' });
 		for (const name of ['About', 'Apps', 'Send me a message', 'Colophon']) {
+			// eslint-disable-next-line no-await-in-loop -- Keep browser assertions in order.
 			await expect(nav.getByRole('link', { name, exact: true })).toBeVisible();
 		}
 	});

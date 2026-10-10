@@ -1,5 +1,5 @@
 import { randomUUID } from 'node:crypto';
-import { test, expect, signIn, confirmationLink } from './helpers/messages.js';
+import { test, expect, signIn, confirmationLink } from './helpers/auth.js';
 import { previewDatabase } from './helpers/database.js';
 import { expireVerification, failFixtureMessage } from '../shared/data/fixtures.js';
 
@@ -21,7 +21,7 @@ test('a held message survives a database failure and its confirmation can be ret
 		const failed = page.waitForResponse((response) => {
 			return (
 				response.request().method() === 'POST' &&
-				new URL(response.url()).pathname === '/apps/messages/verify'
+				new URL(response.url()).pathname === '/verify'
 			);
 		});
 		await page.getByRole('button', { name: 'Confirm email', exact: true }).click();
@@ -112,6 +112,10 @@ test('server validation keeps a rejected message draft', async ({ page, identiti
 
 test('a visitor cannot read another visitor’s conversation', async ({ page, browser, identities }, testInfo) => {
 	await signIn(page, identities.create());
+	const message = `Private message ${randomUUID()}`;
+	await page.getByLabel('Message', { exact: true }).fill(message);
+	await page.getByRole('button', { name: 'Send', exact: true }).click();
+	await expect(page.getByText(message, { exact: true })).toBeVisible();
 	const protectedUrl = await page.getByRole('link', { name: 'Refresh messages' }).getAttribute('href');
 	const context = await browser.newContext({ ...testInfo.project.use });
 	try {
@@ -166,14 +170,15 @@ test('passkeys provide an optional alternative to email sign-in', async ({ page,
 	await cdp.send('WebAuthn.enable');
 	await cdp.send('WebAuthn.addVirtualAuthenticator', { options: { protocol: 'ctap2', transport: 'internal', hasResidentKey: true, hasUserVerification: true, isUserVerified: true } });
 	await signIn(page, identities.create());
+	await page.getByRole('link', { name: 'Manage your account', exact: true }).click();
 	// Sign out exists before enrollment; wait for the completed enrollment's
 	// navigation rather than allowing logout to interrupt the credential request.
 	await Promise.all([
-		page.waitForEvent('load'),
+		page.waitForNavigation(),
 		page.getByRole('button', { name: 'Add a passkey', exact: true }).click(),
 	]);
 	await page.getByRole('button', { name: 'Sign out', exact: true }).click();
-	await page.getByRole('link', { name: 'Sign in to your conversation' }).click();
+	await expect(page.getByRole('heading', { name: 'Sign in', exact: true })).toBeVisible();
 	await page.getByRole('button', { name: 'Sign in with a passkey', exact: true }).click();
 	await expect(page.getByRole('button', { name: 'Sign out', exact: true })).toBeVisible();
 });
@@ -186,8 +191,9 @@ test('a confirmed recovery email keeps message history on the same account', asy
 	await page.getByLabel('Message', { exact: true }).fill(message);
 	await page.getByRole('button', { name: 'Send', exact: true }).click();
 	await expect(page.getByText(message, { exact: true })).toBeVisible();
+	await page.getByRole('link', { name: 'Manage your account', exact: true }).click();
 	await page.getByText('Recovery email', { exact: true }).first().click();
-	await page.getByLabel('Recovery email', { exact: true }).fill(recovery.email);
+	await page.getByRole('textbox', { name: 'Recovery email', exact: true }).fill(recovery.email);
 	await page.getByRole('button', { name: 'Confirm recovery email', exact: true }).click();
 	await expect(page.getByRole('status').filter({ hasText: 'Check your email' })).toBeVisible();
 	await page.goto(await confirmationLink(page, recovery.email));

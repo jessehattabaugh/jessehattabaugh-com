@@ -47,7 +47,8 @@ document.addEventListener('click', async (event) => {
 document.addEventListener('change', async (event) => {
 	const input = event.target;
 	if (!(input instanceof HTMLInputElement) || input.type !== 'file' || !input.closest('[data-lightsfinder]') || !input.files?.[0] || !('createImageBitmap' in window) || !('DataTransfer' in window)) { return; }
-	const original = input.files[0], status = input.form?.querySelector('[data-upload-status]');
+	const [original] = input.files;
+	const status = input.form?.querySelector('[data-upload-status]');
 	const submit = input.form?.querySelector('button:not([type="button"])');
 	if (submit instanceof HTMLButtonElement) { submit.disabled = true; }
 	try {
@@ -58,7 +59,9 @@ document.addEventListener('change', async (event) => {
 			canvas.width = Math.max(1, Math.round(image.width * scale)); canvas.height = Math.max(1, Math.round(image.height * scale));
 			const context = canvas.getContext('2d'); if (!context) { throw new Error('Canvas unavailable'); }
 			context.fillStyle = '#fff'; context.fillRect(0, 0, canvas.width, canvas.height); context.drawImage(image, 0, 0, canvas.width, canvas.height);
-			blob = await new Promise((resolve) => canvas.toBlob(resolve, 'image/jpeg', .82));
+			// Each smaller encoding depends on the previous attempt's size.
+			// eslint-disable-next-line no-await-in-loop
+			blob = await new Promise((resolve) => { canvas.toBlob(resolve, 'image/jpeg', .82); });
 			if (blob && blob.size <= 750000) { break; } edge *= .7;
 		}
 		image.close();

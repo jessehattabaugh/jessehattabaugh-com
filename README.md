@@ -20,12 +20,23 @@ or runtime dependencies.
 
 Home, About, Apps, and Colophon are static. `/contact` redirects to Messages.
 
-**Messages** uses email confirmation and signed cookies. Visitors can send
+**Platform accounts** live at `/login`, `/verify`, and `/account`.
+Email links and passkeys share one signed, host-only session across apps. Account
+settings own passkey enrollment, recovery email, owner setup, and sign-out.
+Authentication lives in `worker/auth.js`, `shared/data/auth.js`,
+`shared/templates/auth.js`, and `client/enhance/auth.js`. Confirmation pages use
+the site layout; emails identify jessehattabaugh.com. The requesting app's
+allow-listed return destination is stored with its verification token, so opening
+email on another device still returns there. Generic sign-in opens account settings.
+Previously sent Messages verification links and credential endpoints remain valid.
+No schema migration or session reset is required.
+
+**Messages** uses the shared platform account. Visitors can send
 messages, sign in on another device, read history, and refresh replies without
-JavaScript. The owner can select conversations and reply the same way. A signed-in
-visitor can add a passkey; the first owner can claim the role with
-`OWNER_SETUP_TOKEN`. Existing account data survives this change, but legacy
-sessions must sign in again. Verification links display a confirmation form;
+JavaScript. The owner can select conversations and reply the same way.
+Account settings offer passkeys, recovery email, and first-owner setup with
+`OWNER_SETUP_TOKEN`. Existing account data and verified sessions are preserved.
+Verification links display a confirmation form;
 only its POST consumes the token or sends a held message.
 Confirmation commits its database changes atomically, so failed publication can
 be retried with the same link. Notification controls check server registration

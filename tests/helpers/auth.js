@@ -2,7 +2,7 @@ import { test as base, expect } from '@playwright/test';
 import { randomUUID } from 'node:crypto';
 import { previewDatabase } from './database.js';
 import { pendingVerification, deleteFixtureUser } from '../../shared/data/fixtures.js';
-import { createUser, markEmailVerified } from '../../shared/data/messages.js';
+import { createUser, markEmailVerified } from '../../shared/data/auth.js';
 
 /**
  * Emails are sent through the real binding. The test reads the genuine token
@@ -52,18 +52,18 @@ export async function confirmationLink(page, email) {
 		token = await pendingVerification(db, email);
 		return !!token;
 	}, { timeout: 15000 }).toBe(true);
-	const link = new URL('/apps/messages/verify', page.url());
+	const link = new URL('/verify', page.url());
 	link.searchParams.set('token', token.id);
 	return link.toString();
 }
 
 /** @param {import('@playwright/test').Page} page @param {{ name: string, email: string }} identity */
 export async function signIn(page, identity) {
-	await page.goto('/login');
+	await page.goto('/login?returnTo=messages');
 	await page.getByLabel('Name', { exact: true }).fill(identity.name);
 	await page.getByLabel('Email', { exact: true }).fill(identity.email);
 	const [response] = await Promise.all([
-		page.waitForResponse((response) => new URL(response.url()).pathname === '/login' && response.request().method() === 'POST'),
+		page.waitForResponse((response) => {return new URL(response.url()).pathname === '/login' && response.request().method() === 'POST'}),
 		page.getByRole('button', { name: 'Email me a sign-in link', exact: true }).click(),
 	]);
 	if (response.status() >= 400) {
