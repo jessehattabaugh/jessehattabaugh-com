@@ -9,7 +9,7 @@ export const paths = {
 	loginBegin: '/apps/messages/api/auth/login/begin',
 	loginComplete: '/apps/messages/api/auth/login/complete',
 	messagePush: '/apps/messages/push',
-	lightsfinder: '/apps/lightsfinder/',
+	lightsfinder: '/apps/lightsfinder/', crunch: '/apps/crunch-time/',
 	rainbow: '/apps/rainbow-hour/', rainbowPush: '/apps/rainbow-hour/push',
 };
 
@@ -23,6 +23,7 @@ export const staticRoutes = [
 ];
 
 export const dynamicRoutes = [
+	{ path: paths.crunch, methods: ['GET', 'POST'], handler: 'crunch' },
 	{ path: paths.lightsfinder, methods: ['GET', 'POST'], handler: 'lightsfinder' },
 	{ path: paths.contact, methods: ['GET'], handler: 'contact' },
 	{ path: paths.login, methods: ['GET', 'POST'], handler: 'messages' },

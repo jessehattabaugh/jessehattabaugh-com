@@ -1,3 +1,4 @@
+import { handleCrunchTime } from './crunch-time.js';
 import { render } from '../shared/html.js';
 import { error as errorPage } from '../shared/templates/error.js';
 import { findDynamicRoute, paths } from '../shared/routes.js';
@@ -50,6 +51,7 @@ export default {
 					response = new Response(null, { status: 301, headers: { Location: paths.messages } });
 				} else {
 					if (route.handler === 'lightsfinder') { response = await handleLightsfinder(routeRequest, env); }
+					else if (route.handler === 'crunch') { response = await handleCrunchTime(routeRequest, env); }
 					else if (route.handler === 'messages') { response = await handleMessagesApi(routeRequest, env); }
 					else { response = await handleRainbowApi(routeRequest, env); }
 				}

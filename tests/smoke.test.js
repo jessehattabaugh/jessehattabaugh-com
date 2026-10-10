@@ -10,6 +10,7 @@ const pages = [
 	{ path: paths.login, heading: 'Sign in' },
 	{ path: paths.messages, heading: 'Messages' },
 	{ path: paths.rainbow, heading: 'Rainbow Hour' },
+	{ path: paths.crunch, heading: 'Crunch Time' },
 ];
 
 for (const { path, heading } of pages) {
