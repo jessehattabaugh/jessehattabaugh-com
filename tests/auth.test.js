@@ -1,4 +1,4 @@
-import { test, expect, confirmationLink, signIn } from './helpers/auth.js';
+import { test, expect, confirmationLink, fixtureConfirmationLink, signIn } from './helpers/auth.js';
 import { paths } from '../shared/routes.js';
 import { lighthouseAudit } from './helpers/lighthouse.js';
 
@@ -6,27 +6,29 @@ test('platform email confirmation scores at least 90 in Lighthouse', async ({ pa
 	test.skip(testInfo.project.name !== 'Desktop Chrome', 'Lighthouse runs on Desktop Chrome.');
 	test.setTimeout(90000);
 	const identity = identities.create();
-	await page.goto(paths.login);
-	await page.getByLabel('Name', { exact: true }).fill(identity.name);
-	await page.getByLabel('Email', { exact: true }).fill(identity.email);
-	await page.getByRole('button', { name: 'Email me a sign-in link', exact: true }).click();
-	await expect(page.getByRole('status').filter({ hasText: 'Check your email' })).toBeVisible();
-	const categories = await lighthouseAudit(await confirmationLink(page, identity.email));
+	const categories = await lighthouseAudit(await fixtureConfirmationLink(page, identity));
 	for (const name of ['performance', 'accessibility', 'best-practices', 'seo']) {
 		expect(categories[name]?.score ?? 0, name).toBeGreaterThanOrEqual(0.9);
 	}
 });
 
 // Platform identity is shared by apps in every desktop/mobile and JS/no-JS project.
+test('invalid sign-in preserves the entered email without requesting delivery', async ({ page, identities }) => {
+	const identity = identities.create();
+	await page.goto(paths.login);
+	await page.getByLabel('Name', { exact: true }).fill(identity.name);
+	await page.getByLabel('Email', { exact: true }).fill(identity.email);
+	await page.getByLabel('Name', { exact: true }).evaluate((element) => { element.value = '  '; });
+	await page.getByRole('button', { name: 'Email me a sign-in link', exact: true }).click();
+	await expect(page.getByRole('alert')).toContainText('Enter your name and a valid email address');
+	await expect(page.getByLabel('Email', { exact: true })).toHaveValue(identity.email);
+});
+
 test('direct sign-in opens the platform account and sign-out applies across apps', async ({ page, identities }) => {
 	const identity = identities.create();
 	await page.goto(paths.account);
 	await expect(page.getByRole('heading', { name: 'Sign in', exact: true })).toBeVisible();
-	await page.getByLabel('Name', { exact: true }).fill(identity.name);
-	await page.getByLabel('Email', { exact: true }).fill(identity.email);
-	await page.getByRole('button', { name: 'Email me a sign-in link', exact: true }).click();
-	await expect(page.getByRole('status').filter({ hasText: 'Check your email' })).toBeVisible();
-	await page.goto(await confirmationLink(page, identity.email));
+	await page.goto(await fixtureConfirmationLink(page, identity, { returnTo: paths.account }));
 	await page.getByRole('button', { name: 'Confirm email', exact: true }).click();
 	await expect(page).toHaveURL(new RegExp(`${paths.account}$`));
 	await expect(page.getByRole('heading', { name: 'Your account', exact: true })).toBeVisible();
@@ -42,7 +44,7 @@ test('direct sign-in opens the platform account and sign-out applies across apps
 	await expect(page.getByRole('link', { name: 'Sign in to your conversation' })).toBeVisible();
 });
 
-test('email validation preserves input and the originating app', async ({ page, identities }) => {
+test('email validation preserves input and the originating app', { tag: '@email' }, async ({ page, identities }) => {
 	const identity = identities.create();
 	await page.goto(`${paths.login}?returnTo=lightsfinder`);
 	await page.getByLabel('Name', { exact: true }).fill(identity.name);
@@ -62,7 +64,7 @@ test('email validation preserves input and the originating app', async ({ page, 
 	await expect(page.getByRole('heading', { name: 'Lightsfinder', exact: true })).toBeVisible();
 });
 
-test('an external return destination falls back to the platform account', async ({ page, identities }) => {
+test('an external return destination falls back to the platform account', { tag: '@email' }, async ({ page, identities }) => {
 	const identity = identities.create();
 	await page.goto(`${paths.login}?returnTo=${encodeURIComponent('https://example.com')}`);
 	await page.getByLabel('Name', { exact: true }).fill(identity.name);

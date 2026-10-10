@@ -12,8 +12,11 @@ CLOUDFLARE_ACCOUNT_ID=
 E2E_CLOUDFLARE_API_TOKEN=
 
 # Required only for stateful E2E tests: a catch-all mailbox domain you control.
-# Real verification emails are sent there; tests read tokens from preview D1.
+# Fixture identities use this domain; opt-in delivery tests send to this mailbox.
 E2E_EMAIL_DOMAIN=
+# Ordinary tests send zero emails. Set to 1 only for live @email scenarios.
+# Hard cap: 8 attempts/account/UTC day on this machine, including retries.
+E2E_SEND_EMAIL=
 
 # Public Worker settings. Deployment copies only these allow-listed settings.
 EMAIL_FROM=no-reply@notify.jessehattabaugh.com
