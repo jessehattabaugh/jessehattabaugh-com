@@ -1,5 +1,5 @@
 import { randomUUID } from 'node:crypto';
-import { test, expect, signIn, confirmationLink } from './helpers/auth.js';
+import { test, expect, signIn, confirmationLink, fixtureConfirmationLink } from './helpers/auth.js';
 import { previewDatabase } from './helpers/database.js';
 import { expireVerification, failFixtureMessage } from '../shared/data/fixtures.js';
 
@@ -7,13 +7,7 @@ import { expireVerification, failFixtureMessage } from '../shared/data/fixtures.
 test('a held message survives a database failure and its confirmation can be retried', async ({ page, identities }) => {
 	const identity = identities.create();
 	const message = randomUUID();
-	await page.goto('/apps/messages/');
-	await page.getByLabel('Name', { exact: true }).fill(identity.name);
-	await page.getByLabel('Email', { exact: true }).fill(identity.email);
-	await page.getByLabel('Message', { exact: true }).fill(message);
-	await page.getByRole('button', { name: 'Send', exact: true }).click();
-	await expect(page.getByRole('status').filter({ hasText: 'Check your email' })).toBeVisible();
-	const link = await confirmationLink(page, identity.email);
+	const link = await fixtureConfirmationLink(page, identity, { message });
 	const db = await previewDatabase();
 	try {
 		await failFixtureMessage(db, message, true);
@@ -34,7 +28,7 @@ test('a held message survives a database failure and its confirmation can be ret
 	await expect(page.getByRole('list', { name: 'Messages', exact: true }).getByText(message, { exact: true })).toHaveCount(1);
 });
 
-test('a guest confirms their email, reads history, sends another message, and signs out', async ({ page, identities }) => {
+test('a guest confirms their email, reads history, sends another message, and signs out', { tag: '@email' }, async ({ page, identities }) => {
 	const identity = identities.create();
 	const first = `First message ${randomUUID()} <script>alert(1)</script>`;
 	await page.goto('/apps/messages/');
@@ -142,21 +136,9 @@ test('invalid confirmation links offer a fresh sign-in', async ({ page }) => {
 
 test('an expired confirmation link cannot sign in or publish a held message', async ({ page, identities }) => {
 	const identity = identities.create();
-	await page.goto('/apps/messages/');
-	await page.getByLabel('Name', { exact: true }).fill(identity.name);
-	await page.getByLabel('Email', { exact: true }).fill(identity.email);
-	await page.getByLabel('Message', { exact: true }).fill(`Expired draft ${randomUUID()}`);
-	await page.getByRole('button', { name: 'Send', exact: true }).click();
-	await expect(page.getByRole('status').filter({ hasText: 'Check your email' })).toBeVisible();
-	const link = await confirmationLink(page, identity.email);
+	const link = await fixtureConfirmationLink(page, identity, { message: `Expired draft ${randomUUID()}` });
 	await expireVerification(await previewDatabase(), new URL(link).searchParams.get('token'));
-	// A new email request performs expired-proof maintenance. An old held
-	// message still cannot be published after that cleanup, in JS/no-JS browsers.
-	await page.goto('/login');
-	await page.getByLabel('Name', { exact: true }).fill(identity.name);
-	await page.getByLabel('Email', { exact: true }).fill(identity.email);
-	await page.getByRole('button', { name: 'Email me a sign-in link', exact: true }).click();
-	await expect(page.getByRole('status').filter({ hasText: 'Check your email' })).toBeVisible();
+	// The real confirmation endpoint rejects expired proof without sending mail.
 	const response = await page.goto(link);
 	expect(response.status()).toBe(400);
 	await expect(page.getByRole('alert')).toContainText('expired or is invalid');
@@ -183,7 +165,7 @@ test('passkeys provide an optional alternative to email sign-in', async ({ page,
 	await expect(page.getByRole('button', { name: 'Sign out', exact: true })).toBeVisible();
 });
 
-test('a confirmed recovery email keeps message history on the same account', async ({ page, identities }) => {
+test('a confirmed recovery email keeps message history on the same account', { tag: '@email' }, async ({ page, identities }) => {
 	const identity = identities.create();
 	const recovery = identities.create();
 	await signIn(page, identity);

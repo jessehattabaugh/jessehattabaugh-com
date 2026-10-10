@@ -119,10 +119,18 @@ and `PREVIEW_DB_NAME` from the current branch; no manual URL setup is needed. Se
 `WORKERS_DEV_SUBDOMAIN` in `.dev.vars` for a different Cloudflare account. To target a particular
 version, set `PREVIEW_URL` in `.dev.vars`. Reports go to `playwright-report/`.
 
-Tests use unique identities, real email-binding calls, genuine confirmation
-records from the preview D1 database, and cleanup of their own rows. Token
-retrieval avoids an inbox-provider dependency; it does **not** verify inbox
-arrival. Weather checks use the real service and document its unavailable state.
+Ordinary tests send **zero emails**. They seed unique users and verification
+records in the isolated preview D1 database, then use the real browser confirmation
+form to obtain a server-signed session. They clean up their own rows. Email
+request/delivery scenarios are tagged `@email` and skipped by default. Run selected
+scenarios explicitly with `E2E_SEND_EMAIL=1 npm test --grep @email` (use a narrower
+`--grep` to choose a flow). A persistent ledger in
+`~/.cache/jessehattabaugh-com/email-tests/` caps these scenarios at **8 delivery
+attempts per account per UTC day on this machine**, shared across parallel workers,
+retries, branches and repeated runs. Failed attempts count; excess tests skip.
+Do not enable live-email tests on multiple CI machines: each machine has its own
+ledger. These checks verify binding acceptance and confirmation, not inbox arrival.
+Weather checks use the real service and document its unavailable state.
 Push tests use the real browser push service and need working VAPID configuration
 and push-service connectivity. They do not fake subscriptions or weather.
 

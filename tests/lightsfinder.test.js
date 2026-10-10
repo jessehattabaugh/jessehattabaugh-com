@@ -1,4 +1,4 @@
-import { test, expect, signIn, confirmationLink } from './helpers/auth.js';
+import { test, expect, signIn, confirmationLink, fixtureConfirmationLink } from './helpers/auth.js';
 import { paths } from '../shared/routes.js';
 import { lighthouseAudit } from './helpers/lighthouse.js';
 
@@ -64,32 +64,39 @@ test('all Lightsfinder screens have an accessible heading and controls', async (
 	await expect(page.getByRole('form', { name: 'Share a sighting' })).toHaveCount(0);
 });
 
-test('Lightsfinder email confirmation in a fresh browser uses the platform and returns to the app', async ({ page, browser, identities }, testInfo) => {
-	const identity = identities.create();
-	await page.goto(`${paths.lightsfinder}?view=share`);
-	await page.getByRole('link', { name: 'Sign in to share lights' }).click();
-	await expect(page.getByText('One jessehattabaugh.com account for all apps.', { exact: true })).toBeVisible();
-	await expect(page.getByRole('button', { name: /Install Messages/ })).toHaveCount(0);
-	await page.getByLabel('Name', { exact: true }).fill(identity.name);
-	await page.getByLabel('Email', { exact: true }).fill(identity.email);
-	await page.getByRole('button', { name: 'Email me a sign-in link', exact: true }).click();
-	await expect(page.getByRole('status').filter({ hasText: 'Check your email' })).toBeVisible();
-	const link = await confirmationLink(page, identity.email);
-	const context = await browser.newContext({ ...testInfo.project.use });
-	try {
-		const other = await context.newPage();
-		await other.goto(link);
-		await expect(other).toHaveURL(new RegExp('/verify\\?'));
-		await expect(other.getByRole('heading', { name: 'Confirm your email', exact: true })).toBeVisible();
-		await expect(other.getByText('Continue to Lightsfinder after confirming.', { exact: true })).toBeVisible();
-		await other.reload();
-		await other.getByRole('button', { name: 'Confirm email', exact: true }).click();
-		await expect(other.getByRole('heading', { name: 'Lightsfinder', exact: true })).toBeVisible();
-		await expect(other.getByText(`Signed in as ${identity.name}.`, { exact: true })).toBeVisible();
-		await other.getByRole('navigation', { name: 'Lightsfinder navigation' }).getByRole('link', { name: /Share lights/ }).click();
-		await expect(other.getByRole('form', { name: 'Share a sighting' })).toBeVisible();
-	} finally { await context.close(); }
-});
+for (const delivery of ['fixture', 'email']) {
+	test(`Lightsfinder ${delivery} confirmation in a fresh browser uses the platform and returns to the app`, { tag: delivery === 'email' ? '@email' : [] }, async ({ page, browser, identities }, testInfo) => {
+		const identity = identities.create();
+		await page.goto(`${paths.lightsfinder}?view=share`);
+		await page.getByRole('link', { name: 'Sign in to share lights' }).click();
+		await expect(page.getByText('One jessehattabaugh.com account for all apps.', { exact: true })).toBeVisible();
+		await expect(page.getByRole('button', { name: /Install Messages/ })).toHaveCount(0);
+		let link;
+		if (delivery === 'email') {
+			await page.getByLabel('Name', { exact: true }).fill(identity.name);
+			await page.getByLabel('Email', { exact: true }).fill(identity.email);
+			await page.getByRole('button', { name: 'Email me a sign-in link', exact: true }).click();
+			await expect(page.getByRole('status').filter({ hasText: 'Check your email' })).toBeVisible();
+			link = await confirmationLink(page, identity.email);
+		} else {
+			link = await fixtureConfirmationLink(page, identity, { returnTo: paths.lightsfinder });
+		}
+		const context = await browser.newContext({ ...testInfo.project.use });
+		try {
+			const other = await context.newPage();
+			await other.goto(link);
+			await expect(other).toHaveURL(new RegExp('/verify\\?'));
+			await expect(other.getByRole('heading', { name: 'Confirm your email', exact: true })).toBeVisible();
+			await expect(other.getByText('Continue to Lightsfinder after confirming.', { exact: true })).toBeVisible();
+			await other.reload();
+			await other.getByRole('button', { name: 'Confirm email', exact: true }).click();
+			await expect(other.getByRole('heading', { name: 'Lightsfinder', exact: true })).toBeVisible();
+			await expect(other.getByText(`Signed in as ${identity.name}.`, { exact: true })).toBeVisible();
+			await other.getByRole('navigation', { name: 'Lightsfinder navigation' }).getByRole('link', { name: /Share lights/ }).click();
+			await expect(other.getByRole('form', { name: 'Share a sighting' })).toBeVisible();
+		} finally { await context.close(); }
+	});
+}
 
 test('photo publication survives field validation, preserves its draft, and never repeats on reload', async ({ page, identities }) => {
 	await signIn(page, identities.create());
