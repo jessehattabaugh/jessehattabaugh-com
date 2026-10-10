@@ -122,6 +122,11 @@ export function markEmailVerified(db, id) {
  * @typedef {{ id: string, user_id: string, email: string, purpose: string, payload: string | null, expires_at: number, consumed_at: number | null }} EmailVerification
  */
 
+/** Remove stale verification records to keep the table small. @param {D1Database} db */
+export function cleanExpiredEmailVerifications(db) {
+	return db.prepare('DELETE FROM email_verifications WHERE expires_at < ?').bind(Date.now()).run();
+}
+
 /**
  * Create a single-use email verification record.
  * @param {D1Database} db
@@ -234,12 +239,6 @@ export function deleteEmailVerification(db, id) {
 	return db.prepare('DELETE FROM email_verifications WHERE id = ?').bind(id).run();
 }
 
-/** Remove stale verification records to keep the table small. */
-/** @param {D1Database} db */
-export function cleanExpiredEmailVerifications(db) {
-	return db.prepare('DELETE FROM email_verifications WHERE expires_at < ?').bind(Date.now()).run();
-}
-
 /**
  * @param {D1Database} db
  * @param {{ id: string, counter: number, backedUp?: boolean }} opts
@@ -249,6 +248,11 @@ export async function updatePasskeyCounter(db, { id, counter, backedUp = false }
 		.prepare('UPDATE passkeys SET counter = ?, backed_up = ? WHERE id = ?')
 		.bind(counter, backedUp ? 1 : 0, id)
 		.run();
+}
+
+/** Remove stale challenges to keep the table small. @param {D1Database} db */
+export function cleanExpiredChallenges(db) {
+	return db.prepare('DELETE FROM auth_challenges WHERE expires_at < ?').bind(Date.now()).run();
 }
 
 /**
@@ -467,10 +471,4 @@ export async function getOwnerPushSubscriptions(db) {
  */
 export function deletePushSubscription(db, endpoint) {
 	return db.prepare('DELETE FROM push_subscriptions WHERE endpoint = ?').bind(endpoint).run();
-}
-
-/** Remove stale challenges to keep the table small. */
-/** @param {D1Database} db */
-export function cleanExpiredChallenges(db) {
-	return db.prepare('DELETE FROM auth_challenges WHERE expires_at < ?').bind(Date.now()).run();
 }

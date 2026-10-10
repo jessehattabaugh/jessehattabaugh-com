@@ -3,7 +3,7 @@
 /** @param {string} value */
 function publicKey(value) {
 	const padded = value.replace(/-/g, '+').replace(/_/g, '/').padEnd(Math.ceil(value.length / 4) * 4, '=');
-	return Uint8Array.from(atob(padded), (character) => character.charCodeAt(0));
+	return Uint8Array.from(atob(padded), (character) => { return character.charCodeAt(0); });
 }
 
 /**
@@ -12,7 +12,7 @@ function publicKey(value) {
  * @param {() => Promise<Record<string, string>>} [extra]
  * @param {() => Promise<void>} [onUnsubscribe]
  */
-export function setupPushForm(form, registration, extra = async () => ({}), onUnsubscribe = async () => {}) {
+export function setupPushForm(form, registration, extra = async () => { return {}; }, onUnsubscribe = async () => {}) {
 	if (!('PushManager' in window) || !('Notification' in window) || !('serviceWorker' in navigator) || !('fetch' in window) || !('FormData' in window)) { return; }
 	const button = form.querySelector('button');
 	if (!button || form.dataset.ready) { return; }
@@ -47,6 +47,7 @@ export function setupPushForm(form, registration, extra = async () => ({}), onUn
 	}).catch(() => {});
 	form.addEventListener('submit', async (event) => {
 		event.preventDefault();
+		if (button.disabled) { return; }
 		button.disabled = true;
 		const status = form.parentElement?.querySelector('[data-browser-status]') ?? document.querySelector('[data-browser-status]');
 		try {
@@ -57,7 +58,7 @@ export function setupPushForm(form, registration, extra = async () => ({}), onUn
 				await new Promise((resolve, reject) => {
 					const worker = reg.installing ?? reg.waiting;
 					if (!worker) { reject(new Error('Service worker is unavailable.')); return; }
-					const timeout = setTimeout(() => reject(new Error('Service worker activation timed out.')), 15000);
+					const timeout = setTimeout(() => { return reject(new Error('Service worker activation timed out.')); }, 15000);
 					worker.addEventListener('statechange', () => {
 						if (worker.state === 'activated') { clearTimeout(timeout); resolve(undefined); }
 						if (worker.state === 'redundant') { clearTimeout(timeout); reject(new Error('Service worker activation failed.')); }
@@ -77,7 +78,7 @@ export function setupPushForm(form, registration, extra = async () => ({}), onUn
 			if (!subscription) { reflect(false); return; }
 			body.set('endpoint', subscription.endpoint);
 			body.set('operation', disabling ? 'unsubscribe' : 'subscribe');
-			const keys = subscription.toJSON().keys;
+			const { keys } = subscription.toJSON();
 			body.set('p256dh', keys?.p256dh ?? '');
 			body.set('auth', keys?.auth ?? '');
 			const response = await fetch(form.getAttribute('action') ?? '', { method: form.getAttribute('method') ?? 'post', body });
@@ -88,6 +89,10 @@ export function setupPushForm(form, registration, extra = async () => ({}), onUn
 			if (status) { status.textContent = disabling ? 'Notifications disabled.' : 'Notifications enabled.'; }
 		} catch (error) {
 			if (status) { status.textContent = error instanceof Error ? error.message : 'Notifications are unavailable.'; }
-		} finally { button.disabled = false; }
+		} finally {
+			// Submissions are serialized by the disabled-button guard above.
+			// eslint-disable-next-line require-atomic-updates
+			button.disabled = false;
+		}
 	});
 }

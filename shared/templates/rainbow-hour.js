@@ -14,7 +14,7 @@ import { installControls } from './install.js';
  */
 
 /** @param {number} ms */
-const utcTime = (ms) => new Intl.DateTimeFormat('en-GB', { hour: '2-digit', minute: '2-digit', timeZone: 'UTC' }).format(new Date(ms));
+const utcTime = (ms) => { return new Intl.DateTimeFormat('en-GB', { hour: '2-digit', minute: '2-digit', timeZone: 'UTC' }).format(new Date(ms)); };
 
 /** @param {RainbowData} data */
 function windowResults({ values = {}, windows }) {
@@ -23,7 +23,7 @@ function windowResults({ values = {}, windows }) {
 	return html`<section aria-label="Rainbow windows">
 		<h2>Rainbow windows near ${values.lat ?? ''}°, ${values.lon ?? ''}°</h2>
 		<p>Times in UTC — between these moments the sun is low enough for rainbows.</p>
-		<ul>${windows.map((window) => html`<li><time datetime="${new Date(window.startMs).toISOString()}">${utcTime(window.startMs)}</time> – <time datetime="${new Date(window.endMs).toISOString()}">${utcTime(window.endMs)}</time> UTC</li>`)}</ul>
+		<ul>${windows.map((window) => { return html`<li><time datetime="${new Date(window.startMs).toISOString()}">${utcTime(window.startMs)}</time> – <time datetime="${new Date(window.endMs).toISOString()}">${utcTime(window.endMs)}</time> UTC</li>`; })}</ul>
 		<p>Look opposite the sun: morning rainbows in the west, evening rainbows in the east.</p>
 	</section>`;
 }
@@ -34,7 +34,7 @@ function skyResults({ verdict }) {
 	return html`<section aria-label="Sky check result">
 		<h2>Sky check result</h2>
 		<p role="status">${verdict.likely ? `Rainbow likely — look ${verdict.direction}!` : 'No rainbow likely right now.'}</p>
-		<ul aria-label="Rainbow factors">${verdict.factors.map((factor) => html`<li data-pass="${String(factor.pass)}">${factor.pass ? '✓' : '✗'} ${factor.label}</li>`)}</ul>
+		<ul aria-label="Rainbow factors">${verdict.factors.map((factor) => { return html`<li data-pass="${String(factor.pass)}">${factor.pass ? '✓' : '✗'} ${factor.label}</li>`; })}</ul>
 		<p>This is a rough nudge based on current weather, not a guaranteed forecast.</p>
 	</section>`;
 }

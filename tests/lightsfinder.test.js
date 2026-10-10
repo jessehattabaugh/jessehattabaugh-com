@@ -53,10 +53,13 @@ test('Lightsfinder renders its map, heading, navigation, and an honest empty are
 test('all Lightsfinder screens have an accessible heading and controls', async ({ page }) => {
 	await page.goto(paths.apps);
 	await page.getByRole('link', { name: /Lightsfinder Discover holiday lights/ }).click();
+	// Each navigation and assertion must finish before the next screen opens.
+	/* eslint-disable no-await-in-loop */
 	for (const [link, heading] of [['Plan a drive', 'Less planning.'], ['Season awards', 'The glow of the season.'], ['Share lights', 'Add a little magic to the map.']]) {
 		await page.getByRole('navigation', { name: 'Lightsfinder navigation' }).getByRole('link', { name: new RegExp(link) }).click();
 		await expect(page.getByRole('heading', { name: new RegExp(heading) })).toBeVisible();
 	}
+	/* eslint-enable no-await-in-loop */
 	await expect(page.getByRole('link', { name: 'Sign in to share lights' })).toBeVisible();
 	await expect(page.getByRole('form', { name: 'Share a sighting' })).toHaveCount(0);
 });

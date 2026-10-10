@@ -44,7 +44,7 @@ if ('startViewTransition' in document && 'fetch' in window && 'FormData' in wind
 		} catch {
 			// submit() has no submitter. Retain its named action without re-entering
 			// this enhancement's submit handler through requestSubmit().
-			const submitter = event.submitter;
+			const {submitter} = event;
 			if (submitter instanceof HTMLButtonElement || submitter instanceof HTMLInputElement) {
 				if (submitter.name) {
 					const action = document.createElement('input');
@@ -67,5 +67,5 @@ if ('startViewTransition' in document && 'fetch' in window && 'FormData' in wind
 	});
 
 	// Reload from the server on back/forward so URL and representation stay in sync.
-	window.addEventListener('popstate', () => location.reload());
+	window.addEventListener('popstate', () => { return location.reload(); });
 }

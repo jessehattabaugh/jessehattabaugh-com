@@ -42,5 +42,5 @@ export const dynamicRoutes = [
 
 /** @param {string} pathname */
 export function findDynamicRoute(pathname) {
-	return dynamicRoutes.find((route) => route.path === pathname);
+	return dynamicRoutes.find((route) => { return route.path === pathname; });
 }

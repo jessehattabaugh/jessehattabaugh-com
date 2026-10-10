@@ -4,10 +4,7 @@ import { readConfig } from '../../scripts/preview.js';
 /** @type {Promise<import('@cloudflare/workers-types').D1Database> | undefined} */
 let connection;
 
-export function previewDatabase() {
-	connection ??= connect();
-	return connection;
-}
+
 
 async function connect() {
 	const token = process.env.E2E_CLOUDFLARE_API_TOKEN || process.env.CLOUDFLARE_API_TOKEN;
@@ -77,4 +74,9 @@ async function connect() {
 		},
 	};
 	return /** @type {import('@cloudflare/workers-types').D1Database} */ (/** @type {unknown} */ (driver));
+}
+
+export function previewDatabase() {
+	connection ??= connect();
+	return connection;
 }

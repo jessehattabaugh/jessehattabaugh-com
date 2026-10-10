@@ -67,10 +67,12 @@ async function renderMessagesPage(request, env, extra = {}, status = 200) {
 		data.vapidPublicKey = env.VAPID_PRIVATE_KEY ? env.VAPID_PUBLIC_KEY : undefined;
 		let conversationId = extra.conversationId ?? url.searchParams.get('conversationId') ?? undefined;
 		if (user.is_owner) {
-			data.conversations = (await getAllConversations(env.DB)).map((conversation) => ({
-				id: conversation.id, display_name: conversation.display_name,
-				href: `${paths.messages}?conversationId=${encodeURIComponent(conversation.id)}`,
-			}));
+			data.conversations = (await getAllConversations(env.DB)).map((conversation) => {
+				return {
+					id: conversation.id, 'display_name': conversation.display_name,
+					href: `${paths.messages}?conversationId=${encodeURIComponent(conversation.id)}`,
+				};
+			});
 		} else {
 			const own = await getUserConversation(env.DB, user.id);
 			if (conversationId && conversationId !== own?.id) {
@@ -85,9 +87,9 @@ async function renderMessagesPage(request, env, extra = {}, status = 200) {
 			}
 			data.conversationId = conversationId;
 			data.refreshHref = `${paths.messages}?conversationId=${encodeURIComponent(conversationId)}`;
-			data.messages = (await getMessages(env.DB, conversationId)).map((message) => ({
-				...message, sent: message.sender_user_id === user.id,
-			}));
+			data.messages = (await getMessages(env.DB, conversationId)).map((message) => {
+				return { ...message, sent: message.sender_user_id === user.id };
+			});
 		}
 	}
 	return page(request, { ...data, ...extra, values: { ...data.values, ...extra.values } }, status);
@@ -104,9 +106,9 @@ function validEmail(email) { return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) && 
  * @param {{ userId: string, email: string, purpose: string, message?: string, name: string }} data
  */
 async function emailVerification(env, request, data) {
-	if (!env.EMAIL || !env.EMAIL_FROM || !env.SESSION_SECRET) {
-		throw new ServiceError(!env.EMAIL ? 'EMAIL_BINDING_MISSING' : !env.EMAIL_FROM ? 'EMAIL_SENDER_MISSING' : 'SESSION_SECRET_MISSING');
-	}
+	if (!env.EMAIL) { throw new ServiceError('EMAIL_BINDING_MISSING'); }
+	if (!env.EMAIL_FROM) { throw new ServiceError('EMAIL_SENDER_MISSING'); }
+	if (!env.SESSION_SECRET) { throw new ServiceError('SESSION_SECRET_MISSING'); }
 	const token = crypto.randomUUID();
 	await createEmailVerification(env.DB, {
 		id: token, userId: data.userId, email: data.email, purpose: data.purpose,
@@ -140,7 +142,7 @@ async function notifyNewMessage(env, data) {
 	await notifyAll(subscriptions, {
 		vapidPublicKey: env.VAPID_PUBLIC_KEY, vapidPrivateKey: env.VAPID_PRIVATE_KEY,
 		vapidContact: env.VAPID_CONTACT ?? 'mailto:jesse@jessehattabaugh.com',
-	}, (endpoint) => deletePushSubscription(env.DB, endpoint), JSON.stringify({
+	}, (endpoint) => { return deletePushSubscription(env.DB, endpoint); }, JSON.stringify({
 		// Push carries a preview, not the full stored message. Bound both text
 		// fields (including legacy display names), preserving Unicode code points
 		// so JSON + UTF-8 + encryption overhead fit the single Web Push record.
@@ -154,7 +156,9 @@ async function notifyNewMessage(env, data) {
 async function submitMessage(request, env) {
 	const form = await readForm(request);
 	const user = await sessionUser(request, env);
-	const shared = ['title', 'text', 'url'].map((name) => String(form.get(name) ?? '').trim()).filter(Boolean).join('\n');
+	const shared = ['title', 'text', 'url'].map((name) => {
+		return String(form.get(name) ?? '').trim();
+	}).filter(Boolean).join('\n');
 	const message = String(form.get('message') ?? shared).trim();
 	const name = String(form.get('name') ?? '').trim();
 	const email = normalizeEmail(String(form.get('email') ?? ''));

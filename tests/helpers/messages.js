@@ -63,7 +63,7 @@ export async function signIn(page, identity) {
 	await page.getByLabel('Name', { exact: true }).fill(identity.name);
 	await page.getByLabel('Email', { exact: true }).fill(identity.email);
 	const [response] = await Promise.all([
-		page.waitForResponse((response) => new URL(response.url()).pathname === '/login' && response.request().method() === 'POST'),
+		page.waitForResponse((response) => { return new URL(response.url()).pathname === '/login' && response.request().method() === 'POST'; }),
 		page.getByRole('button', { name: 'Email me a sign-in link', exact: true }).click(),
 	]);
 	if (response.status() >= 400) {

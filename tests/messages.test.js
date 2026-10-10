@@ -201,10 +201,13 @@ test('a confirmed recovery email keeps message history on the same account', asy
 test('signed account status follows the visitor between apps and clears on sign-out', async ({ page, identities }) => {
 	const identity = identities.create();
 	await signIn(page, identity);
+	// These navigations share one page and must run in order.
+	/* eslint-disable no-await-in-loop */
 	for (const path of ['/apps/rainbow-hour/', '/apps/lightsfinder/', '/apps/messages/']) {
 		await page.goto(path);
 		await expect(page.getByRole('navigation', { name: 'Site account', exact: true }).getByText(`Signed in as ${identity.name}.`, { exact: true })).toBeVisible();
 	}
+	/* eslint-enable no-await-in-loop */
 	await page.goto('/apps/rainbow-hour/');
 	await page.getByRole('navigation', { name: 'Site account', exact: true }).getByRole('button', { name: 'Sign out', exact: true }).click();
 	await page.goto('/apps/lightsfinder/');

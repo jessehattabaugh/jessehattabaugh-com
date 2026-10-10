@@ -142,11 +142,10 @@ sw.addEventListener(
 			sw.clients
 				.matchAll({ type: 'window', includeUncontrolled: true })
 				.then(async (/** @type {any[]} */ clientList) => {
-					for (const client of clientList) {
-						if (client.url.startsWith(APP_URL)) {
-							await client.navigate(destination);
-							return client.focus();
-						}
+					const client = clientList.find((item) => { return item.url.startsWith(APP_URL); });
+					if (client) {
+						await client.navigate(destination);
+						return client.focus();
 					}
 					return sw.clients.openWindow(destination);
 				}),

@@ -26,11 +26,11 @@ test('a long Unicode reply delivers a notification preview and preserves the ful
 		await ownerPage.getByRole('button', { name: 'Send', exact: true }).click();
 		// Read the real browser's visible notifications, not a synthetic push event
 		// or intercepted API response. Oversized ciphertext never reaches this UI.
-		await expect.poll(() => page.evaluate(async (prefix) => {
+		await expect.poll(() => { return page.evaluate(async (prefix) => {
 			const registration = await navigator.serviceWorker.getRegistration();
 			const notifications = await registration?.getNotifications() ?? [];
-			return notifications.some((notification) => notification.title === 'Messages' && notification.body.includes(prefix));
-		}, marker), { timeout: 30000 }).toBe(true);
+			return notifications.some((notification) => { return notification.title === 'Messages' && notification.body.includes(prefix); });
+		}, marker);}, { timeout: 30000 }).toBe(true);
 		await page.getByRole('link', { name: 'Refresh messages', exact: true }).click();
 		await expect(page.getByRole('list', { name: 'Messages', exact: true }).getByText(message, { exact: true })).toBeVisible();
 		await page.getByRole('button', { name: 'Disable notifications', exact: true }).click();

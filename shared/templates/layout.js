@@ -1,4 +1,5 @@
-import { html, Raw } from '../html.js';
+import { html } from '../html.js';
+/** @import { Raw } from '../html.js' */
 import { paths } from '../routes.js';
 
 /**

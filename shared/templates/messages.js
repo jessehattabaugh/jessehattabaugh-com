@@ -28,7 +28,7 @@ function composer(data) {
 			<label for="recipient">Conversation</label>
 			<select id="recipient" name="conversationId" required>
 				<option value="">Choose a conversation</option>
-				${(data.conversations ?? []).map((conversation) => html`<option value="${conversation.id}">${conversation.display_name}</option>`)}
+				${(data.conversations ?? []).map((conversation) => { return html`<option value="${conversation.id}">${conversation.display_name}</option>`; })}
 			</select>`}
 		<label for="message">Message</label>
 		<textarea id="message" name="message" rows="4" maxlength="10000" required>${data.values?.message ?? ''}</textarea>
@@ -39,20 +39,28 @@ function composer(data) {
 /** @param {MessagesData} data */
 export function messagesFragment(data = {}) {
 	const { screen = 'messages', user, error, notice, values = {} } = data;
-	return html`
-		<article data-messages>
-			<img src="/apps/messages/icon.svg" alt="" width="64" height="64" />
-			<h1>${screen === 'login' ? 'Sign in' : screen === 'verify' ? 'Confirm your email' : 'Messages'}</h1>
-			${error ? html`<p role="alert">${error}</p>` : html``}
-			${notice ? html`<p role="status">${notice}</p>` : html``}
-			${screen === 'verify' ? html`
+	function screenHeading() {
+		if (screen === 'login') {
+			return 'Sign in';
+		}
+		if (screen === 'verify') {
+			return 'Confirm your email';
+		}
+		return 'Messages';
+	}
+	function screenContent() {
+		if (screen === 'verify') {
+			return html`
 				<p>Confirm to sign in and finish your request. This link can be used once.</p>
 				${data.token ? html`
 					<form method="post" action="${paths.verify}" data-no-enhance>
 						<input type="hidden" name="token" value="${data.token}" />
 						<button type="submit" class="btn">Confirm email</button>
 					</form>` : html`<a href="${paths.login}">Request a new sign-in link</a>`}
-			` : screen === 'login' ? html`
+			`;
+		}
+		if (screen === 'login') {
+			return html`
 				<p>Use an email link to sign in on any device, with or without JavaScript.</p>
 				<form method="post" action="${paths.login}" data-target="#main" aria-label="Email sign-in">
 					<label for="login-name">Name</label>
@@ -64,21 +72,24 @@ export function messagesFragment(data = {}) {
 				<form method="post" action="${paths.loginBegin}" data-passkey="login" data-complete="${paths.loginComplete}" data-no-enhance hidden>
 					<button type="submit" class="btn btn--outline">Sign in with a passkey</button>
 				</form>
-			` : user ? html`
+			`;
+		}
+		if (user) {
+			return html`
 				${data.conversations ? html`
 					<nav aria-label="Conversations"><h2>Conversations</h2><ul>
-						${data.conversations.map((conversation) => html`<li><a href="${conversation.href}" data-target="#main" ${conversation.id === data.conversationId ? html`aria-current="page"` : html``}>${conversation.display_name}</a></li>`)}
+						${data.conversations.map((conversation) => { return html`<li><a href="${conversation.href}" data-target="#main" ${conversation.id === data.conversationId ? html`aria-current="page"` : html``}>${conversation.display_name}</a></li>`; })}
 					</ul></nav>` : html``}
 				${data.refreshHref ? html`
 					<section aria-label="Conversation">
 						<h2>Message history</h2>
 						<a href="${data.refreshHref}" data-target="#main" data-poll>Refresh messages</a>
 						<ol aria-label="Messages">
-							${(data.messages ?? []).map((message) => html`
+							${(data.messages ?? []).map((message) => { return html`
 								<li data-sent="${String(message.sent)}"><article>
 									<p>${message.content}</p>
 									<p><strong>${message.senderName}</strong> · <time datetime="${message.createdAt}">${message.createdAt.replace('T', ' ').replace(/\.\d+Z$/, ' UTC')}</time></p>
-								</article></li>`)}
+								</article></li>`; })}
 						</ol>
 						${data.messages?.length ? html`` : html`<p>No messages yet.</p>`}
 						${composer(data)}
@@ -110,7 +121,9 @@ export function messagesFragment(data = {}) {
 								<button type="submit" class="btn">Confirm recovery email</button>
 							</form>
 						</details>` : html``}
-			` : html`
+			`;
+		}
+		return html`
 				<p>Send Jesse a message. Confirm your email to send it, read replies, and return on another device.</p>
 				<p><a href="${paths.login}">Sign in to your conversation</a></p>
 				<form method="post" action="${paths.messages}" data-target="#main" aria-label="Send message">
@@ -122,7 +135,15 @@ export function messagesFragment(data = {}) {
 					<textarea id="message" name="message" rows="5" maxlength="10000" required>${values.message ?? ''}</textarea>
 					<button type="submit" class="btn">Send</button>
 				</form>
-			`}
+			`;
+	}
+	return html`
+		<article data-messages>
+			<img src="/apps/messages/icon.svg" alt="" width="64" height="64" />
+			<h1>${screenHeading()}</h1>
+			${error ? html`<p role="alert">${error}</p>` : html``}
+			${notice ? html`<p role="status">${notice}</p>` : html``}
+			${screenContent()}
 			<p role="status" aria-label="Browser features" data-browser-status></p>
 			${installControls('Messages')}
 		</article>`;

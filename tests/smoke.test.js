@@ -4,7 +4,9 @@ import { staticRoutes, paths } from '../shared/routes.js';
 
 const headings = { home: 'Jesse Hattabaugh', about: 'About', colophon: 'Colophon', apps: 'Apps' };
 const pages = [
-	...staticRoutes.filter((route) => route.name in headings).map((route) => ({ path: route.path, heading: headings[route.name] })),
+	...staticRoutes.filter((route) => { return route.name in headings; }).map((route) => {
+		return { path: route.path, heading: headings[route.name] };
+	}),
 	{ path: paths.login, heading: 'Sign in' },
 	{ path: paths.messages, heading: 'Messages' },
 	{ path: paths.rainbow, heading: 'Rainbow Hour' },
@@ -25,9 +27,9 @@ for (const { path, heading } of pages) {
 			return;
 		}
 		const nav = page.getByRole('navigation', { name: 'Main navigation' });
-		for (const name of ['About', 'Apps', 'Send me a message', 'Colophon']) {
-			await expect(nav.getByRole('link', { name, exact: true })).toBeVisible();
-		}
+		await Promise.all(['About', 'Apps', 'Send me a message', 'Colophon'].map((name) => {
+			return expect(nav.getByRole('link', { name, exact: true })).toBeVisible();
+		}));
 	});
 	test(`${path} scores at least 90 in every Lighthouse category`, async ({ baseURL }, testInfo) => {
 		test.skip(testInfo.project.name !== 'Desktop Chrome', 'Lighthouse runs on Desktop Chrome.');

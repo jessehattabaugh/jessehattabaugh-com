@@ -9,7 +9,7 @@ const script = document.querySelector('script[data-service-worker]');
 const workerUrl = script?.getAttribute('data-service-worker');
 const scope = script?.getAttribute('data-scope');
 const registration = workerUrl && scope && 'serviceWorker' in navigator
-	? navigator.serviceWorker.register(workerUrl, { scope }).catch(() => null)
+	? navigator.serviceWorker.register(workerUrl, { scope }).catch(() => { return null; })
 	: Promise.resolve(null);
 
 /** @param {HTMLFormElement} form */
@@ -71,7 +71,9 @@ setInterval(async () => {
 		const next = parsed.querySelector('ol[aria-label="Messages"]');
 		const current = document.querySelector('ol[aria-label="Messages"]');
 		if (!next || !current || next.innerHTML === current.innerHTML || document.querySelector('a[data-poll]')?.getAttribute('href') !== link.getAttribute('href')) { return; }
-		await document.startViewTransition(() => current.replaceChildren(...next.childNodes)).finished;
+		await document.startViewTransition(() => { return current.replaceChildren(...next.childNodes); }).finished;
 	} catch { /* The refresh link remains usable after a network failure. */ }
+	// The polling flag prevents another interval from acquiring this lock.
+	// eslint-disable-next-line require-atomic-updates
 	finally { polling = false; }
 }, 5000);
