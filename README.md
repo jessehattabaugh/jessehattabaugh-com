@@ -1,6 +1,6 @@
 # jessehattabaugh.com
 
-Personal site and three installable web apps on Cloudflare Workers. Plain JavaScript
+Personal site and four installable web apps on Cloudflare Workers. Plain JavaScript
 ES modules with JSDoc, native CSS, shared HTML templates, and D1. No UI framework
 or runtime dependencies.
 
@@ -186,3 +186,37 @@ test mailbox domain are never uploaded.
 Lightsfinder opts out of cross-document View Transitions because JS-disabled
 Chromium left snapshots intercepting native controls in deployed tests. Its
 optional fetch-and-swap form enhancement still uses View Transitions.
+
+## Crunch Time
+
+`/apps/crunch-time/` is a situp-powered pet with Mochi, a strong little kitten.
+Log workouts manually, earn one point per situp, and feed Mochi for 10 points;
+history, levels, and feeding work without JavaScript. Data lives in D1 under
+a separate signed device cookie; it does not follow the site account. Access
+expires after 30 days of inactivity or when cookies are cleared.
+
+Optional DeviceMotion sensing learns three complete examples per style
+(standard/twist). It compares gravity-derived range, duration, a normalized
+16-sample motion signature, and phone-Y gyroscope rotation for twists. Hold the
+phone in portrait against your chest, screen out; recline and stay still for
+three seconds before each start/resume. Changing grip requires recalibration.
+Incomplete/mismatched repetitions are excluded; review the count before saving.
+These are heuristic differences from examples, not validated exercise-form
+assessment. Real-device accuracy, thresholds, and speech need field testing.
+
+SpeechSynthesis generates spoken counts/cues; opt-in SpeechRecognition accepts
+“pause”, “resume”, and “finish”. Recognition may use the browser vendor's remote
+speech service. Feature detection, denied permissions, missing/null sensor data,
+backgrounding, and storage failures retain manual logging. Calibration and
+unfinished workouts stay on-device; raw sensor data is never uploaded.
+The installable PWA caches a public offline explanation, never private history.
+Saving/feeding requires connectivity. Unique ledger IDs make retries harmless;
+meal spending is a single conditional prepared statement.
+
+Server code: `worker/crunch-time.js`, `shared/data/crunch-time.js`, and the shared
+page/fragment in `shared/templates/crunch-time.js`. Browser assets and detector:
+`client/apps/crunch-time/`. Additive schema: `007_crunch_time.sql`. Existing
+`SESSION_SECRET` and `DB` bindings suffice; no new configuration or dependencies.
+Tests: `tests/crunch-time.test.js` and smoke/Lighthouse coverage. Native sensors,
+speech, and wake lock are capability exceptions to the literal no-JS rule;
+manually logging and caring for Mochi remain the baseline.

@@ -1,0 +1,16 @@
+{
+	"id": "/apps/crunch-time/",
+	"name": "Crunch Time",
+	"short_name": "Crunch Time",
+	"description": "A situp-powered pocket pet. Small reps, big friendship.",
+	"start_url": "/apps/crunch-time/",
+	"scope": "/apps/crunch-time/",
+	"display": "standalone",
+	"background_color": "#f5ead7",
+	"theme_color": "#f5ead7",
+	"icons": [
+		{ "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" },
+		{ "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
+		{ "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+	]
+}
