@@ -57,7 +57,7 @@ test('enhanced requests fall back to native navigation when the network returns'
 	await page.getByLabel('Latitude', { exact: true }).fill('0');
 	await page.getByLabel('Longitude', { exact: true }).fill('0');
 	await context.setOffline(true);
-	const navigation = page.waitForEvent('framenavigated', { predicate: (frame) => frame === page.mainFrame() });
+	const navigation = page.waitForEvent('framenavigated', { predicate: (frame) => {return frame === page.mainFrame()} });
 	try {
 		await page.getByRole('button', { name: 'Check the sky now', exact: true }).click();
 		await navigation;

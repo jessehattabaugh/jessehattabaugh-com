@@ -1,6 +1,7 @@
 import { render } from '../shared/html.js';
 import { error as errorPage } from '../shared/templates/error.js';
 import { findDynamicRoute, paths } from '../shared/routes.js';
+import { handleAuth } from './auth.js';
 import { handleMessagesApi } from './messages-api.js';
 import { handleRainbowApi } from './rainbow-api.js';
 import { handleLightsfinder } from '../apps/lightsfinder/worker.js';
@@ -27,7 +28,7 @@ export default {
 		const url = new URL(request.url);
 		const head = request.method === 'HEAD';
 		try {
-			let route = findDynamicRoute(url.pathname);
+			const route = findDynamicRoute(url.pathname);
 			// Canonicalize app roots before static assets can serve a raw 404.
 			if (!route && !url.pathname.endsWith('/')) {
 				const canonical = findDynamicRoute(`${url.pathname}/`);
@@ -44,12 +45,17 @@ export default {
 					if (origin && origin !== url.origin) { return secure(failure(403)); }
 					if (request.headers.get('Sec-Fetch-Site') === 'cross-site') { return secure(failure(403)); }
 				}
-				if (head) { request = new Request(request, { method: 'GET' }); }
+				const dynamicRequest = head ? new Request(request, { method: 'GET' }) : request;
 				let response;
 				if (route.handler === 'contact') {
 					response = new Response(null, { status: 301, headers: { Location: paths.messages } });
 				} else {
-					response = route.handler === 'lightsfinder' ? await handleLightsfinder(request, env) : route.handler === 'messages' ? await handleMessagesApi(request, env) : await handleRainbowApi(request, env);
+					switch (route.handler) {
+						case 'lightsfinder': response = await handleLightsfinder(dynamicRequest, env); break;
+						case 'auth': response = await handleAuth(dynamicRequest, env); break;
+						case 'messages': response = await handleMessagesApi(dynamicRequest, env); break;
+						default: response = await handleRainbowApi(dynamicRequest, env);
+					}
 				}
 				if (response) {
 					const headers = new Headers(response.headers);
@@ -75,6 +81,6 @@ export default {
 		}
 	},
 	async scheduled(controller, env, ctx) {
-		ctx.waitUntil(rainbowWakeCron(env).catch((error) => console.error('Rainbow Hour wake cron failed', error)));
+		ctx.waitUntil(rainbowWakeCron(env).catch((error) => {return console.error('Rainbow Hour wake cron failed', error)}));
 	},
 };

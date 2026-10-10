@@ -48,7 +48,7 @@ export function cleanPhoto(buffer) {
 			offset = end;
 		}
 	} else { return null; }
-	const cleaned = new Uint8Array(parts.reduce((size, part) => size + part.length, 0));
+	const cleaned = new Uint8Array(parts.reduce((size, part) => {return size + part.length}, 0));
 	let offset = 0; for (const part of parts) { cleaned.set(part, offset); offset += part.length; }
 	if (mime === 'image/webp') { new DataView(cleaned.buffer).setUint32(4, cleaned.length - 8, true); }
 	return { mime, image: cleaned.buffer };

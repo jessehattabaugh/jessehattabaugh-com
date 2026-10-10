@@ -21,7 +21,9 @@ export async function listLights(db, filters) {
 }
 /** @param {DB} db @param {string} id */
 export function getLight(db, id) {
-	return db.prepare(`SELECT ${columns} FROM light_posts p WHERE p.id = ?`).bind(id).first().then((row) => /** @type {LightPost | null} */ (row));
+	return db.prepare(`SELECT ${columns} FROM light_posts p WHERE p.id = ?`).bind(id).first().then((row) => {
+		return /** @type {LightPost | null} */ (row);
+	});
 }
 /** @param {DB} db @param {string} id @param {string} user */
 export function draftPhoto(db, id, user) {
@@ -42,7 +44,9 @@ export function getPhoto(db, id, user, moderator = false) {
 	return db.prepare(`SELECT mime, image FROM light_photos WHERE id = ? AND (
 		EXISTS (SELECT 1 FROM light_posts WHERE photo_id = ? AND (status != 'hidden' OR ? = 1)) OR
 		(user_id = ? AND NOT EXISTS (SELECT 1 FROM light_posts WHERE photo_id = ?)))`)
-		.bind(id, id, moderator ? 1 : 0, user, id).first().then((row) => /** @type {{mime: string, image: number[] | ArrayBuffer} | null} */ (row));
+		.bind(id, id, moderator ? 1 : 0, user, id).first().then((row) => {
+			return /** @type {{mime: string, image: number[] | ArrayBuffer} | null} */ (row);
+		});
 }
 /** @param {DB} db @param {Omit<LightPost, 'created_at' | 'average' | 'votes' | 'reports' | 'status' | 'spam_reports' | 'gone_reports'>} post */
 export async function publishLight(db, post) {

@@ -1,5 +1,4 @@
 /** Shared branch identity for deployment and browser tests. */
-import './environment.js';
 import { workerVariables } from './environment.js';
 import { execFileSync } from 'node:child_process';
 import { readFileSync } from 'node:fs';
@@ -14,8 +13,8 @@ export function readConfig() {
 	// Skip JSON string literals when stripping JSONC comments/trailing commas,
 	// so URLs and comment-looking text inside values survive unchanged.
 	const source = readFileSync(new URL('../wrangler.jsonc', import.meta.url), 'utf8');
-	const json = source.replace(/"(?:\\.|[^"\\])*"|\/\/[^\n]*|\/\*[\s\S]*?\*\//g, (match) => match.startsWith('"') ? match : ' ')
-		.replace(/"(?:\\.|[^"\\])*"|,(\s*[}\]])/g, (match, close) => close ?? match);
+	const json = source.replace(/"(?:\\.|[^"\\])*"|\/\/[^\n]*|\/\*[\s\S]*?\*\//g, (match) => {return match.startsWith('"') ? match : ' '})
+		.replace(/"(?:\\.|[^"\\])*"|,(\s*[}\]])/g, (match, close) => {return close ?? match});
 	const config = JSON.parse(json);
 	config.vars = { ...config.vars, ...workerVariables() };
 	return config;

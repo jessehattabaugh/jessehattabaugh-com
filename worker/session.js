@@ -1,7 +1,8 @@
+import { getUserById } from '../shared/data/auth.js';
 import { toBase64url, fromBase64url } from './utils.js';
 
-// A new host-only name retires legacy cookies scoped to /apps/messages, which
-// otherwise survive sign-out after moving email sign-in to /login.
+// Platform sessions are host-only and shared across all apps. Keep the existing
+// cookie name so verified users remain signed in through the route move.
 const SESSION_COOKIE = '__Host-msgsession';
 const SESSION_DAYS = 30;
 
@@ -91,4 +92,10 @@ export async function getSessionUser(request, sessionSecret) {
 export function sessionCookieHeader(value, clear = false) {
 	const maxAge = clear ? 0 : SESSION_DAYS * 86400;
 	return `${SESSION_COOKIE}=${clear ? '' : value}; HttpOnly; Secure; SameSite=Lax; Path=/; Max-Age=${maxAge}`;
+}
+
+/** @param {Request} request @param {import('../shared/types.js').Env} env */
+export async function sessionUser(request, env) {
+	const id = await getSessionUser(request, env.SESSION_SECRET);
+	return id ? getUserById(env.DB, id) : null;
 }

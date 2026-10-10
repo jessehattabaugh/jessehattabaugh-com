@@ -30,9 +30,9 @@ async function build() {
 	await mkdir(OUT, { recursive: true });
 
 	// Static pages
-	for (const route of staticRoutes) {
-		await writePage(route.path, render(staticPages[route.name]()));
-	}
+	await Promise.all(staticRoutes.map((route) => {
+		return writePage(route.path, render(staticPages[route.name]()));
+	}));
 	await writeFile(join(OUT, '404.html'), render(staticPages.notFound()), 'utf8');
 
 	// Copy static assets (includes client/apps/* PWA files)

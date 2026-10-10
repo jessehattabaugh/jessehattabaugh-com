@@ -39,6 +39,8 @@ export async function deleteFixtureUser(db, email) {
 		'DELETE FROM users WHERE email = ?',
 	]) {
 		const args = sql.includes(' OR ') ? [email, email] : [email];
+		// Delete dependent rows before their parents to satisfy foreign keys.
+		// eslint-disable-next-line no-await-in-loop
 		await db.prepare(sql).bind(...args).run();
 	}
 }
