@@ -41,6 +41,7 @@ export function messagesFragment(data = {}) {
 	const { screen = 'messages', user, error, notice, values = {} } = data;
 	return html`
 		<article data-messages>
+			<img src="/apps/messages/icon.svg" alt="" width="64" height="64" />
 			<h1>${screen === 'login' ? 'Sign in' : screen === 'verify' ? 'Confirm your email' : 'Messages'}</h1>
 			${error ? html`<p role="alert">${error}</p>` : html``}
 			${notice ? html`<p role="status">${notice}</p>` : html``}
@@ -64,10 +65,6 @@ export function messagesFragment(data = {}) {
 					<button type="submit" class="btn btn--outline">Sign in with a passkey</button>
 				</form>
 			` : user ? html`
-				<p>Signed in as ${user.display_name}.</p>
-				<form method="post" action="${paths.logout}" data-no-enhance>
-					<button type="submit" class="btn btn--outline">Sign out</button>
-				</form>
 				${data.conversations ? html`
 					<nav aria-label="Conversations"><h2>Conversations</h2><ul>
 						${data.conversations.map((conversation) => html`<li><a href="${conversation.href}" data-target="#main" ${conversation.id === data.conversationId ? html`aria-current="page"` : html``}>${conversation.display_name}</a></li>`)}
@@ -135,7 +132,7 @@ export function messagesFragment(data = {}) {
 export function messagesPage(data = {}) {
 	return layout({
 		title: data.screen === 'login' ? 'Sign in' : 'Messages',
-		path: paths.messages,
+		path: paths.messages, app: 'messages', user: data.user,
 		description: 'Send Jesse a message and read replies on any device.',
 		body: messagesFragment(data),
 		head: html`<link rel="manifest" href="/apps/messages/manifest.json" /><link rel="icon" href="/apps/messages/icon.svg" type="image/svg+xml" /><link rel="stylesheet" href="/apps/messages/styles.css" />`,

@@ -2,9 +2,7 @@
 	:root:has([data-lightsfinder]) { color-scheme: light; background: #faf5e9; }
 	body:has([data-lightsfinder]) {
 		background: #faf5e9; color: #302039;
-		> header { background: #302039; border: 0; nav { max-width: 1280px; padding-block: .5rem; a { color: #fff8e8; font-size: .8rem; } } }
 		> main { max-width: 1280px; padding: 0 2rem; }
-		> footer { background: #f3ebdb; color: #302039; }
 	}
 	[data-lightsfinder] {
 		--ink: #302039; --accent: #593475; --soft: #eee4f5; --spark: #d9ed91; --warm: #ed944b;

@@ -1,5 +1,20 @@
 /* The same responsive document is used with and without JavaScript. */
 @layer app {
+	:root {
+		color-scheme: light;
+		--color-bg: #ecfdf5;
+		--color-surface: #fff;
+		--color-text: #123b3a;
+		--color-text-muted: #426362;
+		--color-accent: #0e7490;
+		--color-accent-hover: #155e75;
+		--color-on-accent: #fff;
+		--color-border: #a5d9d0;
+		--color-error: #b91c1c;
+		--radius: .75rem;
+	}
+	[data-messages] > img { border-radius: 1rem; }
+
 	[data-messages] {
 		ol[aria-label='Messages'] {
 			list-style: none;

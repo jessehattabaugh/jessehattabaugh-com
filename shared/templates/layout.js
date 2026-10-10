@@ -1,4 +1,5 @@
 import { html, Raw } from '../html.js';
+import { paths } from '../routes.js';
 
 /**
  * @param {object} opts
@@ -9,6 +10,8 @@ import { html, Raw } from '../html.js';
  * @param {boolean} [opts.viewTransitions]
  * @param {Raw} [opts.head]
  * @param {Raw} [opts.scripts]
+ * @param {string} [opts.app] App identity; omitting it selects the site layout.
+ * @param {{ display_name: string } | null} [opts.user]
  * @returns {Raw}
  */
 export const layout = ({
@@ -19,6 +22,8 @@ export const layout = ({
 	viewTransitions = true,
 	head = html``,
 	scripts = html``,
+	app,
+	user,
 }) => {
 	const normalizedPath = path !== '/' && path.endsWith('/') ? path.slice(0, -1) : path;
 
@@ -27,9 +32,9 @@ export const layout = ({
 			<head>
 				<meta charset="utf-8" />
 				<meta name="viewport" content="width=device-width, initial-scale=1" />
-				<title>${title} — Jesse Hattabaugh</title>
+				<title>${app ? title : `${title} — Jesse Hattabaugh`}</title>
 				<meta name="description" content="${description}" />
-				<link rel="stylesheet" href="/styles/main.css" />
+				<link rel="stylesheet" href="${app ? '/styles/app.css' : '/styles/main.css'}" />
 				<link rel="icon" href="/icon.svg" type="image/svg+xml" />
 				${head}
 				<style>
@@ -45,9 +50,14 @@ export const layout = ({
 					}
 				</script>
 			</head>
-			<body>
+			<body data-app="${app ?? ''}">
 				<a class="skip-link" href="#main">Skip to content</a>
-				<header>
+				${app ? html`<header>
+					<nav aria-label="Site account">
+						<a href="${paths.home}" aria-label="Jesse Hattabaugh home" title="Jesse Hattabaugh"><img src="/icon.svg" alt="" width="36" height="36" /></a>
+						${user ? html`<p>Signed in as ${user.display_name}.</p><form method="post" action="${paths.logout}" data-no-enhance><button type="submit">Sign out</button></form>` : html`<span>Signed out</span><a href="${app === 'lightsfinder' ? `${paths.login}?returnTo=lightsfinder` : paths.login}">Sign in</a>`}
+					</nav>
+				</header>` : html`<header>
 					<nav aria-label="Main navigation">
 						<a href="/"${normalizedPath === '/' ? ' aria-current="page"' : ''}
 							>Jesse Hattabaugh</a
@@ -85,14 +95,14 @@ export const layout = ({
 							</li>
 						</ul>
 					</nav>
-				</header>
+				</header>`}
 				<main id="main">${body}</main>
-				<footer>
+				${app ? html`` : html`<footer>
 					<p>
 						&copy; Jesse Hattabaugh &middot;
 						<a href="/colophon">How this site works</a>
 					</p>
-				</footer>
+				</footer>`}
 				<script type="module" src="/enhance/index.js"></script>
 				${scripts}
 			</body>

@@ -5,6 +5,7 @@ import { installControls } from './install.js';
 
 /**
  * @typedef {object} RainbowData
+ * @property {{ display_name: string } | null} [user]
  * @property {string} [error]
  * @property {{ lat?: string, lon?: string }} [values]
  * @property {Array<{ startMs: number, endMs: number }>} [windows]
@@ -42,15 +43,18 @@ function skyResults({ verdict }) {
 export function rainbowHourFragment(data = {}) {
 	const { values = {}, error } = data;
 	return html`<article data-rainbow>
-		<h1>Rainbow Hour</h1>
-		<p>A nudge when rain clears under a low sun — the moment skies grow rainbows.</p>
+		<header>
+			<img src="/apps/rainbow-hour/icon.svg" alt="" width="112" height="112" />
+			<div><p>Sunshine. Showers. A little magic.</p><h1>Rainbow Hour</h1>
+			<p>A nudge when rain clears under a low sun — the moment skies grow rainbows.</p></div>
+		</header>
 		<section aria-label="What makes a rainbow">
 			<h2>What makes a rainbow</h2>
 			<ul><li><strong>Rain in the air</strong> — falling now or recently.</li><li><strong>A low sun</strong> — between 2° and 42° high.</li><li><strong>Bright spells</strong> — broken cloud, so sunlight reaches the drops.</li></ul>
 		</section>
 		<section aria-label="Plan today's rainbow hunt">
 			<h2>Plan today's rainbow hunt</h2>
-			<p>Enter coordinates to calculate today's windows or check the current sky. The manual form works without JavaScript.</p>
+			<p>Enter coordinates to calculate today's windows or check the current sky.</p>
 			${error ? html`<p role="alert">${error}</p>` : html``}
 			<button type="button" class="btn btn--outline" data-locate hidden>Use my location</button>
 			<form method="get" action="${paths.rainbow}" data-target="#main" aria-label="Rainbow conditions">
@@ -78,10 +82,10 @@ export function rainbowHourFragment(data = {}) {
 /** @param {RainbowData} [data] */
 export function rainbowHourPage(data = {}) {
 	return layout({
-		title: 'Rainbow Hour', path: paths.rainbow,
+		title: 'Rainbow Hour', path: paths.rainbow, app: 'rainbow-hour', user: data.user,
 		description: 'Find rainbow windows and check when rain clears under a low sun.',
 		body: rainbowHourFragment(data),
-		head: html`<link rel="manifest" href="/apps/rainbow-hour/manifest.json" /><link rel="icon" href="/apps/rainbow-hour/icon.svg" type="image/svg+xml" /><link rel="stylesheet" href="/apps/rainbow-hour/styles.css" />`,
+		head: html`<meta name="theme-color" content="#38bdf8" /><link rel="manifest" href="/apps/rainbow-hour/manifest.json" /><link rel="icon" href="/apps/rainbow-hour/icon.svg" type="image/svg+xml" /><link rel="stylesheet" href="/apps/rainbow-hour/styles.css" />`,
 		scripts: html`<script type="module" src="/apps/rainbow-hour/app.js" data-service-worker="/apps/rainbow-hour/sw.js" data-scope="/apps/rainbow-hour/"></script>`,
 	});
 }

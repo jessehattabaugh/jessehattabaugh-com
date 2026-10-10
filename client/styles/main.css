@@ -4,22 +4,6 @@
 @layer layout, components;
 
 @layer layout {
-	.skip-link {
-		position: absolute;
-		inset-block-start: -100%;
-		inset-inline-start: var(--space-md);
-		background: var(--color-accent);
-		color: var(--color-on-accent);
-		padding: var(--space-sm) var(--space-md);
-		border-radius: var(--radius);
-		text-decoration: none;
-		z-index: 100;
-
-		&:focus {
-			inset-block-start: var(--space-md);
-		}
-	}
-
 	header {
 		border-bottom: 1px solid var(--color-border);
 		padding: var(--space-md) var(--space-lg);

@@ -140,7 +140,7 @@ Playwright (`@playwright/test`). Tests live in `tests/`.
 ### Coverage requirements
 
 Every named route gets:
-1. A render test — h1 heading visible, main navigation links present.
+1. A render test — h1 heading visible; site pages show main navigation, app pages show the compact site icon and account controls.
 2. A Lighthouse audit at Desktop Chrome.
 
 Interactive flows (forms) get a full happy-path submission test in all four configurations.

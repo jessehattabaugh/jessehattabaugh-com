@@ -196,3 +196,17 @@ test('a confirmed recovery email keeps message history on the same account', asy
 	await signIn(page, { ...identity, email: recovery.email });
 	await expect(page.getByText(message, { exact: true })).toBeVisible();
 });
+
+// The shared cookie carries account status between independently branded apps.
+test('signed account status follows the visitor between apps and clears on sign-out', async ({ page, identities }) => {
+	const identity = identities.create();
+	await signIn(page, identity);
+	for (const path of ['/apps/rainbow-hour/', '/apps/lightsfinder/', '/apps/messages/']) {
+		await page.goto(path);
+		await expect(page.getByRole('navigation', { name: 'Site account', exact: true }).getByText(`Signed in as ${identity.name}.`, { exact: true })).toBeVisible();
+	}
+	await page.goto('/apps/rainbow-hour/');
+	await page.getByRole('navigation', { name: 'Site account', exact: true }).getByRole('button', { name: 'Sign out', exact: true }).click();
+	await page.goto('/apps/lightsfinder/');
+	await expect(page.getByRole('navigation', { name: 'Site account', exact: true }).getByText('Signed out', { exact: true })).toBeVisible();
+});

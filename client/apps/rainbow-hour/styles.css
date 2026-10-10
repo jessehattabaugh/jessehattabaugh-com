@@ -1,5 +1,72 @@
 @layer app {
+	/* Colors come from the icon: sky, sun, and six rainbow bands.
+	   Keep the sky bright in either OS theme, with dark text for contrast. */
+	:root {
+		color-scheme: light;
+		--color-bg: #bae6fd;
+		--color-surface: #ffffff;
+		--color-text: #172554;
+		--color-text-muted: #405477;
+		--color-accent: #6d28d9;
+		--color-accent-hover: #5b21b6;
+		--color-on-accent: #fff;
+		--color-border: #8acded;
+		--color-error: #b91c1c;
+		--color-success: #166534;
+		--radius: .875rem;
+		--font-sans: ui-rounded, 'Trebuchet MS', system-ui, sans-serif;
+		background: linear-gradient(160deg, #38bdf8, #bae6fd 45%, #fef9c3);
+	}
+	body > main { max-width: 72rem; }
 	[data-rainbow] {
+		display: grid;
+		grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr);
+		gap: 1.5rem;
+		> header {
+			grid-column: 1 / -1;
+			display: flex;
+			align-items: center;
+			gap: 1.5rem;
+			padding-block: 1rem 2rem;
+			img { flex-shrink: 0; border-radius: 1.5rem; }
+			h1 { font-size: clamp(2.5rem, 7vw, 4.5rem); letter-spacing: -.05em; }
+			p:first-child { font-weight: 700; color: #4c1d95; }
+			p:last-child { font-size: 1.125rem; }
+		}
+		> section {
+			padding: clamp(1.25rem, 3vw, 2rem);
+			border-radius: 1.5rem;
+			background: var(--color-surface);
+			border: 1px solid var(--color-border);
+			border-top: .5rem solid #8b5cf6;
+			h2:first-child { margin-top: 0; }
+		}
+		> section:first-of-type {
+			background: #fef9c3;
+			border-color: #facc15;
+			border-top-color: #f97316;
+			ul { padding-left: 1.25rem; }
+			li + li { margin-top: 1rem; }
+		}
+		> section:nth-of-type(2)::before {
+			content: '';
+			display: block;
+			height: .5rem;
+			margin-bottom: 1.5rem;
+			border-radius: 1rem;
+			background: linear-gradient(to right, #ef4444 16.66%, #f97316 16.66% 33.33%, #facc15 33.33% 50%, #22c55e 50% 66.66%, #3b82f6 66.66% 83.33%, #8b5cf6 83.33%);
+		}
+		section section { border-top: 1px solid var(--color-border); margin-top: 1.5rem; }
+		> form, > p, > details { grid-column: 1 / -1; }
+		> p:last-child { font-size: .875rem; color: var(--color-text-muted); }
 		[data-pass='false'] { color: var(--color-text-muted); }
+		[data-pass='true'] { color: var(--color-success); }
+		[role='status']:empty { display: none; }
+	}
+	@media (max-width: 42rem) {
+		[data-rainbow] {
+			grid-template-columns: minmax(0, 1fr);
+			> header { align-items: flex-start; gap: 1rem; img { width: 72px; height: 72px; } }
+		}
 	}
 }

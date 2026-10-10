@@ -204,7 +204,7 @@ export async function handleMessagesApi(request, env) {
 	}
 	if (path === paths.login) {
 		if (request.method === 'GET') {
-			const response = page(request, { screen: 'login', notice: url.searchParams.has('checkEmail') ? 'Check your email to confirm your request.' : undefined });
+			const response = page(request, { user: await sessionUser(request, env), screen: 'login', notice: url.searchParams.has('checkEmail') ? 'Check your email to confirm your request.' : undefined });
 			if (url.searchParams.get('returnTo') === 'lightsfinder') { response.headers.append('Set-Cookie', '__Host-appReturn=lightsfinder; HttpOnly; Secure; SameSite=Lax; Path=/; Max-Age=1800'); }
 			return response;
 		}
@@ -212,7 +212,7 @@ export async function handleMessagesApi(request, env) {
 		const name = String(form.get('name') ?? '').trim();
 		const email = normalizeEmail(String(form.get('email') ?? ''));
 		if (!name || name.length > 100 || !validEmail(email)) {
-			return page(request, { screen: 'login', error: 'Enter your name and a valid email address.', values: { name, email } }, 422);
+			return page(request, { user: await sessionUser(request, env), screen: 'login', error: 'Enter your name and a valid email address.', values: { name, email } }, 422);
 		}
 		let user = await getUserByEmailAny(env.DB, email);
 		if (!user) {
@@ -228,20 +228,20 @@ export async function handleMessagesApi(request, env) {
 		const token = request.method === 'GET' ? url.searchParams.get('token') : String((await readForm(request)).get('token') ?? '');
 		const verification = token ? await getEmailVerification(env.DB, token) : null;
 		if (!verification || verification.expires_at < Date.now() || verification.consumed_at) {
-			return page(request, { screen: 'verify', error: 'That verification link has expired or is invalid.' }, 400);
+			return page(request, { user: await sessionUser(request, env), screen: 'verify', error: 'That verification link has expired or is invalid.' }, 400);
 		}
 		if (request.method === 'GET') {
-			return page(request, { screen: 'verify', token: verification.id });
+			return page(request, { user: await sessionUser(request, env), screen: 'verify', token: verification.id });
 		}
 		if (!env.SESSION_SECRET) { throw new Error('Session signing is not configured'); }
 		const user = await getUserById(env.DB, verification.user_id);
 		if (!user || (verification.purpose !== 'profile' && user.email !== verification.email)) {
-			return page(request, { screen: 'verify', error: 'That verification link is no longer valid.' }, 400);
+			return page(request, { user: await sessionUser(request, env), screen: 'verify', error: 'That verification link is no longer valid.' }, 400);
 		}
 		if (verification.purpose === 'profile') {
 			const existing = await getUserByEmailAny(env.DB, verification.email);
 			if (existing && existing.id !== user.id) {
-				return page(request, { screen: 'verify', error: 'That email belongs to another account.' }, 409);
+				return page(request, { user: await sessionUser(request, env), screen: 'verify', error: 'That email belongs to another account.' }, 409);
 			}
 		}
 		let content = null;
@@ -254,7 +254,7 @@ export async function handleMessagesApi(request, env) {
 		const cookie = sessionCookieHeader(await createSession(env.SESSION_SECRET, user.id));
 		const completed = await completeEmailVerification(env.DB, verification, content);
 		if (!completed) {
-			return page(request, { screen: 'verify', error: 'That verification link has already been used or is no longer valid.' }, 400);
+			return page(request, { user: await sessionUser(request, env), screen: 'verify', error: 'That verification link has already been used or is no longer valid.' }, 400);
 		}
 		if (content && completed.conversationId) {
 			// Push is best effort after commit; delivery failures must not prevent

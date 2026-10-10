@@ -11,9 +11,19 @@ const pages = [
 ];
 
 for (const { path, heading } of pages) {
-	test(`${path} renders its heading and main navigation`, async ({ page }) => {
+	test(`${path} renders its heading and navigation`, async ({ page }) => {
 		await page.goto(path);
 		await expect(page.getByRole('heading', { name: heading, level: 1, exact: true })).toBeVisible();
+		if ((path.startsWith('/apps/') && path !== paths.apps) || path === paths.login) {
+			const account = page.getByRole('navigation', { name: 'Site account', exact: true });
+			await expect(account.getByRole('link', { name: 'Jesse Hattabaugh home', exact: true })).toBeVisible();
+			await expect(account.getByText('Signed out', { exact: true })).toBeVisible();
+			await expect(account.getByRole('link', { name: 'Sign in', exact: true })).toBeVisible();
+			await expect(page.getByRole('navigation', { name: 'Main navigation', exact: true })).toHaveCount(0);
+			await account.getByRole('link', { name: 'Jesse Hattabaugh home', exact: true }).click();
+			await expect(page.getByRole('heading', { level: 1, name: 'Jesse Hattabaugh', exact: true })).toBeVisible();
+			return;
+		}
 		const nav = page.getByRole('navigation', { name: 'Main navigation' });
 		for (const name of ['About', 'Apps', 'Send me a message', 'Colophon']) {
 			await expect(nav.getByRole('link', { name, exact: true })).toBeVisible();

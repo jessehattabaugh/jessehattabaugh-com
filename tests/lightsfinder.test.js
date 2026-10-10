@@ -43,9 +43,9 @@ test('Lightsfinder renders its map, heading, navigation, and an honest empty are
 	await expect(page.getByRole('heading', { name: 'Lightsfinder', exact: true, level: 1 })).toBeVisible();
 	await expect(page.getByRole('region', { name: 'Lights map' })).toBeVisible();
 	await expect(page.getByRole('heading', { name: 'The map is waiting for its first sparkle.' })).toBeVisible();
-	for (const name of ['About', 'Apps', 'Send me a message', 'Colophon']) {
-		await expect(page.getByRole('navigation', { name: 'Main navigation' }).getByRole('link', { name, exact: true })).toBeVisible();
-	}
+	const account = page.getByRole('navigation', { name: 'Site account', exact: true });
+	await expect(account.getByRole('link', { name: 'Jesse Hattabaugh home', exact: true })).toBeVisible();
+	await expect(account.getByRole('link', { name: 'Sign in', exact: true })).toBeVisible();
 	await page.getByRole('link', { name: 'Zoom in', exact: true }).click();
 	await expect(page.getByRole('region', { name: 'Lights map' })).toBeVisible();
 });

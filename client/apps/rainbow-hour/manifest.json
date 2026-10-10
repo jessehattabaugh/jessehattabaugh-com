@@ -1,12 +1,12 @@
 {
-	"name": "Rainbow Hour — Jesse Hattabaugh",
+	"name": "Rainbow Hour",
 	"short_name": "Rainbow Hour",
 	"description": "A nudge when rain clears under a low sun and a rainbow is likely.",
 	"start_url": "/apps/rainbow-hour/?pwa=1",
 	"scope": "/apps/rainbow-hour/",
 	"display": "standalone",
 	"orientation": "any",
-	"theme_color": "#0ea5e9",
+	"theme_color": "#38bdf8",
 	"background_color": "#bae6fd",
 	"icons": [
 		{

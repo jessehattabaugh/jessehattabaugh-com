@@ -1,0 +1,48 @@
+/* Shared app chrome. Each app supplies its palette and content styling. */
+@import url('/styles/base.css');
+
+@layer shell {
+	body > header {
+		padding: 1rem clamp(1rem, 4vw, 2rem);
+		display: flex;
+		justify-content: flex-end;
+	}
+	nav[aria-label='Site account'] {
+		display: flex;
+		align-items: center;
+		justify-content: flex-end;
+		flex-wrap: wrap;
+		gap: .5rem .75rem;
+		font-size: .8rem;
+		max-width: 100%;
+		padding: .5rem .75rem;
+		background: var(--color-surface);
+		border: 1px solid var(--color-border);
+		border-radius: 1rem;
+		p { overflow-wrap: anywhere; min-width: 0; }
+		a:first-child { flex-shrink: 0; }
+		a { font-weight: 600; text-underline-offset: 3px; }
+		form { margin: 0; }
+		button {
+			background: transparent;
+			border: 0;
+			color: var(--color-accent);
+			text-decoration: underline;
+			text-underline-offset: 3px;
+			cursor: pointer;
+		}
+		a, button { min-height: 44px; display: inline-flex; align-items: center; }
+	}
+	body > main {
+		flex: 1;
+		width: 100%;
+		max-width: 80ch;
+		margin-inline: auto;
+		padding: 1rem clamp(1rem, 4vw, 2rem) 4rem;
+	}
+	article {
+		h1 { margin-block: .5rem 1rem; }
+		h2 { margin-bottom: .5rem; }
+		ul, ol { margin-top: .5rem; }
+	}
+}

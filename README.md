@@ -18,7 +18,10 @@ or runtime dependencies.
 - `client/apps/`: app enhancements and service workers.
 - `tests/`: functional browser flows against an isolated deployed preview.
 
-Home, About, Apps, and Colophon are static. `/contact` redirects to Messages.
+Home, About, Apps, and Colophon are static. They use the site navigation and
+branding; app pages load the shared app shell and their own stylesheet, with the
+site icon and signed account status in the top right. Rainbow Hour uses its icon’s
+bright sky, sunshine, and rainbow colors. `/contact` redirects to Messages.
 
 **Messages** uses email confirmation and signed cookies. Visitors can send
 messages, sign in on another device, read history, and refresh replies without

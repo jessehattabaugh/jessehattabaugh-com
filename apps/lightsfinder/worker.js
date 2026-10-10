@@ -57,7 +57,7 @@ export async function handleLightsfinder(request, env) {
 		scope: q.get('scope') === 'state' ? 'state' : q.get('scope') === 'country' ? 'country' : 'county', region: normalize(q.get('region') ?? ''), countryRegion: normalize(q.get('countryRegion') ?? ''), stateRegion: normalize(q.get('stateRegion') ?? ''),
 	};
 	/** @type {import('./templates.js').LightsData} */
-	const data = { filters, posts: [], user, today };
+	const data = { filters, posts: [], user, account, today };
 	if (!validHoliday(filters.holiday) || !Number.isInteger(filters.season) || filters.season < 2000 || filters.season > new Date().getUTCFullYear() + 1 || !Number.isFinite(filters.lat) || Math.abs(filters.lat) > 85 || !Number.isFinite(filters.lon) || Math.abs(filters.lon) > 180 || !Number.isFinite(filters.radius) || filters.radius < 1 || filters.radius > 100 || !Number.isInteger(filters.zoom) || filters.zoom < 3 || filters.zoom > 16 || [filters.region, filters.countryRegion, filters.stateRegion].some((v) => v.length > 100) || !['explore', 'route', 'awards', 'share', 'moderation'].includes(filters.view)) {
 		data.error = 'Choose a valid holiday, season, location, and radius (1–100 km).';
 		// Keep raw input visible while ensuring invalid numbers cannot render broken map URLs.
