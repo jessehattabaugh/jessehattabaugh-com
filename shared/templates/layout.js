@@ -87,13 +87,6 @@ export const layout = ({
 									>Send me a message</a
 								>
 							</li>
-							<li>
-								<a
-									href="/colophon"
-									${normalizedPath === '/colophon' ? ' aria-current="page"' : ''}
-									>Colophon</a
-								>
-							</li>
 						</ul>
 					</nav>
 				</header>`}

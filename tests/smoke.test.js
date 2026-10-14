@@ -28,7 +28,7 @@ for (const { path, heading } of pages) {
 			return;
 		}
 		const nav = page.getByRole('navigation', { name: 'Main navigation' });
-		await Promise.all(['About', 'Apps', 'Send me a message', 'Colophon'].map((name) => {
+		await Promise.all(['About', 'Apps', 'Send me a message'].map((name) => {
 			return expect(nav.getByRole('link', { name, exact: true })).toBeVisible();
 		}));
 	});
