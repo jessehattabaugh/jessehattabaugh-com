@@ -38,7 +38,8 @@
 		&:focus { inset-block-start: var(--space-md); }
 	}
 
-	:root {
+	/* Keep account chrome on the site palette even when an app overrides :root. */
+	:root, nav[aria-label='Site account'] {
 		--color-bg: #faf9f7;
 		--color-surface: #ffffff;
 		--color-text: #1a1a1a;
@@ -62,7 +63,7 @@
 	}
 
 	@media (prefers-color-scheme: dark) {
-		:root {
+		:root, nav[aria-label='Site account'] {
 			--color-bg: #111110;
 			--color-surface: #1c1c1b;
 			--color-text: #e8e6e1;
