@@ -17,6 +17,7 @@
 		max-width: 100%;
 		padding: .5rem .75rem;
 		background: var(--color-surface);
+		color: var(--color-text);
 		border: 1px solid var(--color-border);
 		border-radius: 1rem;
 		p { overflow-wrap: anywhere; min-width: 0; }
