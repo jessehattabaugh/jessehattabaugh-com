@@ -85,7 +85,7 @@ export function rainbowHourPage(data = {}) {
 		title: 'Rainbow Hour', path: paths.rainbow, app: 'rainbow-hour', user: data.user,
 		description: 'Find rainbow windows and check when rain clears under a low sun.',
 		body: rainbowHourFragment(data),
-		head: html`<meta name="theme-color" content="#38bdf8" /><link rel="manifest" href="/apps/rainbow-hour/manifest.json" /><link rel="icon" href="/apps/rainbow-hour/icon.svg" type="image/svg+xml" /><link rel="stylesheet" href="/apps/rainbow-hour/styles.css" />`,
+		head: html`<meta name="theme-color" content="#38bdf8" /><link rel="manifest" href="/apps/rainbow-hour/manifest.json" /><link rel="stylesheet" href="/apps/rainbow-hour/styles.css" />`,
 		scripts: html`<script type="module" src="/apps/rainbow-hour/app.js" data-service-worker="/apps/rainbow-hour/sw.js" data-scope="/apps/rainbow-hour/"></script>`,
 	});
 }

@@ -277,6 +277,6 @@ export function lightsfinderFragment(data) {
 export function lightsfinder(data) {
 	return layout({ viewTransitions: false, title: 'Lightsfinder — Find your next little adventure', path: paths.lightsfinder, app: 'lightsfinder', user: data.account,
 		description: 'Discover holiday lights, share photo sightings, and plan a scenic driving loop through your neighborhood.',
-		head: html`<link rel="manifest" href="/apps/lightsfinder/manifest.json" /><meta name="theme-color" content="#593475" /><link rel="apple-touch-icon" href="/apps/lightsfinder/icon-192.png" /><link rel="stylesheet" href="/apps/lightsfinder/styles.css" />`,
+		head: html`<link rel="manifest" href="/apps/lightsfinder/manifest.json" /><meta name="theme-color" content="#593475" /><link rel="stylesheet" href="/apps/lightsfinder/styles.css" />`,
 		body: lightsfinderFragment(data), scripts: html`<script type="module" src="/apps/lightsfinder/app.js"></script>` });
 }

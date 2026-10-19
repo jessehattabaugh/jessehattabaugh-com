@@ -25,6 +25,22 @@ branding; app pages load the shared app shell and their own stylesheet, with the
 site icon and signed account status in the top right. Rainbow Hour uses its icon’s
 bright sky, sunshine, and rainbow colors. `/contact` redirects to Messages.
 
+The shared site header always shows the owner's Bluesky portrait, including on
+Home, errors, and app pages. `build/branding.js` refreshes it during each build;
+`client/branding/avatar.png` is a bundled fallback when public profile/image
+services are unavailable. The portrait supplies the main site's favicon, Apple
+touch icon, and site manifest's 192/512 PNG icons. Each app retains its own
+original SVG artwork and has its own favicon, touch icon, and install icons.
+All identity assets are self-contained and served from this origin, so rendering
+headings never waits on Bluesky. Changes to the profile photo reach these assets
+on the next build. Existing installed apps may refresh OS-cached icons later.
+
+Build dependency justification: `sharp` is explicitly declared as a development
+dependency to resize the public portrait and render real PNG icon sizes from the
+existing app SVGs. It was already used transitively by the tooling; this avoids
+depending on an undeclared package. No image library is shipped to the Worker or
+browser, and app artwork is not replaced by the owner's portrait.
+
 `ATPROTO_HANDLE` selects the public owner identity (default documented in
 `.dev.vars.example`). The home page introduces the site and links to its apps,
 About, Colophon, contact, and giveaways; it renders without an AT Protocol lookup.

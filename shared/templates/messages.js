@@ -156,7 +156,7 @@ export function messagesPage(data = {}) {
 		path: paths.messages, app: 'messages', user: data.user,
 		description: 'Send Jesse a message and read replies on any device.',
 		body: messagesFragment(data),
-		head: html`<link rel="manifest" href="/apps/messages/manifest.json" /><link rel="icon" href="/apps/messages/icon.svg" type="image/svg+xml" /><link rel="stylesheet" href="/apps/messages/styles.css" />`,
+		head: html`<link rel="manifest" href="/apps/messages/manifest.json" /><link rel="stylesheet" href="/apps/messages/styles.css" />`,
 		scripts: html`<script type="module" src="/apps/messages/app.js" data-service-worker="/apps/messages/sw.js" data-scope="/apps/messages/"></script>`,
 	});
 }

@@ -2,6 +2,7 @@
 export const paths = {
 	home: '/', about: '/about', colophon: '/colophon', apps: '/apps/',
 	giving: '/giving', bluesky: '/bluesky', atAvatar: '/atproto/avatar', atBlob: '/atproto/blob',
+	avatar: '/branding/avatar-96.png',
 	notFound: '/404/', error: '/500/', contact: '/contact', login: '/login',
 	messages: '/apps/messages/', verify: '/apps/messages/verify',
 	logout: '/apps/messages/logout', setup: '/apps/messages/setup', profile: '/apps/messages/profile',
