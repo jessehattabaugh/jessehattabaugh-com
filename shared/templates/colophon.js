@@ -3,9 +3,11 @@ import { layout } from './layout.js';
 
 /**
  * @returns {import('../html.js').Raw}
+ * @param {import('../data/atproto.js').Social} [social]
  */
-export const colophon = () => {
+export const colophon = (social) => {
 	return layout({
+		social,
 		title: 'Colophon',
 		path: '/colophon',
 		description: 'How jessehattabaugh.com is built.',

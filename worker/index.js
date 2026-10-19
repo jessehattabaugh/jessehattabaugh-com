@@ -8,6 +8,7 @@ import { handleLightsfinder } from '../apps/lightsfinder/worker.js';
 import { rainbowWakeCron } from './rainbow-cron.js';
 import { SECURITY_HEADERS } from './security-headers.js';
 import { RequestBodyError, ServiceError } from './request.js';
+import { handleAtproto } from './atproto.js';
 
 /** Apply security headers to every representation, including assets and redirects. */
 /** @param {Response} response @param {boolean} [head] */
@@ -24,7 +25,7 @@ function failure(status, headers = {}) {
 
 /** @type {ExportedHandler<import('../shared/types.js').Env>} */
 export default {
-	async fetch(request, env) {
+	async fetch(request, env, ctx) {
 		const url = new URL(request.url);
 		const head = request.method === 'HEAD';
 		try {
@@ -50,14 +51,15 @@ export default {
 				if (route.handler === 'contact') {
 					response = new Response(null, { status: 301, headers: { Location: paths.messages } });
 				} else {
-					if (route.handler === 'lightsfinder') { response = await handleLightsfinder(routeRequest, env); }
+					if (route.handler === 'social') { response = await handleAtproto(routeRequest, env, ctx); }
+					else if (route.handler === 'lightsfinder') { response = await handleLightsfinder(routeRequest, env); }
 					else if (route.handler === 'crunch') { response = await handleCrunchTime(routeRequest, env); }
 					else if (route.handler === 'messages') { response = await handleMessagesApi(routeRequest, env); }
 					else { response = await handleRainbowApi(routeRequest, env); }
 				}
 				if (response) {
 					const headers = new Headers(response.headers);
-					headers.set('Cache-Control', 'no-store');
+					if (route.handler !== 'social') { headers.set('Cache-Control', 'no-store'); }
 					if (env.PREVIEW_BRANCH && env.PREVIEW_DB_NAME) {
 						headers.set('X-Preview-Branch', env.PREVIEW_BRANCH);
 						headers.set('X-Preview-Database', env.PREVIEW_DB_NAME);

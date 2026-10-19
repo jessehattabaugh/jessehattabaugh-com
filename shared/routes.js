@@ -1,6 +1,7 @@
 /** The URL vocabulary belongs to the server. Clients follow rendered controls. */
 export const paths = {
 	home: '/', about: '/about', colophon: '/colophon', apps: '/apps/',
+	giving: '/giving', bluesky: '/bluesky', atAvatar: '/atproto/avatar', atBlob: '/atproto/blob',
 	notFound: '/404/', error: '/500/', contact: '/contact', login: '/login',
 	messages: '/apps/messages/', verify: '/apps/messages/verify',
 	logout: '/apps/messages/logout', setup: '/apps/messages/setup', profile: '/apps/messages/profile',
@@ -16,6 +17,7 @@ export const paths = {
 export const staticRoutes = [
 	{ name: 'home', path: paths.home },
 	{ name: 'about', path: paths.about },
+	{ name: 'giving', path: paths.giving },
 	{ name: 'colophon', path: paths.colophon },
 	{ name: 'apps', path: paths.apps },
 	{ name: 'notFound', path: paths.notFound },
@@ -23,6 +25,12 @@ export const staticRoutes = [
 ];
 
 export const dynamicRoutes = [
+	{ path: paths.home, methods: ['GET'], handler: 'social' },
+	{ path: paths.about, methods: ['GET'], handler: 'social' },
+	{ path: paths.giving, methods: ['GET'], handler: 'social' },
+	{ path: paths.bluesky, methods: ['GET'], handler: 'social' },
+	{ path: paths.atAvatar, methods: ['GET'], handler: 'social' },
+	{ path: paths.atBlob, methods: ['GET'], handler: 'social' },
 	{ path: paths.crunch, methods: ['GET', 'POST'], handler: 'crunch' },
 	{ path: paths.lightsfinder, methods: ['GET', 'POST'], handler: 'lightsfinder' },
 	{ path: paths.contact, methods: ['GET'], handler: 'contact' },

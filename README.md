@@ -18,10 +18,36 @@ or runtime dependencies.
 - `client/apps/`: app enhancements and service workers.
 - `tests/`: functional browser flows against an isolated deployed preview.
 
-Home, About, Apps, and Colophon are static. They use the site navigation and
+Home, About, Giving away, Apps, and Colophon have static builds. Home, About,
+and Giving away also render fresh public AT Protocol data in the Worker, using
+the same templates. They use the site navigation and
 branding; app pages load the shared app shell and their own stylesheet, with the
 site icon and signed account status in the top right. Rainbow Hour uses its icon’s
 bright sky, sunshine, and rainbow colors. `/contact` redirects to Messages.
+
+`ATPROTO_HANDLE` selects the public owner identity (default documented in
+`.dev.vars.example`). The home page shows five original Bluesky posts, excluding
+replies, reposts, and labelled posts; UTF-8 facets preserve links and mentions.
+About displays the Bluesky bio and counts, the RPG Actor sprite, and D&D/DCC
+character sheets. `/giving` lists GiftHood offers that are available or pending,
+including photos and links to arrange pickup on GiftHood. Taken/closed listings
+and requests are omitted. No authentication or new dependency is needed.
+
+The build saves a public snapshot; runtime data is cached for five minutes and
+each failed source falls back independently to the build snapshot, with a saved
+date shown. Empty and unavailable states differ. Snapshot data can become stale;
+GiftHood remains the source for pickup/availability. Cache keys include the host,
+handle, and snapshot timestamp to isolate versions and previews. Images stream
+through same-origin endpoints restricted to CIDs referenced by the owner's current
+records; photo/avatar thumbnails come from Bluesky's CDN and sprites retain
+their original pixels. Additional GiftHood photos use native details disclosures.
+CSP needs no new origins. Giving away opts out of cross-document View Transitions
+because Chromium's no-JS transition snapshots intercepted native photo disclosures
+in deployed tests, the same issue already documented for Lightsfinder.
+RPG Actor sprites are cropped to their idle frame with CSS, including without JS.
+PDS discovery currently supports `did:plc` identities on Bluesky-hosted servers
+only; a move to a custom PDS needs an explicit host-policy update. RPG Actor's
+per-system records take priority over its legacy `self` stats record.
 
 **Messages** uses email confirmation and signed cookies. Visitors can send
 messages, sign in on another device, read history, and refresh replies without

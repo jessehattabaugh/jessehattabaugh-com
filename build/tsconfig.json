@@ -20,6 +20,7 @@
 		"../shared/html.js",
 		"../shared/routes.js",
 		"../shared/pages.js",
+		"../shared/data/atproto.js",
 		"../shared/templates/**/*.js",
 		"**/*.js",
 		"../scripts/**/*.js",
