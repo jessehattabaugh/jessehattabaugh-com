@@ -7,4 +7,12 @@ import { error } from './templates/error.js';
 import { giving } from './templates/giving.js';
 
 /** @type {Record<string, (social?: import('./data/atproto.js').Social) => import('./html.js').Raw>} */
-export const staticPages = { home, about, giving, colophon, apps, notFound, error: () => error() };
+export const staticPages = {
+	home,
+	about,
+	giving,
+	colophon,
+	apps,
+	notFound,
+	error: () => { return error(); },
+};

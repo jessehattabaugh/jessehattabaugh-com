@@ -2,20 +2,6 @@ import { html } from '../html.js';
 import { layout } from './layout.js';
 import { actorFragment, profileSummary, freshness } from './social.js';
 
-/**
- * @param {import('../data/atproto.js').Social} [social]
- * @returns {import('../html.js').Raw}
- */
-export const about = (social) => {
-	return layout({
-		title: 'About',
-		path: '/about',
-		description: 'About Jesse Hattabaugh — software engineer and web developer.',
-		social,
-		body: aboutFragment(social),
-	});
-};
-
 /** @param {import('../data/atproto.js').Social} [social] */
 export function aboutFragment(social) {
 	return html`
@@ -52,3 +38,17 @@ export function aboutFragment(social) {
 			</article>
 		`;
 }
+
+/**
+ * @param {import('../data/atproto.js').Social} [social]
+ * @returns {import('../html.js').Raw}
+ */
+export const about = (social) => {
+	return layout({
+		title: 'About',
+		path: '/about',
+		description: 'About Jesse Hattabaugh — software engineer and web developer.',
+		social,
+		body: aboutFragment(social),
+	});
+};
