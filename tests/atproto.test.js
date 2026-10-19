@@ -12,8 +12,8 @@ async function loaded(image) {
 	await expect.poll(() => {return image.evaluate((element) => {return element instanceof HTMLImageElement && element.complete && element.naturalWidth > 0})}).toBe(true);
 }
 
-test('home shows my Bluesky identity, avatar, and readable posts', async ({ page }) => {
-	await page.goto(paths.home);
+test('About shows my Bluesky identity, avatar, and readable posts', async ({ page }) => {
+	await page.goto(paths.about);
 	const profile = page.getByRole('complementary', { name: 'Bluesky profile' });
 	await expect(profile.getByRole('link', { name: `@${handle}`, exact: true })).toHaveAttribute('href', `https://bsky.app/profile/${handle}`);
 	await loaded(page.getByRole('img', { name: 'Bluesky avatar', exact: true }));

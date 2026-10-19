@@ -6,6 +6,11 @@ import { about, aboutFragment } from '../shared/templates/about.js';
 import { giving, givingFragment } from '../shared/templates/giving.js';
 /** @import { Social } from '../shared/data/atproto.js' */
 
+/** @param {import('../shared/html.js').Raw} page */
+function pageResponse(page) {
+	return new Response(render(page), { headers: { 'Content-Type': 'text/html;charset=utf-8', Vary: 'X-Fragment', 'Cache-Control': 'public, max-age=60' } });
+}
+
 /** @param {Request} request @param {import('../shared/types.js').Env} env @param {ExecutionContext} ctx */
 async function socialData(request, env, ctx) {
 	const handle = env.ATPROTO_HANDLE?.trim();
@@ -74,16 +79,16 @@ export async function handleAtproto(request, env, ctx) {
 	if (url.pathname === paths.bluesky) {
 		return new Response(null, { status: 302, headers: { Location: `https://bsky.app/profile/${encodeURIComponent(env.ATPROTO_HANDLE ?? '')}` } });
 	}
+	const fragment = request.headers.get('X-Fragment') === 'true';
+	// The site introduction has no personal data or upstream API dependency.
+	if (url.pathname === paths.home) { return pageResponse(fragment ? homeFragment() : home()); }
 	const data = await socialData(request, env, ctx);
 	if (url.pathname === paths.atAvatar || url.pathname === paths.atBlob) { return image(request, data, ctx); }
-	const fragment = request.headers.get('X-Fragment') === 'true';
 	let template;
 	if (url.pathname === paths.about) {
 		template = fragment ? aboutFragment : about;
-	} else if (url.pathname === paths.giving) {
-		template = fragment ? givingFragment : giving;
 	} else {
-		template = fragment ? homeFragment : home;
+		template = fragment ? givingFragment : giving;
 	}
-	return new Response(render(template(data)), { headers: { 'Content-Type': 'text/html;charset=utf-8', Vary: 'X-Fragment', 'Cache-Control': 'public, max-age=60' } });
+	return pageResponse(template(data));
 }

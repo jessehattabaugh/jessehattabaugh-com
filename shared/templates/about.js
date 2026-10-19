@@ -1,6 +1,6 @@
 import { html } from '../html.js';
 import { layout } from './layout.js';
-import { actorFragment, profileSummary, freshness } from './social.js';
+import { actorFragment, profileSummary, postsFragment } from './social.js';
 
 /** @param {import('../data/atproto.js').Social} [social] */
 export function aboutFragment(social) {
@@ -34,7 +34,7 @@ export function aboutFragment(social) {
 					<li><a href="mailto:jesse@jessehattabaugh.com">Email</a></li>
 				</ul>
 				${actorFragment(social)}
-				${freshness(social)}
+				${postsFragment(social)}
 			</article>
 		`;
 }

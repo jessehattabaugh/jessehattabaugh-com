@@ -66,7 +66,6 @@ export const layout = ({
 							>${social?.profile?.avatar ? html`<img src="${paths.atAvatar}" alt="Bluesky avatar" width="36" height="36" />` : html``}Jesse Hattabaugh</a
 						>
 						<ul>
-							<li><a href="${paths.giving}"${normalizedPath === paths.giving ? html` aria-current="page"` : html``}>Giving away</a></li>
 							<li>
 								<a
 									href="/about"
@@ -87,9 +86,10 @@ export const layout = ({
 									${normalizedPath === '/apps/messages'
 										? html` aria-current="page"`
 										: html``}
-									>Send me a message</a
+									>Contact</a
 								>
 							</li>
+							<li><a href="${paths.giving}"${normalizedPath === paths.giving ? html` aria-current="page"` : html``}>Giving away</a></li>
 						</ul>
 					</nav>
 				</header>`}
