@@ -50,6 +50,6 @@ export function crunchFragment(data) {
 /** @param {CrunchData} data */
 export function crunchTime(data) {
 	return layout({ title: 'Crunch Time', app: 'crunch-time', user: data.user, path: paths.crunch, description: 'A situp-powered pocket pet. Teach Mochi your rhythm, track your workouts, and turn small reps into big friendship.', viewTransitions: false,
-		head: html`<link rel="stylesheet" href="/apps/crunch-time/style.css" /><link rel="manifest" href="/apps/crunch-time/manifest.json" /><link rel="apple-touch-icon" href="/apps/crunch-time/icon-192.png" /><meta name="theme-color" content="#f5ead7" />`,
+		head: html`<link rel="stylesheet" href="/apps/crunch-time/style.css" /><link rel="manifest" href="/apps/crunch-time/manifest.json" /><meta name="theme-color" content="#f5ead7" />`,
 		body: crunchFragment(data), scripts: html`<script type="module" src="/apps/crunch-time/app.js"></script>` });
 }

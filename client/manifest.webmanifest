@@ -1,0 +1,15 @@
+{
+	"id": "/",
+	"name": "Jesse Hattabaugh",
+	"short_name": "Jesse Hattabaugh",
+	"description": "Useful tools and web experiments.",
+	"start_url": "/",
+	"scope": "/",
+	"display": "standalone",
+	"background_color": "#faf9f7",
+	"theme_color": "#faf9f7",
+	"icons": [
+		{ "src": "/branding/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
+		{ "src": "/branding/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+	]
+}

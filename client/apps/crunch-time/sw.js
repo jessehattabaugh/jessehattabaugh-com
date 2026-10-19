@@ -2,7 +2,7 @@
 export {};
 /** @type {any} */
 const service = /** @type {any} */ (self);
-const CACHE = 'crunch-time-public-v1';
+const CACHE = 'crunch-time-public-v2';
 const offline = new URL('./offline.html', service.registration.scope).href;
 const assets = [offline, '/styles/app.css', '/styles/base.css', '/apps/crunch-time/style.css', '/apps/crunch-time/mochi.svg'];
 service.addEventListener('install', /** @param {any} event */ (event) => { event.waitUntil(caches.open(CACHE).then((cache) => { return cache.addAll(assets); }).then(() => { return service.skipWaiting(); })); });

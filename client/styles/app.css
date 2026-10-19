@@ -22,6 +22,7 @@
 		border-radius: 1rem;
 		p { overflow-wrap: anywhere; min-width: 0; }
 		a:first-child { flex-shrink: 0; }
+		img { border-radius: 50%; }
 		a { font-weight: 600; text-underline-offset: 3px; }
 		form { margin: 0; }
 		button {

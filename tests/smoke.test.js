@@ -17,6 +17,9 @@ for (const { path, heading } of pages) {
 	test(`${path} renders its heading and navigation`, async ({ page }) => {
 		await page.goto(path);
 		await expect(page.getByRole('heading', { name: heading, level: 1, exact: true })).toBeVisible();
+		const portrait = page.getByRole('img', { name: 'Bluesky avatar', exact: true });
+		await expect(portrait).toBeVisible();
+		await expect.poll(() => { return portrait.evaluate((img) => { return img instanceof HTMLImageElement && img.complete && img.naturalWidth > 0; }); }).toBe(true);
 		if ((path.startsWith('/apps/') && path !== paths.apps) || path === paths.login) {
 			const account = page.getByRole('navigation', { name: 'Site account', exact: true });
 			await expect(account.getByRole('link', { name: 'Jesse Hattabaugh home', exact: true })).toBeVisible();

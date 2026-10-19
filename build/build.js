@@ -7,6 +7,7 @@ import { staticRoutes } from '../shared/routes.js';
 import { staticPages } from '../shared/pages.js';
 import { loadSocial } from '../shared/data/atproto.js';
 import { workerVariables } from '../scripts/environment.js';
+import { buildBranding } from './branding.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(__dirname, '..');
@@ -45,6 +46,7 @@ async function build() {
 	// Copy static assets (includes client/apps/* PWA files)
 	const clientDir = join(ROOT, 'client');
 	await cp(clientDir, OUT, { recursive: true });
+	await buildBranding(OUT, social);
 
 	// Client-side runtime modules imported by the Rainbow Hour app
 	// (page dashboard + module service worker) from /shared/*.js — one source

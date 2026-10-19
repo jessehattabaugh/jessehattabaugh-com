@@ -2,7 +2,7 @@
 export {};
 /** @type {any} */
 const service = /** @type {any} */ (self);
-const CACHE = 'lightsfinder-shell-v2';
+const CACHE = 'lightsfinder-shell-v3';
 const OFFLINE = new URL('./offline.html', service.registration.scope).href;
 service.addEventListener('install', /** @param {any} event */ (event) => {
 	event.waitUntil(caches.open(CACHE).then((cache) => { return cache.addAll([OFFLINE, new URL('./icon.svg', service.registration.scope).href]); }).then(() => { return service.skipWaiting(); }));

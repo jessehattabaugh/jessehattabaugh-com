@@ -29,6 +29,7 @@ export const layout = ({
 	social,
 }) => {
 	const normalizedPath = path !== '/' && path.endsWith('/') ? path.slice(0, -1) : path;
+	const iconRoot = app ? `/apps/${app}` : '/branding';
 
 	return html`<!doctype html>
 		<html lang="en">
@@ -38,7 +39,10 @@ export const layout = ({
 				<title>${app ? title : `${title} — Jesse Hattabaugh`}</title>
 				<meta name="description" content="${description}" />
 				<link rel="stylesheet" href="${app ? '/styles/app.css' : '/styles/main.css'}" />
-				<link rel="icon" href="/icon.svg" type="image/svg+xml" />
+				<link rel="icon" href="${iconRoot}/icon-32.png" type="image/png" sizes="32x32" />
+				<link rel="icon" href="${iconRoot}/icon.svg" type="image/svg+xml" sizes="any" />
+				<link rel="apple-touch-icon" href="${iconRoot}/apple-touch-icon.png" sizes="180x180" />
+				${app ? html`` : html`<link rel="manifest" href="/manifest.webmanifest" />`}
 				${head}
 				<style>
 					@view-transition {
@@ -57,13 +61,13 @@ export const layout = ({
 				<a class="skip-link" href="#main">Skip to content</a>
 				${app ? html`<header>
 					<nav aria-label="Site account">
-						<a href="${paths.home}" aria-label="Jesse Hattabaugh home" title="Jesse Hattabaugh"><img src="/icon.svg" alt="" width="36" height="36" /></a>
+						<a href="${paths.home}" aria-label="Jesse Hattabaugh home" title="Jesse Hattabaugh"><img src="${paths.avatar}" alt="Bluesky avatar" width="36" height="36" /></a>
 						${user ? html`<p>Signed in as ${user.display_name}.</p><form method="post" action="${paths.logout}" data-no-enhance><button type="submit">Sign out</button></form>` : html`<span>Signed out</span><a href="${app === 'lightsfinder' ? `${paths.login}?returnTo=lightsfinder` : paths.login}">Sign in</a>`}
 					</nav>
 				</header>` : html`<header>
 					<nav aria-label="Main navigation">
 						<a href="/" aria-label="Jesse Hattabaugh"${normalizedPath === '/' ? html` aria-current="page"` : html``}
-							>${social?.profile?.avatar ? html`<img src="${paths.atAvatar}" alt="Bluesky avatar" width="36" height="36" />` : html``}Jesse Hattabaugh</a
+							><img src="${paths.avatar}" alt="Bluesky avatar" width="36" height="36" />Jesse Hattabaugh</a
 						>
 						<ul>
 							<li>
