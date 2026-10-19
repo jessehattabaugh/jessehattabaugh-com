@@ -18,7 +18,7 @@ or runtime dependencies.
 - `client/apps/`: app enhancements and service workers.
 - `tests/`: functional browser flows against an isolated deployed preview.
 
-Home, About, Giving away, Apps, and Colophon have static builds. Home, About,
+Home, About, Giving away, Apps, and Colophon have static builds. About
 and Giving away also render fresh public AT Protocol data in the Worker, using
 the same templates. They use the site navigation and
 branding; app pages load the shared app shell and their own stylesheet, with the
@@ -26,9 +26,11 @@ site icon and signed account status in the top right. Rainbow Hour uses its icon
 bright sky, sunshine, and rainbow colors. `/contact` redirects to Messages.
 
 `ATPROTO_HANDLE` selects the public owner identity (default documented in
-`.dev.vars.example`). The home page shows five original Bluesky posts, excluding
+`.dev.vars.example`). The home page introduces the site and links to its apps,
+About, Colophon, contact, and giveaways; it renders without an AT Protocol lookup.
+About shows five original Bluesky posts, excluding
 replies, reposts, and labelled posts; UTF-8 facets preserve links and mentions.
-About displays the Bluesky bio and counts, the RPG Actor sprite, and D&D/DCC
+It also displays the Bluesky bio and counts, the RPG Actor sprite, and D&D/DCC
 character sheets. `/giving` lists GiftHood offers that are available or pending,
 including photos and links to arrange pickup on GiftHood. Taken/closed listings
 and requests are omitted. No authentication or new dependency is needed.

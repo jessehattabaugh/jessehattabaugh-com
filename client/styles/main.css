@@ -70,7 +70,7 @@
 }
 
 @layer components {
-	/* Home page introduction; nested social sections have their own typography. */
+	/* Home page introduction. */
 	main > section:first-child {
 		nav {
 			margin-top: var(--space-lg);
