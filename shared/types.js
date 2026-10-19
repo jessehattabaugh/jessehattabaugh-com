@@ -10,6 +10,7 @@
  * @property {string} [VAPID_CONTACT]     mailto: address used as VAPID JWT sub
  * @property {string} [OWNER_SETUP_TOKEN] One-time secret to promote first registered user to owner
  * @property {string} [OSRM_URL] Optional OSRM-compatible road-routing server
+ * @property {string} [ATPROTO_HANDLE] Public owner handle for Bluesky, RPG Actor, and GiftHood
  * @property {string} [PREVIEW_BRANCH] Non-production preview alias
  * @property {string} [PREVIEW_DB_NAME] Isolated preview database name
  */

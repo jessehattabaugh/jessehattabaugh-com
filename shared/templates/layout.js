@@ -13,6 +13,7 @@ import { paths } from '../routes.js';
  * @param {Raw} [opts.scripts]
  * @param {string} [opts.app] App identity; omitting it selects the site layout.
  * @param {{ display_name: string } | null} [opts.user]
+ * @param {import('../data/atproto.js').Social} [opts.social]
  * @returns {Raw}
  */
 export const layout = ({
@@ -25,6 +26,7 @@ export const layout = ({
 	scripts = html``,
 	app,
 	user,
+	social,
 }) => {
 	const normalizedPath = path !== '/' && path.endsWith('/') ? path.slice(0, -1) : path;
 
@@ -60,21 +62,22 @@ export const layout = ({
 					</nav>
 				</header>` : html`<header>
 					<nav aria-label="Main navigation">
-						<a href="/"${normalizedPath === '/' ? ' aria-current="page"' : ''}
-							>Jesse Hattabaugh</a
+						<a href="/" aria-label="Jesse Hattabaugh"${normalizedPath === '/' ? html` aria-current="page"` : html``}
+							>${social?.profile?.avatar ? html`<img src="${paths.atAvatar}" alt="Bluesky avatar" width="36" height="36" />` : html``}Jesse Hattabaugh</a
 						>
 						<ul>
+							<li><a href="${paths.giving}"${normalizedPath === paths.giving ? html` aria-current="page"` : html``}>Giving away</a></li>
 							<li>
 								<a
 									href="/about"
-									${normalizedPath === '/about' ? ' aria-current="page"' : ''}
+									${normalizedPath === '/about' ? html` aria-current="page"` : html``}
 									>About</a
 								>
 							</li>
 							<li>
 								<a
 									href="/apps/"
-									${normalizedPath === '/apps' ? ' aria-current="page"' : ''}
+									${normalizedPath === '/apps' ? html` aria-current="page"` : html``}
 									>Apps</a
 								>
 							</li>
@@ -82,8 +85,8 @@ export const layout = ({
 								<a
 									href="/apps/messages/"
 									${normalizedPath === '/apps/messages'
-										? ' aria-current="page"'
-										: ''}
+										? html` aria-current="page"`
+										: html``}
 									>Send me a message</a
 								>
 							</li>
@@ -95,6 +98,7 @@ export const layout = ({
 					<p>
 						&copy; Jesse Hattabaugh &middot;
 						<a href="/colophon">How this site works</a>
+						&middot; <a href="${social?.profileUrl ?? paths.bluesky}" rel="me">${social ? `@${social.handle} on Bluesky` : 'Bluesky'}</a>
 					</p>
 				</footer>`}
 				<script type="module" src="/enhance/index.js"></script>

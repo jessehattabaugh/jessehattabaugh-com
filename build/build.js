@@ -5,6 +5,8 @@ import { fileURLToPath } from 'node:url';
 import { render } from '../shared/html.js';
 import { staticRoutes } from '../shared/routes.js';
 import { staticPages } from '../shared/pages.js';
+import { loadSocial } from '../shared/data/atproto.js';
+import { workerVariables } from '../scripts/environment.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(__dirname, '..');
@@ -28,10 +30,15 @@ async function build() {
 	// linger as stale artifacts from a previous build in the same working tree.
 	await rm(OUT, { recursive: true, force: true });
 	await mkdir(OUT, { recursive: true });
+	const handle = workerVariables().ATPROTO_HANDLE;
+	if (!handle) { throw new Error('ATPROTO_HANDLE must be configured'); }
+	const social = await loadSocial(handle);
+	await mkdir(join(OUT, 'atproto'), { recursive: true });
+	await writeFile(join(OUT, 'atproto', 'snapshot.json'), JSON.stringify(social), 'utf8');
 
 	// Static pages
 	await Promise.all(staticRoutes.map((route) => {
-		return writePage(route.path, render(staticPages[route.name]()));
+		return writePage(route.path, render(staticPages[route.name](social)));
 	}));
 	await writeFile(join(OUT, '404.html'), render(staticPages.notFound()), 'utf8');
 

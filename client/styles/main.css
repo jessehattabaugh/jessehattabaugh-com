@@ -41,6 +41,10 @@
 
 		/* The brand link is always the nav's first direct child — the rest live in the <ul>. */
 		> a:first-child {
+			display: inline-flex;
+			align-items: center;
+			gap: var(--space-sm);
+			img { border-radius: 50%; }
 			font-weight: 700;
 			color: var(--color-text);
 			font-size: 1.125rem;
@@ -66,8 +70,8 @@
 }
 
 @layer components {
-	/* The home page is the only template with a <section> — safe to style by tag. */
-	section {
+	/* Home page introduction; nested social sections have their own typography. */
+	main > section:first-child {
 		nav {
 			margin-top: var(--space-lg);
 			display: flex;
@@ -83,6 +87,41 @@
 			color: var(--color-text-muted);
 			margin-bottom: var(--space-md);
 		}
+	}
+
+	aside[aria-label='Bluesky profile'] {
+		margin-block: var(--space-md);
+		p { white-space: pre-line; }
+	}
+
+	section[aria-labelledby='bluesky-heading'], [data-gifts] {
+		ol, &[data-gifts] { list-style: none; padding: 0; }
+		li { margin-block: var(--space-lg); }
+		li > article { padding-block: var(--space-md); border-block-start: 1px solid var(--color-border); }
+		p { overflow-wrap: anywhere; white-space: pre-line; }
+	}
+	[data-photos] {
+		display: grid;
+		grid-template-columns: repeat(auto-fit, minmax(min(100%, 200px), 1fr));
+		gap: var(--space-sm);
+		margin-block: var(--space-md);
+		img { width: 100%; height: auto; aspect-ratio: 4 / 3; object-fit: contain; border-radius: var(--radius); background: var(--color-surface); }
+	}
+	details > summary { cursor: pointer; color: var(--color-accent); }
+	figure[data-sprite] {
+		margin-block: var(--space-lg);
+		> div { width: 144px; height: 144px; overflow: hidden; }
+		img { max-width: none; width: calc(144px * var(--sprite-columns)); height: calc(144px * var(--sprite-rows)); image-rendering: pixelated; transform: translateX(-144px); }
+		figcaption { font-size: 0.875rem; color: var(--color-text-muted); }
+	}
+	section[aria-labelledby='actor-heading'] dl {
+		display: grid;
+		grid-template-columns: repeat(auto-fit, minmax(95px, 1fr));
+		gap: var(--space-sm);
+		margin-block: var(--space-md);
+		> div { padding: var(--space-sm); border: 1px solid var(--color-border); border-radius: var(--radius); }
+		dt { font-size: 0.8rem; color: var(--color-text-muted); }
+		dd { font-weight: 600; }
 	}
 
 	article {

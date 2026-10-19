@@ -1,15 +1,24 @@
 import { html } from '../html.js';
 import { layout } from './layout.js';
+import { actorFragment, profileSummary, freshness } from './social.js';
 
 /**
+ * @param {import('../data/atproto.js').Social} [social]
  * @returns {import('../html.js').Raw}
  */
-export const about = () => {
+export const about = (social) => {
 	return layout({
 		title: 'About',
 		path: '/about',
 		description: 'About Jesse Hattabaugh — software engineer and web developer.',
-		body: html`
+		social,
+		body: aboutFragment(social),
+	});
+};
+
+/** @param {import('../data/atproto.js').Social} [social] */
+export function aboutFragment(social) {
+	return html`
 			<article>
 				<h1>About</h1>
 				<p>
@@ -29,6 +38,7 @@ export const about = () => {
 					<li>Open source contributions</li>
 				</ul>
 				<h2>Find me elsewhere</h2>
+				${profileSummary(social)}
 				<ul>
 					<li>
 						<a href="https://github.com/jessehattabaugh" rel="noopener noreferrer"
@@ -37,7 +47,8 @@ export const about = () => {
 					</li>
 					<li><a href="mailto:jesse@jessehattabaugh.com">Email</a></li>
 				</ul>
+				${actorFragment(social)}
+				${freshness(social)}
 			</article>
-		`,
-	});
-};
+		`;
+}

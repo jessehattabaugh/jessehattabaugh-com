@@ -16,7 +16,7 @@ for (const [name, value] of Object.entries(localVariables)) {
 export function workerVariables() {
 	/** @type {Record<string,string>} */
 	const variables = {};
-	for (const name of ['EMAIL_FROM', 'VAPID_CONTACT', 'OSRM_URL']) {
+	for (const name of ['EMAIL_FROM', 'VAPID_CONTACT', 'OSRM_URL', 'ATPROTO_HANDLE']) {
 		const value = process.env[name]?.trim() ? process.env[name] : defaults[name];
 		if (value?.trim()) { variables[name] = value; }
 	}

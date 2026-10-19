@@ -50,9 +50,10 @@ const rainbowIcon =
   </g>
 </svg>`);
 
-/** @returns {import('../html.js').Raw} */
-export const apps = () => {
+/** @param {import('../data/atproto.js').Social} [social] @returns {import('../html.js').Raw} */
+export const apps = (social) => {
 	return layout({
+		social,
 		title: 'Apps',
 		path: '/apps',
 		description: 'Standalone progressive web apps by Jesse Hattabaugh.',
