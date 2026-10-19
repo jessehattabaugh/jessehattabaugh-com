@@ -25,16 +25,15 @@ async function json(url) {
 	if (!response.ok) { throw new Error(`AT Protocol request failed (${response.status})`); }
 	// Bound upstream bodies as well as request duration.
 	const { body } = response;
-	const reader = body?.getReader();
-	if (!body || !reader) { throw new Error('Empty AT Protocol response'); }
+	if (!body) { throw new Error('Empty AT Protocol response'); }
 	const chunks = []; let length = 0;
-	try {
-		for await (const chunk of body) {
-			const nextChunk = chunk instanceof Uint8Array ? chunk : new Uint8Array(chunk);
-			length += nextChunk.length; if (length > 2_000_000) { throw new Error('AT Protocol response too large'); }
-			chunks.push(nextChunk);
-		}
-	} finally { await reader.cancel(); }
+	// Async iteration owns the reader and cancels it if the size check throws.
+	// Acquiring a separate reader here would lock the stream before iteration.
+	for await (const chunk of body) {
+		const nextChunk = chunk instanceof Uint8Array ? chunk : new Uint8Array(chunk);
+		length += nextChunk.length; if (length > 2_000_000) { throw new Error('AT Protocol response too large'); }
+		chunks.push(nextChunk);
+	}
 	const bytes = new Uint8Array(length); let offset = 0;
 	for (const chunk of chunks) { bytes.set(chunk, offset); offset += chunk.length; }
 	return object(JSON.parse(new TextDecoder().decode(bytes)));
