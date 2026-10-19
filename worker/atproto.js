@@ -50,9 +50,12 @@ async function image(request, data, ctx) {
 	}
 	// Keep the sprite's exact pixel sheet; use the public Bluesky image CDN's
 	// thumbnails for photos and the small navigation avatar.
-	const source = avatar ? (data.profile?.avatar ?? '').replace('/img/avatar/plain/', '/img/avatar_thumbnail/plain/')
-		: id === data.actor?.sprite?.cid ? `${data.pds}/xrpc/com.atproto.sync.getBlob?${new URLSearchParams({ did: data.did, cid: id })}`
-			: `https://cdn.bsky.app/img/feed_thumbnail/plain/${data.did}/${id}@jpeg`;
+	let source = `https://cdn.bsky.app/img/feed_thumbnail/plain/${data.did}/${id}@jpeg`;
+	if (avatar) {
+		source = (data.profile?.avatar ?? '').replace('/img/avatar/plain/', '/img/avatar_thumbnail/plain/');
+	} else if (id === data.actor?.sprite?.cid) {
+		source = `${data.pds}/xrpc/com.atproto.sync.getBlob?${new URLSearchParams({ did: data.did, cid: id })}`;
+	}
 	const key = new Request(new URL(`/atproto/image-cache/${encodeURIComponent(source)}`, request.url));
 	const cached = await caches.default.match(key); if (cached) { return cached; }
 	try {
@@ -74,6 +77,13 @@ export async function handleAtproto(request, env, ctx) {
 	const data = await socialData(request, env, ctx);
 	if (url.pathname === paths.atAvatar || url.pathname === paths.atBlob) { return image(request, data, ctx); }
 	const fragment = request.headers.get('X-Fragment') === 'true';
-	const template = url.pathname === paths.about ? (fragment ? aboutFragment : about) : url.pathname === paths.giving ? (fragment ? givingFragment : giving) : (fragment ? homeFragment : home);
+	let template;
+	if (url.pathname === paths.about) {
+		template = fragment ? aboutFragment : about;
+	} else if (url.pathname === paths.giving) {
+		template = fragment ? givingFragment : giving;
+	} else {
+		template = fragment ? homeFragment : home;
+	}
 	return new Response(render(template(data)), { headers: { 'Content-Type': 'text/html;charset=utf-8', Vary: 'X-Fragment', 'Cache-Control': 'public, max-age=60' } });
 }

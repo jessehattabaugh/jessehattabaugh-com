@@ -41,16 +41,26 @@ export function freshness(social) {
 
 /** @param {Social | undefined} social */
 export function postsFragment(social) {
+	let postsMarkup;
+	if (social?.posts) {
+		if (social.posts.length) {
+			postsMarkup = html`<ol>${social.posts.map((post) => {return html`<li><article>
+				<p><a href="${post.url}"><time datetime="${post.createdAt}">${date(post.createdAt)}</time></a></p>
+				<p>${richText(post.text, post.facets)}</p>
+				${post.images.length ? html`<div data-photos>${post.images.map((image) => {return html`<a href="${post.url}" aria-label="View post on Bluesky"><img src="${blobPath(image.cid)}" alt="${image.alt}" width="640" height="480" loading="lazy" /></a>`})}</div>` : html``}
+				${post.external.url ? html`<p><a href="${post.external.url}">${post.external.title || post.external.url}</a></p>` : html``}
+				<p><a href="${post.url}">Read and reply on Bluesky</a></p>
+			</article></li>`})}</ol>`;
+		} else {
+			postsMarkup = html`<p>No recent posts to display.</p>`;
+		}
+	} else {
+		postsMarkup = html`<p>Posts are temporarily unavailable. <a href="${social?.profileUrl ?? paths.bluesky}">Read my posts on Bluesky</a>.</p>`;
+	}
 	return html`<section aria-labelledby="bluesky-heading">
 		<h2 id="bluesky-heading">Latest from Bluesky</h2>
 		<p><a href="${social?.profileUrl ?? paths.bluesky}" rel="me">${social ? `@${social.handle}` : 'My Bluesky profile'}</a> · Thoughts, projects, and things I notice.</p>
-		${social?.posts ? social.posts.length ? html`<ol>${social.posts.map((post) => {return html`<li><article>
-			<p><a href="${post.url}"><time datetime="${post.createdAt}">${date(post.createdAt)}</time></a></p>
-			<p>${richText(post.text, post.facets)}</p>
-			${post.images.length ? html`<div data-photos>${post.images.map((image) => {return html`<a href="${post.url}" aria-label="View post on Bluesky"><img src="${blobPath(image.cid)}" alt="${image.alt}" width="640" height="480" loading="lazy" /></a>`})}</div>` : html``}
-			${post.external.url ? html`<p><a href="${post.external.url}">${post.external.title || post.external.url}</a></p>` : html``}
-			<p><a href="${post.url}">Read and reply on Bluesky</a></p>
-		</article></li>`})}</ol>` : html`<p>No recent posts to display.</p>` : html`<p>Posts are temporarily unavailable. <a href="${social?.profileUrl ?? paths.bluesky}">Read my posts on Bluesky</a>.</p>`}
+		${postsMarkup}
 		${freshness(social)}
 	</section>`;
 }

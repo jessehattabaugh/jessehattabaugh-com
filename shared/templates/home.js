@@ -2,20 +2,6 @@ import { html } from '../html.js';
 import { layout } from './layout.js';
 import { postsFragment, profileSummary } from './social.js';
 
-/**
- * @param {import('../data/atproto.js').Social} [social]
- * @returns {import('../html.js').Raw}
- */
-export const home = (social) => {
-	return layout({
-		title: 'Home',
-		path: '/',
-		description: 'Jesse Hattabaugh — software engineer, web developer.',
-		social,
-		body: homeFragment(social),
-	});
-};
-
 /** @param {import('../data/atproto.js').Social} [social] */
 export function homeFragment(social) {
 	return html`
@@ -35,3 +21,17 @@ export function homeFragment(social) {
 			${postsFragment(social)}
 		`;
 }
+
+/**
+ * @param {import('../data/atproto.js').Social} [social]
+ * @returns {import('../html.js').Raw}
+ */
+export const home = (social) => {
+	return layout({
+		title: 'Home',
+		path: '/',
+		description: 'Jesse Hattabaugh — software engineer, web developer.',
+		social,
+		body: homeFragment(social),
+	});
+};
