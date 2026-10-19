@@ -20,6 +20,7 @@ EMAIL_FROM=no-reply@notify.jessehattabaugh.com
 VAPID_CONTACT=mailto:claude_ai@jessehattabaugh.com
 # Optional OSRM-compatible HTTPS endpoint; empty uses public OSRM.
 OSRM_URL=
+
 # Public identity only; no app password or AT Protocol token is needed.
 ATPROTO_HANDLE=jessehattabaugh.com
 
