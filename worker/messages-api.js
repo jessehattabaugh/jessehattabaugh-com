@@ -1,33 +1,12 @@
-import {
-	createUser, getUserById, getUserByEmailAny, getOwner, claimOwner,
-	createPasskey, getPasskeyById, updatePasskeyCounter,
-	createChallenge, consumeChallenge, getOrCreateConversation, getConversation, getUserConversation,
-	getAllConversations, getMessages, createMessage,
-	savePushSubscription, getPushSubscriptionsByUser, getOwnerPushSubscriptions,
-	deletePushSubscription, deleteUserPushSubscription, hasUserPushSubscription, normalizeEmail,
-	createEmailVerification, getEmailVerification, completeEmailVerification,
-	deleteEmailVerification,
-} from '../shared/data/messages.js';
-import {
-	verifyRegistration, verifyAuthentication, createRegistrationOptions, createAuthenticationOptions,
-} from './webauthn.js';
-import { getSessionUser, createSession, sessionCookieHeader } from './session.js';
-import { notifyAll } from './vapid.js';
-import { render, html } from '../shared/html.js';
+import { createUser, getUserById, getUserByEmailAny, getOwner, claimOwner, getOrCreateConversation, getConversation, getUserConversation, getAllConversations, getMessages, createMessage, savePushSubscription, deleteUserPushSubscription, hasUserPushSubscription, normalizeEmail } from '../shared/data/messages.js';
+import { sessionUser, emailVerification, validEmail } from './auth.js';
+import { notifyNewMessage } from './message-notifications.js';
+import { json, redirect } from './responses.js';
+import { render } from '../shared/html.js';
 import { messagesPage, messagesFragment } from '../shared/templates/messages.js';
 import { paths } from '../shared/routes.js';
 import { SECURITY_HEADERS } from './security-headers.js';
-import { ServiceError, readForm, readJson } from './request.js';
-
-/** @param {unknown} data @param {number} [status] @param {Record<string, string>} [headers] */
-function json(data, status = 200, headers = {}) {
-	return new Response(JSON.stringify(data), { status, headers: { 'Content-Type': 'application/json', ...headers } });
-}
-
-/** @param {string} href @param {Record<string, string>} [headers] @param {number} [status] */
-function redirect(href, headers = {}, status = 303) {
-	return new Response(null, { status, headers: { Location: href, ...headers } });
-}
+import { readForm } from './request.js';
 
 /** @param {Request} request @param {import('../shared/templates/messages.js').MessagesData} data @param {number} [status] */
 function page(request, data, status = 200) {
@@ -36,15 +15,6 @@ function page(request, data, status = 200) {
 		status,
 		headers: { 'Content-Type': 'text/html;charset=utf-8', Vary: 'X-Fragment', 'Cache-Control': 'no-store', ...SECURITY_HEADERS },
 	});
-}
-
-/** @param {Request} request @param {import('../shared/types.js').Env} env */
-async function sessionUser(request, env) {
-	const id = await getSessionUser(request, env.SESSION_SECRET);
-	const user = id ? await getUserById(env.DB, id) : null;
-	// This release's host-only cookie is issued only after email or passkey proof.
-	// Legacy passkey accounts can enroll a recovery email after signing in.
-	return user;
 }
 
 /** @param {Request} request @param {import('../shared/types.js').Env} env @param {import('../shared/templates/messages.js').MessagesData} [extra] @param {number} [status] */
@@ -57,8 +27,9 @@ async function renderMessagesPage(request, env, extra = {}, status = 200) {
 	/** @type {import('../shared/templates/messages.js').MessagesData} */
 	const data = { user, notice: url.searchParams.has('sent') ? 'Message sent — Jesse will get back to you.' : undefined };
 	if (url.searchParams.has('checkEmail')) {
-		data.notice = 'Check your email to confirm your request.';
+		data.notice = 'Your message has been submitted unverified. To ensure a timely response, please click the link in the verification email we just sent you.';
 	}
+	if (url.searchParams.has('verified')) { data.notice = 'Your email and message are verified. Jesse has been notified.'; }
 	if (user) {
 		data.values = { name: user.display_name, email: user.email ?? '' };
 		data.canRegister = true;
@@ -95,63 +66,6 @@ async function renderMessagesPage(request, env, extra = {}, status = 200) {
 	return page(request, { ...data, ...extra, values: { ...data.values, ...extra.values } }, status);
 }
 
-/** @param {string} email */
-function validEmail(email) { return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) && email.length <= 254; }
-
-/**
- * Delivery failures are failures, never a misleading "check your inbox" success.
- * No raw binding errors are shown to the user; the outer Worker renders 500.
- * @param {import('../shared/types.js').Env} env
- * @param {Request} request
- * @param {{ userId: string, email: string, purpose: string, message?: string, name: string }} data
- */
-async function emailVerification(env, request, data) {
-	if (!env.EMAIL) { throw new ServiceError('EMAIL_BINDING_MISSING'); }
-	if (!env.EMAIL_FROM) { throw new ServiceError('EMAIL_SENDER_MISSING'); }
-	if (!env.SESSION_SECRET) { throw new ServiceError('SESSION_SECRET_MISSING'); }
-	const token = crypto.randomUUID();
-	await createEmailVerification(env.DB, {
-		id: token, userId: data.userId, email: data.email, purpose: data.purpose,
-		payload: data.message ? JSON.stringify({ name: data.name, message: data.message }) : null,
-	});
-	const link = new URL(paths.verify, request.url);
-	link.searchParams.set('token', token);
-	try {
-		await env.EMAIL.send({
-			to: data.email, from: env.EMAIL_FROM,
-			subject: 'Confirm your Messages request',
-			text: `Hi ${data.name},\n\nConfirm your email to continue: ${link}\n\nThis link expires in 15 minutes and can be used once. Ignore it if you did not make this request.`,
-			html: html`<p>Hi ${data.name},</p><p><a href="${link.toString()}">Confirm your email</a></p><p>This link expires in 15 minutes and can be used once. Ignore it if you did not make this request.</p>`.value,
-		});
-	} catch (error) {
-		await deleteEmailVerification(env.DB, token);
-		const code = error && typeof error === 'object' && 'code' in error ? String(error.code) : '';
-		const known = ['E_SENDER_NOT_VERIFIED', 'E_SENDER_DOMAIN_NOT_AVAILABLE', 'E_RECIPIENT_NOT_ALLOWED', 'E_RECIPIENT_SUPPRESSED', 'E_VALIDATION_ERROR', 'E_FIELD_MISSING', 'E_UNVERIFIED_SENDER', 'E_INVALID_EMAIL', 'E_INVALID_ARGUMENT', 'E_DELIVERY_FAILED', 'E_RATE_LIMIT_EXCEEDED', 'E_DAILY_LIMIT_EXCEEDED', 'E_INTERNAL_SERVER_ERROR', 'E_UNAUTHORIZED', 'E_NOT_AUTHORIZED'];
-		throw new ServiceError(known.includes(code) ? code : 'EMAIL_DELIVERY_FAILED', error);
-	}
-}
-
-/** @param {import('../shared/types.js').Env} env @param {{ conversationId: string, senderIsOwner: boolean, senderName: string, content: string }} data */
-async function notifyNewMessage(env, data) {
-	if (!env.VAPID_PUBLIC_KEY || !env.VAPID_PRIVATE_KEY) { return; }
-	const conversation = await getConversation(env.DB, data.conversationId);
-	if (!conversation) { return; }
-	const subscriptions = data.senderIsOwner
-		? await getPushSubscriptionsByUser(env.DB, String(conversation.visitor_user_id))
-		: await getOwnerPushSubscriptions(env.DB);
-	await notifyAll(subscriptions, {
-		vapidPublicKey: env.VAPID_PUBLIC_KEY, vapidPrivateKey: env.VAPID_PRIVATE_KEY,
-		vapidContact: env.VAPID_CONTACT ?? 'mailto:jesse@jessehattabaugh.com',
-	}, (endpoint) => { return deletePushSubscription(env.DB, endpoint); }, JSON.stringify({
-		// Push carries a preview, not the full stored message. Bound both text
-		// fields (including legacy display names), preserving Unicode code points
-		// so JSON + UTF-8 + encryption overhead fit the single Web Push record.
-		senderName: Array.from(data.senderName).slice(0, 100).join(''),
-		content: Array.from(data.content).slice(0, 200).join(''),
-		url: `${paths.messages}?conversationId=${encodeURIComponent(data.conversationId)}`,
-	}));
-}
-
 /** @param {Request} request @param {import('../shared/types.js').Env} env */
 async function submitMessage(request, env) {
 	const form = await readForm(request);
@@ -171,8 +85,9 @@ async function submitMessage(request, env) {
 	if (!user && (!name || name.length > 100 || !validEmail(email))) {
 		return renderMessagesPage(request, env, { ...draft, error: 'Enter your name and a valid email address.' }, 422);
 	}
-	if (!user) {
-		let guest = await getUserByEmailAny(env.DB, email);
+	if (!user || (user.email_verified !== 1 && user.email)) {
+		const senderEmail = user?.email ?? email;
+		let guest = await getUserByEmailAny(env.DB, senderEmail);
 		if (!guest) {
 			const id = crypto.randomUUID();
 			await createUser(env.DB, { id, displayName: name, email });
@@ -180,7 +95,8 @@ async function submitMessage(request, env) {
 		}
 		if (!guest) { throw new Error('Guest account missing'); }
 		// An existing email is never sufficient to acquire its session or modify it.
-		await emailVerification(env, request, { userId: guest.id, email, name, message, purpose: 'guest-message' });
+		const conversation = await getOrCreateConversation(env.DB, guest.id);
+		await emailVerification(env, request, { userId: guest.id, email: senderEmail, name: user?.display_name ?? name, message, conversationId: conversation.id, purpose: 'guest-message' });
 		return redirect(`${paths.messages}?checkEmail=1`);
 	}
 	if (!user.is_owner) {
@@ -194,8 +110,11 @@ async function submitMessage(request, env) {
 	if (!conversation) {
 		return renderMessagesPage(request, env, { error: 'Select a conversation before sending a reply.', values }, 422);
 	}
-	await createMessage(env.DB, { id: crypto.randomUUID(), conversationId, senderUserId: user.id, content: message });
-	await notifyNewMessage(env, { conversationId, senderIsOwner: !!user.is_owner, senderName: user.display_name, content: message });
+	await createMessage(env.DB, { id: crypto.randomUUID(), conversationId, senderUserId: user.id, content: message, verified: user.email_verified === 1 });
+	if (user.email_verified === 1) {
+		try { await notifyNewMessage(env, { conversationId, senderIsOwner: !!user.is_owner, senderName: user.display_name, content: message }); }
+		catch (error) { console.error('Message notification failed', error); }
+	}
 	return redirect(`${paths.messages}?conversationId=${encodeURIComponent(conversationId)}&sent=1`);
 }
 
@@ -206,85 +125,7 @@ export async function handleMessagesApi(request, env) {
 	if (path === paths.messages) {
 		return request.method === 'GET' ? renderMessagesPage(request, env) : submitMessage(request, env);
 	}
-	if (path === paths.login) {
-		if (request.method === 'GET') {
-			const response = page(request, { user: await sessionUser(request, env), screen: 'login', notice: url.searchParams.has('checkEmail') ? 'Check your email to confirm your request.' : undefined });
-			if (url.searchParams.get('returnTo') === 'lightsfinder') { response.headers.append('Set-Cookie', '__Host-appReturn=lightsfinder; HttpOnly; Secure; SameSite=Lax; Path=/; Max-Age=1800'); }
-			return response;
-		}
-		const form = await readForm(request);
-		const name = String(form.get('name') ?? '').trim();
-		const email = normalizeEmail(String(form.get('email') ?? ''));
-		if (!name || name.length > 100 || !validEmail(email)) {
-			return page(request, { user: await sessionUser(request, env), screen: 'login', error: 'Enter your name and a valid email address.', values: { name, email } }, 422);
-		}
-		let user = await getUserByEmailAny(env.DB, email);
-		if (!user) {
-			const id = crypto.randomUUID();
-			await createUser(env.DB, { id, displayName: name, email });
-			user = await getUserById(env.DB, id);
-		}
-		if (!user) { throw new Error('Account missing'); }
-		await emailVerification(env, request, { userId: user.id, email, name, purpose: 'login' });
-		return redirect(`${paths.login}?checkEmail=1`);
-	}
-	if (path === paths.verify) {
-		const token = request.method === 'GET' ? url.searchParams.get('token') : String((await readForm(request)).get('token') ?? '');
-		const verification = token ? await getEmailVerification(env.DB, token) : null;
-		if (!verification || verification.expires_at < Date.now() || verification.consumed_at) {
-			return page(request, { user: await sessionUser(request, env), screen: 'verify', error: 'That verification link has expired or is invalid.' }, 400);
-		}
-		if (request.method === 'GET') {
-			return page(request, { user: await sessionUser(request, env), screen: 'verify', token: verification.id });
-		}
-		if (!env.SESSION_SECRET) { throw new Error('Session signing is not configured'); }
-		const user = await getUserById(env.DB, verification.user_id);
-		if (!user || (verification.purpose !== 'profile' && user.email !== verification.email)) {
-			return page(request, { user: await sessionUser(request, env), screen: 'verify', error: 'That verification link is no longer valid.' }, 400);
-		}
-		if (verification.purpose === 'profile') {
-			const existing = await getUserByEmailAny(env.DB, verification.email);
-			if (existing && existing.id !== user.id) {
-				return page(request, { user: await sessionUser(request, env), screen: 'verify', error: 'That email belongs to another account.' }, 409);
-			}
-		}
-		let content = null;
-		if (verification.purpose === 'guest-message') {
-			const payload = JSON.parse(verification.payload ?? '{}');
-			content = String(payload.message ?? '').trim();
-			if (!content || content.length > 10000) { throw new Error('Invalid held message'); }
-		}
-		// Prepare the cookie before committing so signing failures cannot burn proof.
-		const cookie = sessionCookieHeader(await createSession(env.SESSION_SECRET, user.id));
-		const completed = await completeEmailVerification(env.DB, verification, content);
-		if (!completed) {
-			return page(request, { user: await sessionUser(request, env), screen: 'verify', error: 'That verification link has already been used or is no longer valid.' }, 400);
-		}
-		if (content && completed.conversationId) {
-			// Push is best effort after commit; delivery failures must not prevent
-			// the sender receiving their session and successful POST redirect.
-			try {
-				await notifyNewMessage(env, { conversationId: completed.conversationId, senderIsOwner: !!user.is_owner, senderName: user.display_name, content });
-			} catch (error) { console.error('Message notification failed', error); }
-		}
-		const appReturn = /(?:^|;\s*)__Host-appReturn=lightsfinder(?:;|$)/.test(request.headers.get('Cookie') ?? '');
-		const response = redirect(appReturn && verification.purpose === 'login' ? paths.lightsfinder : paths.messages + (content ? '?sent=1' : ''), { 'Set-Cookie': cookie });
-		response.headers.append('Set-Cookie', '__Host-appReturn=; HttpOnly; Secure; SameSite=Lax; Path=/; Max-Age=0');
-		return response;
-	}
-	if (path === paths.logout) {
-		return redirect(paths.messages, { 'Set-Cookie': sessionCookieHeader('', true) });
-	}
 	const user = await sessionUser(request, env);
-	if (path === paths.profile) {
-		if (!user) { return redirect(paths.login, {}, 302); }
-		const email = normalizeEmail(String((await readForm(request)).get('email') ?? ''));
-		if (!validEmail(email)) { return renderMessagesPage(request, env, { error: 'Enter a valid recovery email address.', values: { email } }, 422); }
-		const existing = await getUserByEmailAny(env.DB, email);
-		if (existing && existing.id !== user.id) { return renderMessagesPage(request, env, { error: 'That email belongs to another account.', values: { email } }, 409); }
-		await emailVerification(env, request, { userId: user.id, email, name: user.display_name, purpose: 'profile' });
-		return redirect(`${paths.messages}?checkEmail=1`);
-	}
 	if (path === paths.setup) {
 		if (!user) { return redirect(paths.login, {}, 302); }
 		const token = String((await readForm(request)).get('setupToken') ?? '');
@@ -315,58 +156,6 @@ export async function handleMessagesApi(request, env) {
 			await savePushSubscription(env.DB, { id: crypto.randomUUID(), userId: user.id, endpoint, p256dh, auth });
 		}
 		return redirect(paths.messages);
-	}
-	// Credential APIs are protocol exchanges; every sign-in also has the email-form path.
-	const { hostname: rpId, origin } = url;
-	if (path === paths.registerBegin) {
-		if (!user) { return redirect(paths.login, {}, 302); }
-		const { challenge, options } = createRegistrationOptions({ rpName: 'Jesse Hattabaugh', rpId, userId: user.id, displayName: user.display_name });
-		const challengeId = crypto.randomUUID();
-		await createChallenge(env.DB, { id: challengeId, challenge, userId: user.id, type: 'register' });
-		return json({ challengeId, options });
-	}
-	if (path === paths.loginBegin) {
-		const { challenge, options } = createAuthenticationOptions({ rpId });
-		const challengeId = crypto.randomUUID();
-		await createChallenge(env.DB, { id: challengeId, challenge, type: 'login' });
-		return json({ challengeId, options });
-	}
-	if (path === paths.registerComplete || path === paths.loginComplete) {
-		const body = /** @type {any} */ (await readJson(request));
-		const stored = await consumeChallenge(env.DB, String(body.challengeId ?? ''));
-		const registration = path === paths.registerComplete;
-		if (!stored || stored.expires_at < Date.now() || stored.type !== (registration ? 'register' : 'login')) {
-			return json({ error: 'The credential request expired. Please try again.' }, 422);
-		}
-		let authenticatedUser = user;
-		if (registration) {
-			if (!user || user.id !== stored.user_id) { return redirect(paths.login, {}, 302); }
-			let info;
-			try {
-				info = await verifyRegistration({ credential: body.credential, expectedChallenge: stored.challenge, expectedOrigin: origin, expectedRPID: rpId });
-			} catch (error) {
-				console.error(error);
-				return json({ error: 'The passkey could not be verified.' }, 422);
-			}
-			await createPasskey(env.DB, { id: info.credentialId, userId: user.id, publicKey: info.publicKey, counter: info.counter, transports: info.transports });
-		} else {
-			const passkey = await getPasskeyById(env.DB, String(body.credential?.id ?? ''));
-			if (!passkey) { return json({ error: 'The passkey could not be verified.' }, 422); }
-			let info;
-			try {
-				info = await verifyAuthentication({ credential: body.credential, expectedChallenge: stored.challenge, expectedOrigin: origin, expectedRPID: rpId, storedPublicKey: passkey.public_key, storedCounter: passkey.counter });
-			} catch (error) {
-				console.error(error);
-				return json({ error: 'The passkey could not be verified.' }, 422);
-			}
-			await updatePasskeyCounter(env.DB, { id: passkey.id, counter: info.newCounter });
-			authenticatedUser = await getUserById(env.DB, passkey.user_id);
-		}
-		if (!authenticatedUser) {
-			return json({ error: 'The account could not be found.' }, 422);
-		}
-		if (!authenticatedUser.is_owner) { await getOrCreateConversation(env.DB, authenticatedUser.id); }
-		return json({ location: paths.messages }, 200, { 'Set-Cookie': sessionCookieHeader(await createSession(env.SESSION_SECRET, authenticatedUser.id)) });
 	}
 	return null;
 }

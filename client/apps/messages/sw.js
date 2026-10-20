@@ -3,8 +3,8 @@ const sw = self;
 const APP_URL = sw.registration.scope;
 const ICON_URL = new URL('icon.svg', APP_URL).pathname;
 
-const CACHE = 'messages-v2';
-const PRECACHE = ['/apps/messages/icon.svg', '/styles/base.css', '/styles/main.css', '/apps/messages/styles.css'];
+const CACHE = 'messages-v3';
+const PRECACHE = ['/apps/messages/icon.svg', '/styles/base.css', '/styles/app.css', '/apps/messages/styles.css'];
 
 // ── Install: pre-cache app shell ──────────────────────────────────────────────
 
@@ -85,7 +85,7 @@ sw.addEventListener(
 	/** @param {any} event */ (event) => {
 		event.waitUntil(
 			(async () => {
-				const title = 'Messages';
+				const title = 'Jessages';
 				let body = 'You have a new message';
 				let destination = APP_URL;
 
@@ -97,7 +97,7 @@ sw.addEventListener(
 					if (raw) {
 						const data = JSON.parse(raw);
 						if (data?.senderName && data?.content) {
-							body = `${data.senderName}: ${data.content.slice(0, 100)}`;
+							body = `${data.senderName}${data.verified ? ' verified their email and sent you a message' : ''}: ${data.content.slice(0, 100)}`;
 						}
 						if (data?.url) {
 							const target = new URL(data.url, APP_URL);

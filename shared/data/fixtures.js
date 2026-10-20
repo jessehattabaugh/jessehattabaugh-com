@@ -22,7 +22,7 @@ export function failFixtureMessage(db, messageId, enabled) {
 	if (!/^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/.test(messageId)) { throw new Error('Fixture message must be a generated UUID.'); }
 	const name = `e2e_fail_${messageId.replaceAll('-', '')}`;
 	return db.prepare(enabled
-		? `CREATE TRIGGER ${name} BEFORE INSERT ON messages WHEN NEW.content = '${messageId}' BEGIN SELECT RAISE(ABORT, 'E2E message constraint'); END`
+		? `CREATE TRIGGER ${name} BEFORE UPDATE OF verified_at ON messages WHEN NEW.content = '${messageId}' BEGIN SELECT RAISE(ABORT, 'E2E message constraint'); END`
 		: `DROP TRIGGER IF EXISTS ${name}`).run();
 }
 

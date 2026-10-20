@@ -3,6 +3,7 @@ import { paths } from '../shared/routes.js';
 
 for (const [path, root] of [
 	[paths.home, '/branding'],
+	[paths.login, '/branding'],
 	[paths.messages, '/apps/messages'],
 	[paths.rainbow, '/apps/rainbow-hour'],
 	[paths.lightsfinder, '/apps/lightsfinder'],

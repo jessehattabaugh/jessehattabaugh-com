@@ -1,4 +1,4 @@
-import { test, expect, signIn, confirmationLink } from './helpers/messages.js';
+import { test, expect, signIn } from './helpers/messages.js';
 import { paths } from '../shared/routes.js';
 import { lighthouseAudit } from './helpers/lighthouse.js';
 
@@ -62,20 +62,6 @@ test('all Lightsfinder screens have an accessible heading and controls', async (
 	/* eslint-enable no-await-in-loop */
 	await expect(page.getByRole('link', { name: 'Sign in to share lights' })).toBeVisible();
 	await expect(page.getByRole('form', { name: 'Share a sighting' })).toHaveCount(0);
-});
-
-test('email sign-in from Lightsfinder returns to the app', async ({ page, identities }) => {
-	const identity = identities.create();
-	await page.goto(`${paths.lightsfinder}?view=share`);
-	await page.getByRole('link', { name: 'Sign in to share lights' }).click();
-	await page.getByLabel('Name', { exact: true }).fill(identity.name);
-	await page.getByLabel('Email', { exact: true }).fill(identity.email);
-	await page.getByRole('button', { name: 'Email me a sign-in link', exact: true }).click();
-	await expect(page.getByRole('status').filter({ hasText: 'Check your email' })).toBeVisible();
-	await page.goto(await confirmationLink(page, identity.email));
-	await page.getByRole('button', { name: 'Confirm email', exact: true }).click();
-	await expect(page.getByRole('heading', { name: 'Lightsfinder', exact: true })).toBeVisible();
-	await expect(page.getByText(`Signed in as ${identity.name}.`, { exact: true })).toBeVisible();
 });
 
 test('photo publication survives field validation, preserves its draft, and never repeats on reload', async ({ page, identities }) => {

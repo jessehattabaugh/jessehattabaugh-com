@@ -130,22 +130,24 @@ export function cleanExpiredEmailVerifications(db) {
 /**
  * Create a single-use email verification record.
  * @param {D1Database} db
- * @param {{ id: string, userId: string, email: string, purpose: string, payload?: string | null, ttlMs?: number }} opts
+ * @param {{ id: string, userId: string, email: string, purpose: string, payload?: string | null, message?: {id: string, conversationId: string, content: string}, ttlMs?: number }} opts
  */
 export async function createEmailVerification(
 	db,
-	{ id, userId, email, purpose = 'register', payload = null, ttlMs = 15 * 60 * 1000 },
+	{ id, userId, email, purpose = 'register', payload = null, message, ttlMs = 15 * 60 * 1000 },
 ) {
 	// Opportunistic maintenance runs on every email request, including previews
 	// without scheduled triggers. Valid and retryable proofs remain untouched.
 	await cleanExpiredEmailVerifications(db);
 	const expiresAt = Date.now() + ttlMs;
-	await db
-		.prepare(
-			'INSERT INTO email_verifications (id, user_id, email, purpose, payload, expires_at) VALUES (?, ?, ?, ?, ?, ?)',
-		)
-		.bind(id, userId, normalizeEmail(email), purpose, payload, expiresAt)
-		.run();
+	const statements = [db.prepare('INSERT INTO email_verifications (id, user_id, email, purpose, payload, expires_at) VALUES (?, ?, ?, ?, ?, ?)')
+		.bind(id, userId, normalizeEmail(email), purpose, payload, expiresAt)];
+	if (message) {
+		statements.push(db.prepare('INSERT INTO messages (id, conversation_id, sender_user_id, content, verification_id) VALUES (?, ?, ?, ?, ?)')
+			.bind(message.id, message.conversationId, userId, message.content, id));
+	}
+	if (message) { await db.batch(statements); }
+	else { await statements[0].run(); }
 }
 
 /**
@@ -181,12 +183,12 @@ export function consumeEmailVerification(db, id) {
 }
 
 /**
- * Commit proof, profile, conversation and a held message together. Every write
+ * Commit email proof and message verification together. Every write
  * checks the same pending token; competing submissions become no-ops. D1 batch
  * rolls back all writes on failure, keeping the original link retryable.
  * @param {D1Database} db
  * @param {EmailVerification} verification
- * @param {string | null} content
+ * @param {string | null} content Legacy, pre-migration held message.
  */
 export async function completeEmailVerification(db, verification, content = null) {
 	const now = Date.now();
@@ -199,16 +201,23 @@ export async function completeEmailVerification(db, verification, content = null
 			.bind(crypto.randomUUID(), verification.user_id, content, verification.id, now),
 	];
 	if (content !== null) {
-		statements.push(db.prepare(`INSERT INTO messages (id, conversation_id, sender_user_id, content)
-			SELECT ?, id, visitor_user_id, ? FROM conversations WHERE visitor_user_id = ? AND ${pending} RETURNING conversation_id`)
+		statements.push(db.prepare(`INSERT INTO messages (id, conversation_id, sender_user_id, content, verified_at)
+			SELECT ?, id, visitor_user_id, ?, datetime('now') FROM conversations WHERE visitor_user_id = ? AND ${pending} RETURNING conversation_id`)
 			.bind(crypto.randomUUID(), content, verification.user_id, verification.id, now));
 	}
+	// Only this submission's token can approve it, even when the account was
+	// already verified. An unrelated sign-in must never approve spoofed messages.
+	const messageIndex = statements.length;
+	statements.push(db.prepare(`UPDATE messages SET verified_at = datetime('now')
+		WHERE (verification_id = ? OR verification_id IS NULL) AND sender_user_id = ? AND verified_at IS NULL AND ${pending}
+		RETURNING conversation_id, content`)
+		.bind(verification.id, verification.user_id, verification.id, now));
 	statements.push(db.prepare(`UPDATE email_verifications SET consumed_at = ? WHERE id = ? AND ${pending} RETURNING id`)
 		.bind(now, verification.id, verification.id, now));
 	const results = await db.batch(statements);
 	if (!results.at(-1)?.results.length) { return null; }
-	const message = content === null ? null : results[2].results[0];
-	return { conversationId: message ? String(/** @type {{ conversation_id: string }} */ (message).conversation_id) : null };
+	const message = /** @type {{conversation_id: string, content?: string} | undefined} */ (results[messageIndex].results[0] ?? (content === null ? undefined : results[2].results[0]));
+	return { conversationId: message?.conversation_id ?? null, content: message?.content ?? content };
 }
 
 /**
@@ -336,16 +345,16 @@ export async function getAllConversations(db) {
 /**
  * @param {D1Database} db
  * @param {string} conversationId
- * @returns {Promise<Array<{ id: string, sender_user_id: string, content: string, senderName: string, createdAt: string }>>}
+ * @returns {Promise<Array<{ id: string, sender_user_id: string, content: string, senderName: string, createdAt: string, verified: number }>>}
  */
 export async function getMessages(db, conversationId) {
 	const { results } = await db
 		.prepare(
-			"SELECT m.id, m.sender_user_id, m.content, u.display_name AS senderName, strftime('%Y-%m-%dT%H:%M:%fZ', m.created_at) AS createdAt FROM messages m JOIN users u ON u.id = m.sender_user_id WHERE m.conversation_id = ? ORDER BY m.created_at ASC, m.rowid ASC",
+			"SELECT m.id, m.sender_user_id, m.content, (m.verified_at IS NOT NULL) AS verified, u.display_name AS senderName, strftime('%Y-%m-%dT%H:%M:%fZ', m.created_at) AS createdAt FROM messages m JOIN users u ON u.id = m.sender_user_id WHERE m.conversation_id = ? ORDER BY m.created_at ASC, m.rowid ASC",
 		)
 		.bind(conversationId)
 		.all();
-	return /** @type {Array<{ id: string, sender_user_id: string, content: string, senderName: string, createdAt: string }>} */ (
+	return /** @type {Array<{ id: string, sender_user_id: string, content: string, senderName: string, createdAt: string, verified: number }>} */ (
 		results
 	);
 }
@@ -386,14 +395,14 @@ export async function hasUserPushSubscription(db, endpoint, userId) {
 
 /**
  * @param {D1Database} db
- * @param {{ id: string, conversationId: string, senderUserId: string, content: string }} opts
+ * @param {{ id: string, conversationId: string, senderUserId: string, content: string, verified?: boolean, verificationId?: string | null }} opts
  */
-export async function createMessage(db, { id, conversationId, senderUserId, content }) {
+export async function createMessage(db, { id, conversationId, senderUserId, content, verified = true, verificationId = null }) {
 	await db
 		.prepare(
-			'INSERT INTO messages (id, conversation_id, sender_user_id, content) VALUES (?, ?, ?, ?)',
+			"INSERT INTO messages (id, conversation_id, sender_user_id, content, verified_at, verification_id) VALUES (?, ?, ?, ?, CASE WHEN ? THEN datetime('now') ELSE NULL END, ?)",
 		)
-		.bind(id, conversationId, senderUserId, content)
+		.bind(id, conversationId, senderUserId, content, verified ? 1 : 0, verificationId)
 		.run();
 }
 

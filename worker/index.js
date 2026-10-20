@@ -2,6 +2,7 @@ import { handleCrunchTime } from './crunch-time.js';
 import { render } from '../shared/html.js';
 import { error as errorPage } from '../shared/templates/error.js';
 import { findDynamicRoute, paths } from '../shared/routes.js';
+import { handleAuthApi } from './auth-api.js';
 import { handleMessagesApi } from './messages-api.js';
 import { handleRainbowApi } from './rainbow-api.js';
 import { handleLightsfinder } from '../apps/lightsfinder/worker.js';
@@ -48,12 +49,17 @@ export default {
 				}
 				const routeRequest = head ? new Request(request, { method: 'GET' }) : request;
 				let response;
-				if (route.handler === 'contact') {
+				if (route.handler === 'legacy-auth') {
+					const legacy = { '/apps/messages/verify': paths.verify, '/apps/messages/logout': paths.logout, '/apps/messages/profile': paths.profile };
+					url.pathname = legacy[/** @type {keyof typeof legacy} */ (url.pathname)];
+					response = new Response(null, { status: 307, headers: { Location: url.toString() } });
+				} else if (route.handler === 'contact') {
 					response = new Response(null, { status: 301, headers: { Location: paths.messages } });
 				} else {
 					if (route.handler === 'social') { response = await handleAtproto(routeRequest, env, ctx); }
 					else if (route.handler === 'lightsfinder') { response = await handleLightsfinder(routeRequest, env); }
 					else if (route.handler === 'crunch') { response = await handleCrunchTime(routeRequest, env); }
+					else if (route.handler === 'auth') { response = await handleAuthApi(routeRequest, env); }
 					else if (route.handler === 'messages') { response = await handleMessagesApi(routeRequest, env); }
 					else { response = await handleRainbowApi(routeRequest, env); }
 				}

@@ -11,8 +11,9 @@ CLOUDFLARE_ACCOUNT_ID=
 # Stateful E2E fixture setup/cleanup: scoped token with D1 read/write only.
 E2E_CLOUDFLARE_API_TOKEN=
 
-# Required only for stateful E2E tests: a catch-all mailbox domain you control.
-# Real verification emails are sent there; tests read tokens from preview D1.
+# Optional real delivery suite: a catch-all mailbox domain you control.
+# Verification emails are sent only when this flag is 1, preserving the daily allowance.
+E2E_EMAIL_FLOW=0
 E2E_EMAIL_DOMAIN=
 
 # Public Worker settings. Deployment copies only these allow-listed settings.

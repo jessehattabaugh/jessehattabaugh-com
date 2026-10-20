@@ -8,7 +8,7 @@ const pages = [
 		return { path: route.path, heading: headings[route.name] };
 	}),
 	{ path: paths.login, heading: 'Sign in' },
-	{ path: paths.messages, heading: 'Messages' },
+	{ path: paths.messages, heading: 'Jessages' },
 	{ path: paths.rainbow, heading: 'Rainbow Hour' },
 	{ path: paths.crunch, heading: 'Crunch Time' },
 ];
@@ -20,7 +20,7 @@ for (const { path, heading } of pages) {
 		const portrait = page.getByRole('img', { name: 'Bluesky avatar', exact: true });
 		await expect(portrait).toBeVisible();
 		await expect.poll(() => { return portrait.evaluate((img) => { return img instanceof HTMLImageElement && img.complete && img.naturalWidth > 0; }); }).toBe(true);
-		if ((path.startsWith('/apps/') && path !== paths.apps) || path === paths.login) {
+		if ((path.startsWith('/apps/') && path !== paths.apps)) {
 			const account = page.getByRole('navigation', { name: 'Site account', exact: true });
 			await expect(account.getByRole('link', { name: 'Jesse Hattabaugh home', exact: true })).toBeVisible();
 			await expect(account.getByText('Signed out', { exact: true })).toBeVisible();
@@ -59,13 +59,25 @@ test('unknown URLs show the site’s 404 page', async ({ page }) => {
 	await expect(page.getByRole('heading', { level: 1 })).toContainText('Page not found');
 });
 
-test('old contact bookmarks lead to Messages', async ({ page }) => {
+test('old contact bookmarks lead to Jessages', async ({ page }) => {
 	await page.goto(paths.contact);
-	await expect(page.getByRole('heading', { name: 'Messages', exact: true })).toBeVisible();
+	await expect(page.getByRole('heading', { name: 'Jessages', exact: true })).toBeVisible();
 });
 
 test('apps gallery links open the apps', async ({ page }) => {
 	await page.goto(paths.apps);
 	await page.getByRole('link', { name: /Rainbow Hour Know when rainbows/ }).click();
 	await expect(page.getByRole('heading', { name: 'Rainbow Hour', exact: true })).toBeVisible();
+});
+
+test('Jessages explains email verification and offers sign-in beneath the form', async ({ page }) => {
+	await page.goto(paths.messages);
+	await expect(page.getByText('Messages to Jesse', { exact: true })).toBeVisible();
+	await expect(page.getByText('Install this app to be notified of replies', { exact: true })).toBeVisible();
+	const form = page.getByRole('form', { name: 'Send message', exact: true });
+	const link = page.getByRole('link', { name: 'Sign in to your conversation', exact: true });
+	expect((await link.boundingBox()).y).toBeGreaterThan((await form.boundingBox()).y);
+	await link.click();
+	await expect(page.getByRole('navigation', { name: 'Main navigation', exact: true })).toBeVisible();
+	await expect(page.getByRole('contentinfo')).toBeVisible();
 });

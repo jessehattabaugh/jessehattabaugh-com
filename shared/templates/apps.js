@@ -67,8 +67,8 @@ export const apps = (social) => {
 					<li>
 						<a href="/apps/messages/" class="app-card">
 							<div class="app-card__icon" aria-hidden="true">${messagesIcon}</div>
-							<span class="app-card__name">Messages</span>
-							<span class="app-card__desc">Contact</span>
+							<span class="app-card__name">Jessages</span>
+							<span class="app-card__desc">Messages to Jesse</span>
 							<div class="app-card__tags">
 								<span class="app-tag">WebAuthn</span>
 								<span class="app-tag">FIDO2</span>

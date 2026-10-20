@@ -1,11 +1,52 @@
 import { randomUUID } from 'node:crypto';
-import { test, expect, signIn } from './helpers/messages.js';
+import { test, expect, signIn, pendingMessage } from './helpers/messages.js';
 import { previewDatabase } from './helpers/database.js';
 import { deleteRainbowSubscription } from '../shared/data/rainbow.js';
 
 // Real PushManager and real push service. No forged subscriptions or API mocks.
 // Browsers expose these capabilities only with JavaScript; all core messaging
 // and sky-check flows are tested with JavaScript disabled in the other suites.
+test('confirming a pending message notifies the admin once with its verification status', async ({ page, context, browser, identities }, testInfo) => {
+	test.skip(testInfo.project.use.javaScriptEnabled === false, 'Web Push is a browser JavaScript API.');
+	test.setTimeout(90000);
+	const owner = await identities.owner();
+	const visitor = identities.create();
+	const message = `Verified sender ${randomUUID()}`;
+	await context.grantPermissions(['notifications']);
+	await signIn(page, owner);
+	await page.getByRole('button', { name: 'Enable message notifications', exact: true }).click();
+	await expect(page.getByRole('button', { name: 'Disable notifications', exact: true })).toBeVisible({ timeout: 30000 });
+	const visitorContext = await browser.newContext({ ...testInfo.project.use });
+	try {
+		const link = await pendingMessage(page, visitor, message);
+		await page.reload();
+		await page.getByRole('navigation', { name: 'Conversations' }).getByRole('link', { name: visitor.name, exact: true }).click();
+		await expect(page.getByRole('listitem').filter({ hasText: message }).getByText('Unverified', { exact: true })).toBeVisible();
+		const notifications = () => { return page.evaluate(async (marker) => {
+			const registration = await navigator.serviceWorker.getRegistration();
+			return (await registration?.getNotifications() ?? []).filter((notification) => {
+				return notification.title === 'Jessages' && notification.body.includes(marker);
+			}).map((notification) => { return notification.body; });
+		}, message); };
+		expect(await notifications()).toEqual([]);
+		const visitorPage = await visitorContext.newPage();
+		await visitorPage.goto(link);
+		await visitorPage.getByRole('button', { name: 'Confirm email', exact: true }).click();
+		await expect(visitorPage.getByRole('heading', { name: 'Message history', exact: true })).toBeVisible();
+		await expect.poll(notifications, { timeout: 30000 }).toEqual([expect.stringContaining('verified their email and sent you a message')]);
+		await visitorPage.goto(link);
+		await expect(visitorPage.getByRole('alert')).toContainText('expired or is invalid');
+		expect(await notifications()).toHaveLength(1);
+	} finally {
+		await visitorContext.close();
+		await page.evaluate(async () => {
+			const registration = await navigator.serviceWorker.getRegistration();
+			for (const notification of await registration?.getNotifications() ?? []) { notification.close(); }
+			await (await registration?.pushManager.getSubscription())?.unsubscribe();
+		});
+	}
+});
+
 test('a long Unicode reply delivers a notification preview and preserves the full message', async ({ page, context, browser, identities }, testInfo) => {
 	test.skip(testInfo.project.use.javaScriptEnabled === false, 'Web Push is a browser JavaScript API.');
 	test.setTimeout(120000);
@@ -29,7 +70,7 @@ test('a long Unicode reply delivers a notification preview and preserves the ful
 		await expect.poll(() => { return page.evaluate(async (prefix) => {
 			const registration = await navigator.serviceWorker.getRegistration();
 			const notifications = await registration?.getNotifications() ?? [];
-			return notifications.some((notification) => { return notification.title === 'Messages' && notification.body.includes(prefix); });
+			return notifications.some((notification) => { return notification.title === 'Jessages' && notification.body.includes(prefix); });
 		}, marker);}, { timeout: 30000 }).toBe(true);
 		await page.getByRole('link', { name: 'Refresh messages', exact: true }).click();
 		await expect(page.getByRole('list', { name: 'Messages', exact: true }).getByText(message, { exact: true })).toBeVisible();

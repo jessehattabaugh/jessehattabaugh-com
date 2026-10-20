@@ -2,20 +2,20 @@ import { test as base, expect } from '@playwright/test';
 import { randomUUID } from 'node:crypto';
 import { previewDatabase } from './database.js';
 import { pendingVerification, deleteFixtureUser } from '../../shared/data/fixtures.js';
-import { createUser, markEmailVerified } from '../../shared/data/messages.js';
+import { createUser, getUserByEmailAny, markEmailVerified, getOrCreateConversation, createEmailVerification, createMessage } from '../../shared/data/messages.js';
 
 /**
- * Emails are sent through the real binding. The test reads the genuine token
- * from this branch's D1 rather than replacing delivery or an authentication API.
- * This validates binding acceptance and confirmation, not inbox deliverability.
+ * Routine tests seed account/proof records in isolated preview D1. Only the
+ * opt-in email suite sends through the real binding; it reads tokens from D1
+ * and validates binding acceptance and confirmation, not inbox deliverability.
  */
 export const test = base.extend({
 	// Playwright discovers fixture dependencies from a destructured parameter.
 	// eslint-disable-next-line no-empty-pattern
 	identities: async ({}, use) => {
 		const emails = [];
-		const domain = process.env.E2E_EMAIL_DOMAIN;
-		if (!domain) { throw new Error('Set E2E_EMAIL_DOMAIN to a controlled catch-all test mailbox domain.'); }
+		const domain = process.env.E2E_EMAIL_DOMAIN || 'example.invalid';
+		if (process.env.E2E_EMAIL_FLOW === '1' && !process.env.E2E_EMAIL_DOMAIN) { throw new Error('Email delivery tests require E2E_EMAIL_DOMAIN set to a controlled catch-all mailbox domain.'); }
 		try { await use({
 			create() {
 				const email = `e2e-${randomUUID()}@${domain}`;
@@ -52,13 +52,14 @@ export async function confirmationLink(page, email) {
 		token = await pendingVerification(db, email);
 		return !!token;
 	}, { timeout: 15000 }).toBe(true);
-	const link = new URL('/apps/messages/verify', page.url());
+	const link = new URL('/verify', page.url());
 	link.searchParams.set('token', token.id);
 	return link.toString();
 }
 
 /** @param {import('@playwright/test').Page} page @param {{ name: string, email: string }} identity */
-export async function signIn(page, identity) {
+export async function emailSignIn(page, identity) {
+	if (process.env.E2E_EMAIL_FLOW !== '1') { throw new Error('Real email delivery requires E2E_EMAIL_FLOW=1.'); }
 	await page.goto('/login');
 	await page.getByLabel('Name', { exact: true }).fill(identity.name);
 	await page.getByLabel('Email', { exact: true }).fill(identity.email);
@@ -73,4 +74,47 @@ export async function signIn(page, identity) {
 	await page.goto(await confirmationLink(page, identity.email));
 	await page.getByRole('button', { name: 'Confirm email', exact: true }).click();
 	await expect(page.getByText(`Signed in as ${identity.name}.`, { exact: true })).toBeVisible();
+	await page.waitForLoadState('load');
+}
+
+/** Routine tests seed a real D1 proof and confirm it through the root form.
+ * The deployed Worker issues the signed session; no email is sent.
+ * @param {import('@playwright/test').Page} page
+ * @param {{name: string, email: string}} identity
+ */
+export async function signIn(page, identity) {
+	const db = await previewDatabase();
+	let user = await getUserByEmailAny(db, identity.email);
+	if (!user) {
+		await createUser(db, { id: randomUUID(), displayName: identity.name, email: identity.email });
+		user = await getUserByEmailAny(db, identity.email);
+	}
+	if (!user) { throw new Error('Fixture account missing'); }
+	const token = randomUUID();
+	await createEmailVerification(db, { id: token, userId: user.id, email: identity.email, purpose: 'login' });
+	const link = new URL('/verify', process.env.PREVIEW_URL);
+	link.searchParams.set('token', token);
+	await page.goto(link.toString());
+	await page.getByRole('button', { name: 'Confirm email', exact: true }).click();
+	await expect(page.getByText(`Signed in as ${identity.name}.`, { exact: true })).toBeVisible();
+	await page.waitForLoadState('load');
+}
+
+/** A pending proof is fixture data; browser confirmation still uses the real
+ * root route and D1 transaction. Delivery itself belongs to the opt-in suite.
+ * @param {import('@playwright/test').Page} page
+ * @param {{name: string, email: string}} identity
+ * @param {string} message
+ */
+export async function pendingMessage(page, identity, message) {
+	const db = await previewDatabase();
+	const userId = randomUUID();
+	const token = randomUUID();
+	await createUser(db, { id: userId, displayName: identity.name, email: identity.email });
+	const conversation = await getOrCreateConversation(db, userId);
+	await createEmailVerification(db, { id: token, userId, email: identity.email, purpose: 'guest-message' });
+	await createMessage(db, { id: randomUUID(), conversationId: conversation.id, senderUserId: userId, content: message, verified: false, verificationId: token });
+	const link = new URL('/verify', process.env.PREVIEW_URL);
+	link.searchParams.set('token', token);
+	return link.toString();
 }

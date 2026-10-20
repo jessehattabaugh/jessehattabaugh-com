@@ -1,19 +1,18 @@
 import { html } from '../html.js';
 import { layout } from './layout.js';
 import { paths } from '../routes.js';
+import { accountSettings, signInLink } from './account.js';
 import { installControls } from './install.js';
 
 /**
  * @typedef {object} MessagesData
- * @property {'messages' | 'login' | 'verify'} [screen]
  * @property {{ id: string, display_name: string, is_owner: number } | null} [user]
  * @property {Array<{ id: string, display_name: string, href: string }>} [conversations]
- * @property {Array<{ id: string, content: string, senderName: string, sent: boolean, createdAt: string }>} [messages]
+ * @property {Array<{ id: string, content: string, senderName: string, sent: boolean, createdAt: string, verified: number }>} [messages]
  * @property {string} [conversationId]
  * @property {string} [refreshHref]
  * @property {string} [error]
  * @property {string} [notice]
- * @property {string} [token]
  * @property {boolean} [canSetup]
  * @property {boolean} [canRegister]
  * @property {boolean} [canUpdateEmail]
@@ -38,42 +37,8 @@ function composer(data) {
 
 /** @param {MessagesData} data */
 export function messagesFragment(data = {}) {
-	const { screen = 'messages', user, error, notice, values = {} } = data;
-	function screenHeading() {
-		if (screen === 'login') {
-			return 'Sign in';
-		}
-		if (screen === 'verify') {
-			return 'Confirm your email';
-		}
-		return 'Messages';
-	}
+	const { user, error, notice, values = {} } = data;
 	function screenContent() {
-		if (screen === 'verify') {
-			return html`
-				<p>Confirm to sign in and finish your request. This link can be used once.</p>
-				${data.token ? html`
-					<form method="post" action="${paths.verify}" data-no-enhance>
-						<input type="hidden" name="token" value="${data.token}" />
-						<button type="submit" class="btn">Confirm email</button>
-					</form>` : html`<a href="${paths.login}">Request a new sign-in link</a>`}
-			`;
-		}
-		if (screen === 'login') {
-			return html`
-				<p>Use an email link to sign in on any device, with or without JavaScript.</p>
-				<form method="post" action="${paths.login}" data-target="#main" aria-label="Email sign-in">
-					<label for="login-name">Name</label>
-					<input id="login-name" name="name" autocomplete="name" maxlength="100" required value="${values.name ?? ''}" />
-					<label for="login-email">Email</label>
-					<input id="login-email" name="email" type="email" autocomplete="email" required value="${values.email ?? ''}" />
-					<button type="submit" class="btn">Email me a sign-in link</button>
-				</form>
-				<form method="post" action="${paths.loginBegin}" data-passkey="login" data-complete="${paths.loginComplete}" data-no-enhance hidden>
-					<button type="submit" class="btn btn--outline">Sign in with a passkey</button>
-				</form>
-			`;
-		}
 		if (user) {
 			return html`
 				${data.conversations ? html`
@@ -88,44 +53,22 @@ export function messagesFragment(data = {}) {
 							${(data.messages ?? []).map((message) => { return html`
 								<li data-sent="${String(message.sent)}"><article>
 									<p>${message.content}</p>
-									<p><strong>${message.senderName}</strong> · <time datetime="${message.createdAt}">${message.createdAt.replace('T', ' ').replace(/\.\d+Z$/, ' UTC')}</time></p>
+									<p><strong>${message.senderName}</strong> · <span>${message.verified ? 'Verified' : 'Unverified'}</span> · <time datetime="${message.createdAt}">${message.createdAt.replace('T', ' ').replace(/\.\d+Z$/, ' UTC')}</time></p>
 								</article></li>`; })}
 						</ol>
 						${data.messages?.length ? html`` : html`<p>No messages yet.</p>`}
 						${composer(data)}
 					</section>` : html`<p>Select a conversation to read messages and reply.</p>${data.conversations?.length ? composer(data) : html``}`}
-				${data.canRegister ? html`
-					<form method="post" action="${paths.registerBegin}" data-passkey="register" data-complete="${paths.registerComplete}" data-no-enhance hidden>
-						<input type="hidden" name="displayName" value="${user.display_name}" />
-						<input type="hidden" name="email" value="${values.email ?? ''}" />
-						<button type="submit" class="btn btn--outline">Add a passkey</button>
-					</form>` : html``}
 				${data.vapidPublicKey ? html`
 					<form method="post" action="${paths.messagePush}" data-return="${paths.messages}" data-push data-key="${data.vapidPublicKey}" data-no-enhance hidden>
 						<button type="submit" class="btn btn--outline" aria-pressed="false">Enable message notifications</button>
 					</form>` : html``}
-				${data.canSetup ? html`
-					<details><summary>Set up the site owner</summary>
-						<form method="post" action="${paths.setup}" data-target="#main">
-							<label for="setup-token">Owner setup token</label>
-							<input id="setup-token" name="setupToken" type="password" required />
-							<button type="submit" class="btn">Become site owner</button>
-						</form>
-					</details>` : html``}
-				${data.canUpdateEmail ? html`
-					<details><summary>Recovery email</summary>
-						<p>Confirm an email address to sign in without a passkey on another device.</p>
-						<form method="post" action="${paths.profile}" data-target="#main" aria-label="Recovery email">
-							<label for="recovery-email">Recovery email</label>
-								<input id="recovery-email" name="email" type="email" autocomplete="email" required value="${values.email ?? ''}" />
-								<button type="submit" class="btn">Confirm recovery email</button>
-							</form>
-						</details>` : html``}
+
+				${accountSettings({ user, email: values.email, canRegister: data.canRegister, canUpdateEmail: data.canUpdateEmail, canSetup: data.canSetup })}
 			`;
 		}
 		return html`
-				<p>Send Jesse a message. Confirm your email to send it, read replies, and return on another device.</p>
-				<p><a href="${paths.login}">Sign in to your conversation</a></p>
+				<p>Send Jesse a message now. Verify your email afterward to notify Jesse and read replies.</p>
 				<form method="post" action="${paths.messages}" data-target="#main" aria-label="Send message">
 					<label for="name">Name</label>
 					<input id="name" name="name" autocomplete="name" maxlength="100" required value="${values.name ?? ''}" />
@@ -135,24 +78,25 @@ export function messagesFragment(data = {}) {
 					<textarea id="message" name="message" rows="5" maxlength="10000" required>${values.message ?? ''}</textarea>
 					<button type="submit" class="btn">Send</button>
 				</form>
+				${signInLink({ label: 'Sign in to your conversation', explanation: ' to verify your email, notify Jesse for a timely response, and read replies on any device.' })}
 			`;
 	}
 	return html`
 		<article data-messages>
 			<img src="/apps/messages/icon.svg" alt="" width="64" height="64" />
-			<h1>${screenHeading()}</h1>
+			<h1>Jessages</h1><p>Messages to Jesse</p>
 			${error ? html`<p role="alert">${error}</p>` : html``}
 			${notice ? html`<p role="status">${notice}</p>` : html``}
 			${screenContent()}
 			<p role="status" aria-label="Browser features" data-browser-status></p>
-			${installControls('Messages')}
+			${installControls('Jessages', 'Install this app to be notified of replies')}
 		</article>`;
 }
 
 /** @param {MessagesData} [data] */
 export function messagesPage(data = {}) {
 	return layout({
-		title: data.screen === 'login' ? 'Sign in' : 'Messages',
+		title: 'Jessages — Messages to Jesse',
 		path: paths.messages, app: 'messages', user: data.user,
 		description: 'Send Jesse a message and read replies on any device.',
 		body: messagesFragment(data),

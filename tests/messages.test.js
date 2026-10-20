@@ -1,80 +1,7 @@
 import { randomUUID } from 'node:crypto';
-import { test, expect, signIn, confirmationLink } from './helpers/messages.js';
+import { test, expect, signIn, pendingMessage } from './helpers/messages.js';
 import { previewDatabase } from './helpers/database.js';
-import { expireVerification, failFixtureMessage } from '../shared/data/fixtures.js';
-
-// Each core flow runs in desktop/mobile Chrome with JS both on and off.
-test('a held message survives a database failure and its confirmation can be retried', async ({ page, identities }) => {
-	const identity = identities.create();
-	const message = randomUUID();
-	await page.goto('/apps/messages/');
-	await page.getByLabel('Name', { exact: true }).fill(identity.name);
-	await page.getByLabel('Email', { exact: true }).fill(identity.email);
-	await page.getByLabel('Message', { exact: true }).fill(message);
-	await page.getByRole('button', { name: 'Send', exact: true }).click();
-	await expect(page.getByRole('status').filter({ hasText: 'Check your email' })).toBeVisible();
-	const link = await confirmationLink(page, identity.email);
-	const db = await previewDatabase();
-	try {
-		await failFixtureMessage(db, message, true);
-		await page.goto(link);
-		const failed = page.waitForResponse((response) => {
-			return (
-				response.request().method() === 'POST' &&
-				new URL(response.url()).pathname === '/apps/messages/verify'
-			);
-		});
-		await page.getByRole('button', { name: 'Confirm email', exact: true }).click();
-		expect((await failed).status()).toBe(500);
-		await expect(page.getByRole('heading', { level: 1, name: 'Something went wrong', exact: true })).toBeVisible();
-	} finally { await failFixtureMessage(db, message, false); }
-	await page.goto(link);
-	await page.getByRole('button', { name: 'Confirm email', exact: true }).click();
-	await expect(page.getByText(`Signed in as ${identity.name}.`, { exact: true })).toBeVisible();
-	await expect(page.getByRole('list', { name: 'Messages', exact: true }).getByText(message, { exact: true })).toHaveCount(1);
-});
-
-test('a guest confirms their email, reads history, sends another message, and signs out', async ({ page, identities }) => {
-	const identity = identities.create();
-	const first = `First message ${randomUUID()} <script>alert(1)</script>`;
-	await page.goto('/apps/messages/');
-	await page.getByLabel('Name', { exact: true }).fill(identity.name);
-	await page.getByLabel('Email', { exact: true }).fill(identity.email);
-	await page.getByLabel('Message', { exact: true }).fill(first);
-	await page.getByRole('button', { name: 'Send', exact: true }).click();
-	await expect(page.getByRole('status').filter({ hasText: 'Check your email' })).toBeVisible();
-	const confirmation = await confirmationLink(page, identity.email);
-	await page.goto(confirmation);
-	// Loading an email link does not consume it (mail scanners can visit safely).
-	await page.reload();
-	await page.getByRole('button', { name: 'Confirm email', exact: true }).click();
-	await expect(page.getByText(first, { exact: true })).toBeVisible();
-	const second = `Second message ${randomUUID()}`;
-	await page.getByLabel('Message', { exact: true }).fill(second);
-	await page.getByRole('button', { name: 'Send', exact: true }).click();
-	await expect(page.getByText(second, { exact: true })).toBeVisible();
-	await page.reload();
-	await expect(page.getByText(first, { exact: true })).toBeVisible();
-	await page.getByRole('button', { name: 'Sign out', exact: true }).click();
-	await expect(page.getByRole('link', { name: 'Sign in to your conversation' })).toBeVisible();
-	await page.goto(confirmation);
-	await expect(page.getByRole('alert')).toContainText('expired or is invalid');
-});
-
-test('email sign-in recovers the same conversation on another browser', async ({ page, browser, identities }, testInfo) => {
-	const identity = identities.create();
-	await signIn(page, identity);
-	const message = `Cross-device message ${randomUUID()}`;
-	await page.getByLabel('Message', { exact: true }).fill(message);
-	await page.getByRole('button', { name: 'Send', exact: true }).click();
-	await expect(page.getByText(message, { exact: true })).toBeVisible();
-	const context = await browser.newContext({ ...testInfo.project.use });
-	try {
-		const other = await context.newPage();
-		await signIn(other, identity);
-		await expect(other.getByText(message, { exact: true })).toBeVisible();
-	} finally { await context.close(); }
-});
+import { failFixtureMessage } from '../shared/data/fixtures.js';
 
 test('an owner selects a conversation and replies; the visitor reads it', async ({ page, browser, identities }, testInfo) => {
 	const visitor = identities.create();
@@ -128,36 +55,27 @@ test('an unauthenticated conversation link offers email sign-in', async ({ page 
 	await expect(page.getByRole('heading', { name: 'Sign in', exact: true })).toBeVisible();
 });
 
+test('shared account controls open root account settings and retain invalid recovery input', async ({ page, identities }) => {
+	await signIn(page, identities.create());
+	await page.getByRole('navigation', { name: 'Site account' }).getByRole('link', { name: 'Your account', exact: true }).click();
+	await expect(page.getByRole('heading', { name: 'Your account', exact: true })).toBeVisible();
+	await expect(page.getByRole('navigation', { name: 'Main navigation', exact: true })).toBeVisible();
+	await page.getByText('Recovery email', { exact: true }).first().click();
+	const input = page.getByRole('textbox', { name: 'Recovery email', exact: true });
+	await input.evaluate((element) => { element.setAttribute('type', 'text'); });
+	await input.fill('invalid-email');
+	await page.getByRole('button', { name: 'Confirm recovery email', exact: true }).click();
+	await expect(page.getByRole('alert')).toContainText('valid recovery email');
+	await page.getByText('Recovery email', { exact: true }).first().click();
+	await expect(input).toHaveValue('invalid-email');
+});
+
 test('invalid confirmation links offer a fresh sign-in', async ({ page }) => {
-	const response = await page.goto(`/apps/messages/verify?token=${randomUUID()}`);
+	const response = await page.goto(`/verify?token=${randomUUID()}`);
 	expect(response.status()).toBe(400);
 	await expect(page.getByRole('alert')).toContainText('expired or is invalid');
 	await page.getByRole('link', { name: 'Request a new sign-in link' }).click();
 	await expect(page.getByRole('heading', { name: 'Sign in', exact: true })).toBeVisible();
-});
-
-test('an expired confirmation link cannot sign in or publish a held message', async ({ page, identities }) => {
-	const identity = identities.create();
-	await page.goto('/apps/messages/');
-	await page.getByLabel('Name', { exact: true }).fill(identity.name);
-	await page.getByLabel('Email', { exact: true }).fill(identity.email);
-	await page.getByLabel('Message', { exact: true }).fill(`Expired draft ${randomUUID()}`);
-	await page.getByRole('button', { name: 'Send', exact: true }).click();
-	await expect(page.getByRole('status').filter({ hasText: 'Check your email' })).toBeVisible();
-	const link = await confirmationLink(page, identity.email);
-	await expireVerification(await previewDatabase(), new URL(link).searchParams.get('token'));
-	// A new email request performs expired-proof maintenance. An old held
-	// message still cannot be published after that cleanup, in JS/no-JS browsers.
-	await page.goto('/login');
-	await page.getByLabel('Name', { exact: true }).fill(identity.name);
-	await page.getByLabel('Email', { exact: true }).fill(identity.email);
-	await page.getByRole('button', { name: 'Email me a sign-in link', exact: true }).click();
-	await expect(page.getByRole('status').filter({ hasText: 'Check your email' })).toBeVisible();
-	const response = await page.goto(link);
-	expect(response.status()).toBe(400);
-	await expect(page.getByRole('alert')).toContainText('expired or is invalid');
-	await page.goto('/apps/messages/');
-	await expect(page.getByRole('link', { name: 'Sign in to your conversation' })).toBeVisible();
 });
 
 test('passkeys provide an optional alternative to email sign-in', async ({ page, context, identities }, testInfo) => {
@@ -173,31 +91,13 @@ test('passkeys provide an optional alternative to email sign-in', async ({ page,
 		page.getByRole('button', { name: 'Add a passkey', exact: true }).click(),
 	]);
 	await page.getByRole('button', { name: 'Sign out', exact: true }).click();
-	await page.getByRole('link', { name: 'Sign in to your conversation' }).click();
+	await page.goto('/apps/rainbow-hour/');
+	await page.getByRole('navigation', { name: 'Site account' }).getByRole('link', { name: 'Sign in', exact: true }).click();
 	await page.getByRole('button', { name: 'Sign in with a passkey', exact: true }).click();
 	await expect(page.getByRole('button', { name: 'Sign out', exact: true })).toBeVisible();
+	await expect(page.getByRole('heading', { name: 'Rainbow Hour', exact: true })).toBeVisible();
 });
 
-test('a confirmed recovery email keeps message history on the same account', async ({ page, identities }) => {
-	const identity = identities.create();
-	const recovery = identities.create();
-	await signIn(page, identity);
-	const message = `History retained ${randomUUID()}`;
-	await page.getByLabel('Message', { exact: true }).fill(message);
-	await page.getByRole('button', { name: 'Send', exact: true }).click();
-	await expect(page.getByText(message, { exact: true })).toBeVisible();
-	await page.getByText('Recovery email', { exact: true }).first().click();
-	await page.getByLabel('Recovery email', { exact: true }).fill(recovery.email);
-	await page.getByRole('button', { name: 'Confirm recovery email', exact: true }).click();
-	await expect(page.getByRole('status').filter({ hasText: 'Check your email' })).toBeVisible();
-	await page.goto(await confirmationLink(page, recovery.email));
-	await page.getByRole('button', { name: 'Confirm email', exact: true }).click();
-	await page.getByRole('button', { name: 'Sign out', exact: true }).click();
-	await signIn(page, { ...identity, email: recovery.email });
-	await expect(page.getByText(message, { exact: true })).toBeVisible();
-});
-
-// The shared cookie carries account status between independently branded apps.
 test('signed account status follows the visitor between apps and clears on sign-out', async ({ page, identities }) => {
 	const identity = identities.create();
 	await signIn(page, identity);
@@ -212,4 +112,51 @@ test('signed account status follows the visitor between apps and clears on sign-
 	await page.getByRole('navigation', { name: 'Site account', exact: true }).getByRole('button', { name: 'Sign out', exact: true }).click();
 	await page.goto('/apps/lightsfinder/');
 	await expect(page.getByRole('navigation', { name: 'Site account', exact: true }).getByText('Signed out', { exact: true })).toBeVisible();
+});
+
+test('the owner sees a submitted message as unverified, then verified after email confirmation', async ({ page, browser, identities }, testInfo) => {
+	const visitor = identities.create();
+	const owner = await identities.owner();
+	const message = `Pending message ${randomUUID()}`;
+	const ownerContext = await browser.newContext({ ...testInfo.project.use });
+	try {
+		const link = await pendingMessage(page, visitor, message);
+		const ownerPage = await ownerContext.newPage();
+		await signIn(ownerPage, owner);
+		await ownerPage.getByRole('navigation', { name: 'Conversations' }).getByRole('link', { name: visitor.name, exact: true }).click();
+		const bubble = ownerPage.getByRole('listitem').filter({ hasText: message });
+		await expect(bubble.getByText('Unverified', { exact: true })).toBeVisible();
+		await page.goto(link);
+		await expect(page.getByRole('navigation', { name: 'Main navigation', exact: true })).toBeVisible();
+		await page.getByRole('button', { name: 'Confirm email', exact: true }).click();
+		await expect(page.getByRole('heading', { name: 'Message history', exact: true })).toBeVisible();
+		await expect(page.getByText(message, { exact: true })).toBeVisible();
+		await ownerPage.getByRole('link', { name: 'Refresh messages', exact: true }).click();
+		await expect(bubble.getByText('Verified', { exact: true })).toBeVisible();
+		await expect(ownerPage.getByText(message, { exact: true })).toHaveCount(1);
+	} finally { await ownerContext.close(); }
+});
+
+test('an unverified message survives a verification failure and its confirmation can be retried', async ({ page, identities }) => {
+	const identity = identities.create();
+	const message = randomUUID();
+	const link = await pendingMessage(page, identity, message);
+	const db = await previewDatabase();
+	try {
+		await failFixtureMessage(db, message, true);
+		await page.goto(link);
+		const failed = page.waitForResponse((response) => {
+			return (
+				response.request().method() === 'POST' &&
+				new URL(response.url()).pathname === '/verify'
+			);
+		});
+		await page.getByRole('button', { name: 'Confirm email', exact: true }).click();
+		expect((await failed).status()).toBe(500);
+		await expect(page.getByRole('heading', { level: 1, name: 'Something went wrong', exact: true })).toBeVisible();
+	} finally { await failFixtureMessage(db, message, false); }
+	await page.goto(link);
+	await page.getByRole('button', { name: 'Confirm email', exact: true }).click();
+	await expect(page.getByText(`Signed in as ${identity.name}.`, { exact: true })).toBeVisible();
+	await expect(page.getByRole('list', { name: 'Messages', exact: true }).getByText(message, { exact: true })).toHaveCount(1);
 });

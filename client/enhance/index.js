@@ -1,5 +1,6 @@
 /** Optional navigation acceleration. The markup owns URLs, methods and targets. */
 import './install.js';
+import '../components/site-auth.js';
 if ('startViewTransition' in document && 'fetch' in window && 'FormData' in window) {
 	/** @param {HTMLFormElement | HTMLAnchorElement} control @param {FormData} [body] */
 	async function follow(control, body) {

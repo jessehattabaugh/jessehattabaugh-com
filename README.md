@@ -23,7 +23,7 @@ and Giving away also render fresh public AT Protocol data in the Worker, using
 the same templates. They use the site navigation and
 branding; app pages load the shared app shell and their own stylesheet, with the
 site icon and signed account status in the top right. Rainbow Hour uses its icon’s
-bright sky, sunshine, and rainbow colors. `/contact` redirects to Messages.
+bright sky, sunshine, and rainbow colors. `/contact` redirects to Jessages.
 
 The shared site header always shows the owner's Bluesky portrait, including on
 Home, errors, and app pages. `build/branding.js` refreshes it during each build;
@@ -67,14 +67,23 @@ PDS discovery currently supports `did:plc` identities on Bluesky-hosted servers
 only; a move to a custom PDS needs an explicit host-policy update. RPG Actor's
 per-system records take priority over its legacy `self` stats record.
 
-**Messages** uses email confirmation and signed cookies. Visitors can send
+**Jessages — Messages to Jesse** uses email confirmation and signed cookies. Visitors can send
 messages, sign in on another device, read history, and refresh replies without
 JavaScript. The owner can select conversations and reply the same way. A signed-in
 visitor can add a passkey; the first owner can claim the role with
 `OWNER_SETUP_TOKEN`. Existing account data survives this change, but legacy
 sessions must sign in again. Verification links display a confirmation form;
-only its POST consumes the token or sends a held message.
-Confirmation commits its database changes atomically, so failed publication can
+only its POST consumes the token. Guest messages are stored immediately and shown
+to the owner as Unverified. Only confirmation of that submission’s own link marks
+it Verified and sends an admin push notification; an unrelated login cannot
+verify anonymous messages. Signed-in users with verified emails notify on send.
+Root authentication pages (`/login`, `/verify`, `/account`) use the site layout.
+Shared light-DOM web components (`site-account`, `email-sign-in`, and
+`account-settings`) supply app account controls and optional passkeys. The same
+host-only signed session applies across all apps; return destinations are
+restricted to known site paths and travel with the email proof across devices.
+Old verification URLs and held tokens remain usable during rollout.
+Confirmation commits its database changes atomically, so failed verification can
 be retried with the same link. Notification controls check server registration
 for the current account before reporting alerts as enabled.
 Push notifications carry bounded previews; message history retains the full text.
@@ -148,8 +157,8 @@ Email delivery/configuration failures return the standard error page.
 Tests run desktop/mobile Chrome with JS on/off; Lighthouse runs only in desktop
 Chrome. Install Chromium once with `npx playwright install chromium`. The stateful
 suites also require `E2E_CLOUDFLARE_API_TOKEN` with D1 read/write permissions,
-`CLOUDFLARE_ACCOUNT_ID`, and `E2E_EMAIL_DOMAIN` in `.dev.vars` for a controlled
-catch-all mailbox.
+`CLOUDFLARE_ACCOUNT_ID` in `.dev.vars`. A controlled `E2E_EMAIL_DOMAIN` is only
+required for the opt-in email delivery suite.
 `npm test` automatically supplies `PREVIEW_URL`
 and `PREVIEW_DB_NAME` from the current branch; no manual URL setup is needed. Set
 `WORKERS_DEV_SUBDOMAIN` in `.dev.vars` for a different Cloudflare account. To target a particular
@@ -264,3 +273,14 @@ page/fragment in `shared/templates/crunch-time.js`. Browser assets and detector:
 Tests: `tests/crunch-time.test.js` and smoke/Lighthouse coverage. Native sensors,
 speech, and wake lock are capability exceptions to the literal no-JS rule;
 manually logging and caring for Mochi remain the baseline.
+
+### Email test allowance
+
+Routine browser tests use isolated D1 fixture accounts and real signed sessions;
+they do not send email. The deployed Worker validates those sessions normally.
+When changing email verification or delivery, opt in to the real email suite:
+set `E2E_EMAIL_FLOW=1` and `E2E_EMAIL_DOMAIN` to a controlled catch-all mailbox
+domain in `.dev.vars`, then run `npm test -- tests/email-verification.test.js`.
+That suite sends real emails and consumes the Cloudflare sending allowance.
+Leave the flag off for ordinary runs. A missing mailbox domain is only an error
+when the email suite is explicitly enabled.
