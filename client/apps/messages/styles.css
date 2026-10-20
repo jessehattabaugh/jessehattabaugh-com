@@ -22,11 +22,17 @@
 			display: grid;
 			gap: var(--space-md);
 			li {
+				max-width: 88%;
+				justify-self: start;
 				padding: var(--space-md);
 				border: 1px solid var(--color-border);
-				border-radius: var(--radius);
+				border-radius: var(--radius) var(--radius) var(--radius) .15rem;
 				background: var(--color-surface);
-				&[data-sent='true'] { border-inline-start: 4px solid var(--color-accent); }
+				&[data-sent='true'] {
+					justify-self: end;
+					border-radius: var(--radius) var(--radius) .15rem var(--radius);
+					background: #cffafe;
+				}
 				p:first-child { white-space: pre-wrap; overflow-wrap: anywhere; }
 				p + p { font-size: 0.8rem; color: var(--color-text-muted); }
 			}

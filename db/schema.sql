@@ -52,6 +52,8 @@ CREATE TABLE IF NOT EXISTS messages (
   conversation_id TEXT NOT NULL REFERENCES conversations(id) ON DELETE CASCADE,
   sender_user_id  TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   content         TEXT NOT NULL,
+  verified_at     TEXT, -- NULL until the sender proves ownership
+  verification_id TEXT, -- anonymous submission's email proof (not an identity)
   created_at      TEXT NOT NULL DEFAULT (datetime('now'))
 );
 
@@ -80,6 +82,7 @@ CREATE INDEX IF NOT EXISTS idx_email_verifications_user
 
 CREATE INDEX IF NOT EXISTS idx_messages_conversation
   ON messages(conversation_id, created_at);
+CREATE INDEX IF NOT EXISTS idx_messages_verification ON messages(verification_id);
 CREATE INDEX IF NOT EXISTS idx_push_subscriptions_user
   ON push_subscriptions(user_id);
 CREATE INDEX IF NOT EXISTS idx_passkeys_user

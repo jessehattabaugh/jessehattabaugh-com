@@ -3,6 +3,7 @@ import { layout } from '../../shared/templates/layout.js';
 import { paths } from '../../shared/routes.js';
 import { holidays, project } from './model.js';
 import { installControls } from '../../shared/templates/install.js';
+import { signInLink } from '../../shared/templates/account.js';
 
 /** @typedef {import('./data.js').LightPost} Post */
 /** @typedef {{holiday: string, season: number, lat: number, lon: number, radius: number, history: boolean, zoom: number, view: string, scope: 'county'|'state'|'country', region: string, countryRegion: string, stateRegion: string}} Filters */
@@ -117,7 +118,7 @@ function card(p, data, detail = false) {
 					<input type="hidden" name="action" value="report" /><input type="hidden" name="id" value="${p.id}" />
 					<label>Report reason<select name="reason"><option value="gone">Lights have been taken down</option><option value="spam">Spam or inappropriate content</option></select></label><button data-secondary>Send report</button>
 				</form>
-			` : html`<p><a href="${paths.login}?returnTo=lightsfinder">Sign in to rate or report</a></p>`}
+			` : signInLink({ returnTo: paths.lightsfinder, label: 'Sign in to rate or report' })}
 		` : html``}</div>
 	</article>`;
 }
@@ -126,7 +127,7 @@ function shareForm(data) {
 	const v = data.values ?? {}, f = data.filters;
 	return html`<section aria-label="Share lights" data-panel><p data-eyebrow>Good things are better shared</p><h2>Add a little magic to the map.</h2>
 		<p>Spot something wonderful? Share a photo from the public street. Your photo, address, and coordinates will be public.</p>
-		${!data.user ? html`<p><a data-button href="${paths.login}?returnTo=lightsfinder">Sign in to share lights ↗</a></p>` : html`
+		${!data.user ? signInLink({ returnTo: paths.lightsfinder, label: 'Sign in to share lights ↗', button: true }) : html`
 		<form method="post" action="${lightsHref(f)}" enctype="multipart/form-data" aria-label="Share a sighting" data-location-form>
 			<input type="hidden" name="action" value="publish" />
 			${v.photoId ? html`<input type="hidden" name="photoId" value="${v.photoId}" /><img data-preview src="${paths.lightsfinder}?photo=${v.photoId}" alt="Your saved photo, ready to publish" width="320" height="210" /><p>Your photo is saved for 24 hours while you finish this form.</p>` : html``}

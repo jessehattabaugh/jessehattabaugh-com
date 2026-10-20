@@ -1,5 +1,6 @@
 import { html } from '../html.js';
 /** @import { Raw } from '../html.js' */
+import { siteAccount } from './account.js';
 import { paths } from '../routes.js';
 
 /**
@@ -60,10 +61,7 @@ export const layout = ({
 			<body data-app="${app ?? ''}">
 				<a class="skip-link" href="#main">Skip to content</a>
 				${app ? html`<header>
-					<nav aria-label="Site account">
-						<a href="${paths.home}" aria-label="Jesse Hattabaugh home" title="Jesse Hattabaugh"><img src="${paths.avatar}" alt="Bluesky avatar" width="36" height="36" /></a>
-						${user ? html`<p>Signed in as ${user.display_name}.</p><form method="post" action="${paths.logout}" data-no-enhance><button type="submit">Sign out</button></form>` : html`<span>Signed out</span><a href="${app === 'lightsfinder' ? `${paths.login}?returnTo=lightsfinder` : paths.login}">Sign in</a>`}
-					</nav>
+					${siteAccount({ user, returnTo: path })}
 				</header>` : html`<header>
 					<nav aria-label="Main navigation">
 						<a href="/" aria-label="Jesse Hattabaugh"${normalizedPath === '/' ? html` aria-current="page"` : html``}

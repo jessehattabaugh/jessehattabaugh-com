@@ -1,7 +1,7 @@
 {
-	"name": "Messages — Jesse Hattabaugh",
-	"short_name": "Messages",
-	"description": "Send a message to Jesse Hattabaugh.",
+	"name": "Jessages — Messages to Jesse",
+	"short_name": "Jessages",
+	"description": "Messages to Jesse. Install this app to be notified of replies.",
 	"start_url": "/apps/messages/?pwa=1",
 	"scope": "/apps/messages/",
 	"display": "standalone",

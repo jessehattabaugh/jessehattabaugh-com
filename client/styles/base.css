@@ -203,3 +203,7 @@
 		}
 	}
 }
+
+@layer base {
+	site-account, account-settings, email-sign-in { display: block; }
+}
