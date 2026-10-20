@@ -47,7 +47,7 @@ export async function buildBranding(out, social) {
 		const folder = join(out, 'apps', app);
 		const [svg, manifest] = await Promise.all([
 			readFile(join(folder, 'icon.svg')),
-			readFile(join(folder, 'manifest.json'), 'utf8'),
+			readFile(join(folder, 'manifest.json'), 'utf8').catch(() => readFile(join(folder, 'manifest.webmanifest'), 'utf8')),
 		]);
 		const { background_color: background = '#fff' } = JSON.parse(manifest);
 		await Promise.all([32, 180, 192, 512].map((size) => {
