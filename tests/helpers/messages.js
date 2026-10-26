@@ -1,8 +1,10 @@
 import { test as base, expect } from '@playwright/test';
 import { randomUUID } from 'node:crypto';
 import { previewDatabase } from './database.js';
-import { pendingVerification, deleteFixtureUser } from '../../shared/data/fixtures.js';
-import { createUser, getUserByEmailAny, markEmailVerified, getOrCreateConversation, createEmailVerification, createMessage } from '../../shared/data/messages.js';
+import { pendingVerification, deleteFixtureUser } from './fixtures.js';
+import { createUser, getUserByEmailAny, markEmailVerified } from '../../shared/data/accounts.js';
+import { getOrCreateConversation, createMessage } from '../../apps/messages/data.js';
+import { createEmailVerification } from '../../shared/data/email-verification.js';
 
 /**
  * Routine tests seed account/proof records in isolated preview D1. Only the

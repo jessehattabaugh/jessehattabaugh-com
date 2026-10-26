@@ -14,7 +14,7 @@ import { paths } from '../routes.js';
  * @param {Raw} [opts.scripts]
  * @param {string} [opts.app] App identity; omitting it selects the site layout.
  * @param {{ display_name: string } | null} [opts.user]
- * @param {import('../data/atproto.js').Social} [opts.social]
+ * @param {{ profileUrl: string, handle: string }} [opts.social]
  * @returns {Raw}
  */
 export const layout = ({

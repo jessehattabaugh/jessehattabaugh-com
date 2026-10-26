@@ -10,7 +10,8 @@
 		"lighthouse": "latest",
 		"sharp": "0.35.4",
 		"typescript": "latest",
-		"wrangler": "latest"
+		"wrangler": "latest",
+		"globals": "14.0.0"
 	},
 	"name": "jessehattabaugh-com",
 	"scripts": {
@@ -21,7 +22,8 @@
 		"deploy:preview": "node scripts/deploy.js --preview",
 		"dev": "wrangler dev",
 		"test": "node scripts/test-preview.js",
-		"secrets:upload": "node scripts/upload-secrets.js"
+		"secrets:upload": "node scripts/upload-secrets.js",
+		"lint": "eslint . --max-warnings 0"
 	},
 	"type": "module",
 	"version": "1.0.0"

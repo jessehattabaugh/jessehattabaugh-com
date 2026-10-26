@@ -4,8 +4,8 @@ import { fileURLToPath } from 'node:url';
 
 import { render } from '../shared/html.js';
 import { staticRoutes } from '../shared/routes.js';
-import { staticPages } from '../shared/pages.js';
-import { loadSocial } from '../shared/data/atproto.js';
+import { staticPages } from '../site/pages.js';
+import { loadSocial } from '../site/data/atproto.js';
 import { workerVariables } from '../scripts/environment.js';
 import { buildBranding } from './branding.js';
 
@@ -45,7 +45,11 @@ async function build() {
 
 	// Copy static assets (includes client/apps/* PWA files)
 	const clientDir = join(ROOT, 'client');
-	await cp(clientDir, OUT, { recursive: true });
+	await cp(clientDir, OUT, {
+		recursive: true,
+		// Type-checking configuration is source tooling, not a public asset.
+		filter: (source) => { return !source.endsWith('/tsconfig.json'); },
+	});
 	await buildBranding(OUT, social);
 
 	// Client-side runtime modules imported by the Rainbow Hour app
