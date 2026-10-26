@@ -188,7 +188,7 @@ functional flows; Lighthouse covers the public pages and Lightsfinder’s four v
 
 ## Lightsfinder
 
-`/apps/lightsfinder/` offers a themed map, photo sightings, ratings/reports,
+`/apps/lightsfinder/` uses a dark palette with seasonal accents and offers a themed map, photo sightings, ratings/reports,
 regional season standings, and budgeted driving loops. Server code lives in
 `apps/lightsfinder/`; browser/PWA assets in `client/apps/lightsfinder/`.
 Only cross-app infrastructure stays in `shared/`. Core forms work without JS;
