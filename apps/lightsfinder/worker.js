@@ -1,8 +1,8 @@
 import { html, render } from '../../shared/html.js';
 import { paths } from '../../shared/routes.js';
-import { getSessionUser } from '../../worker/session.js';
-import { getUserById } from '../../shared/data/messages.js';
-import { readForm, RequestBodyError } from '../../worker/request.js';
+import { getSessionUser } from '../../worker/auth/session.js';
+import { getUserById } from '../../shared/data/accounts.js';
+import { readForm, RequestBodyError } from '../../worker/http/request.js';
 import { listLights, getLight, draftPhoto, savePhoto, getPhoto, publishLight, rateLight, reportLight, moderateLight, moderationQueue, awardStandings } from './data.js';
 import { lightsfinder, lightsfinderFragment, lightsHref } from './templates.js';
 import { upcomingHoliday, distance, normalize, holidayKey, validHoliday } from './model.js';

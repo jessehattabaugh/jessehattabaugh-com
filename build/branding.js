@@ -3,7 +3,7 @@ import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import sharp from 'sharp';
 
-/** @param {import('../shared/data/atproto.js').Social} social */
+/** @param {import('../site/data/atproto.js').Social} social */
 async function avatarSource(social) {
 	try {
 		const url = social.profile?.avatar;
@@ -23,7 +23,7 @@ async function avatarSource(social) {
 	}
 }
 
-/** @param {string} out @param {import('../shared/data/atproto.js').Social} social */
+/** @param {string} out @param {import('../site/data/atproto.js').Social} social */
 export async function buildBranding(out, social) {
 	const avatar = await avatarSource(social);
 	const directory = join(out, 'branding');
@@ -47,7 +47,7 @@ export async function buildBranding(out, social) {
 		const folder = join(out, 'apps', app);
 		const [svg, manifest] = await Promise.all([
 			readFile(join(folder, 'icon.svg')),
-			readFile(join(folder, 'manifest.json'), 'utf8').catch(() => readFile(join(folder, 'manifest.webmanifest'), 'utf8')),
+			readFile(join(folder, 'manifest.json'), 'utf8').catch(() => { return readFile(join(folder, 'manifest.webmanifest'), 'utf8'); }),
 		]);
 		const { background_color: background = '#fff' } = JSON.parse(manifest);
 		await Promise.all([32, 180, 192, 512].map((size) => {

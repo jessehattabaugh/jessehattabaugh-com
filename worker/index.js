@@ -1,15 +1,15 @@
-import { handleCrunchTime } from './crunch-time.js';
+import { handleCrunchTime } from '../apps/crunch-time/worker.js';
 import { render } from '../shared/html.js';
 import { error as errorPage } from '../shared/templates/error.js';
 import { findDynamicRoute, paths } from '../shared/routes.js';
-import { handleAuthApi } from './auth-api.js';
-import { handleMessagesApi } from './messages-api.js';
-import { handleRainbowApi } from './rainbow-api.js';
+import { handleAuthApi } from './auth/worker.js';
+import { handleMessagesApi } from '../apps/messages/worker.js';
+import { handleRainbowApi } from '../apps/rainbow-hour/worker.js';
 import { handleLightsfinder } from '../apps/lightsfinder/worker.js';
-import { rainbowWakeCron } from './rainbow-cron.js';
-import { SECURITY_HEADERS } from './security-headers.js';
-import { RequestBodyError, ServiceError } from './request.js';
-import { handleAtproto } from './atproto.js';
+import { rainbowWakeCron } from '../apps/rainbow-hour/cron.js';
+import { SECURITY_HEADERS } from './http/security-headers.js';
+import { RequestBodyError, ServiceError } from './http/request.js';
+import { handleAtproto } from '../site/worker.js';
 
 /** Apply security headers to every representation, including assets and redirects. */
 /** @param {Response} response @param {boolean} [head] */

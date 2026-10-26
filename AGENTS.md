@@ -17,7 +17,7 @@ No SPA framework, no client-side router, no build-time UI framework. If you reac
 1. **Web standards first.** Use platform APIs (`URLPattern`, `fetch`, `FormData`, `Request`/`Response`, History API, View Transitions, Speculation Rules) before any dependency. A dependency must justify its existence.
 2. **Progressive enhancement.** No-JS baseline is the product. JS must never be required for core functionality. If a feature breaks without JS, it is broken.
 3. **HATEOAS.** Responses carry their own controls — links and forms — describing valid next actions. Clients follow what the server gives them; they never hardcode endpoint knowledge.
-4. **One template source.** Build and Worker import the same template functions from `shared/`. Never maintain two copies of markup.
+4. **One template source.** Build and Worker import the same template functions from their owning modules (`site/templates/`, `apps/<app>/templates.js`, and `shared/templates/`). Never maintain two copies of markup.
 5. **JavaScript with JSDoc.** `.js`/`.mjs` with JSDoc annotations. `tsc --checkJs --strict --noEmit` for type checking. No `.ts` transpile step.
 6. **Preview isolation.** Every branch deploys as a version with its own per-branch D1 database and a versioned preview URL, never production data.
 7. **Environment variables.** Secrets and configuration are injected via the `.dev.vars` file. All required variables must be documented in `.dev.vars.example`. Never hardcode secrets or config in source code.
@@ -26,13 +26,13 @@ No SPA framework, no client-side router, no build-time UI framework. If you reac
 
 ## Architecture
 
-Three layers share one core: `shared/` holds templates, the `html` helper, route definitions, and data-access functions, imported by both `build/` (SSG) and `worker/` (runtime). The build renders static HTML to `dist/client/`; the Worker handles dynamic routes and falls through to `env.ASSETS` for everything else. If `env.ASSETS.fetch()` returns a `404`, the Worker must intercept it and return the static `dist/client/404.html` page with a `404` status code. Never expose the raw Cloudflare asset `404` response.
+`site/` owns public pages and AT Protocol integration; `apps/<app>/` owns each app’s handlers, data, and templates. `shared/` holds cross-app templates, HTML escaping, route definitions, identity data, and pure cross-runtime algorithms. `worker/` composes those modules and owns HTTP, authentication, and push infrastructure. `client/` contains only public browser assets. Build and runtime import the same templates from their owning modules. The build renders static HTML to `dist/client/`; the Worker handles dynamic routes and falls through to `env.ASSETS` for everything else. If `env.ASSETS.fetch()` returns a `404`, the Worker must intercept it and return the static `dist/client/404.html` page with a `404` status code. Never expose the raw Cloudflare asset `404` response.
 
 ---
 
 ## Templating rules
 
-Templates in `shared/templates/` are plain `(data) => Raw` functions using the `html` tagged template from `shared/html.js`. The helper auto-escapes all interpolations; pass `new Raw(...)` only for already-trusted nested template output.
+Templates in `shared/templates/`, `site/templates/`, and `apps/<app>/templates.js` are plain `(data) => Raw` functions using the `html` tagged template from `shared/html.js`. The helper auto-escapes all interpolations; pass `new Raw(...)` only for already-trusted nested template output.
 
 - Never concatenate untrusted data into HTML outside the `html` helper.
 - Templates are pure functions — no global state, no DOM access (they run in both build and Worker).
@@ -73,7 +73,7 @@ If a hypermedia library is ever needed, **htmx** is the only acceptable candidat
 
 ## Data layer (D1)
 
-All DB access goes through `shared/data/` behind a small interface — call sites never touch the driver directly. Always use prepared statements: `env.DB.prepare(sql).bind(...args)`. Never string-interpolate user input into SQL. If a `shared/data/` function throws, the Worker must catch the error, log it to `console.error`, and return a `500` response rendered with the standard error page template. Never let an unhandled D1 error propagate as an unformatted Cloudflare error response. Do not expose raw error messages to the client.
+All DB access goes through `shared/data/` (identity) or `apps/<app>/data.js` (app-owned records) behind a small interface — call sites never touch the driver directly. Always use prepared statements: `env.DB.prepare(sql).bind(...args)`. Never string-interpolate user input into SQL. If a data-access function throws, the Worker must catch the error, log it to `console.error`, and return a `500` response rendered with the standard error page template. Never let an unhandled D1 error propagate as an unformatted Cloudflare error response. Do not expose raw error messages to the client.
 
 One production database plus one disposable database per preview branch, all behind the single `DB` binding:
 
@@ -135,7 +135,7 @@ The Playwright global setup must assert that `process.env.PREVIEW_URL` is set an
 
 ### Tool
 
-Playwright (`@playwright/test`). Tests live in `tests/`.
+Playwright (`@playwright/test`). Tests live in `tests/apps/`, `tests/site/`, and `tests/platform/`; test-only database maintenance belongs in `tests/helpers/`.
 
 ### Coverage requirements
 

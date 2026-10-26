@@ -19,7 +19,7 @@ export default [
 	...compat.extends('eslint:recommended'),
 	{
 		languageOptions: {
-			globals: { ...globals.browser, ...globals.node, workbox: 'readonly' },
+			globals: { ...globals.es2022 },
 
 			ecmaVersion: 'latest',
 			sourceType: 'module',
@@ -70,9 +70,30 @@ export default [
 			'require-atomic-updates': 'warn',
 		},
 	},
-	// specific configuration for different environments
-	{ files: ['**/**.[js,mjs]'], languageOptions: { globals: { ...globals.node } } },
-	{ files: ['**/sw.js'], languageOptions: { globals: { ...globals.serviceworker } } },
-	{ files: ['**/workers/**.js'], languageOptions: { globals: { ...globals.worker } } },
-	{ files: ['**/scripts/**.js'], languageOptions: { globals: { ...globals.browser } } },
+	// Runtime boundaries catch accidental DOM usage on the server and Node usage in browsers.
+	{ files: ['client/**/*.js'], ignores: ['client/**/sw.js'], languageOptions: { globals: globals.browser } },
+	{ files: ['client/**/sw.js'], languageOptions: { globals: globals.serviceworker } },
+	{ files: ['worker/**/*.js', 'apps/**/*.js', 'site/**/*.js', 'shared/**/*.js'], languageOptions: { globals: { ...globals.worker, AbortSignal: 'readonly' } } },
+	{ files: ['build/**/*.js', 'scripts/**/*.js', 'tests/**/*.js', '*.mjs', 'playwright.config.js'], languageOptions: { globals: globals.node } },
+	{ files: ['tests/**/*.js'], languageOptions: { globals: globals.browser } },
+
+	{
+		files: ['shared/templates/**/*.js', 'site/templates/**/*.js', 'apps/*/templates.js'],
+		rules: {
+			'no-restricted-imports': ['error', { patterns: [{
+				group: ['**/worker/**', '**/worker.js', '**/client/**', '**/tests/**'],
+				message: 'Templates must stay pure and usable by both the build and Worker.',
+			}] }],
+		},
+	},
+	// Shared infrastructure cannot grow dependencies on feature implementations.
+	{
+		files: ['shared/**/*.js'],
+		rules: {
+			'no-restricted-imports': ['error', { patterns: [{
+				group: ['**/apps/**', '**/site/**', '**/worker/**', '**/tests/**', '**/client/**'],
+				message: 'Shared modules must remain independent of feature and runtime implementations.',
+			}] }],
+		},
+	},
 ];

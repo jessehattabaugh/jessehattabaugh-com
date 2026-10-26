@@ -17,15 +17,14 @@
 		]
 	},
 	"include": [
-		"../shared/html.js",
-		"../shared/routes.js",
-		"../shared/pages.js",
-		"../shared/data/atproto.js",
-		"../shared/templates/**/*.js",
+		"../shared/**/*.js",
+		"../site/pages.js",
+		"../site/data/**/*.js",
+		"../site/templates/**/*.js",
 		"**/*.js",
 		"../scripts/**/*.js",
-		"../apps/lightsfinder/templates.js",
-		"../apps/lightsfinder/model.js",
-		"../apps/lightsfinder/data.js"
+		"../apps/*/templates.js",
+		"../apps/*/model.js",
+		"../apps/*/data.js"
 	]
 }
