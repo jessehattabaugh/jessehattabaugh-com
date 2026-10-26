@@ -20,6 +20,11 @@ export function lightsHref(f, changes = {}) {
 function holidayOptions(chosen) {
 	return html`${chosen.startsWith('custom:') ? html`<option selected value="${chosen}">🏮 ${chosen.slice(7)}</option>` : html``}${holidays.map((h) => { return html`<option value="${h.id}" ${h.id === chosen ? html`selected` : html``}>${h.icon} ${h.name}</option>`; })}`;
 }
+/** Forms carry the same filters as navigation links, including the map center.
+ * @param {Filters} filters */
+function filterInputs(filters) {
+	return html`${[...new URLSearchParams(lightsHref(filters).split('?')[1])].map(([name, value]) => { return html`<input type="hidden" name="${name}" value="${value}" />`; })}`;
+}
 /** @param {LightsData} data */
 function map(data) {
 	const { filters: f } = data;
@@ -38,31 +43,33 @@ function map(data) {
 		const p = project(lat, lon, f.zoom); return `${p.x - left},${p.y - top}`;
 	}).join(' ');
 	return html`<section aria-label="Lights map" data-map>
+		<form action="${paths.lightsfinder}" method="get" data-map-form data-target="#main" hidden>${filterInputs(f)}</form>
 		<div data-map-caption><span>✦ Your next little adventure</span><span>${data.posts.length} sightings nearby</span></div>
-		<svg viewBox="0 0 768 512" aria-label="Street map with holiday light sightings" role="img">
+		<svg viewBox="0 0 768 512" aria-label="Street map with holiday light sightings" role="img" tabindex="0">
 			<title>Holiday lights near ${f.lat.toFixed(3)}, ${f.lon.toFixed(3)}</title>
-			${tiles}
+			<g data-map-tiles>${tiles}</g><g data-map-features>
 			${points ? html`<polyline points="${points}" fill="none" stroke="#7433af" stroke-width="5" stroke-linejoin="round" />` : html``}
 			<circle cx="384" cy="256" r="10" fill="#fff" stroke="#332445" stroke-width="4" /><circle cx="384" cy="256" r="3" fill="#332445" />
 			${data.posts.map((p, i) => {
 				const xy = project(p.lat, p.lon, f.zoom); let x = xy.x - left;
 				const world = 256 * wrap;
-				if (x > 768) { x -= world; } else if (x < 0) { x += world; }
+				x += Math.round((center.x - xy.x) / world) * world;
 				const y = xy.y - top;
-				if (x < 12 || x > 756 || y < 20 || y > 490) { return html``; }
+				// Keep nearby pins available when the enhanced viewport is dragged.
 				return html`<a href="${lightsHref(f, { post: p.id })}" aria-label="View ${p.title}" data-predicted="${String(p.season < f.season)}">
 					<title>${p.title} — ${p.address}</title><path d="M${x},${y + 18} l-13,-19 a17,17 0 1,1 26,0 Z" fill="${p.season < f.season ? '#fff8e8' : '#593475'}" stroke="#fff" stroke-width="3" />
 					<text x="${x}" y="${y - 7}" text-anchor="middle" fill="${p.season < f.season ? '#593475' : '#fff'}" font-size="13" font-weight="700">${i + 1}</text>
 				</a>`;
 			})}
+			</g>
 		</svg>
 		<nav aria-label="Map controls">
 			<a href="${lightsHref(f, { zoom: Math.min(16, f.zoom + 1) })}" aria-label="Zoom in">＋</a>
 			<a href="${lightsHref(f, { zoom: Math.max(3, f.zoom - 1) })}" aria-label="Zoom out">−</a>
-			<a href="${lightsHref(f, { lat: Math.min(85, f.lat + 0.01 * 2 ** (12 - f.zoom)) })}" aria-label="Pan north">↑</a>
-			<a href="${lightsHref(f, { lon: (f.lon + 180 - 0.02 * 2 ** (12 - f.zoom) + 360) % 360 - 180 })}" aria-label="Pan west">←</a>
-			<a href="${lightsHref(f, { lat: Math.max(-85, f.lat - 0.01 * 2 ** (12 - f.zoom)) })}" aria-label="Pan south">↓</a>
-			<a href="${lightsHref(f, { lon: (f.lon + 180 + 0.02 * 2 ** (12 - f.zoom)) % 360 - 180 })}" aria-label="Pan east">→</a>
+			<a href="${lightsHref(f, { lat: Math.min(85, f.lat + 0.15 * 2 ** (12 - f.zoom)) })}" aria-label="Pan north">↑</a>
+			<a href="${lightsHref(f, { lon: (f.lon + 180 - 0.3 * 2 ** (12 - f.zoom) + 360) % 360 - 180 })}" aria-label="Pan west">←</a>
+			<a href="${lightsHref(f, { lat: Math.max(-85, f.lat - 0.15 * 2 ** (12 - f.zoom)) })}" aria-label="Pan south">↓</a>
+			<a href="${lightsHref(f, { lon: (f.lon + 180 + 0.3 * 2 ** (12 - f.zoom)) % 360 - 180 })}" aria-label="Pan east">→</a>
 		</nav>
 		<p data-attribution>Map © <a href="https://www.openstreetmap.org/copyright">OpenStreetMap contributors</a> · Street tiles need an internet connection</p>
 	</section>`;
@@ -75,11 +82,7 @@ function search(data) {
 		<label>Season<input name="season" type="number" min="2000" max="${new Date(data.today).getUTCFullYear() + 1}" value="${f.season}" required /></label>
 		<label>Within (km)<input name="radius" type="number" min="1" max="100" value="${f.radius}" required /></label></div>
 		<label>Other holiday name (optional)<input name="customHoliday" maxlength="100" placeholder="Use with Other holiday / festival" /></label>
-		<details><summary>Set your starting location</summary><p>The first view starts in Seattle. Enter coordinates or use GPS to explore anywhere.</p>
-			<div data-fields><label>Latitude<input name="lat" type="number" step="any" min="-85" max="85" value="${f.lat}" required /></label>
-			<label>Longitude<input name="lon" type="number" step="any" min="-180" max="180" value="${f.lon}" required /></label></div>
-			<button type="button" data-locate hidden>Use my location</button><p role="status" data-location-status></p>
-		</details>
+		<input type="hidden" name="lat" value="${f.lat}" /><input type="hidden" name="lon" value="${f.lon}" /><input type="hidden" name="zoom" value="${f.zoom}" />
 		<label data-check><input name="history" type="checkbox" value="1" ${f.history ? html`checked` : html``} /> Include likely spots from the last 3 seasons</label>
 		<button type="submit">Find the glow ↗</button>
 	</form>`;
@@ -140,8 +143,8 @@ function shareForm(data) {
 			<label>State / province<input name="state" maxlength="100" required value="${v.state ?? ''}" /></label>
 			<label>Country<input name="country" maxlength="100" required value="${v.country ?? ''}" /></label></div>
 			<p>Use consistent region names; these community labels determine award regions.</p>
-			<div data-fields><label>Latitude<input name="lat" type="number" step="any" min="-85" max="85" required value="${v.lat ?? ''}" /></label>
-			<label>Longitude<input name="lon" type="number" step="any" min="-180" max="180" required value="${v.lon ?? ''}" /></label></div>
+			<input name="lat" type="hidden" value="${v.lat ?? f.lat}" /><input name="lon" type="hidden" value="${v.lon ?? f.lon}" />
+			<p>Use your browser location while at the display, or use the location you selected on the map.</p>
 			<button type="button" data-locate hidden>Use my location</button><p role="status" data-location-status></p>
 			<div data-fields><label>Holiday<select name="holiday" aria-label="Holiday">${holidayOptions(v.holiday ?? f.holiday)}</select></label>
 			<label>Season<input name="season" type="number" min="2000" max="${new Date(data.today).getUTCFullYear() + 1}" required value="${v.season ?? f.season}" /></label></div>
@@ -160,8 +163,8 @@ function routeForm(data) {
 		<form action="${paths.lightsfinder}" method="get" aria-label="Plan a lights loop" data-location-form>
 			<input type="hidden" name="view" value="route" /><input type="hidden" name="plan" value="1" />
 			<label>Holiday<select name="holiday" aria-label="Holiday">${holidayOptions(f.holiday)}</select></label><label>Other holiday name (optional)<input name="customHoliday" maxlength="100" /></label><input name="season" type="hidden" value="${f.season}" />
-			<div data-fields><label>Starting latitude<input name="lat" type="number" step="any" min="-85" max="85" required value="${v.lat ?? f.lat}" /></label>
-			<label>Starting longitude<input name="lon" type="number" step="any" min="-180" max="180" required value="${v.lon ?? f.lon}" /></label></div>
+			<input name="lat" type="hidden" value="${v.lat ?? f.lat}" /><input name="lon" type="hidden" value="${v.lon ?? f.lon}" />
+			<p>Your drive starts at the map center. Use your location or move the map to change it.</p>
 			<button type="button" data-locate hidden>Use my location</button><p role="status" data-location-status></p>
 			<div data-fields><label>Maximum distance (km)<input name="km" type="number" min="1" max="100" required value="${v.km ?? '20'}" /></label>
 			<label>Maximum driving time (minutes)<input name="minutes" type="number" min="5" max="240" required value="${v.minutes ?? '45'}" /></label></div>
@@ -265,7 +268,8 @@ export function lightsfinderFragment(data) {
 			<a href="${lightsHref(f, { view: 'awards' })}" ${f.view === 'awards' ? html`aria-current="page"` : html``}>Season awards</a>
 			<a href="${lightsHref(f, { view: 'share' })}" data-button>＋ Share lights</a></div>
 		</nav>
-		<header data-hero><div><p data-eyebrow>${holiday.icon} ${holiday.name} ${f.season} · Let there be delight</p><h1>Lightsfinder</h1><h2>A little detour.<br /><em>A lot of delight.</em></h2><p>Find the houses that go all out. Share a little sparkle.<br />Make a night of the lights around you.</p></div>
+		<header data-hero><div><p data-eyebrow>${holiday.icon} ${holiday.name} ${f.season} · Let there be delight</p><h1>Lightsfinder</h1><h2>Find holiday decorations<br /><em>near you.</em></h2><p>Set your starting location to discover the lights around you.</p>
+			<form action="${paths.lightsfinder}" method="get" aria-label="Find decorations near you" data-location-form data-locate-search data-target="#main">${filterInputs({ ...f, view: 'explore', zoom: 12 })}<button type="button" data-locate hidden>Use my location</button><p role="status" data-location-status>Allow location access when your browser asks, or explore using the map controls.</p><noscript><p>Browser location needs JavaScript. Use the map’s zoom and direction links to choose an area, then search or share there.</p></noscript></form></div>
 			<div data-illustration aria-hidden="true"><span>${holiday.icon}</span><svg viewBox="0 0 360 210"><path d="M18 185 Q180 130 342 185" fill="none" stroke="currentColor" stroke-width="3"/><path d="M82 104L155 40L226 104V183H82Z" fill="${houseColor()}" stroke="#302039" stroke-width="5"/><path d="M64 105L155 26L245 105" fill="none" stroke="#302039" stroke-width="9"/><rect x="144" y="128" width="35" height="55" rx="16" fill="#ffd275"/><rect x="99" y="107" width="29" height="32" fill="#ffce71"/><rect x="192" y="107" width="20" height="32" fill="#ffce71"/><path d="M67 102Q154 130 243 102M90 75Q154 100 215 76" fill="none" stroke="#ffe2a2" stroke-width="3"/><g fill="#daf082"><circle cx="88" cy="108" r="6"/><circle cx="113" cy="114" r="6"/><circle cx="145" cy="118" r="6"/><circle cx="178" cy="117" r="6"/><circle cx="210" cy="111" r="6"/><circle cx="111" cy="85" r="5"/><circle cx="142" cy="92" r="5"/><circle cx="174" cy="92" r="5"/><circle cx="201" cy="83" r="5"/></g><path d="M278 83L245 152H265L244 176H315L293 152H311Z" fill="#8e9b67" stroke="#302039" stroke-width="3"/>${holidayDecorations()}<g fill="#fff5d8"><path d="M274 31l3 10 10 3-10 3-3 10-3-10-10-3 10-3Z"/><path d="M36 58l3 9 9 3-9 3-3 9-3-9-9-3 9-3Z"/></g></svg><p>big lights. little adventures.</p></div>
 		</header>
 		${data.error ? html`<p role="alert">${data.error}</p>` : html``}${data.notice ? html`<p role="status">${data.notice}</p>` : html``}

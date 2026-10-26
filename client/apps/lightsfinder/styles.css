@@ -109,3 +109,19 @@
 		}
 	}
 }
+
+@layer lightsfinder {
+	[data-lightsfinder] {
+		[data-hero] [data-locate] { background: var(--accent); color: var(--color-on-accent); }
+		[data-location-status] { font-size: .9rem; }
+		[data-map] > svg[data-slippy] { touch-action: none; cursor: grab; user-select: none; }
+		[data-map] > svg[data-dragging] { cursor: grabbing; }
+		[data-map-caption] { pointer-events: none; }
+		[data-map][aria-busy="true"] [data-map-caption] > span:first-child::after { content: ' · Finding lights…'; }
+	}
+}
+
+@layer lightsfinder {
+	/* The map fills its grid cell without its SVG aspect ratio resizing the grid. */
+	[data-lightsfinder] [data-map] > svg { position: absolute; inset: 0; min-height: 0; }
+}

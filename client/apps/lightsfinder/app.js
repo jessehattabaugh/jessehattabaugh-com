@@ -1,11 +1,12 @@
 /** Browser capabilities enhance the existing manual forms, never replace them. */
-export {};
+import './map.js';
 if ('serviceWorker' in navigator) {
 	navigator.serviceWorker.register(new URL('./sw.js', import.meta.url), { type: 'module' }).catch(() => { /* Online use stays available. */ });
 }
 function reveal() {
 	for (const button of document.querySelectorAll('[data-lightsfinder] [data-locate]')) {
-		if (button instanceof HTMLButtonElement) { button.hidden = !('geolocation' in navigator); }
+		if (button instanceof HTMLButtonElement) { button.hidden = !('geolocation' in navigator);
+			if (button.hidden) { const status = button.closest('form')?.querySelector('[data-location-status]'); if (status) { status.textContent = 'Browser location is unavailable. Use the map controls to choose an area.'; } } }
 	}
 	for (const button of document.querySelectorAll('[data-lightsfinder] [data-share]')) {
 		if (button instanceof HTMLButtonElement) { button.hidden = !('share' in navigator || 'clipboard' in navigator); }
@@ -25,10 +26,12 @@ document.addEventListener('click', async (event) => {
 				const input = form.elements.namedItem(String(name));
 				if (input instanceof HTMLInputElement) { input.value = Number(value).toFixed(6); }
 			}
-			if (status) { status.textContent = 'Location filled. Check it before sharing or searching.'; }
+			if (!form.isConnected) { return; }
+			if (status) { status.textContent = 'Location ready. Your browser location will be used.'; }
+			if (form.hasAttribute('data-locate-search')) { form.requestSubmit(); }
 			locate.disabled = false;
-		}, () => {
-			if (status) { status.textContent = 'Location unavailable. Enter coordinates manually.'; }
+		}, (error) => {
+			if (status) { status.textContent = error.code === 1 ? 'Location permission denied. Allow location access in your browser and retry, or explore with the map controls.' : 'Your location could not be found. Try again, or explore with the map controls.'; }
 			locate.disabled = false;
 		}, { timeout: 10000, maximumAge: 60000, enableHighAccuracy: true });
 	}

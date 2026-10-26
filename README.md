@@ -66,3 +66,9 @@ alerts), Lightsfinder (community sightings and driving loops), and Crunch Time
 (manual workout tracking with optional motion sensing). Native sensors, passkeys,
 push and installation require browser support; their core alternatives remain
 usable without JavaScript. Reports are written to `playwright-report/`.
+
+Lightsfinder's map opens zoomed out; **Use my location** finds nearby decorations.
+The map supports mouse, pen, touch dragging, pinch/wheel zoom, and keyboard navigation.
+Location permission is optional: native map links also work without JavaScript.
+Searches, shared sightings, and drive starting points use browser location or the
+selected map center; coordinates are carried in hidden fields, never typed.
