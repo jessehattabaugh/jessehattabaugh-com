@@ -10,7 +10,7 @@ function sighting() {
 }
 /** @param {import('@playwright/test').Page} page @param {ReturnType<typeof sighting>} fixture */
 async function compose(page, fixture) {
-	await page.goto(`${paths.lightsfinder}?view=share`);
+	await page.goto(`${paths.lightsfinder}?view=share&lat=47.6062&lon=-122.3321`);
 	const form = page.getByRole('form', { name: 'Share a sighting' });
 	await form.getByLabel('Photo', { exact: true }).setInputFiles('client/apps/lightsfinder/icon-192.png');
 	await form.getByLabel('Display title').fill(fixture.title);
@@ -19,8 +19,6 @@ async function compose(page, fixture) {
 	await form.getByLabel('County / district').fill(`County ${fixture.holiday}`);
 	await form.getByLabel('State / province').fill('Washington');
 	await form.getByLabel('Country', { exact: true }).fill('United States');
-	await form.getByLabel('Latitude', { exact: true }).fill('47.6062');
-	await form.getByLabel('Longitude', { exact: true }).fill('-122.3321');
 	await form.getByLabel('Holiday', { exact: true }).selectOption('other');
 	await form.getByLabel('Other holiday name (required for Other)').fill(fixture.holiday);
 	await form.getByLabel('Season', { exact: true }).fill(fixture.season);
@@ -191,3 +189,112 @@ for (const view of ['explore', 'share', 'route', 'awards']) {
 		for (const name of ['performance','accessibility','best-practices','seo']) { expect(scores[name]?.score ?? 0, name).toBeGreaterThanOrEqual(.9); }
 	});
 }
+
+test('location is the first discovery action and coordinates are never editable', async ({ page }, info) => {
+	await page.goto(paths.lightsfinder);
+	await expect(page.getByRole('heading', { name: 'Find holiday decorations near you.' })).toBeVisible();
+	await expect(page.getByLabel(/latitude|longitude/i)).toHaveCount(0);
+	const location = page.getByRole('form', { name: 'Find decorations near you' });
+	if (info.project.name.includes('no JS')) {
+		await expect(location.getByText(/Browser location needs JavaScript/)).toBeVisible();
+	} else { await expect(location.getByRole('button', { name: 'Use my location' })).toBeVisible(); }
+	await page.getByRole('link', { name: 'Pan east', exact: true }).click();
+	await expect(page).toHaveURL(/lon=153\.6/);
+	await page.getByRole('link', { name: 'Zoom in', exact: true }).click();
+	await expect(page).toHaveURL(/zoom=4/);
+});
+
+test('browser location immediately searches the area and preserves holiday filters', async ({ page, context }, info) => {
+	test.skip(info.project.name.includes('no JS'), 'Browser geolocation requires JavaScript; map navigation remains the baseline.');
+	await context.setGeolocation({ latitude: 51.5074, longitude: -.1278 });
+	await context.grantPermissions(['geolocation']);
+	await page.goto(`${paths.lightsfinder}?holiday=christmas&radius=5`);
+	await page.getByRole('form', { name: 'Find decorations near you' }).getByRole('button', { name: 'Use my location' }).click();
+	await expect(page).toHaveURL(/lat=51\.507400/);
+	await expect(page).toHaveURL(/lon=-0\.127800/);
+	await expect(page).toHaveURL(/zoom=12/);
+	await expect(page.getByRole('form', { name: 'Find lights', exact: true }).getByLabel('Holiday', { exact: true })).toHaveValue('christmas');
+	await expect(page.getByRole('region', { name: 'Lights map' })).toBeVisible();
+});
+
+test('denied location permission leaves map navigation available and allows retry', async ({ page, context }, info) => {
+	test.skip(info.project.name.includes('no JS'), 'Browser permission is an enhancement.');
+	const session = await context.newCDPSession(page);
+	await page.goto(paths.lightsfinder);
+	await session.send('Browser.setPermission', { permission: { name: 'geolocation' }, setting: 'denied', origin: new URL(page.url()).origin });
+	const location = page.getByRole('form', { name: 'Find decorations near you' });
+	await location.getByRole('button', { name: 'Use my location' }).click();
+	await expect(location.getByRole('status')).toContainText('Location permission denied');
+	await expect(location.getByRole('button', { name: 'Use my location' })).toBeEnabled();
+	await page.getByRole('link', { name: 'Pan east', exact: true }).click();
+	await expect(page.getByRole('region', { name: 'Lights map' })).toBeVisible();
+});
+
+test('dragging the map searches its new center, wheel zooms, and back restores the area', async ({ page }, info) => {
+	test.skip(info.project.name.includes('no JS'), 'Pointer gestures enhance native map links.');
+	await page.goto(`${paths.lightsfinder}?lat=51.5&lon=0&zoom=12`);
+	const map = page.getByRole('img', { name: 'Street map with holiday light sightings' });
+	await map.scrollIntoViewIfNeeded();
+	const bounds = await map.boundingBox();
+	if (!bounds) { throw new Error('Map missing'); }
+	await page.mouse.move(bounds.x + bounds.width / 2, bounds.y + bounds.height / 2);
+	await page.mouse.down();
+	await page.mouse.move(bounds.x + bounds.width / 2 + 90, bounds.y + bounds.height / 2 + 30, { steps: 8 });
+	await page.mouse.up();
+	await expect(page).not.toHaveURL(/lon=0&/);
+	const dragged = page.url();
+	await map.hover(); await page.mouse.wheel(0, -100);
+	await expect(page).toHaveURL(/zoom=13/);
+	await page.goBack(); await expect(page).toHaveURL(dragged);
+	await expect(map).toBeVisible();
+});
+
+test('touch dragging and pinch zoom search the selected area', async ({ page, context }, info) => {
+	test.skip(info.project.name.includes('no JS') || !info.project.name.includes('Mobile'), 'Touch gestures run on the mobile JavaScript browser.');
+	await page.goto(`${paths.lightsfinder}?lat=51.5&lon=0&zoom=12`);
+	const map = page.getByRole('img', { name: 'Street map with holiday light sightings' });
+	await map.scrollIntoViewIfNeeded();
+	const bounds = await map.boundingBox(); if (!bounds) { throw new Error('Map missing'); }
+	const session = await context.newCDPSession(page), x = bounds.x + bounds.width / 2, y = bounds.y + bounds.height / 2;
+	await session.send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: [{ x: x - 25, y, id: 1 }, { x: x + 25, y, id: 2 }] });
+	await session.send('Input.dispatchTouchEvent', { type: 'touchMove', touchPoints: [{ x: x - 65, y: y + 25, id: 1 }, { x: x + 65, y: y + 25, id: 2 }] });
+	await session.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] });
+	await expect(page).toHaveURL(/zoom=13/);
+	await expect(page).not.toHaveURL(/lat=51.5&/);
+	await expect(map).toBeVisible();
+});
+
+test('pen dragging and repeated keyboard navigation keep the map usable', async ({ page, context }, info) => {
+	test.skip(info.project.name.includes('no JS'), 'Pointer and keyboard shortcuts enhance native map links.');
+	await page.goto(`${paths.lightsfinder}?lat=51.5&lon=0&zoom=12`);
+	const map = page.getByRole('img', { name: 'Street map with holiday light sightings' });
+	await map.scrollIntoViewIfNeeded();
+	const bounds = await map.boundingBox(); if (!bounds) { throw new Error('Map missing'); }
+	const session = await context.newCDPSession(page), x = bounds.x + bounds.width / 2, y = bounds.y + bounds.height / 2;
+	await session.send('Input.dispatchMouseEvent', { type: 'mousePressed', x, y, button: 'left', buttons: 1, pointerType: 'pen' });
+	await session.send('Input.dispatchMouseEvent', { type: 'mouseMoved', x: x - 90, y, button: 'left', buttons: 1, pointerType: 'pen' });
+	await session.send('Input.dispatchMouseEvent', { type: 'mouseReleased', x: x - 90, y, button: 'left', buttons: 0, pointerType: 'pen' });
+	await expect(page).not.toHaveURL(/lon=0&/);
+	await map.focus(); await page.keyboard.press('ArrowRight');
+	await expect(map).toBeFocused();
+	await expect.poll(() => { return Number(new URL(page.url()).searchParams.get('lon')); }).toBeGreaterThan(.04);
+	await expect(map).toBeFocused();
+	await page.keyboard.press('+');
+	await expect(page).toHaveURL(/zoom=13/);
+});
+
+test('locating the browser reveals nearby published decorations on the map', async ({ page, context, identities }, info) => {
+	test.skip(info.project.name.includes('no JS'), 'Browser GPS enhances the same server-side area search.');
+	await signIn(page, identities.create());
+	const fixture = sighting(); await publish(page, fixture);
+	const holiday = encodeURIComponent(`custom:${fixture.holiday.toLowerCase()}`);
+	await page.goto(`${paths.lightsfinder}?holiday=${holiday}&lat=0&lon=0&zoom=3`);
+	await expect(page.getByRole('article', { name: fixture.title, exact: true })).toHaveCount(0);
+	await context.setGeolocation({ latitude: 47.6062, longitude: -122.3321 });
+	await context.grantPermissions(['geolocation']);
+	await page.getByRole('form', { name: 'Find decorations near you' }).getByRole('button', { name: 'Use my location' }).click();
+	await expect(page.getByRole('article', { name: fixture.title, exact: true })).toBeVisible();
+	await page.getByRole('region', { name: 'Lights map' }).getByRole('link', { name: `View ${fixture.title}`, exact: true }).click();
+	await expect(page).toHaveURL(/post=/);
+	await expect(page.getByRole('article', { name: fixture.title, exact: true })).toBeVisible();
+});

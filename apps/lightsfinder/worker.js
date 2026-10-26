@@ -57,8 +57,8 @@ export async function handleLightsfinder(request, env) {
 	/** @type {import('./templates.js').Filters} */
 	const filters = {
 		holiday: holidayKey(q.get('holiday') ?? upcoming.id, q.get('customHoliday') ?? ''), season: numeric(q, 'season', upcoming.date.getUTCFullYear()),
-		lat: numeric(q, 'lat', 47.6062), lon: numeric(q, 'lon', -122.3321), radius: numeric(q, 'radius', 10), history: q.get('history') === '1',
-		zoom: numeric(q, 'zoom', 12), view: q.get('view') ?? 'explore',
+		lat: numeric(q, 'lat', 20), lon: numeric(q, 'lon', 0), radius: numeric(q, 'radius', 10), history: q.get('history') === '1',
+		zoom: numeric(q, 'zoom', q.has('lat') && q.has('lon') ? 12 : 3), view: q.get('view') ?? 'explore',
 		scope: scope === 'state' || scope === 'country' ? scope : 'county', region: normalize(q.get('region') ?? ''), countryRegion: normalize(q.get('countryRegion') ?? ''), stateRegion: normalize(q.get('stateRegion') ?? ''),
 	};
 	/** @type {import('./templates.js').LightsData} */
@@ -67,7 +67,7 @@ export async function handleLightsfinder(request, env) {
 		data.error = 'Choose a valid holiday, season, location, and radius (1–100 km).';
 		// Keep raw input visible while ensuring invalid numbers cannot render broken map URLs.
 		data.values = Object.fromEntries(q);
-		Object.assign(filters, { holiday: upcoming.id, season: upcoming.date.getUTCFullYear(), lat: 47.6062, lon: -122.3321, radius: 10, zoom: 12, view: 'explore' });
+		Object.assign(filters, { holiday: upcoming.id, season: upcoming.date.getUTCFullYear(), lat: 20, lon: 0, radius: 10, zoom: 3, view: 'explore' });
 		return page(request, data, 422);
 	}
 	if (request.method === 'POST') {
@@ -97,7 +97,7 @@ export async function handleLightsfinder(request, env) {
 			const required = ['title', 'address', 'county', 'state', 'country'];
 			const invalid = required.some((key) => { return !v[key]?.trim() || v[key].trim().length > (key === 'address' ? 200 : 100); }) || (v.description?.length ?? 0) > 1000 || !v.lat?.trim() || !v.lon?.trim() || !Number.isFinite(lat) || Math.abs(lat) > 85 || !Number.isFinite(lon) || Math.abs(lon) > 180 || !Number.isInteger(season) || season < 2000 || season > new Date().getUTCFullYear() || (!validHoliday(v.holiday) || v.holiday === 'other') || !validDate(v.observed) || !validDate(v.ends) || v.observed > today || Number(v.observed.slice(0,4)) !== season || v.ends < v.observed || Date.parse(v.ends) - Date.parse(v.observed) > 366 * 86400000 || v.consent !== 'yes';
 			if (invalid || !photo) {
-				data.error = 'Complete every required field and consent. Use valid coordinates, dates in the selected season, and an end date within one year of the sighting. A photo is required.';
+				data.error = 'Complete every required field and consent. Choose a location on the map or use your browser location, dates in the selected season, and an end date within one year of the sighting. A photo is required.';
 				return page(request, data, 422);
 			}
 			const id = crypto.randomUUID();
