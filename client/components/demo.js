@@ -1,4 +1,4 @@
-import './disclosure-panel/index.js';
+export {};
 
 const panel = document.getElementById('demo-panel');
 if (panel) {
@@ -8,6 +8,9 @@ if (panel) {
 			status.textContent = event.detail.open ? 'Panel opened (disclosure-change).' : 'Panel closed (disclosure-change).';
 		}
 	});
+	// Observe initialization too: a static import would upgrade existing markup
+	// before this listener could verify the component's silent-upgrade contract.
+	await import('./disclosure-panel/index.js');
 	const close = panel.querySelector('[data-close-panel]');
 	if (close instanceof HTMLButtonElement) {
 		close.addEventListener('click', () => {

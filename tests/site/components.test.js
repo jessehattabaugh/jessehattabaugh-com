@@ -1,5 +1,24 @@
 import { test, expect } from '@playwright/test';
 
+/** Observe the public event contract before any page module can upgrade HTML. */
+async function observeChanges(page) {
+	await page.addInitScript(() => {
+		window.disclosureChanges = [];
+		document.addEventListener('disclosure-change', (event) => {
+			window.disclosureChanges.push({ id: event.target.id, open: event.detail.open });
+		});
+	});
+}
+
+/** Let queued native toggle notifications run before checking event silence. */
+async function changes(page) {
+	return page.evaluate(async () => {
+		await new Promise(requestAnimationFrame);
+		await new Promise(requestAnimationFrame);
+		return window.disclosureChanges;
+	});
+}
+
 test('catalog showcases a disclosure and links to its documentation', async ({ page }) => {
 	await page.goto('/components/');
 	await page.getByText('Try the disclosure', { exact: true }).click();
@@ -28,6 +47,7 @@ test('attributes control state and a child request reports state back up', async
 	await page.goto('/components/disclosure-panel/');
 	const content = page.getByText(/This content is ordinary HTML/);
 	const status = page.getByRole('status', { name: 'Disclosure state' });
+	await expect(status).toHaveText('Use the summary to open or close the panel.');
 	await page.getByRole('button', { name: 'Open via attribute' }).click();
 	await expect(content).toBeVisible();
 	await expect(status).toHaveText('Panel opened (disclosure-change).');
@@ -42,8 +62,10 @@ test('attributes control state and a child request reports state back up', async
 
 test('boolean presence, invalid requests, reconnects, and nested requests preserve panel ownership', async ({ page, javaScriptEnabled }) => {
 	test.skip(!javaScriptEnabled, 'Browser integration API requires Custom Elements.');
+	await observeChanges(page);
 	await page.goto('/components/disclosure-panel/');
 	await page.getByRole('button', { name: 'Open via attribute' }).waitFor();
+	expect(await changes(page)).toEqual([]);
 	const summary = page.getByText('Try the disclosure', { exact: true });
 	const content = page.getByText(/This content is ordinary HTML/);
 	await summary.evaluate((element) => {
@@ -51,6 +73,8 @@ test('boolean presence, invalid requests, reconnects, and nested requests preser
 		panel.setAttribute('open', 'false');
 	});
 	await expect(content).toBeVisible();
+	const opened = [{ id: 'demo-panel', open: true }];
+	expect(await changes(page)).toEqual(opened);
 	await summary.evaluate((element) => {
 		for (const detail of [{ open: 'false' }, {}, null]) {
 			element.dispatchEvent(new CustomEvent('disclosure-request', { detail, bubbles: true }));
@@ -60,12 +84,14 @@ test('boolean presence, invalid requests, reconnects, and nested requests preser
 		element.dispatchEvent(prevented);
 	});
 	await expect(content).toBeVisible();
+	expect(await changes(page)).toEqual(opened);
 	await summary.evaluate((element) => {
 		const panel = element.parentElement.parentElement;
 		const parent = panel.parentElement;
 		panel.remove();
 		parent.append(panel);
 		const nested = document.createElement('disclosure-panel');
+		nested.id = 'nested-panel';
 		const details = document.createElement('details');
 		details.open = true;
 		const childSummary = document.createElement('summary');
@@ -77,21 +103,27 @@ test('boolean presence, invalid requests, reconnects, and nested requests preser
 		element.parentElement.append(nested);
 	});
 	await expect(page.getByText('Nested content', { exact: true })).toBeVisible();
+	// Reconnecting the outer panel and initializing its open child stay silent.
+	expect(await changes(page)).toEqual(opened);
 	await page.getByText('Nested help', { exact: true }).evaluate((element) => {
 		element.dispatchEvent(new CustomEvent('disclosure-request', { detail: { open: false }, bubbles: true }));
 	});
 	await expect(page.getByText('Nested content', { exact: true })).toBeHidden();
 	await expect(content).toBeVisible();
+	expect(await changes(page)).toEqual([...opened, { id: 'nested-panel', open: false }]);
 	await summary.click();
 	await expect(content).toBeHidden();
+	expect(await changes(page)).toEqual([...opened, { id: 'nested-panel', open: false }, { id: 'demo-panel', open: false }]);
 });
 
 test('late children upgrade and expanded native markup remains expanded', async ({ page, javaScriptEnabled }) => {
 	test.skip(!javaScriptEnabled, 'Exercises consumer markup inserted after registration.');
+	await observeChanges(page);
 	await page.goto('/components/disclosure-panel/');
 	await page.getByRole('button', { name: 'Open via attribute' }).waitFor();
 	await page.getByRole('main').evaluate((main) => {
 		const panel = document.createElement('disclosure-panel');
+		panel.id = 'late-panel';
 		main.append(panel);
 		const details = document.createElement('details');
 		details.open = true;
@@ -103,10 +135,70 @@ test('late children upgrade and expanded native markup remains expanded', async 
 		panel.append(details);
 	});
 	await expect(page.getByText('Late help content', { exact: true })).toBeVisible();
+	expect(await changes(page)).toEqual([]);
 	await page.getByText('Late help', { exact: true }).evaluate((summary) => {
 		summary.dispatchEvent(new CustomEvent('disclosure-request', { detail: { open: false }, bubbles: true }));
 	});
 	await expect(page.getByText('Late help content', { exact: true })).toBeHidden();
+	expect(await changes(page)).toEqual([{ id: 'late-panel', open: false }]);
+});
+
+test('upgrade adopts closed, native-open, and host-open markup without emitting changes', async ({ page, javaScriptEnabled }) => {
+	test.skip(!javaScriptEnabled, 'Exercises the Custom Elements upgrade lifecycle.');
+	await observeChanges(page);
+	await page.goto('/components/disclosure-panel/');
+	await page.getByRole('button', { name: 'Open via attribute' }).waitFor();
+	await page.getByRole('main').evaluate(async (main) => {
+		const { DisclosurePanel } = await import('/components/disclosure-panel/disclosure-panel.js');
+		for (const state of ['closed', 'native-open', 'host-open']) {
+			const tag = `upgrade-panel-${crypto.randomUUID()}`;
+			const panel = document.createElement(tag);
+			panel.id = state;
+			panel.toggleAttribute('open', state === 'host-open');
+			const details = document.createElement('details');
+			details.open = state === 'native-open';
+			const summary = document.createElement('summary');
+			summary.textContent = `${state} help`;
+			const content = document.createElement('p');
+			content.textContent = `${state} content`;
+			details.append(summary, content);
+			panel.append(details);
+			main.append(panel);
+			// Register only after the fallback markup is connected to the document.
+			customElements.define(tag, class extends DisclosurePanel {});
+		}
+	});
+	await expect(page.getByText('closed content', { exact: true })).toBeHidden();
+	await expect(page.getByText('native-open content', { exact: true })).toBeVisible();
+	await expect(page.getByText('host-open content', { exact: true })).toBeVisible();
+	expect(await changes(page)).toEqual([]);
+});
+
+test('repeated same-state attribute updates and requests emit no additional change events', async ({ page, javaScriptEnabled }) => {
+	test.skip(!javaScriptEnabled, 'Attribute and event coordination requires JavaScript.');
+	await observeChanges(page);
+	await page.goto('/components/disclosure-panel/');
+	await page.getByRole('button', { name: 'Open via attribute' }).waitFor();
+	const summary = page.getByText('Try the disclosure', { exact: true });
+	expect(await changes(page)).toEqual([]);
+	await page.getByRole('button', { name: 'Open via attribute' }).click();
+	await summary.evaluate((element) => {
+		const panel = element.parentElement.parentElement;
+		panel.setAttribute('open', '');
+		panel.setAttribute('open', 'false');
+		panel.setAttribute('open', 'false');
+		element.dispatchEvent(new CustomEvent('disclosure-request', { detail: { open: true }, bubbles: true }));
+	});
+	expect(await changes(page)).toEqual([{ id: 'demo-panel', open: true }]);
+	await page.getByRole('button', { name: 'Close via attribute' }).click();
+	await summary.evaluate((element) => {
+		const panel = element.parentElement.parentElement;
+		panel.removeAttribute('open');
+		panel.removeAttribute('open');
+		element.dispatchEvent(new CustomEvent('disclosure-request', { detail: { open: false }, bubbles: true }));
+	});
+	await expect(page.getByText(/This content is ordinary HTML/)).toBeHidden();
+	expect(await changes(page)).toEqual([{ id: 'demo-panel', open: true }, { id: 'demo-panel', open: false }]);
 });
 
 test('documentation code is escaped, keyboard reachable, and fits the viewport', async ({ page }) => {
