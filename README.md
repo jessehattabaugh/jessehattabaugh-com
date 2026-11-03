@@ -25,6 +25,21 @@ package dependencies.
 | `db/` | Canonical schema and ordered additive migrations |
 | `tests/` | Deployed-preview E2E suites grouped by app, site and platform |
 
+## Reusable components
+
+`/components/` showcases standalone Custom Elements. Each component lives in
+`client/components/<tag>/` with ES modules, `package.json`, a Custom Elements
+Manifest (including `x-listens` for incoming events), README, and MIT license.
+Source distribution is GitHub-only; consumers vendor a pinned revision and can
+install its local package with npm, pnpm, or Yarn. No registry release is needed.
+
+To add one, extend `site/components.js` (also emitted as `/components/catalog.json`),
+add its showcase and documentation template in `site/templates/components.js`, and entries
+in `site/pages.js` and `shared/routes.js`, and cover its browser API in
+`tests/site/components.test.js`. Include the new route in the smoke/Lighthouse
+heading map. Preserve a native HTML fallback. `disclosure-panel` is the first
+example, also used for app-install help.
+
 ## Develop and verify
 
 Use Node.js 22+ and tabs. Copy `.dev.vars.example` to the ignored `.dev.vars`

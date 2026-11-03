@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test';
 import { lighthouseAudit } from '../helpers/lighthouse.js';
 import { staticRoutes, paths } from '../../shared/routes.js';
 
-const headings = { home: 'Useful tools and web experiments', about: 'About', giving: 'Giving away', colophon: 'Colophon', apps: 'Apps' };
+const headings = { home: 'Useful tools and web experiments', about: 'About', giving: 'Giving away', colophon: 'Colophon', apps: 'Apps', components: 'Components', disclosurePanel: 'disclosure-panel' };
 const pages = [
 	...staticRoutes.filter((route) => { return route.name in headings; }).map((route) => {
 		return { path: route.path, heading: headings[route.name] };
@@ -31,10 +31,10 @@ for (const { path, heading } of pages) {
 			return;
 		}
 		const nav = page.getByRole('navigation', { name: 'Main navigation' });
-		await Promise.all(['About', 'Apps', 'Contact', 'Giving away'].map((name) => {
+		await Promise.all(['About', 'Apps', 'Contact', 'Giving away', 'Components'].map((name) => {
 			return expect(nav.getByRole('link', { name, exact: true })).toBeVisible();
 		}));
-		await expect(nav.getByRole('listitem').getByRole('link')).toHaveText(['About', 'Apps', 'Contact', 'Giving away']);
+		await expect(nav.getByRole('listitem').getByRole('link')).toHaveText(['About', 'Apps', 'Contact', 'Giving away', 'Components']);
 		if (path === paths.home) {
 			const main = page.getByRole('main');
 			await expect(main.getByRole('link', { name: 'Explore the apps', exact: true })).toBeVisible();

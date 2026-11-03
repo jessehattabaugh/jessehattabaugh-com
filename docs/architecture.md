@@ -32,6 +32,10 @@ It does not bundle app server code into the public asset directory.
 	infrastructure, named by responsibility. `worker/index.js` is the composition root.
 - `client/apps/<name>/`: public assets, intentionally separate from server code.
 	Keeping this boundary preserves manifest URLs, service-worker scope, and bookmarks.
+- `client/components/<tag>/`: portable browser-only Custom Elements and their
+	package metadata, API manifest, README, and license. They must not import site,
+	app, or platform code. `site/components.js` catalogs them; public documentation
+	lives in `site/templates/components.js`. The build copies modules unchanged.
 - `tests/apps/`, `tests/site/`, `tests/platform/`: browser-visible behavior by owner.
 	`tests/helpers/` owns fixture maintenance; production code never imports tests.
 

@@ -5,6 +5,7 @@ import { fileURLToPath } from 'node:url';
 import { render } from '../shared/html.js';
 import { staticRoutes } from '../shared/routes.js';
 import { staticPages } from '../site/pages.js';
+import { componentCatalog } from '../site/components.js';
 import { loadSocial } from '../site/data/atproto.js';
 import { workerVariables } from '../scripts/environment.js';
 import { buildBranding } from './branding.js';
@@ -50,6 +51,8 @@ async function build() {
 		// Type-checking configuration is source tooling, not a public asset.
 		filter: (source) => { return !source.endsWith('/tsconfig.json'); },
 	});
+	// Let consumers and agents discover modules without scraping documentation.
+	await writeFile(join(OUT, 'components', 'catalog.json'), JSON.stringify({ components: componentCatalog }, null, '\t'), 'utf8');
 	await buildBranding(OUT, social);
 
 	// Client-side runtime modules imported by the Rainbow Hour app
