@@ -1,0 +1,83 @@
+{
+	"schemaVersion": "1.0.0",
+	"readme": "README.md",
+	"modules": [
+		{
+			"kind": "javascript-module",
+			"path": "disclosure-panel.js",
+			"declarations": [
+				{
+					"kind": "class",
+					"name": "DisclosurePanel",
+					"customElement": true,
+					"tagName": "disclosure-panel",
+					"description": "Light-DOM enhancement of one direct details child. Native summary interaction works without JavaScript. No shadow root, slots, CSS parts, dependencies, or network requests. Initial upgrade adopts details.open unless the host open attribute is present; no initial change event. Missing details is inert; direct child insertion is observed. Reconnection adopts current markup without emitting an initial event.",
+					"superclass": {
+						"name": "HTMLElement",
+						"package": "global:"
+					},
+					"attributes": [
+						{
+							"name": "open",
+							"type": {
+								"text": "boolean"
+							},
+							"description": "Boolean presence opens the direct details child. Remove to close. open=\"false\" still opens. Native toggles reflect back to this attribute."
+						}
+					],
+					"events": [
+						{
+							"name": "disclosure-change",
+							"type": {
+								"text": "CustomEvent<{ open: boolean }>"
+							},
+							"description": "Emitted for state changes after initialization, including attribute updates and accepted requests. Bubbles and is composed; not cancelable. Repeated state is silent; native toggle events may coalesce rapid changes."
+						}
+					],
+					"x-listens": [
+						{
+							"name": "disclosure-request",
+							"type": "CustomEvent<{ open: boolean }>",
+							"bubbles": true,
+							"composed": true,
+							"description": "Dispatch from a descendant to request open or closed state. Requires a boolean detail.open. Invalid, defaultPrevented, missing-child, and outer-panel requests are ignored. Nested panels own their requests. Requests are not stopped and remain observable by ancestors."
+						}
+					]
+				}
+			],
+			"exports": [
+				{
+					"kind": "js",
+					"name": "DisclosurePanel",
+					"declaration": {
+						"name": "DisclosurePanel",
+						"module": "disclosure-panel.js"
+					}
+				}
+			]
+		},
+		{
+			"kind": "javascript-module",
+			"path": "index.js",
+			"declarations": [],
+			"exports": [
+				{
+					"kind": "custom-element-definition",
+					"name": "disclosure-panel",
+					"declaration": {
+						"name": "DisclosurePanel",
+						"module": "disclosure-panel.js"
+					}
+				},
+				{
+					"kind": "js",
+					"name": "DisclosurePanel",
+					"declaration": {
+						"name": "DisclosurePanel",
+						"module": "disclosure-panel.js"
+					}
+				}
+			]
+		}
+	]
+}

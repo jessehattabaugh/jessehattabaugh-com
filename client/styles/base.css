@@ -25,6 +25,9 @@
 }
 
 @layer base {
+	/* Explicit layout applies before Custom Elements upgrade and with JS off. */
+	disclosure-panel { display: block; }
+
 	.skip-link {
 		position: absolute;
 		inset-block-start: -100%;

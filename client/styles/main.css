@@ -70,6 +70,21 @@
 }
 
 @layer components {
+	[data-components] {
+		section { margin-block: var(--space-xl); }
+		nav, p { overflow-wrap: anywhere; }
+		disclosure-panel { padding: var(--space-md); border: 1px solid var(--color-border); border-radius: var(--radius); }
+		summary { min-height: 44px; padding-block: var(--space-sm); }
+		table { width: 100%; border-collapse: collapse; margin-block: var(--space-lg); }
+		th, td { text-align: left; vertical-align: top; padding: var(--space-sm); border-bottom: 1px solid var(--color-border); overflow-wrap: anywhere; }
+		caption { text-align: left; font-weight: 700; }
+		figure[data-code] {
+			margin: var(--space-lg) 0;
+			figcaption { font-size: .875rem; color: var(--color-text-muted); }
+			pre { overflow-x: auto; padding: var(--space-md); background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius); tab-size: 4; line-height: 1.6; }
+			code { white-space: pre; }
+		}
+	}
 	/* Home page introduction. */
 	main > section:first-child {
 		nav {
