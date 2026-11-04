@@ -1,3 +1,4 @@
+import '../components/rpg-actor/index.js';
 /** Optional navigation acceleration. The markup owns URLs, methods and targets. */
 import './install.js';
 import '../components/site-auth.js';

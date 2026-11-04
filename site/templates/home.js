@@ -1,11 +1,14 @@
 import { html } from '../../shared/html.js';
 import { layout } from '../../shared/templates/layout.js';
+import { actorSprite } from './social.js';
 import { paths } from '../../shared/routes.js';
 
-export function homeFragment() {
+/** @param {import('../data/atproto.js').Social} [social] */
+export function homeFragment(social) {
 	return html`
 			<section>
 				<h1>Useful tools and web experiments</h1>
+				${actorSprite(social)}
 				<p>Small apps, practical tools, and things to share.</p>
 				<p>
 					This site is a home for experiments with the open web. Explore apps you can
@@ -42,13 +45,14 @@ export function homeFragment() {
 }
 
 /**
+ * @param {import('../data/atproto.js').Social} [social]
  * @returns {import('../../shared/html.js').Raw}
  */
-export const home = () => {
+export const home = (social) => {
 	return layout({
 		title: 'Home',
 		path: '/',
 		description: 'Explore small web apps, useful tools, open web experiments, and free items to give away.',
-		body: homeFragment(),
+		body: homeFragment(social),
 	});
 };

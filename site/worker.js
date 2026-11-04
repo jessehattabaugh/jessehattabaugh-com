@@ -1,3 +1,4 @@
+import { rpgActor } from './templates/rpg-actor.js';
 import { loadSocial, emptySocial } from './data/atproto.js';
 import { paths } from '../shared/routes.js';
 import { render } from '../shared/html.js';
@@ -45,8 +46,11 @@ async function image(request, data, ctx) {
 	const url = new URL(request.url);
 	const id = url.searchParams.get('cid') ?? '';
 	const avatar = url.pathname === paths.atAvatar;
+	const spriteIds = new Set([data.actor?.sprite?.cid,
+		...Object.values(data.actor?.sprite?.emotes ?? {}).flatMap((variant) => { return [variant.emoteSheet, variant.talkSheet]; }),
+	]);
 	const allowed = new Set([
-		data.actor?.sprite?.cid,
+		...spriteIds,
 		...(data.gifts ?? []).flatMap((gift) => {return gift.images.map((item) => {return item.cid})}),
 		...(data.posts ?? []).flatMap((post) => {return post.images.map((item) => {return item.cid})}),
 	]);
@@ -58,7 +62,7 @@ async function image(request, data, ctx) {
 	let source = `https://cdn.bsky.app/img/feed_thumbnail/plain/${data.did}/${id}@jpeg`;
 	if (avatar) {
 		source = (data.profile?.avatar ?? '').replace('/img/avatar/plain/', '/img/avatar_thumbnail/plain/');
-	} else if (id === data.actor?.sprite?.cid) {
+	} else if (spriteIds.has(id)) {
 		source = `${data.pds}/xrpc/com.atproto.sync.getBlob?${new URLSearchParams({ did: data.did, cid: id })}`;
 	}
 	const key = new Request(new URL(`/atproto/image-cache/${encodeURIComponent(source)}`, request.url));
@@ -80,9 +84,14 @@ export async function handleAtproto(request, env, ctx) {
 		return new Response(null, { status: 302, headers: { Location: `https://bsky.app/profile/${encodeURIComponent(env.ATPROTO_HANDLE ?? '')}` } });
 	}
 	const fragment = request.headers.get('X-Fragment') === 'true';
-	// The site introduction has no personal data or upstream API dependency.
-	if (url.pathname === paths.home) { return pageResponse(fragment ? homeFragment() : home()); }
+	// Use the build snapshot for the home sprite without adding upstream latency.
+	if (url.pathname === paths.home) {
+		const snapshot = await env.ASSETS.fetch(new URL('/atproto/snapshot.json', request.url));
+		const saved = snapshot.ok ? /** @type {Social} */ (await snapshot.json()) : undefined;
+		return pageResponse(fragment ? homeFragment(saved) : home(saved));
+	}
 	const data = await socialData(request, env, ctx);
+	if (url.pathname === paths.rpgActor) { return pageResponse(rpgActor(data, url.searchParams, url.origin)); }
 	if (url.pathname === paths.atAvatar || url.pathname === paths.atBlob) { return image(request, data, ctx); }
 	let template;
 	if (url.pathname === paths.about) {

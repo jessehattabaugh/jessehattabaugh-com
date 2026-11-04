@@ -1,7 +1,7 @@
 /** The URL vocabulary belongs to the server. Clients follow rendered controls. */
 export const paths = {
 	home: '/', about: '/about', colophon: '/colophon', apps: '/apps/',
-	components: '/components/', disclosurePanel: '/components/disclosure-panel/',
+	components: '/components/', rpgActor: '/components/rpg-actor/', disclosurePanel: '/components/disclosure-panel/',
 	giving: '/giving', bluesky: '/bluesky', atAvatar: '/atproto/avatar', atBlob: '/atproto/blob',
 	avatar: '/branding/avatar-96.png',
 	notFound: '/404/', error: '/500/', contact: '/contact', login: '/login',
@@ -23,6 +23,7 @@ export const staticRoutes = [
 	{ name: 'colophon', path: paths.colophon },
 	{ name: 'apps', path: paths.apps },
 	{ name: 'components', path: paths.components },
+	{ name: 'rpgActor', path: paths.rpgActor },
 	{ name: 'disclosurePanel', path: paths.disclosurePanel },
 	{ name: 'notFound', path: paths.notFound },
 	{ name: 'error', path: paths.error },
@@ -32,6 +33,7 @@ export const dynamicRoutes = [
 	{ path: '/apps/messages/verify', methods: ['GET', 'POST'], handler: 'legacy-auth' },
 	{ path: '/apps/messages/logout', methods: ['POST'], handler: 'legacy-auth' },
 	{ path: '/apps/messages/profile', methods: ['POST'], handler: 'legacy-auth' },
+	{ path: paths.rpgActor, methods: ['GET'], handler: 'social' },
 	{ path: paths.home, methods: ['GET'], handler: 'social' },
 	{ path: paths.about, methods: ['GET'], handler: 'social' },
 	{ path: paths.giving, methods: ['GET'], handler: 'social' },

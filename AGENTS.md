@@ -163,3 +163,12 @@ Interactive flows (forms) get a full happy-path submission test in all four conf
 ## Cloudflare docs
 
 The platform moves fast. Before relying on any wrangler config key, binding behavior, or quota, fetch `https://developers.cloudflare.com/llms.txt` and the relevant product-specific `llms.txt`. Request doc pages in Markdown form (append `index.md` to the URL). For Cloudflare platform/API behavior, docs win — flag the discrepancy in your PR. For repository architecture and workflow rules in this file, this file remains authoritative.
+
+## RPG Actor integration
+
+Always consult https://rpg.actor/dev-guide when implementing, changing, or
+reviewing the RPG Actor integration. It is the authoritative source for sprite
+records, grid/frame order, emote and talk sheets, and API behavior. Do not rely
+on remembered formats or this repository's documentation when they disagree
+with the current guide. Keep the component manifest, examples, and deployed
+browser coverage aligned with that guide.

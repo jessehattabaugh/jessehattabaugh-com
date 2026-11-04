@@ -49,7 +49,7 @@ export function emptySocial(handle) {
 		profile: null,
 		/** @type {Array<{ text: string, createdAt: string, url: string, images: Array<{ cid: string, alt: string }>, facets: unknown[], external: { url: string, title: string } }> | null} */
 		posts: null,
-		/** @type {{ sprite: { cid: string, columns: number, rows: number } | null, systems: Array<{ name: string, stats: Array<{ label: string, value: string }> }> } | null} */
+		/** @type {{ sprite: { cid: string, columns: number, rows: number, emotes: Record<string, { emoteSheet: string, talkSheet: string }> } | null, systems: Array<{ name: string, stats: Array<{ label: string, value: string }> }> } | null} */
 		actor: null,
 		/** @type {Array<{ title: string, description: string, status: string, location: string, url: string, createdAt: string, images: Array<{ cid: string, alt: string }> }> | null} */
 		gifts: null,
@@ -137,6 +137,13 @@ export async function loadSocial(handle) {
 			const sprite = object(sprites.find((item) => {return text(item.uri).endsWith('/self')})?.value);
 			const spriteId = blobCid(sprite.spriteSheet);
 			const columns = number(sprite.columns), rows = number(sprite.rows);
+			/** @type {Record<string, { emoteSheet: string, talkSheet: string }>} */
+			const emotes = {};
+			for (const name of ['neutral', 'blink', 'happy', 'sad', 'angry', 'silly', 'tired', 'bruh', 'pout']) {
+				const variant = object(object(sprite.emotes)[name]);
+				const emoteSheet = blobCid(variant.emoteSheet), talkSheet = blobCid(variant.talkSheet);
+				if (emoteSheet || talkSheet) { emotes[name] = { emoteSheet, talkSheet }; }
+			}
 			const systems = [];
 			const legacy = object(stats.find((item) => {return text(item.uri).endsWith('/self')})?.value);
 			for (const [key, name] of [['dnd', 'Dungeons & Dragons'], ['dcc', 'Dungeon Crawl Classics']]) {
@@ -147,7 +154,7 @@ export async function loadSocial(handle) {
 				for (const [ability, value] of Object.entries(object(system.abilities))) { if (typeof value === 'number' && !ability.endsWith('Mod') && !ability.endsWith('Base')) { values.push({ label: ability.toUpperCase(), value: String(value) }); } }
 				systems.push({ name, stats: values });
 			}
-			const actor = { sprite: sprite.available !== false && spriteId && columns > 0 && columns <= 16 && rows > 0 && rows <= 16 ? { cid: spriteId, columns, rows } : null, systems };
+			const actor = { sprite: sprite.available !== false && spriteId && columns > 0 && columns <= 16 && rows > 0 && rows <= 16 ? { cid: spriteId, columns, rows, emotes } : null, systems };
 			const listings = await records('community.gifthood.listing');
 			const gifts = listings.flatMap((item) => {
 				const value = object(item.value);
