@@ -78,18 +78,18 @@ export function actorSprite(social, state = {}) {
 	const selected = (state.talking && variant?.talkSheet) || variant?.emoteSheet || sprite.cid;
 	const columns = selected === sprite.cid ? sprite.columns : 3, rows = selected === sprite.cid ? sprite.rows : 4;
 	const row = Math.max(0, Math.min(['down', 'left', 'right', 'up'].indexOf(direction), rows - 1));
-	return html`<rpg-actor src="${blobPath(sprite.cid)}" columns="${sprite.columns}" rows="${sprite.rows}" emotes="${JSON.stringify(emotes)}" animation="${state.animation ?? 'walk'}" direction="${direction}" expression="${expression}" ${state.showcase !== false ? html`showcase` : html``} ${state.talking ? html`talking` : html``} ${state.paused ? html`paused` : html``} label="My RPG Actor character sprite">
+	return html`<rpg-actor src="${blobPath(sprite.cid)}" columns="${sprite.columns}" rows="${sprite.rows}" emotes="${JSON.stringify(emotes)}" animation="${state.animation ?? 'walk'}" direction="${direction}" expression="${expression}" ${state.showcase === true ? html`showcase` : html``} ${state.talking ? html`talking` : html``} ${state.paused ? html`paused` : html``} label="My RPG Actor character sprite">
 		<figure data-sprite style="--sprite-columns:${columns};--sprite-rows:${rows};--sprite-column:${Math.min(1, columns - 1)};--sprite-row:${row}"><div><img src="${blobPath(selected)}" alt="My RPG Actor character sprite" loading="lazy" /></div><figcaption>My rpg.actor sprite</figcaption></figure>
 	</rpg-actor>`;
 }
 
 /** @param {Social | undefined} social */
-export function actorFragment(social) {
+export function actorFragment(social, showcase = false) {
 	const actor = social?.actor;
 	return html`<section aria-labelledby="actor-heading">
 		<h2 id="actor-heading">My RPG Actor</h2>
 		<p>A little roleplaying version of me. <a href="https://rpg.actor">rpg.actor</a> is a portable RPG character registry: sprites and character sheets live in your own AT Protocol account and travel between compatible games.</p>
-		${actorSprite(social)}
+		${actorSprite(social, { showcase })}
 		${actor ? actor.systems.map((system) => {return html`<h3>${system.name}</h3><dl>${system.stats.map((stat) => {return html`<div><dt>${stat.label}</dt><dd>${stat.value}</dd></div>`})}</dl>`}) : html`<p>My character is temporarily unavailable.</p>`}
 		<p><a href="https://rpg.actor/${encodeURIComponent(social?.handle ?? '')}">View my character on RPG Actor</a></p>
 	</section>`;

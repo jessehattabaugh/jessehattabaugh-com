@@ -95,3 +95,7 @@ The server reads optional emote blobs from the owner's public AT Protocol record
 and serves them through the existing allow-listed image proxy. The owner must
 publish the rpg.actor emote upgrade before their expressions appear. The home
 page uses the build snapshot; About and the playground refresh public records.
+
+About opts into `showcase` cycling; home actors keep their selected pose. Set
+`showcase-duration="3000"` for three seconds per idle/walking/talking pose,
+independently of the `interval` frame speed. Pause and reduced motion stop cycling.

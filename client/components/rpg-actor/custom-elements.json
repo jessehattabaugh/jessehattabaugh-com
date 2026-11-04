@@ -95,7 +95,15 @@
 								"text": "boolean"
 							},
 							"default": "false",
-							"description": "Presence cycles available expressions, directions and poses every 2.4 seconds."
+							"description": "Presence cycles available expressions and directions through idle, walking and talking poses."
+						},
+						{
+							"name": "showcase-duration",
+							"type": {
+								"text": "number"
+							},
+							"default": "2400",
+							"description": "Milliseconds per pose, 150–60000, rounded up to the next frame. Invalid values use 2400; values below 150 become 150. Independent of interval."
 						},
 						{
 							"name": "interval",
