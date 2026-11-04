@@ -181,9 +181,19 @@ test('registry distributes the portable package and machine-readable interface',
 	await Promise.all(['index.js', 'rpg-actor.js', 'package.json', 'README.md', 'LICENSE', 'social.png'].map(async (file) => {
 		expect((await request.get(`/components/rpg-actor/${file}`)).ok()).toBe(true);
 	}));
-	const fragment = await request.get(path, { headers: { 'X-Fragment': 'true' } });
-	expect(fragment.ok()).toBe(true);
-	expect(await fragment.text()).not.toMatch(/<!doctype|<html[\s>]/i);
+});
+
+test('fragment negotiation returns the bare playground fragment and normal navigation restores the layout', async ({ page }) => {
+	await page.setExtraHTTPHeaders({ 'X-Fragment': 'true' });
+	await page.goto(`${path}?direction=left&expression=happy&animation=idle`);
+	await expect(page.getByRole('heading', { name: 'rpg-actor', level: 1, exact: true })).toBeVisible();
+	await expect(page.getByRole('status', { name: 'Sprite state' })).toHaveText('idle · left · happy');
+	await expect(page.getByRole('navigation', { name: 'Main navigation' })).toHaveCount(0);
+	await page.setExtraHTTPHeaders({});
+	await page.reload();
+	await expect(page.getByRole('navigation', { name: 'Main navigation' })).toBeVisible();
+	await expect(page.getByRole('heading', { name: 'rpg-actor', level: 1, exact: true })).toBeVisible();
+	await expect(page.getByRole('status', { name: 'Sprite state' })).toHaveText('idle · left · happy');
 });
 
 test('published expressions render distinct faces and talking alternates mouth sheets', async ({ page, request, javaScriptEnabled }) => {
