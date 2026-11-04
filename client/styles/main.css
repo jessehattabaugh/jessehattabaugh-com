@@ -77,6 +77,7 @@
 		summary { min-height: 44px; padding-block: var(--space-sm); }
 		table { width: 100%; border-collapse: collapse; margin-block: var(--space-lg); }
 		th, td { text-align: left; vertical-align: top; padding: var(--space-sm); border-bottom: 1px solid var(--color-border); overflow-wrap: anywhere; }
+		th { min-width: 7rem; }
 		caption { text-align: left; font-weight: 700; }
 		figure[data-code] {
 			margin: var(--space-lg) 0;
@@ -84,6 +85,24 @@
 			pre { overflow-x: auto; padding: var(--space-md); background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius); tab-size: 4; line-height: 1.6; }
 			code { white-space: pre; }
 		}
+		&:has(> section[aria-label='Sprite playground']) > p:first-of-type + h1 + p { font-size: clamp(1.5rem, 4vw, 2.25rem); line-height: 1.2; }
+		section[aria-label='Sprite playground'] {
+			display: grid;
+			grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr));
+			gap: var(--space-lg);
+			padding: var(--space-lg);
+			border: 1px solid var(--color-border);
+			border-radius: var(--radius-lg);
+			background: var(--color-surface);
+			> div { display: grid; place-items: center; min-height: 250px; background: radial-gradient(ellipse at center, #8062ba33, transparent 70%); }
+			rpg-actor { margin: 0; }
+			form { display: grid; gap: var(--space-sm); }
+			label { display: block; }
+			select { width: 100%; }
+			label:has(input[type="checkbox"]) { display: flex; align-items: center; gap: .6rem; min-height: 44px; }
+			input[type="checkbox"] { width: 1.2rem; height: 1.2rem; margin: 0; }
+		}
+	}
 	}
 	/* Home page introduction. */
 	main > section:first-child {
@@ -123,8 +142,15 @@
 		img { width: 100%; height: auto; aspect-ratio: 4 / 3; object-fit: contain; border-radius: var(--radius); background: var(--color-surface); }
 	}
 	details > summary { cursor: pointer; color: var(--color-accent); }
-	figure[data-sprite] {
+	rpg-actor {
+		display: inline-flex;
+		flex-direction: column;
+		align-items: center;
 		margin-block: var(--space-lg);
+		min-height: 196px;
+	}
+	figure[data-sprite] {
+		margin: 0;
 		> div { width: 144px; height: 144px; overflow: hidden; }
 		img { max-width: none; width: calc(144px * var(--sprite-columns)); height: calc(144px * var(--sprite-rows)); image-rendering: pixelated; transform: translate(calc(-144px * var(--sprite-column, 1)), calc(-144px * var(--sprite-row, 0))); }
 		figcaption { font-size: 0.875rem; color: var(--color-text-muted); }
@@ -232,27 +258,5 @@
 @layer utilities {
 	@view-transition {
 		navigation: auto;
-	}
-}
-
-@layer components {
-	[data-actor-page] {
-		th { min-width: 7rem; }
-		> p:first-of-type + h1 + p { font-size: clamp(1.5rem, 4vw, 2.25rem); line-height: 1.2; }
-		[data-actor-stage] {
-			display: grid;
-			grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr));
-			gap: var(--space-lg);
-			padding: var(--space-lg);
-			border: 1px solid var(--color-border);
-			border-radius: var(--radius-lg);
-			background: var(--color-surface);
-			> div { display: grid; place-items: center; min-height: 250px; background: radial-gradient(ellipse at center, #8062ba33, transparent 70%); }
-			form { display: grid; gap: var(--space-sm); }
-			label { display: block; }
-			select { width: 100%; }
-			label:has(input[type="checkbox"]) { display: flex; align-items: center; gap: .6rem; min-height: 44px; }
-			input[type="checkbox"] { width: 1.2rem; height: 1.2rem; margin: 0; }
-		}
 	}
 }

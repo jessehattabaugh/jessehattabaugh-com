@@ -17,8 +17,12 @@ function demo(summary = 'Try the disclosure') {
 	</details></disclosure-panel>`;
 }
 
-/** Component-specific showcases; add a renderer alongside each new catalog entry. */
-const showcases = new Map([['disclosure-panel', demo]]);
+/** Component-specific showcases; add a renderer alongside each new catalog entry.
+ * @type {Map<string, (social?: import('../data/atproto.js').Social) => import('../../shared/html.js').Raw>} */
+const showcases = new Map([
+	['disclosure-panel', () => { return demo(); }],
+	['rpg-actor', actorSprite],
+]);
 
 /** @param {import('../data/atproto.js').Social} [social] */
 export function components(social) {
@@ -31,7 +35,7 @@ export function components(social) {
 			${componentCatalog.map((component) => { return html`<section aria-label="${component.tag}">
 				<h2><a href="${component.path}">${component.tag}</a></h2>
 				<p>${component.description}</p>
-				${component.tag === 'rpg-actor' ? actorSprite(social) : showcases.get(component.tag)?.() ?? html``}
+				${showcases.get(component.tag)?.(social) ?? html``}
 				<p><a href="${component.path}">Documentation and examples</a> · <a href="${component.source}">Source on GitHub</a> · <a href="${component.manifest}">Custom Elements Manifest</a></p>
 			</section>`; })}
 			<h2>Built for people and their agents</h2>
