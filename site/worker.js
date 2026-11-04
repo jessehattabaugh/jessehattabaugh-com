@@ -1,4 +1,4 @@
-import { rpgActor } from './templates/rpg-actor.js';
+import { rpgActor, rpgActorFragment } from './templates/rpg-actor.js';
 import { loadSocial, emptySocial } from './data/atproto.js';
 import { paths } from '../shared/routes.js';
 import { render } from '../shared/html.js';
@@ -40,12 +40,8 @@ async function socialData(request, env, ctx) {
 	return fresh;
 }
 
-/** Only owner-repository CIDs and the validated Bluesky avatar can be fetched.
- * @param {Request} request @param {Social} data @param {ExecutionContext} ctx */
-async function image(request, data, ctx) {
-	const url = new URL(request.url);
-	const id = url.searchParams.get('cid') ?? '';
-	const avatar = url.pathname === paths.atAvatar;
+/** @param {Social} data */
+function allowedIds(data) {
 	const spriteIds = new Set([data.actor?.sprite?.cid,
 		...Object.values(data.actor?.sprite?.emotes ?? {}).flatMap((variant) => { return [variant.emoteSheet, variant.talkSheet]; }),
 	]);
@@ -54,6 +50,16 @@ async function image(request, data, ctx) {
 		...(data.gifts ?? []).flatMap((gift) => {return gift.images.map((item) => {return item.cid})}),
 		...(data.posts ?? []).flatMap((post) => {return post.images.map((item) => {return item.cid})}),
 	]);
+	return { spriteIds, allowed };
+}
+
+/** Only owner-repository CIDs and the validated Bluesky avatar can be fetched.
+ * @param {Request} request @param {Social} data @param {ExecutionContext} ctx */
+async function image(request, data, ctx) {
+	const url = new URL(request.url);
+	const id = url.searchParams.get('cid') ?? '';
+	const avatar = url.pathname === paths.atAvatar;
+	const { spriteIds, allowed } = allowedIds(data);
 	if ((!avatar && (!/^b[a-z2-7]{20,120}$/.test(id) || !allowed.has(id) || !data.pds)) || (avatar && !data.profile?.avatar)) {
 		return new Response(null, { status: 404 });
 	}
@@ -90,9 +96,17 @@ export async function handleAtproto(request, env, ctx) {
 		const saved = snapshot.ok ? /** @type {Social} */ (await snapshot.json()) : undefined;
 		return pageResponse(fragment ? homeFragment(saved) : home(saved));
 	}
+	if (url.pathname === paths.atAvatar || url.pathname === paths.atBlob) {
+		const snapshot = await env.ASSETS.fetch(new URL('/atproto/snapshot.json', request.url));
+		const saved = snapshot.ok ? /** @type {Social} */ (await snapshot.json()) : undefined;
+		const id = url.searchParams.get('cid') ?? '';
+		if (saved && ((url.pathname === paths.atAvatar && saved.profile?.avatar) || (saved.pds && allowedIds(saved).allowed.has(id)))) {
+			return image(request, saved, ctx);
+		}
+		return image(request, await socialData(request, env, ctx), ctx);
+	}
 	const data = await socialData(request, env, ctx);
-	if (url.pathname === paths.rpgActor) { return pageResponse(rpgActor(data, url.searchParams, url.origin)); }
-	if (url.pathname === paths.atAvatar || url.pathname === paths.atBlob) { return image(request, data, ctx); }
+	if (url.pathname === paths.rpgActor) { return pageResponse(fragment ? rpgActorFragment(data, url.searchParams) : rpgActor(data, url.searchParams, url.origin)); }
 	let template;
 	if (url.pathname === paths.about) {
 		template = fragment ? aboutFragment : about;

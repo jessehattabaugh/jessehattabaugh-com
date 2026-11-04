@@ -18,9 +18,10 @@ or runtime dependencies.
 - `client/apps/`: app enhancements and service workers.
 - `tests/`: functional browser flows against an isolated deployed preview.
 
-Home, About, Giving away, Apps, and Colophon have static builds. About
-and Giving away also render fresh public AT Protocol data in the Worker, using
-the same templates. They use the site navigation and
+Home, About, Giving away, Apps, Components, and Colophon have static builds. About,
+Giving away, and `/components/rpg-actor/` also render fresh public AT Protocol data
+in the Worker, using the same templates. Home renders its RPG Actor sprite from the
+build snapshot without upstream latency. They use the site navigation and
 branding; app pages load the shared app shell and their own stylesheet, with the
 site icon and signed account status in the top right. Rainbow Hour uses its icon’s
 bright sky, sunshine, and rainbow colors. `/contact` redirects to Jessages.
@@ -62,7 +63,11 @@ their original pixels. Additional GiftHood photos use native details disclosures
 CSP needs no new origins. Giving away opts out of cross-document View Transitions
 because Chromium's no-JS transition snapshots intercepted native photo disclosures
 in deployed tests, the same issue already documented for Lightsfinder.
-RPG Actor sprites are cropped to their idle frame with CSS, including without JS.
+RPG Actor sprites are cropped to their selected pose with CSS without JS, and
+enhanced by the `rpg-actor` Custom Element with walking, nine expressions, talking,
+and showcase playback when optional `emotes` blobs exist on `actor.rpg.sprite/self`.
+`build/rpg-actor-card.js` renders `/components/rpg-actor/social.png` from the
+owner's sprite during the build.
 PDS discovery currently supports `did:plc` identities on Bluesky-hosted servers
 only; a move to a custom PDS needs an explicit host-policy update. RPG Actor's
 per-system records take priority over its legacy `self` stats record.

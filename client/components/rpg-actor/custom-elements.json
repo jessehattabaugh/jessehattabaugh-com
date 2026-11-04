@@ -10,7 +10,8 @@
 					"kind": "class",
 					"name": "RpgActor",
 					"superclass": {
-						"name": "HTMLElement"
+						"name": "HTMLElement",
+						"package": "global:"
 					},
 					"customElement": true,
 					"tagName": "rpg-actor",
@@ -222,6 +223,30 @@
 					"name": "rpg-actor",
 					"declaration": {
 						"name": "RpgActor",
+						"module": "rpg-actor.js"
+					}
+				},
+				{
+					"kind": "js",
+					"name": "RpgActor",
+					"declaration": {
+						"name": "RpgActor",
+						"module": "rpg-actor.js"
+					}
+				},
+				{
+					"kind": "js",
+					"name": "expressions",
+					"declaration": {
+						"name": "expressions",
+						"module": "rpg-actor.js"
+					}
+				},
+				{
+					"kind": "js",
+					"name": "directions",
+					"declaration": {
+						"name": "directions",
 						"module": "rpg-actor.js"
 					}
 				}

@@ -45,7 +45,11 @@ test('Giving away has linked offers and working listing photos', async ({ page }
 		// eslint-disable-next-line no-await-in-loop
 		await more.click();
 	}
-	await Promise.all((await page.getByRole('main').getByRole('img').all()).map(loaded));
+	for (const image of await page.getByRole('main').getByRole('img').all()) {
+		// Scroll sequentially so concurrent scrollIntoView calls do not destabilize layout.
+		// eslint-disable-next-line no-await-in-loop
+		await loaded(image);
+	}
 });
 
 test('site-wide Bluesky link resolves to my public profile', async ({ page }) => {

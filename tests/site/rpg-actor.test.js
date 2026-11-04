@@ -3,7 +3,7 @@ import { test, expect } from '@playwright/test';
 const path = '/components/rpg-actor/';
 const imageName = 'My RPG Actor character sprite';
 
-for (const route of ['/', '/about', path]) {
+for (const route of ['/', '/about', '/components/', path]) {
 	test(`${route} displays the reusable actor with a native fallback`, async ({ page }) => {
 		await page.goto(route);
 		await expect(page.getByRole('img', { name: imageName, exact: true })).toBeVisible();
@@ -14,7 +14,10 @@ for (const route of ['/', '/about', path]) {
 }
 
 test('playground controls select a pose with and without JavaScript', async ({ page }) => {
-	await page.goto(path);
+	await page.goto(`${path}?direction=down&animation=idle&paused=on`);
+	const sprite = page.getByRole('img', { name: imageName, exact: true });
+	await expect(sprite).toBeVisible();
+	const initial = await sprite.screenshot();
 	await page.getByLabel('Animation', { exact: true }).selectOption('idle');
 	await page.getByLabel('Direction', { exact: true }).selectOption('left');
 	await page.getByLabel('Expression', { exact: true }).selectOption('happy');
@@ -22,9 +25,12 @@ test('playground controls select a pose with and without JavaScript', async ({ p
 	await page.getByLabel('Paused', { exact: true }).check();
 	await page.getByRole('button', { name: 'Apply sprite state' }).click();
 	await expect(page.getByRole('status', { name: 'Sprite state' })).toHaveText('idle · left · happy · talking · paused');
-	await expect(page.getByRole('img', { name: imageName, exact: true })).toBeVisible();
+	await expect(sprite).toBeVisible();
+	await expect.poll(async () => { return initial.equals(await sprite.screenshot()); }).toBe(false);
 	await expect(page.getByLabel('Direction', { exact: true })).toHaveValue('left');
 	await expect(page.getByLabel('Expression', { exact: true })).toHaveValue('happy');
+	await page.getByRole('link', { name: 'Play the showcase', exact: true }).click();
+	await expect(page.getByLabel('Direction', { exact: true })).toHaveValue('down');
 });
 
 test('walking changes the visible frame; pause freezes it and resume restarts it', async ({ page, javaScriptEnabled }) => {
@@ -83,6 +89,7 @@ test('missing expressions and malformed metadata retain the base sprite', async 
 	await page.goto(`${path}?direction=down&animation=idle`);
 	const sprite = page.getByRole('img', { name: imageName, exact: true });
 	await expect.poll(() => {return sprite.evaluate(el => {return el.tagName})}).toBe('SPAN', { timeout: 15000 });
+	const initialEmotes = await sprite.evaluate(el => { return JSON.parse(el.getRootNode().host.getAttribute('emotes') || '{}'); });
 	await sprite.evaluate(el => { el.getRootNode().host.setAttribute('emotes', '{}'); });
 	await expect.poll(() => { return sprite.evaluate(el => { return el.tagName; }); }).toBe('SPAN', { timeout: 15000 });
 	const base = await sprite.evaluate(el => { return el.querySelector('img').currentSrc; });
@@ -91,11 +98,34 @@ test('missing expressions and malformed metadata retain the base sprite', async 
 		actor.setAttribute('emotes', '{}');
 		actor.setAttribute('expression', 'sad');
 		actor.setAttribute('talking', '');
-		actor.setAttribute('paused', '');
+		actor.setAttribute('paused', 'false');
 	});
+	await expect(page.getByRole('status', { name: 'Sprite state' })).toHaveText('idle · down · sad · talking · paused');
 	await expect(sprite).toBeVisible();
 	await expect.poll(() => { return sprite.evaluate(el => { return el.querySelector('img')?.currentSrc; }); }).toBe(base);
-	await sprite.evaluate(el => {return el.getRootNode().host.setAttribute('emotes', '{broken')});
+	// When an expression has an emoteSheet but no talkSheet, talking keeps the emoteSheet on odd steps.
+	if (initialEmotes.happy?.emoteSheet) {
+		await sprite.evaluate((el, emoteSheet) => {
+			const actor = el.getRootNode().host;
+			actor.removeAttribute('paused');
+			actor.setAttribute('interval', '50');
+			actor.setAttribute('emotes', JSON.stringify({ happy: { emoteSheet } }));
+			actor.setAttribute('expression', 'happy');
+			actor.setAttribute('talking', '');
+		}, initialEmotes.happy.emoteSheet);
+		await expect.poll(() => { return sprite.evaluate((el, expected) => { return el.querySelector('img')?.currentSrc.includes(expected); }, initialEmotes.happy.emoteSheet); }, { timeout: 15000 }).toBe(true);
+		await page.waitForTimeout(120);
+		await expect.poll(() => { return sprite.evaluate((el, expected) => { return el.querySelector('img')?.currentSrc.includes(expected); }, initialEmotes.happy.emoteSheet); }).toBe(true);
+	}
+	const errorReason = await sprite.evaluate(el => {
+		const actor = el.getRootNode().host;
+		let reason = '';
+		actor.addEventListener('actor-error', (event) => { ({ reason } = event.detail); }, { once: true });
+		actor.setAttribute('paused', '');
+		actor.setAttribute('emotes', '{broken');
+		return reason;
+	});
+	expect(errorReason).toBe('Invalid emotes JSON');
 	await expect(sprite).toBeVisible();
 	await expect.poll(() => { return sprite.evaluate(el => { return el.querySelector('img')?.currentSrc; }); }).toBe(base);
 });
@@ -108,13 +138,22 @@ test('failed base URL preserves fallback and changing src recovers', async ({ pa
 	const source = await sprite.evaluate(el => {return el.getRootNode().host.getAttribute('src')});
 	await sprite.evaluate(el => {
 		const actor = el.getRootNode().host;
+		window.actorEvents = [];
+		actor.addEventListener('actor-error', (event) => { window.actorEvents.push({ type: 'error', detail: event.detail }); });
+		actor.addEventListener('actor-load', (event) => { window.actorEvents.push({ type: 'load', detail: event.detail }); });
 		actor.setAttribute('emotes', '{}');
 		actor.setAttribute('src', '/missing-rpg-sprite.png');
 	});
 	await expect(sprite).toBeVisible();
 	await expect.poll(() => {return sprite.evaluate(el => {return el.tagName})}).toBe('IMG');
+	await expect.poll(() => { return page.evaluate(() => { return window.actorEvents.length; }); }).toBe(1);
 	await sprite.evaluate((el, src) => {return el.closest('rpg-actor').setAttribute('src', src)}, source);
 	await expect.poll(() => {return sprite.evaluate(el => {return el.tagName})}).toBe('SPAN', { timeout: 15000 });
+	const events = await page.evaluate(() => { return window.actorEvents; });
+	expect(events).toEqual([
+		{ type: 'error', detail: { reason: 'Sprite image unavailable', src: expect.stringMatching(/\/missing-rpg-sprite\.png$/) } },
+		{ type: 'load', detail: { src: expect.stringContaining(source) } },
+	]);
 });
 
 test('showcase cycles poses and reconnection resumes without duplicate controls', async ({ page, javaScriptEnabled }) => {
@@ -139,9 +178,12 @@ test('registry distributes the portable package and machine-readable interface',
 	const [declaration] = (await manifest.json()).modules[0].declarations;
 	expect(declaration.tagName).toBe('rpg-actor');
 	expect(declaration.attributes.map(attr => {return attr.name})).toEqual(expect.arrayContaining(['src', 'emotes', 'expression', 'talking', 'animation', 'direction', 'paused', 'showcase', 'frame']));
-	await Promise.all(['index.js', 'rpg-actor.js', 'package.json', 'README.md', 'LICENSE'].map(async (file) => {
+	await Promise.all(['index.js', 'rpg-actor.js', 'package.json', 'README.md', 'LICENSE', 'social.png'].map(async (file) => {
 		expect((await request.get(`/components/rpg-actor/${file}`)).ok()).toBe(true);
 	}));
+	const fragment = await request.get(path, { headers: { 'X-Fragment': 'true' } });
+	expect(fragment.ok()).toBe(true);
+	expect(await fragment.text()).not.toMatch(/<!doctype|<html[\s>]/i);
 });
 
 test('published expressions render distinct faces and talking alternates mouth sheets', async ({ page, request, javaScriptEnabled }) => {

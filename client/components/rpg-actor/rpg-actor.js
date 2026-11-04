@@ -27,14 +27,14 @@ export class RpgActor extends HTMLElement {
 	#images = new Map();
 	/** @type {Record<string, { emoteSheet?: string, talkSheet?: string }>} */
 	#emotes = {};
-	#refresh = () => { this.#schedule(); this.#draw(); };
+	#refresh = () => { this.#draw(); this.#schedule(); };
 
 	constructor() {
 		super();
 		const style = document.createElement('style');
 		style.textContent = `:host{display:inline-flex;flex-direction:column;align-items:center;gap:.5rem;max-width:100%}
 			span{display:block;position:relative;overflow:hidden;width:var(--rpg-actor-size,144px);max-width:100%;aspect-ratio:1;image-rendering:pixelated}
-			img{position:absolute;max-width:none;display:block}
+			img{position:absolute;inset:0 auto auto 0;max-width:none;display:block}
 			button{font:inherit;color:inherit;background:transparent;border:1px solid currentColor;border-radius:.4rem;padding:.5rem .75rem;min-height:44px;cursor:pointer}
 			button:focus-visible{outline:3px solid currentColor;outline-offset:3px}
 			[hidden]{display:none!important}`;
@@ -63,14 +63,18 @@ export class RpgActor extends HTMLElement {
 
 	/** @param {string} name @param {string | null} before @param {string | null} after */
 	attributeChangedCallback(name, before, after) {
-		if (before === after || !this.isConnected || this.#cycling) { return; }
-		if (name === 'emotes' || name === 'src') {
+		if (before === after || this.#cycling) { return; }
+		if (name === 'src') {
 			this.#images.clear();
-			this.#parseEmotes();
-			this.#viewport.hidden = true;
-			this.#slot.hidden = false;
+		} else if (name === 'emotes') {
+			const baseUrl = this.#url(this.getAttribute('src') || '');
+			const baseImage = baseUrl ? this.#images.get(baseUrl) : null;
+			this.#images.clear();
+			if (baseImage) { this.#images.set(baseUrl, baseImage); }
 		}
 		if (name !== 'paused' && name !== 'label') { this.#step = 0; this.#elapsed = 0; }
+		if (!this.isConnected) { return; }
+		if (name === 'emotes') { this.#parseEmotes(); }
 		this.#refresh();
 		this.#emit('actor-change', this.#state());
 	}
@@ -108,7 +112,7 @@ export class RpgActor extends HTMLElement {
 		const state = this.#state();
 		this.#button.textContent = state.paused ? 'Resume animation' : 'Pause animation';
 		this.#button.hidden = this.#viewport.hidden || this.#motion.matches || !(state.animation === 'walk' || state.talking || this.hasAttribute('showcase'));
-		if (!this.isConnected || document.hidden || this.#motion.matches || state.paused) { return; }
+		if (!this.isConnected || this.#viewport.hidden || document.hidden || this.#motion.matches || state.paused) { return; }
 		const interval = Math.max(50, integer(this.getAttribute('interval'), 150, 2000));
 		if (state.animation !== 'walk' && !state.talking && !this.hasAttribute('showcase')) { return; }
 		this.#timer = window.setInterval(() => {
@@ -117,7 +121,10 @@ export class RpgActor extends HTMLElement {
 			if (this.hasAttribute('showcase') && this.#elapsed >= 2400) {
 				this.#elapsed = 0;
 				this.#scene++;
-				const available = expressions.filter((name) => { return name === 'neutral' || this.#emotes[name]?.emoteSheet; });
+				const available = expressions.filter((name) => {
+					const url = this.#url(this.#emotes[name]?.emoteSheet || '');
+					return name === 'neutral' || (url && this.#images.get(url) !== null);
+				});
 				// Hold each face for an idle, walking, and talking pose. Reflect it
 				// in HTML so consumers can inspect the state without private APIs.
 				this.#cycling = true;
@@ -136,8 +143,9 @@ export class RpgActor extends HTMLElement {
 	 * @param {string} source */
 	#url(source) {
 		try {
-			const url = new URL(source, this.baseURI);
-			return source && ['https:', 'http:'].includes(url.protocol) && !url.username && !url.password ? url.href : '';
+			const trimmed = source.trim();
+			const url = new URL(trimmed, this.baseURI);
+			return trimmed && ['https:', 'http:'].includes(url.protocol) && !url.username && !url.password ? url.href : '';
 		} catch { return ''; }
 	}
 
@@ -152,14 +160,14 @@ export class RpgActor extends HTMLElement {
 			this.#images.set(url, image);
 			image.onload = () => {
 				if (this.#images.get(url) !== image || !this.isConnected) { return; }
-				this.#draw(); this.#schedule();
+				this.#refresh();
 				this.#emit('actor-load', { src: url });
 			};
 			image.onerror = () => {
 				if (this.#images.get(url) !== image) { return; }
 				this.#images.set(url, null);
 				if (this.isConnected) {
-					this.#draw();
+					this.#refresh();
 					this.#emit('actor-error', { reason: 'Sprite image unavailable', src: url });
 				}
 			};
@@ -173,10 +181,9 @@ export class RpgActor extends HTMLElement {
 		const state = this.#state();
 		const variant = this.#emotes[state.expression];
 		const openMouth = state.talking && this.#step % 2 === 1 && !this.#motion.matches;
-		const source = (openMouth && variant?.talkSheet) || variant?.emoteSheet || this.getAttribute('src') || '';
-		let image = this.#image(source);
-		let emote = source !== this.getAttribute('src');
-		if (!image) { image = this.#image(this.getAttribute('src') || ''); emote = false; }
+		const talk = openMouth && variant?.talkSheet ? this.#image(variant.talkSheet) : null;
+		const emote = talk || (variant?.emoteSheet ? this.#image(variant.emoteSheet) : null);
+		const image = emote || this.#image(this.getAttribute('src') || '');
 		if (!image) {
 			this.#viewport.hidden = true; this.#slot.hidden = false; this.#button.hidden = true;
 			return;
@@ -192,13 +199,11 @@ export class RpgActor extends HTMLElement {
 		const row = Math.min(directions.indexOf(state.direction), rows - 1);
 		image.style.width = `${columns * 100}%`;
 		image.style.height = `${rows * 100}%`;
-		image.style.left = `${-frame * 100}%`;
-		image.style.top = `${-row * 100}%`;
+		image.style.transform = `translate(${(-frame * 100) / columns}%, ${(-row * 100) / rows}%)`;
 		this.#viewport.style.aspectRatio = `${image.naturalWidth / columns} / ${image.naturalHeight / rows}`;
 		this.#viewport.setAttribute('aria-label', this.getAttribute('label') || 'RPG character');
 		if (this.#viewport.firstChild !== image) { this.#viewport.replaceChildren(image); }
 		this.#viewport.hidden = false; this.#slot.hidden = true;
-		this.#button.hidden = this.#motion.matches || !(state.animation === 'walk' || state.talking || this.hasAttribute('showcase'));
 	}
 
 	/** @param {string} name @param {object} detail */
