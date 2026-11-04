@@ -41,7 +41,8 @@ registration is guarded and the first definition wins. Import only in browsers.
 | `expression` | neutral | Missing expression sheets fall back to src. |
 | `talking` | false | Presence alternates open and closed mouth sheets. |
 | `paused` | false | Presence freezes animation. Reflected by the built-in button. |
-| `showcase` | false | Presence cycles available expressions, directions and poses every 2.4 seconds. |
+| `showcase` | false | Presence cycles available expressions, directions and poses. |
+| `showcase-duration` | 2400 | Duration of each pose in ms, 150–60000. Invalid values use 2400; values below 150 become 150. Changes take effect immediately. |
 | `interval` | 150 | Frame duration in ms, 50–2000. Invalid values use 150; values below 50 become 50. |
 | `frame` | absent | Optional zero-based column override; invalid values use idle column. |
 | `label` | RPG character | Accessible image name. |
@@ -49,7 +50,15 @@ registration is guarded and the first definition wins. Import only in browsers.
 Expressions: neutral, blink, happy, sad, angry, silly, tired, bruh, pout.
 Directions: down, left, right, up. Unknown enums use their defaults. Boolean
 attributes use presence: paused="false" still pauses. Remove showcase before
-manual control. The showcase reflects its current state to the attributes.
+manual control. The showcase reflects its current state to the attributes. Each expression holds
+its direction through idle, walking, and talking before advancing. Frame speed
+(`interval`) is independent of pose duration, which rounds up to the next frame.
+
+```html
+<rpg-actor src="/sprites/me.png" showcase showcase-duration="3000">
+	<img src="/sprites/portrait.png" alt="My character">
+</rpg-actor>
+```
 Custom base sheets ping-pong across columns; emotes always use the standard 3×4.
 The idle column is 1 (or 0 for a one-column sheet). Frame overrides walking only.
 

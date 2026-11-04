@@ -33,7 +33,7 @@ export function aboutFragment(social) {
 					</li>
 					<li><a href="mailto:jesse@jessehattabaugh.com">Email</a></li>
 				</ul>
-				${actorFragment(social)}
+				${actorFragment(social, true)}
 				${postsFragment(social)}
 			</article>
 		`;

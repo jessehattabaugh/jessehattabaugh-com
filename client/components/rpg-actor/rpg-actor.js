@@ -12,7 +12,7 @@ function integer(value, fallback, max) {
 
 /** State flows through attributes; lifecycle owns every timer and listener. */
 export class RpgActor extends HTMLElement {
-	static observedAttributes = ['src', 'emotes', 'columns', 'rows', 'animation', 'direction', 'expression', 'talking', 'paused', 'showcase', 'interval', 'frame', 'label'];
+	static observedAttributes = ['src', 'emotes', 'columns', 'rows', 'animation', 'direction', 'expression', 'talking', 'paused', 'showcase', 'showcase-duration', 'interval', 'frame', 'label'];
 	#root = this.attachShadow({ mode: 'open' });
 	#viewport = document.createElement('span');
 	#slot = document.createElement('slot');
@@ -118,8 +118,9 @@ export class RpgActor extends HTMLElement {
 		this.#timer = window.setInterval(() => {
 			this.#step++;
 			this.#elapsed += interval;
-			if (this.hasAttribute('showcase') && this.#elapsed >= 2400) {
+			if (this.hasAttribute('showcase') && this.#elapsed >= Math.max(150, integer(this.getAttribute('showcase-duration'), 2400, 60000))) {
 				this.#elapsed = 0;
+				this.#step = 0;
 				this.#scene++;
 				const available = expressions.filter((name) => {
 					const url = this.#url(this.#emotes[name]?.emoteSheet || '');
@@ -129,7 +130,7 @@ export class RpgActor extends HTMLElement {
 				// in HTML so consumers can inspect the state without private APIs.
 				this.#cycling = true;
 				this.setAttribute('expression', available[Math.floor(this.#scene / 3) % available.length]);
-				this.setAttribute('direction', directions[this.#scene % directions.length]);
+				this.setAttribute('direction', directions[Math.floor(this.#scene / 3) % directions.length]);
 				this.setAttribute('animation', this.#scene % 3 === 1 ? 'walk' : 'idle');
 				this.toggleAttribute('talking', this.#scene % 3 === 2);
 				this.#cycling = false;

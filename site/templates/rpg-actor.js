@@ -75,7 +75,8 @@ actor.addEventListener('actor-change', ({ detail }) => console.log(detail));`}</
 					<tr><th scope="row"><code>direction</code></th><td>down (default), left, right, up.</td></tr>
 					<tr><th scope="row"><code>animation</code></th><td>idle (default) or walk. Walking uses the standard 0, 1, 2, 1 frame order.</td></tr>
 					<tr><th scope="row"><code>talking</code></th><td>Boolean presence alternates closed and open mouth sheets.</td></tr>
-					<tr><th scope="row"><code>showcase</code></th><td>Boolean presence cycles available expressions, directions, walking, idle, and talking every 2.4 seconds.</td></tr>
+					<tr><th scope="row"><code>showcase</code></th><td>Boolean presence cycles available expressions, directions, walking, idle, and talking. Each expression keeps its direction through the three poses.</td></tr>
+					<tr><th scope="row"><code>showcase-duration</code></th><td>Milliseconds per pose, default 2400; 150–60000, rounded up to the next frame. Invalid values use 2400; values below 150 become 150. For example: <code>showcase showcase-duration="3000"</code>.</td></tr>
 					<tr><th scope="row"><code>paused</code></th><td>Boolean presence freezes playback. The built-in pause button reflects this attribute.</td></tr>
 					<tr><th scope="row"><code>columns</code>, <code>rows</code></th><td>Base grid, default 3 × 4; 1–16. Emotes always use 3 × 4.</td></tr>
 					<tr><th scope="row"><code>interval</code></th><td>Milliseconds per frame, default 150; clamped to a minimum of 50, maximum accepted value 2000.</td></tr>

@@ -223,3 +223,42 @@ test('published expressions render distinct faces and talking alternates mouth s
 		await expect.poll(async () => { return closed.equals(await sprite.screenshot()); }, { timeout: 15000 }).toBe(false);
 	}
 });
+
+test('home keeps its selected pose while About opts into adjustable showcase playback', async ({ page, javaScriptEnabled }) => {
+	test.skip(!javaScriptEnabled, 'Native fallback coverage above checks both pages without JavaScript.');
+	await page.goto('/');
+	const sprite = page.getByRole('img', { name: imageName, exact: true });
+	await expect.poll(() => { return sprite.evaluate(el => { return el.tagName; }); }).toBe('SPAN');
+	await expect.poll(() => { return sprite.evaluate(el => { return el.getRootNode().host.hasAttribute('showcase'); }); }).toBe(false);
+	await page.goto('/about');
+	await expect.poll(() => { return sprite.evaluate(el => { return el.tagName; }); }).toBe('SPAN');
+	await page.clock.install();
+	await sprite.evaluate(el => {
+		const actor = el.getRootNode().host;
+		actor.setAttribute('showcase-duration', '3000');
+		actor.setAttribute('interval', '150');
+	});
+	const pose = () => { return sprite.evaluate(el => {
+		const actor = el.getRootNode().host;
+		return [actor.getAttribute('animation'), actor.getAttribute('direction'), actor.getAttribute('expression'), actor.hasAttribute('talking')];
+	}); };
+	const initial = await pose();
+	await page.clock.runFor(2850);
+	expect(await pose()).toEqual(initial);
+	await page.clock.runFor(150);
+	// First walking pose keeps the face and direction steady.
+	expect(await pose()).toEqual(['walk', 'down', 'neutral', false]);
+	await page.clock.runFor(3000);
+	expect(await pose()).toEqual(['idle', 'down', 'neutral', true]);
+	await page.getByRole('button', { name: 'Pause animation', exact: true }).click();
+	const paused = await pose();
+	await page.clock.runFor(6000);
+	expect(await pose()).toEqual(paused);
+	await page.getByRole('button', { name: 'Resume animation', exact: true }).click();
+	// Invalid durations fall back to 2400 ms, even after a live attribute change.
+	await sprite.evaluate(el => { el.getRootNode().host.setAttribute('showcase-duration', 'invalid'); });
+	await page.clock.runFor(2250);
+	expect(await pose()).toEqual(paused);
+	await page.clock.runFor(150);
+	expect(await pose()).not.toEqual(paused);
+});
