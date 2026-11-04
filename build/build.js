@@ -8,6 +8,7 @@ import { staticPages } from '../site/pages.js';
 import { componentCatalog } from '../site/components.js';
 import { loadSocial } from '../site/data/atproto.js';
 import { workerVariables } from '../scripts/environment.js';
+import { buildActorCard } from './rpg-actor-card.js';
 import { buildBranding } from './branding.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -54,6 +55,7 @@ async function build() {
 	// Let consumers and agents discover modules without scraping documentation.
 	await writeFile(join(OUT, 'components', 'catalog.json'), JSON.stringify({ components: componentCatalog }, null, '\t'), 'utf8');
 	await buildBranding(OUT, social);
+	await buildActorCard(OUT, social);
 
 	// Client-side runtime modules imported by the Rainbow Hour app
 	// (page dashboard + module service worker) from /shared/*.js — one source

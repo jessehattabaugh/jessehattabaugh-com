@@ -1,3 +1,4 @@
+import { rpgActor } from './templates/rpg-actor.js';
 import { home } from './templates/home.js';
 import { about } from './templates/about.js';
 import { colophon } from './templates/colophon.js';
@@ -10,6 +11,7 @@ import { components, disclosurePanel } from './templates/components.js';
 /** @type {Record<string, (social?: import('./data/atproto.js').Social) => import('../shared/html.js').Raw>} */
 export const staticPages = {
 	home,
+	rpgActor,
 	about,
 	giving,
 	colophon,

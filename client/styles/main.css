@@ -126,7 +126,7 @@
 	figure[data-sprite] {
 		margin-block: var(--space-lg);
 		> div { width: 144px; height: 144px; overflow: hidden; }
-		img { max-width: none; width: calc(144px * var(--sprite-columns)); height: calc(144px * var(--sprite-rows)); image-rendering: pixelated; transform: translateX(-144px); }
+		img { max-width: none; width: calc(144px * var(--sprite-columns)); height: calc(144px * var(--sprite-rows)); image-rendering: pixelated; transform: translate(calc(-144px * var(--sprite-column, 1)), calc(-144px * var(--sprite-row, 0))); }
 		figcaption { font-size: 0.875rem; color: var(--color-text-muted); }
 	}
 	section[aria-labelledby='actor-heading'] dl {
@@ -232,5 +232,27 @@
 @layer utilities {
 	@view-transition {
 		navigation: auto;
+	}
+}
+
+@layer components {
+	[data-actor-page] {
+		th { min-width: 7rem; }
+		> p:first-of-type + h1 + p { font-size: clamp(1.5rem, 4vw, 2.25rem); line-height: 1.2; }
+		[data-actor-stage] {
+			display: grid;
+			grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr));
+			gap: var(--space-lg);
+			padding: var(--space-lg);
+			border: 1px solid var(--color-border);
+			border-radius: var(--radius-lg);
+			background: var(--color-surface);
+			> div { display: grid; place-items: center; min-height: 250px; background: radial-gradient(ellipse at center, #8062ba33, transparent 70%); }
+			form { display: grid; gap: var(--space-sm); }
+			label { display: block; }
+			select { width: 100%; }
+			label:has(input[type="checkbox"]) { display: flex; align-items: center; gap: .6rem; min-height: 44px; }
+			input[type="checkbox"] { width: 1.2rem; height: 1.2rem; margin: 0; }
+		}
 	}
 }

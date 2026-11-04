@@ -1,0 +1,231 @@
+{
+	"schemaVersion": "1.0.0",
+	"readme": "README.md",
+	"modules": [
+		{
+			"kind": "javascript-module",
+			"path": "rpg-actor.js",
+			"declarations": [
+				{
+					"kind": "class",
+					"name": "RpgActor",
+					"superclass": {
+						"name": "HTMLElement"
+					},
+					"customElement": true,
+					"tagName": "rpg-actor",
+					"description": "Attribute-driven rpg.actor sprites, expressions and talking with native HTML fallback.",
+					"attributes": [
+						{
+							"name": "src",
+							"type": {
+								"text": "string"
+							},
+							"default": "",
+							"description": "Base sprite sheet URL, relative or HTTP(S)."
+						},
+						{
+							"name": "emotes",
+							"type": {
+								"text": "string"
+							},
+							"default": "{}",
+							"description": "JSON map of expression names to emoteSheet and optional talkSheet image URLs."
+						},
+						{
+							"name": "columns",
+							"type": {
+								"text": "number"
+							},
+							"default": "3",
+							"description": "Base grid columns, 1–16. Invalid values use 3; zero becomes 1."
+						},
+						{
+							"name": "rows",
+							"type": {
+								"text": "number"
+							},
+							"default": "4",
+							"description": "Base grid rows, 1–16. Invalid values use 4; zero becomes 1."
+						},
+						{
+							"name": "animation",
+							"type": {
+								"text": "'idle' | 'walk'"
+							},
+							"default": "idle",
+							"description": "Walking uses ping-pong columns, normally 0,1,2,1."
+						},
+						{
+							"name": "direction",
+							"type": {
+								"text": "'down' | 'left' | 'right' | 'up'"
+							},
+							"default": "down",
+							"description": "Direction row, clamped to the sheet rows."
+						},
+						{
+							"name": "expression",
+							"type": {
+								"text": "'neutral' | 'blink' | 'happy' | 'sad' | 'angry' | 'silly' | 'tired' | 'bruh' | 'pout'"
+							},
+							"default": "neutral",
+							"description": "Missing expression sheets fall back to src."
+						},
+						{
+							"name": "talking",
+							"type": {
+								"text": "boolean"
+							},
+							"default": "false",
+							"description": "Presence alternates open and closed mouth sheets."
+						},
+						{
+							"name": "paused",
+							"type": {
+								"text": "boolean"
+							},
+							"default": "false",
+							"description": "Presence freezes animation. Reflected by the built-in button."
+						},
+						{
+							"name": "showcase",
+							"type": {
+								"text": "boolean"
+							},
+							"default": "false",
+							"description": "Presence cycles available expressions, directions and poses every 2.4 seconds."
+						},
+						{
+							"name": "interval",
+							"type": {
+								"text": "number"
+							},
+							"default": "150",
+							"description": "Frame duration in ms, 50–2000. Invalid values use 150; values below 50 become 50."
+						},
+						{
+							"name": "frame",
+							"type": {
+								"text": "number"
+							},
+							"description": "Optional zero-based column override; invalid values use idle column."
+						},
+						{
+							"name": "label",
+							"type": {
+								"text": "string"
+							},
+							"default": "RPG character",
+							"description": "Accessible image name."
+						}
+					],
+					"events": [
+						{
+							"name": "actor-change",
+							"type": {
+								"text": "CustomEvent<{ animation: string, direction: string, expression: string, talking: boolean, paused: boolean }>"
+							},
+							"description": "After observed attribute changes or showcase steps; not on initialization. Bubbles and composed; not cancelable."
+						},
+						{
+							"name": "actor-load",
+							"type": {
+								"text": "CustomEvent<{ src: string }>"
+							},
+							"description": "After a sheet loads. Bubbles and composed; not cancelable."
+						},
+						{
+							"name": "actor-error",
+							"type": {
+								"text": "CustomEvent<{ reason: string, src: string }>"
+							},
+							"description": "Malformed emotes JSON or image failure. Bubbles and composed; not cancelable."
+						}
+					],
+					"slots": [
+						{
+							"name": "",
+							"description": "Fallback HTML shown before loading and when base/selected sheets fail."
+						}
+					],
+					"cssParts": [
+						{
+							"name": "sprite",
+							"description": "Cropped sprite viewport."
+						},
+						{
+							"name": "controls",
+							"description": "Built-in pause/resume button."
+						}
+					],
+					"cssProperties": [
+						{
+							"name": "--rpg-actor-size",
+							"default": "144px",
+							"description": "Rendered sprite width."
+						}
+					],
+					"members": []
+				},
+				{
+					"kind": "variable",
+					"name": "expressions",
+					"type": {
+						"text": "ReadonlyArray<string>"
+					},
+					"description": "The nine supported expression names."
+				},
+				{
+					"kind": "variable",
+					"name": "directions",
+					"type": {
+						"text": "ReadonlyArray<string>"
+					},
+					"description": "The four direction names in sprite row order."
+				}
+			],
+			"exports": [
+				{
+					"kind": "js",
+					"name": "RpgActor",
+					"declaration": {
+						"name": "RpgActor",
+						"module": "rpg-actor.js"
+					}
+				},
+				{
+					"kind": "js",
+					"name": "expressions",
+					"declaration": {
+						"name": "expressions",
+						"module": "rpg-actor.js"
+					}
+				},
+				{
+					"kind": "js",
+					"name": "directions",
+					"declaration": {
+						"name": "directions",
+						"module": "rpg-actor.js"
+					}
+				}
+			]
+		},
+		{
+			"kind": "javascript-module",
+			"path": "index.js",
+			"declarations": [],
+			"exports": [
+				{
+					"kind": "custom-element-definition",
+					"name": "rpg-actor",
+					"declaration": {
+						"name": "RpgActor",
+						"module": "rpg-actor.js"
+					}
+				}
+			]
+		}
+	]
+}

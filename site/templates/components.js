@@ -1,5 +1,6 @@
 import { html } from '../../shared/html.js';
 import { layout } from '../../shared/templates/layout.js';
+import { actorSprite } from './social.js';
 import { componentCatalog } from '../components.js';
 
 /** @param {string} label @param {string} language @param {string} source */
@@ -30,7 +31,7 @@ export function components(social) {
 			${componentCatalog.map((component) => { return html`<section aria-label="${component.tag}">
 				<h2><a href="${component.path}">${component.tag}</a></h2>
 				<p>${component.description}</p>
-				${showcases.get(component.tag)?.() ?? html``}
+				${component.tag === 'rpg-actor' ? actorSprite(social) : showcases.get(component.tag)?.() ?? html``}
 				<p><a href="${component.path}">Documentation and examples</a> · <a href="${component.source}">Source on GitHub</a> · <a href="${component.manifest}">Custom Elements Manifest</a></p>
 			</section>`; })}
 			<h2>Built for people and their agents</h2>

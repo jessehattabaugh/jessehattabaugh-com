@@ -23,7 +23,7 @@ test('catalog showcases a disclosure and links to its documentation', async ({ p
 	await page.goto('/components/');
 	await page.getByText('Try the disclosure', { exact: true }).click();
 	await expect(page.getByText(/This content is ordinary HTML/)).toBeVisible();
-	await page.getByRole('link', { name: 'Documentation and examples' }).click();
+	await page.getByRole('region', { name: 'disclosure-panel', exact: true }).getByRole('link', { name: 'Documentation and examples' }).click();
 	await expect(page.getByRole('heading', { name: 'disclosure-panel', level: 1 })).toBeVisible();
 	await expect(page.getByRole('link', { name: 'Element module on GitHub' })).toHaveAttribute('href', /github.com.*disclosure-panel.js$/);
 });

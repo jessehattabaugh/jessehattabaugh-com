@@ -87,3 +87,11 @@ The map supports mouse, pen, touch dragging, pinch/wheel zoom, and keyboard navi
 Location permission is optional: native map links also work without JavaScript.
 Searches, shared sightings, and drive starting points use browser location or the
 selected map center; coordinates are carried in hidden fields, never typed.
+
+`rpg-actor` renders the home/About sprite and has a playground at
+`/components/rpg-actor/`. Its portable package accepts sprite URLs and expression
+sheet URLs through attributes; see its README and Custom Elements Manifest.
+The server reads optional emote blobs from the owner's public AT Protocol record
+and serves them through the existing allow-listed image proxy. The owner must
+publish the rpg.actor emote upgrade before their expressions appear. The home
+page uses the build snapshot; About and the playground refresh public records.

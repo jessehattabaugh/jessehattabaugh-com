@@ -9,7 +9,7 @@ const handle = workerVariables().ATPROTO_HANDLE;
 async function loaded(image) {
 	await image.scrollIntoViewIfNeeded();
 	await expect(image).toBeVisible();
-	await expect.poll(() => {return image.evaluate((element) => {return element instanceof HTMLImageElement && element.complete && element.naturalWidth > 0})}).toBe(true);
+	await expect.poll(() => {return image.evaluate((element) => {const img = element instanceof HTMLImageElement ? element : element.querySelector('img'); return img instanceof HTMLImageElement && img.complete && img.naturalWidth > 0})}).toBe(true);
 }
 
 test('About shows my Bluesky identity, avatar, and readable posts', async ({ page }) => {
