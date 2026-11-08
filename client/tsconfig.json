@@ -13,8 +13,8 @@
 	},
 	"include": [
 		"**/*.js",
-		"../shared/solar.js",
-		"../shared/rainbow.js",
-		"../shared/weather.js"
+		"../apps/rainbow-hour/solar.js",
+		"../apps/rainbow-hour/rainbow.js",
+		"../apps/rainbow-hour/weather.js"
 	]
 }

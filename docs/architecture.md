@@ -22,7 +22,9 @@ It does not bundle app server code into the public asset directory.
 
 - `apps/<name>/worker.js`: app request orchestration and authorization.
 - `apps/<name>/data.js`: app-owned persistence. Lightsfinder adds focused model,
-	photo, and route-planning modules; Rainbow Hour also owns its scheduled job.
+	photo, and route-planning modules; Rainbow Hour also owns its scheduled job
+	and its solar, rainbow, and weather modules, which the build copies into the
+	served app assets.
 - `apps/<name>/templates.js`: pure page and fragment functions.
 - `site/`: public content, external social-data access, and public page templates.
 - `shared/data/accounts.js`, `passkeys.js`, `email-verification.js`: identity
@@ -52,11 +54,6 @@ identity/messages boundary intentionally. The auth handler also coordinates
 message notification after commit. A future decoupling needs transactional design
 and replay/error tests; moving those writes into independent calls would weaken
 consistency. No transaction or schema behavior changed in this reorganization.
-
-`shared/solar.js`, `rainbow.js`, and `weather.js` are shared between the Worker and
-browser/service-worker runtimes. Their `/shared/*.js` URLs are kept stable for
-installed Rainbow Hour workers. This is runtime sharing, not a claim that every
-app uses those algorithms. Add no unrelated app code there.
 
 Runtime types stay separate: Worker, Node/build, and browser code each have their
 own TypeScript project. App templates/data are included explicitly where needed.

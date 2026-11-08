@@ -9,10 +9,10 @@
  *      42° from the sun; the sun must be above the horizon but below ~42° for
  *      the arc to clear the ground.
  *
- * Pure functions over inputs the caller supplies (sun position from
- * shared/solar.js, weather from the device's own Open-Meteo fetch) so the same
- * decision runs in the page and in the service worker. Thresholds are
- * deliberately coarse — this is a "look up!" nudge, not a forecast product.
+ * Pure functions over inputs the caller supplies (sun position from the sibling
+ * solar.js, weather from the device's own Open-Meteo fetch) so the same decision
+ * runs in the page and in the service worker. Thresholds are deliberately coarse
+ * — this is a "look up!" nudge, not a forecast product.
  */
 
 /** Sun altitude band in which rainbows can appear. Shared by client checks and the wake cron. */

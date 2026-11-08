@@ -1,8 +1,8 @@
 import { render } from '../../shared/html.js';
 import { rainbowHourPage, rainbowHourFragment } from './templates.js';
-import { rainbowWindows, sunPosition } from '../../shared/solar.js';
-import { evaluateRainbowConditions } from '../../shared/rainbow.js';
-import { fetchRainbowWeather } from '../../shared/weather.js';
+import { rainbowWindows, sunPosition } from './solar.js';
+import { evaluateRainbowConditions } from './rainbow.js';
+import { fetchRainbowWeather } from './weather.js';
 import { saveRainbowSubscription, deleteRainbowSubscription, hasRainbowSubscription } from './data.js';
 import { paths } from '../../shared/routes.js';
 import { readForm } from '../../worker/http/request.js';
