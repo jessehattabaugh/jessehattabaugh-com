@@ -11,12 +11,14 @@ or runtime dependencies.
 	functions call their fragment function directly; `X-Fragment: true` requests
 	receive that fragment from the same URL.
 - `build/build.js`: renders static pages to `dist/client/` and copies browser assets.
-- `worker/index.js`: dispatches the registered dynamic routes, applies security
+- `server/index.js`: dispatches the registered dynamic routes, applies security
 	headers, and serves assets with the custom 404 and standard error pages.
-- `shared/data/` and `apps/*/data.js`: prepared D1 queries; `db/migrations/` changes the schema.
-- `client/enhance/`: optional form/link transitions, installation, and Web Push.
-- `client/apps/`: app enhancements and service workers.
-- `tests/`: functional browser flows against an isolated deployed preview.
+- `server/shared/data/` and `server/apps/*/data.js`: prepared D1 queries; `server/db/migrations/` changes the schema.
+- `client/shared/enhance/`: optional form/link transitions, installation, and Web Push.
+- `client/apps/`: app enhancements and colocated `sw.js` service workers.
+- `client/shared/`: reusable browser components, enhancements, styles, and cross-context storage.
+- `build/assets.js`: preserves public asset URLs while rebasing native ES-module imports.
+- `test/`: functional browser flows against an isolated deployed preview.
 
 Home, About, Giving away, Apps, Components, and Colophon have static builds. About,
 Giving away, and `/components/rpg-actor/` also render fresh public AT Protocol data
@@ -114,7 +116,7 @@ npm run check
 npm run build
 ```
 
-`npm run check` checks Worker, build/scripts, and browser code. `dist/` is generated.
+`npm run check` checks Cloudflare, Node/build, browser main-thread, and service-worker code. `dist/` is generated.
 Do not run functional tests against a local server.
 
 Regenerate the lockfile without an existing `node_modules` directory so optional
@@ -152,7 +154,7 @@ Worker runtime secrets (documented in `.dev.vars.example`):
 
 - `SESSION_SECRET`: random 32+ bytes, base64url encoded.
 - `VAPID_PUBLIC_KEY` and `VAPID_PRIVATE_KEY`: generate with
-	`node scripts/generate-vapid-keys.js`.
+	`node build/generate-vapid-keys.js`.
 - `OWNER_SETUP_TOKEN`: one-time owner setup credential.
 
 `EMAIL_FROM`, `VAPID_CONTACT`, and optional `OSRM_URL` in `.dev.vars` are
@@ -195,8 +197,8 @@ functional flows; Lighthouse covers the public pages and Lightsfinder’s four v
 
 `/apps/lightsfinder/` uses a dark palette with seasonal accents and offers a themed map, photo sightings, ratings/reports,
 regional season standings, and budgeted driving loops. Server code lives in
-`apps/lightsfinder/`; browser/PWA assets in `client/apps/lightsfinder/`.
-Only cross-app infrastructure stays in `shared/`. Core forms work without JS;
+`server/apps/lightsfinder/`; browser/PWA assets in `client/apps/lightsfinder/`.
+Cross-app server infrastructure stays in `server/shared/`; cross-app browser assets stay in `client/shared/`. Core forms work without JS;
 GPS, resizing, sharing, and installation are optional enhancements.
 
 Verified accounts can publish 10 sightings and upload 20 raster photos per day.
@@ -217,7 +219,7 @@ results can change with moderation and late submissions. Three distinct reports
 quarantine spam or mark lights taken down. Authors can mark their own displays
 taken down immediately; the existing site owner reviews `?view=moderation`.
 The offline PWA shell explains connectivity needs and caches no private pages,
-photos, or map tiles. See `tests/apps/lightsfinder.test.js` for functional flows/errors.
+photos, or map tiles. See `test/apps/lightsfinder.test.js` for functional flows/errors.
 
 ## Environment configuration
 
@@ -228,7 +230,7 @@ take precedence, and empty example values are ignored by Node commands. Wrangler
 reads `.dev.vars` for local development. Derived preview identity remains
 automatic; tests reject production or mismatched fixture databases.
 
-`node scripts/generate-vapid-keys.js` fills missing runtime secrets in
+`node build/generate-vapid-keys.js` fills missing runtime secrets in
 `.dev.vars` without printing or rotating existing values. For an existing
 deployment, keep its current secret values; generating a new session key signs
 users out if later deployed. `npm run secrets:upload` sends only the four
@@ -241,9 +243,13 @@ credentials, so it cannot override OAuth login. A general `CLOUDFLARE_API_TOKEN`
 can also supply fixtures when it has D1 permission. Tooling credentials and the
 test mailbox domain are never uploaded.
 
-Lightsfinder opts out of cross-document View Transitions because JS-disabled
-Chromium left snapshots intercepting native controls in deployed tests. Its
-optional fetch-and-swap form enhancement still uses View Transitions.
+The shared layout enables cross-document View Transitions only under
+`@media (scripting: enabled)`: Chromium otherwise left snapshots intercepting
+native controls in no-JS messaging/account flows. Lightsfinder and Giving away
+retain their explicit transition opt-outs. Optional fetch-and-swap enhancement
+still uses View Transitions. The full messaging/account suites exercise native
+controls with JavaScript disabled; the Rainbow Hour reload test waits for its
+transition to finish updating the URL before reloading.
 
 ## Crunch Time
 
@@ -271,11 +277,11 @@ The installable PWA caches a public offline explanation, never private history.
 Saving/feeding requires connectivity. Unique ledger IDs make retries harmless;
 meal spending is a single conditional prepared statement.
 
-Server code: `apps/crunch-time/worker.js`, `apps/crunch-time/data.js`, and the shared
-page/fragment in `apps/crunch-time/templates.js`. Browser assets and detector:
+Server code: `server/apps/crunch-time/worker.js`, `server/apps/crunch-time/data.js`, and the server-rendered
+page/fragment in `server/apps/crunch-time/templates.js`. Browser assets and detector:
 `client/apps/crunch-time/`. Additive schema: `007_crunch_time.sql`. Existing
 `SESSION_SECRET` and `DB` bindings suffice; no new configuration or dependencies.
-Tests: `tests/apps/crunch-time.test.js` and smoke/Lighthouse coverage. Native sensors,
+Tests: `test/apps/crunch-time.test.js` and smoke/Lighthouse coverage. Native sensors,
 speech, and wake lock are capability exceptions to the literal no-JS rule;
 manually logging and caring for Mochi remain the baseline.
 
@@ -285,7 +291,7 @@ Routine browser tests use isolated D1 fixture accounts and real signed sessions;
 they do not send email. The deployed Worker validates those sessions normally.
 When changing email verification or delivery, opt in to the real email suite:
 set `E2E_EMAIL_FLOW=1` and `E2E_EMAIL_DOMAIN` to a controlled catch-all mailbox
-domain in `.dev.vars`, then run `npm test -- tests/platform/email-verification.test.js`.
+domain in `.dev.vars`, then run `npm test -- test/platform/email-verification.test.js`.
 That suite sends real emails and consumes the Cloudflare sending allowance.
 Leave the flag off for ordinary runs. A missing mailbox domain is only an error
 when the email suite is explicitly enabled.

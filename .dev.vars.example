@@ -30,7 +30,7 @@ ATPROTO_HANDLE=jessehattabaugh.com
 # alone does not rotate them. Use secrets:upload to upload only this allow-list.
 # SESSION_SECRET: random 32+ bytes, base64url, required for signed account sessions.
 SESSION_SECRET=
-# Optional Web Push keys, generated together by scripts/generate-vapid-keys.js.
+# Optional Web Push keys, generated together by build/generate-vapid-keys.js.
 VAPID_PUBLIC_KEY=
 VAPID_PRIVATE_KEY=
 # Optional one-time credential for claiming the owner role.

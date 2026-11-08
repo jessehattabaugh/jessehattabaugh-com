@@ -70,29 +70,48 @@ export default [
 			'require-atomic-updates': 'warn',
 		},
 	},
-	// Runtime boundaries catch accidental DOM usage on the server and Node usage in browsers.
-	{ files: ['client/**/*.js'], ignores: ['client/**/sw.js'], languageOptions: { globals: globals.browser } },
+	// Each runtime gets only its own globals. Cross-runtime code uses Web APIs
+	// available to Node, Cloudflare Workers, and browsers, never DOM/Node bindings.
+	{ files: ['client/**/*.js'], ignores: ['client/**/sw.js', 'client/shared/rainbow-hour/**'], languageOptions: { globals: globals.browser } },
 	{ files: ['client/**/sw.js'], languageOptions: { globals: globals.serviceworker } },
-	{ files: ['worker/**/*.js', 'apps/**/*.js', 'site/**/*.js', 'shared/**/*.js'], languageOptions: { globals: { ...globals.worker, AbortSignal: 'readonly' } } },
-	{ files: ['build/**/*.js', 'scripts/**/*.js', 'tests/**/*.js', '*.mjs', 'playwright.config.js'], languageOptions: { globals: globals.node } },
-	{ files: ['tests/**/*.js'], languageOptions: { globals: globals.browser } },
-
-	{
-		files: ['shared/templates/**/*.js', 'site/templates/**/*.js', 'apps/*/templates.js'],
-		rules: {
-			'no-restricted-imports': ['error', { patterns: [{
-				group: ['**/worker/**', '**/worker.js', '**/client/**', '**/tests/**'],
-				message: 'Templates must stay pure and usable by both the build and Worker.',
-			}] }],
-		},
-	},
-	// Shared infrastructure cannot grow dependencies on feature implementations.
+	{ files: ['client/shared/rainbow-hour/**/*.js'], languageOptions: { globals: { indexedDB: 'readonly' } } },
+	{ files: ['server/**/*.js'], languageOptions: { globals: { ...globals.worker, AbortSignal: 'readonly' } } },
+	{ files: ['shared/**/*.js'], languageOptions: { globals: Object.fromEntries(['URL', 'URLSearchParams', 'fetch', 'AbortSignal', 'console', 'TextEncoder', 'TextDecoder'].map((name) => { return [name, 'readonly']; })) } },
+	{ files: ['build/**/*.js', 'test/**/*.js', '*.mjs', 'playwright.config.js'], languageOptions: { globals: globals.node } },
+	{ files: ['test/**/*.js'], languageOptions: { globals: globals.browser } },
 	{
 		files: ['shared/**/*.js'],
 		rules: {
 			'no-restricted-imports': ['error', { patterns: [{
-				group: ['**/apps/**', '**/site/**', '**/worker/**', '**/tests/**', '**/client/**'],
-				message: 'Shared modules must remain independent of feature and runtime implementations.',
+				group: ['node:*', 'cloudflare:*', '@cloudflare/*', '**/server/**', '**/client/**', '**/build/**', '**/test/**'],
+				message: 'Root shared modules must be runtime-independent; put runtime-specific sharing in that runtime/shared directory.',
+			}] }],
+		},
+	},
+	{
+		files: ['server/**/*.js'],
+		rules: {
+			'no-restricted-imports': ['error', { patterns: [{
+				group: ['node:*', '**/client/**', '**/build/**', '**/test/**'],
+				message: 'Cloudflare request handlers import only server code and runtime-independent shared modules.',
+			}] }],
+		},
+	},
+	{
+		files: ['client/**/*.js'],
+		rules: {
+			'no-restricted-imports': ['error', { patterns: [{
+				group: ['node:*', 'cloudflare:*', '@cloudflare/*', '**/server/**', '**/build/**', '**/test/**'],
+				message: 'Browser code must not import build tooling, tests, or Cloudflare server modules.',
+			}] }],
+		},
+	},
+	{
+		files: ['server/apps/*/templates.js', 'server/shared/templates/**/*.js', 'build/templates/**/*.js'],
+		rules: {
+			'no-restricted-imports': ['error', { patterns: [{
+				group: ['node:*', 'cloudflare:*', '@cloudflare/*', '**/worker.js', '**/data.js', '**/auth/**', '**/server/**', '**/build/**', '**/client/**', '**/test/**'],
+				message: 'Templates render pre-authorized data without importing request handlers, persistence, or browser code.',
 			}] }],
 		},
 	},

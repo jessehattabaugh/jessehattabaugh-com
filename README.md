@@ -8,34 +8,34 @@ client using cutting edge web apis.
 ## Start here
 
 1. Read [the architecture](docs/architecture.md) for ownership and request flow.
-2. Follow one feature from `apps/<name>/worker.js` through `data.js` and
-	`templates.js`, then its browser flows in `tests/apps/`.
+2. Follow one feature from `server/apps/<name>/worker.js` through `data.js` and
+	`templates.js`, then its browser flows in `test/apps/`.
 3. [AGENTS.md](AGENTS.md) defines contribution rules.
 
-| Directory | Responsibility |
+| Directory | Runs in / contains |
 | --- | --- |
-| `site/` | Public pages, static page registry, AT Protocol integration |
-| `apps/<name>/` | App handlers, persistence, templates, and domain helpers |
-| `shared/` | HTML escaping, routes, identity data, and shared UI |
-| `worker/` | Runtime entrypoint, HTTP policy, authentication, crypto and Web Push |
-| `client/` | Public browser modules, styles, manifests, icons and service workers |
-| `build/` | Static generation and branding assets |
-| `scripts/` | Configuration, deployment, secrets and branch-derived preview tooling |
-| `db/` | Canonical schema and ordered additive migrations |
-| `tests/` | Deployed-preview E2E suites grouped by app, site and platform |
+| `build/` | Node.js: HTML/assets, branding, deployment and secrets tooling; common tooling in `build/shared/` |
+| `server/` | Cloudflare: handlers and app data/templates; common infrastructure in `server/shared/`, schema/migrations in `server/db/` |
+| `client/` | Browser: app scripts, service workers beside their app code, manifests and images; cross-app/context assets in `client/shared/` |
+| `shared/` | Cross-runtime modules: build/server rendering and social reads, routes, server/browser solar/weather logic |
+| `test/` | Deployed-preview Playwright suites; fixtures and audit helpers in `test/shared/` |
+
+`build/assets.js` maps browser source files to existing public URLs and adjusts
+module imports. Directory moves do not change service-worker scopes or component
+download URLs. Only explicitly selected root shared modules are published.
 
 ## Reusable components
 
 `/components/` showcases standalone Custom Elements. Each component lives in
-`client/components/<tag>/` with ES modules, `package.json`, a Custom Elements
+`client/shared/components/<tag>/` with ES modules, `package.json`, a Custom Elements
 Manifest (including `x-listens` for incoming events), README, and MIT license.
 Source distribution is GitHub-only; consumers vendor a pinned revision and can
 install its local package with npm, pnpm, or Yarn. No registry release is needed.
 
-To add one, extend `site/components.js` (also emitted as `/components/catalog.json`),
-add its showcase and documentation template in `site/templates/components.js`, and entries
-in `site/pages.js` and `shared/routes.js`, and cover its browser API in
-`tests/site/components.test.js`. Include the new route in the smoke/Lighthouse
+To add one, extend `build/shared/components.js` (also emitted as `/components/catalog.json`),
+add its showcase and documentation template in `build/templates/components.js`, and entries
+in `build/pages.js` and `shared/routes.js`, and cover its browser API in
+`test/site/components.test.js`. Include the new route in the smoke/Lighthouse
 heading map. Preserve a native HTML fallback. `disclosure-panel` is the first
 example, also used for app-install help.
 
@@ -51,7 +51,8 @@ npm run lint
 npm run build
 ```
 
-`dist/` is generated. `sharp` is a build-only dependency for correctly sized
+`npm run check` checks Cloudflare, Node, browser, and service-worker contexts
+separately. `dist/` is generated. `sharp` is a build-only dependency for correctly sized
 icons; `globals` supplies ESLint’s environment definitions. Verify dependency
 changes with a clean `npm ci`; do not rely on transitive packages.
 
@@ -61,7 +62,7 @@ On a non-`main` branch, authenticate Wrangler and run:
 npm run deploy:preview
 npm test
 # Or one feature across desktop/mobile, with and without JavaScript:
-npm test -- tests/apps/crunch-time.test.js
+npm test -- test/apps/crunch-time.test.js
 ```
 
 Deployment creates/reuses a branch-isolated D1 database and uploads an unpromoted

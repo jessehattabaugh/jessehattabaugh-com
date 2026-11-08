@@ -1,13 +1,13 @@
-import './scripts/environment.js';
+import './build/shared/environment.js';
 import { defineConfig, devices } from '@playwright/test';
 
 export default defineConfig({
-	testDir: './tests',
+	testDir: './test',
 	fullyParallel: true,
 	forbidOnly: !!process.env.CI,
 	retries: process.env.CI ? 2 : 0,
 	reporter: [['html', { open: 'never' }]],
-	globalSetup: './tests/global-setup.js',
+	globalSetup: './test/global-setup.js',
 	use: {
 		baseURL: process.env.PREVIEW_URL,
 		trace: 'on-first-retry',

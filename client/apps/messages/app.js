@@ -1,5 +1,5 @@
 /** Enhance server-rendered Jessages; never remove the baseline. */
-import { setupPushForm } from '../../enhance/push.js';
+import { setupPushForm } from '../../shared/enhance/push.js';
 
 const script = document.querySelector('script[data-service-worker]');
 const workerUrl = script?.getAttribute('data-service-worker');

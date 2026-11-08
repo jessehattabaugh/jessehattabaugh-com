@@ -1,0 +1,25 @@
+{
+	"compilerOptions": {
+		"target": "ES2022",
+		"module": "ESNext",
+		"moduleResolution": "bundler",
+		"composite": true,
+		"tsBuildInfoFile": "../dist/types/server/tsconfig.tsbuildinfo",
+		"rootDir": "..",
+		"outDir": "../dist/types/server",
+		"allowJs": true,
+		"checkJs": true,
+		"strict": true,
+		"lib": [
+			"ES2022"
+		],
+		"types": [
+			"@cloudflare/workers-types"
+		]
+	},
+	"include": [
+		"**/*.js",
+		"../shared/**/*.js"
+	],
+	"exclude": []
+}

@@ -46,8 +46,12 @@ export const layout = ({
 				${app ? html`` : html`<link rel="manifest" href="/manifest.webmanifest" />`}
 				${head}
 				<style>
-					@view-transition {
-						navigation: ${viewTransitions ? 'auto' : 'none'};
+					/* Chromium can leave transition snapshots intercepting native controls
+					   when scripting is disabled. Keep the no-JS baseline interactive. */
+					@media (scripting: enabled) {
+						@view-transition {
+							navigation: ${viewTransitions ? 'auto' : 'none'};
+						}
 					}
 				</style>
 				<script type="speculationrules">

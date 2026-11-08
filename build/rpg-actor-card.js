@@ -3,7 +3,7 @@ import { join } from 'node:path';
 import { mkdir } from 'node:fs/promises';
 
 /** Build a share card from the owner's public artwork, not a generated substitute.
- * @param {string} out @param {import('../site/data/atproto.js').Social} social */
+ * @param {string} out @param {import('../shared/data/atproto.js').Social} social */
 export async function buildActorCard(out, social) {
 	const background = Buffer.from(`<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630">
 		<rect width="1200" height="630" fill="#151222"/>

@@ -1,7 +1,7 @@
 /** Location and alerts enhance the server's coordinate form and sky report. */
-import { saveLocation, clearLocation } from './storage.js';
-import { sunPosition } from '../../../apps/rainbow-hour/solar.js';
-import { setupPushForm } from '../../enhance/push.js';
+import { saveLocation, clearLocation } from '../../shared/rainbow-hour/storage.js';
+import { sunPosition } from '../../../shared/rainbow-hour/solar.js';
+import { setupPushForm } from '../../shared/enhance/push.js';
 
 const script = document.querySelector('script[data-service-worker]');
 const workerUrl = script?.getAttribute('data-service-worker');

@@ -6,10 +6,10 @@
 			"binding": "DB",
 			"database_id": "bc840c22-76e5-433b-8319-a98ee3ae3cc4",
 			"database_name": "jessehattabaugh-com",
-			"migrations_dir": "db/migrations"
+			"migrations_dir": "server/db/migrations"
 		}
 	],
-	"main": "./worker/index.js",
+	"main": "./server/index.js",
 	"name": "jessehattabaugh-com",
 	"observability": { "enabled": true },
 	"preview_urls": true,
