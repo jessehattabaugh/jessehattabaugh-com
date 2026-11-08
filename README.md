@@ -1,23 +1,22 @@
 # jessehattabaugh.com
 
-A personal site and four installable web apps built with JavaScript ES modules,
-JSDoc, native CSS, and Cloudflare Workers/D1. Server-rendered links and forms are
-the baseline; browser APIs add optional capabilities. No UI framework or runtime
-package dependencies.
+A personal site and gallery of progressive web apps built with JavaScript ES modules,
+JSDoc, native CSS, and Cloudflare Workers/D1. HATEOAS (Hypertext As The Engine Of
+Application State) is the overall architectural goal; Progressive Enhancement in the
+client using cutting edge web apis. 
 
 ## Start here
 
 1. Read [the architecture](docs/architecture.md) for ownership and request flow.
 2. Follow one feature from `apps/<name>/worker.js` through `data.js` and
 	`templates.js`, then its browser flows in `tests/apps/`.
-3. See [the engineering review](docs/engineering-review.md) for strengths,
-	tradeoffs, and remaining work. [AGENTS.md](AGENTS.md) defines contribution rules.
+3. [AGENTS.md](AGENTS.md) defines contribution rules.
 
 | Directory | Responsibility |
 | --- | --- |
 | `site/` | Public pages, static page registry, AT Protocol integration |
 | `apps/<name>/` | App handlers, persistence, templates, and domain helpers |
-| `shared/` | HTML escaping, routes, identity data, shared UI and cross-runtime algorithms |
+| `shared/` | HTML escaping, routes, identity data, and shared UI |
 | `worker/` | Runtime entrypoint, HTTP policy, authentication, crypto and Web Push |
 | `client/` | Public browser modules, styles, manifests, icons and service workers |
 | `build/` | Static generation and branding assets |

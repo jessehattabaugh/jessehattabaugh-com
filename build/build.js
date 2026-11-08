@@ -57,14 +57,14 @@ async function build() {
 	await buildBranding(OUT, social);
 	await buildActorCard(OUT, social);
 
-	// Client-side runtime modules imported by the Rainbow Hour app
-	// (page dashboard + module service worker) from /shared/*.js — one source
-	// of truth shared with the Worker, copied into the served asset tree.
-	const sharedOut = join(OUT, 'shared');
-	await mkdir(sharedOut, { recursive: true });
-	await cp(join(ROOT, 'shared', 'solar.js'), join(sharedOut, 'solar.js'));
-	await cp(join(ROOT, 'shared', 'rainbow.js'), join(sharedOut, 'rainbow.js'));
-	await cp(join(ROOT, 'shared', 'weather.js'), join(sharedOut, 'weather.js'));
+	// Rainbow Hour's solar, rainbow, and weather modules are owned by the app but
+	// imported by its page and module service worker from /apps/rainbow-hour/*.js.
+	// Copy the server-owned sources alongside the served app assets.
+	const rainbowOut = join(OUT, 'apps', 'rainbow-hour');
+	await mkdir(rainbowOut, { recursive: true });
+	await cp(join(ROOT, 'apps', 'rainbow-hour', 'solar.js'), join(rainbowOut, 'solar.js'));
+	await cp(join(ROOT, 'apps', 'rainbow-hour', 'rainbow.js'), join(rainbowOut, 'rainbow.js'));
+	await cp(join(ROOT, 'apps', 'rainbow-hour', 'weather.js'), join(rainbowOut, 'weather.js'));
 
 	console.log('Build complete →', OUT);
 }

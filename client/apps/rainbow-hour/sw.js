@@ -15,9 +15,9 @@ const sw = self;
 const APP_URL = sw.registration.scope;
 const ICON_URL = new URL('icon.svg', APP_URL).pathname;
 
-import { sunPosition } from '../../../shared/solar.js';
-import { evaluateRainbowConditions } from '../../../shared/rainbow.js';
-import { fetchRainbowWeather } from '../../../shared/weather.js';
+import { sunPosition } from '../../../apps/rainbow-hour/solar.js';
+import { evaluateRainbowConditions } from '../../../apps/rainbow-hour/rainbow.js';
+import { fetchRainbowWeather } from '../../../apps/rainbow-hour/weather.js';
 import { loadLocation } from './storage.js';
 
 // ── Install / activate: take over promptly, nothing to precache ───────────────

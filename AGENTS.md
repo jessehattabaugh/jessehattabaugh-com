@@ -26,7 +26,7 @@ No SPA framework, no client-side router, no build-time UI framework. If you reac
 
 ## Architecture
 
-`site/` owns public pages and AT Protocol integration; `apps/<app>/` owns each app’s handlers, data, and templates. `shared/` holds cross-app templates, HTML escaping, route definitions, identity data, and pure cross-runtime algorithms. `worker/` composes those modules and owns HTTP, authentication, and push infrastructure. `client/` contains only public browser assets. Build and runtime import the same templates from their owning modules. The build renders static HTML to `dist/client/`; the Worker handles dynamic routes and falls through to `env.ASSETS` for everything else. If `env.ASSETS.fetch()` returns a `404`, the Worker must intercept it and return the static `dist/client/404.html` page with a `404` status code. Never expose the raw Cloudflare asset `404` response.
+`site/` owns public pages and AT Protocol integration; `apps/<app>/` owns each app’s handlers, data, and templates. `shared/` holds cross-app templates, HTML escaping, route definitions, and identity data. App-owned algorithms live with their app and are copied into the served client assets by the build. `worker/` composes those modules and owns HTTP, authentication, and push infrastructure. `client/` contains only public browser assets. Build and runtime import the same templates from their owning modules. The build renders static HTML to `dist/client/`; the Worker handles dynamic routes and falls through to `env.ASSETS` for everything else. If `env.ASSETS.fetch()` returns a `404`, the Worker must intercept it and return the static `dist/client/404.html` page with a `404` status code. Never expose the raw Cloudflare asset `404` response.
 
 ---
 

@@ -1,5 +1,5 @@
-import { sunPosition } from '../../shared/solar.js';
-import { RAINBOW_SUN_ALT_MIN_DEG, RAINBOW_SUN_ALT_MAX_DEG } from '../../shared/rainbow.js';
+import { sunPosition } from './solar.js';
+import { RAINBOW_SUN_ALT_MIN_DEG, RAINBOW_SUN_ALT_MAX_DEG } from './rainbow.js';
 import {
 	listRainbowSubscriptions,
 	markRainbowNotified,
