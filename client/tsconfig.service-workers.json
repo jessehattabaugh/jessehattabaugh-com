@@ -1,0 +1,23 @@
+{
+	"compilerOptions": {
+		"target": "ES2022",
+		"module": "ESNext",
+		"moduleResolution": "bundler",
+		"composite": true,
+		"rootDir": "..",
+		"outDir": "../dist/types/service-workers",
+		"allowJs": true,
+		"checkJs": true,
+		"strict": true,
+		"lib": [
+			"ES2022",
+			"WebWorker"
+		],
+		"types": []
+	},
+	"include": [
+		"apps/*/sw.js",
+		"shared/rainbow-hour/**/*.js",
+		"../shared/rainbow-hour/**/*.js"
+	]
+}

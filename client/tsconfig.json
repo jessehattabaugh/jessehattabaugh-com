@@ -9,12 +9,18 @@
 		"allowJs": true,
 		"checkJs": true,
 		"strict": true,
-		"lib": ["ES2022", "DOM", "DOM.Iterable"]
+		"lib": [
+			"ES2022",
+			"DOM",
+			"DOM.Iterable"
+		],
+		"types": []
 	},
 	"include": [
 		"**/*.js",
-		"../apps/rainbow-hour/solar.js",
-		"../apps/rainbow-hour/rainbow.js",
-		"../apps/rainbow-hour/weather.js"
+		"../shared/rainbow-hour/**/*.js"
+	],
+	"exclude": [
+		"apps/*/sw.js"
 	]
 }

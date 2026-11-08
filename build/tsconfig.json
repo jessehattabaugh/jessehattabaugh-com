@@ -17,15 +17,8 @@
 		]
 	},
 	"include": [
-		"../shared/**/*.js",
-		"../site/pages.js",
-		"../site/components.js",
-		"../site/data/**/*.js",
-		"../site/templates/**/*.js",
 		"**/*.js",
-		"../scripts/**/*.js",
-		"../apps/*/templates.js",
-		"../apps/*/model.js",
-		"../apps/*/data.js"
-	]
+		"../shared/**/*.js"
+	],
+	"exclude": []
 }

@@ -3,7 +3,7 @@ import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import sharp from 'sharp';
 
-/** @param {import('../site/data/atproto.js').Social} social */
+/** @param {import('../shared/data/atproto.js').Social} social */
 async function avatarSource(social) {
 	try {
 		const url = social.profile?.avatar;
@@ -23,7 +23,7 @@ async function avatarSource(social) {
 	}
 }
 
-/** @param {string} out @param {import('../site/data/atproto.js').Social} social */
+/** @param {string} out @param {import('../shared/data/atproto.js').Social} social */
 export async function buildBranding(out, social) {
 	const avatar = await avatarSource(social);
 	const directory = join(out, 'branding');
