@@ -10,14 +10,14 @@ or runtime dependencies.
 - `shared/templates/`: escaped HTML, shared by the build and Worker. App page
 	functions call their fragment function directly; `X-Fragment: true` requests
 	receive that fragment from the same URL.
-- `build/build.js`: renders static pages to `dist/client/` and copies browser assets.
+- `build/build.js`: prepares private inputs and runs one Parcel graph that emits `dist/client/`.
 - `server/index.js`: dispatches the registered dynamic routes, applies security
 	headers, and serves assets with the custom 404 and standard error pages.
 - `server/shared/data/` and `server/apps/*/data.js`: prepared D1 queries; `server/db/migrations/` changes the schema.
 - `client/shared/enhance/`: optional form/link transitions, installation, and Web Push.
 - `client/apps/`: app enhancements and colocated `sw.js` service workers.
 - `client/shared/`: reusable browser components, enhancements, styles, and cross-context storage.
-- `build/assets.js`: preserves public asset URLs while rebasing native ES-module imports.
+- `build/parcel-site.js`, `parcel-generated.js`, `parcel-resolver.js`, `parcel-namer.js`: render and link the public graph without copying source trees.
 - `test/`: functional browser flows against an isolated deployed preview.
 
 Home, About, Giving away, Apps, Components, and Colophon have static builds. About,
@@ -68,7 +68,7 @@ in deployed tests, the same issue already documented for Lightsfinder.
 RPG Actor sprites are cropped to their selected pose with CSS without JS, and
 enhanced by the `rpg-actor` Custom Element with walking, nine expressions, talking,
 and showcase playback when optional `emotes` blobs exist on `actor.rpg.sprite/self`.
-`build/rpg-actor-card.js` renders `/components/rpg-actor/social.png` from the
+`build/branding.js` renders `/components/rpg-actor/social.png` from the
 owner's sprite during the build.
 PDS discovery currently supports `did:plc` identities on Bluesky-hosted servers
 only; a move to a custom PDS needs an explicit host-policy update. RPG Actor's

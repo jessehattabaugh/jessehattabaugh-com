@@ -1,66 +1,15 @@
-import { mkdir, writeFile, rm } from 'node:fs/promises';
-import { join, dirname } from 'node:path';
-import { fileURLToPath } from 'node:url';
+/** One Parcel graph owns pages, metadata, images, browser code and service workers. */
+import { rm } from 'node:fs/promises';
+import { execFileSync } from 'node:child_process';
+import { join } from 'node:path';
+import { prepareInputs } from './prepare-inputs.js';
+import { ROOT } from './shared/preview.js';
 
-import { render } from '../shared/html.js';
-import { staticRoutes } from '../shared/routes.js';
-import { staticPages } from './pages.js';
-import { componentCatalog } from './shared/components.js';
-import { loadSocial } from '../shared/data/atproto.js';
-import { workerVariables } from './shared/environment.js';
-import { buildActorCard } from './rpg-actor-card.js';
-import { buildBranding } from './branding.js';
-import { stageClient, bundleClient } from './assets.js';
-import { writeSitemap } from './sitemap.js';
-
-const __dirname = dirname(fileURLToPath(import.meta.url));
-const ROOT = join(__dirname, '..');
-const OUT = join(ROOT, 'dist', 'client');
-const STAGE = join(ROOT, 'dist', 'parcel');
-
-/**
- * @param {string} path  URL path, e.g. "/" or "/about"
- * @param {string} html  Full HTML string
- */
-async function writePage(path, html) {
-	const dir = path === '/' ? STAGE : join(STAGE, ...path.split('/').filter(Boolean));
-	await mkdir(dir, { recursive: true });
-	await writeFile(join(dir, 'index.html'), html, 'utf8');
-	console.log(`  wrote ${path}`);
-}
-
-async function build() {
-	console.log('Building static site...');
-
-	// Start clean — files deleted from client/ or the page list must not
-	// linger as stale artifacts from a previous build in the same working tree.
-	await rm(OUT, { recursive: true, force: true });
-	await rm(STAGE, { recursive: true, force: true });
-	await mkdir(STAGE, { recursive: true });
-	await stageClient(ROOT, STAGE);
-	const handle = workerVariables().ATPROTO_HANDLE;
-	if (!handle) { throw new Error('ATPROTO_HANDLE must be configured'); }
-	const social = await loadSocial(handle);
-	await mkdir(join(OUT, 'atproto'), { recursive: true });
-	await writeFile(join(OUT, 'atproto', 'snapshot.json'), JSON.stringify(social), 'utf8');
-
-	// Static pages
-	await Promise.all(staticRoutes.map((route) => {
-		return writePage(route.path, render(staticPages[route.name](social)));
-	}));
-	await writeFile(join(STAGE, '404.html'), render(staticPages.notFound()), 'utf8');
-
-	// Let consumers and agents discover modules without scraping documentation.
-	await writeFile(join(STAGE, 'client', 'shared', 'components', 'catalog.json'), JSON.stringify({ components: componentCatalog }), 'utf8');
-	await buildBranding(join(STAGE, 'client'), social);
-	await buildActorCard(join(STAGE, 'client'), social);
-	await bundleClient(ROOT, STAGE, OUT);
-	await writeSitemap(OUT);
-
-	console.log('Build complete →', OUT);
-}
-
-build().catch((err) => {
-	console.error(err);
-	process.exit(1);
-});
+// Parcel emits directly to the asset binding; clean once so removed routes and
+// assets cannot survive a rebuild. The source directories are never copied.
+await rm(join(ROOT, 'dist', 'client'), { recursive: true, force: true });
+await prepareInputs(ROOT);
+execFileSync(join(ROOT, 'node_modules', '.bin', 'parcel'), [
+	'build', 'build/site.json', 'client', 'client/apps', '.',
+	'--no-source-maps', '--no-content-hash', '--public-url', './',
+], { cwd: ROOT, stdio: 'inherit' });

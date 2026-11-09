@@ -16,6 +16,7 @@
 	"files": [
 		"index.js",
 		"rpg-actor.js",
+		"styles.css",
 		"custom-elements.json",
 		"README.md",
 		"LICENSE"

@@ -31,13 +31,9 @@ export class RpgActor extends HTMLElement {
 
 	constructor() {
 		super();
-		const style = document.createElement('style');
-		style.textContent = `:host{display:inline-flex;flex-direction:column;align-items:center;gap:.5rem;max-width:100%}
-			span{display:block;position:relative;overflow:hidden;width:var(--rpg-actor-size,144px);max-width:100%;aspect-ratio:1;image-rendering:pixelated}
-			img{position:absolute;inset:0 auto auto 0;max-width:none;display:block}
-			button{font:inherit;color:inherit;background:transparent;border:1px solid currentColor;border-radius:.4rem;padding:.5rem .75rem;min-height:44px;cursor:pointer}
-			button:focus-visible{outline:3px solid currentColor;outline-offset:3px}
-			[hidden]{display:none!important}`;
+		const style = document.createElement('link');
+		style.rel = 'stylesheet';
+		style.href = new URL('./styles.css', import.meta.url).href;
 		this.#viewport.setAttribute('role', 'img');
 		this.#viewport.setAttribute('part', 'sprite');
 		this.#viewport.hidden = true;

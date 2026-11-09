@@ -38,7 +38,7 @@ Put runtime-specific reuse in that runtime's `shared/` directory. Keep app-speci
 
 Templates execute where they render, rather than in the browser: public page templates used by Node and Cloudflare live in `shared/templates/pages/`; server-only app templates live in `server/apps/<app>/templates.js` and auth/install templates in `server/shared/templates/`. Static-only Apps, Colophon, component documentation, and 404 templates live in `build/templates/`. Browser assets formerly described as site/static/public assets belong in `client/`.
 
-`build/build.js` renders shared templates into `dist/parcel/`; Parcel v3 bundles and minifies public output into `dist/client/`. Browser asset URLs omit runtime ownership prefixes: `/apps/`, `/branding/`, `/components/`, `/enhance/`, and `/styles/`. Use document/module-relative references for local assets and short root-relative URLs in shared templates whose rendering location can vary. `build/assets.js` configures separate browser and module service-worker builds; no compatibility mounts or import-rewriting shims. Only browser assets and generated documents/metadata are published, never server code or shared template sources. Page URLs belong in `shared/routes.js`; canonical public pages feed `/sitemap.xml`. Service-worker scripts live under `/apps/<app>/` alongside their scope; use relative worker, cache, and manifest URLs. The Worker handles dynamic routes and falls through to `env.ASSETS`. If `env.ASSETS.fetch()` returns a `404`, return the static `dist/client/404.html` page with a `404` status, never the raw Cloudflare asset response.
+`build/build.js` prepares public data/artwork under private `dist/inputs/` and invokes Parcel once. Parcel renders shared templates, optimizes assets, and emits all public HTML, metadata, sitemap/robots, images and code directly to `dist/client/`. Native targets are declared in the root, `client/`, and `client/apps/` package files. There are no source copies, temporary package rewrites, or post-build public writes. Browser asset URLs omit runtime ownership prefixes: `/apps/`, `/branding/`, `/components/`, `/enhance/`, and `/styles/`. Use relative references for local assets and root-relative URLs in shared/error views whose rendering location can vary. Page URLs belong in `shared/routes.js`; canonical public pages feed `/sitemap.xml`. Service workers live beside their `/apps/<app>/` scopes. The Worker handles dynamic routes and falls through to `env.ASSETS`. If `env.ASSETS.fetch()` returns a `404`, return the static `dist/client/404.html` page with a `404` status, never the raw Cloudflare asset response.
 
 ---
 
@@ -109,6 +109,7 @@ The preview URL is derived automatically — see the `test` npm script, which co
 
 ## Coding standards
 
+- **Asset files:** Store authored artwork and static asset data in files with matching extensions (`.svg`, `.css`, `.json`, etc.). JavaScript binds data or renders genuinely dynamic content; do not duplicate static SVG geometry in JavaScript strings.
 - **Web app manifests:** Always name these `manifest.webmanifest`, including new apps.
 - **CSS:** native nesting, `@layer` for cascade control, custom properties for theming. No preprocessor.
 - **Accessibility:** semantic HTML, real headings/landmarks, labelled controls, visible focus states, keyboard operability. The no-JS baseline must be fully accessible.

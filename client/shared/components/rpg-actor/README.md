@@ -112,6 +112,9 @@ Specification: https://rpg.actor/dev-guide#pc-emotes
 Landing page: https://jessehattabaugh.com/components/rpg-actor/
 API: custom-elements.json (Custom Elements Manifest 1.0.0).
 
+Keep `styles.css` beside `rpg-actor.js`; the shadow root loads this stylesheet
+relative to the module URL.
+
 ## Authoritative reference
 
 Always use https://rpg.actor/dev-guide when implementing, integrating, updating,

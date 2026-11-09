@@ -32,5 +32,33 @@
 	"allowScripts": {
 		"esbuild@0.28.2": true,
 		"workerd@1.20261101.1": true
+	},
+	"private": true,
+	"browserslist": "last 2 Chrome versions, last 2 Firefox versions, last 2 Safari versions",
+	"targets": {
+		"production": {
+			"context": "browser",
+			"outputFormat": "esmodule",
+			"distDir": "./dist/client",
+			"optimize": true
+		}
+	},
+	"exports": {
+		"./components/disclosure-panel": {
+			"source": "./client/shared/components/disclosure-panel/index.js",
+			"production": "./dist/client/components/disclosure-panel/index.js"
+		},
+		"./components/disclosure-panel/element": {
+			"source": "./client/shared/components/disclosure-panel/disclosure-panel.js",
+			"production": "./dist/client/components/disclosure-panel/disclosure-panel.js"
+		},
+		"./components/rpg-actor": {
+			"source": "./client/shared/components/rpg-actor/index.js",
+			"production": "./dist/client/components/rpg-actor/index.js"
+		},
+		"./components/rpg-actor/element": {
+			"source": "./client/shared/components/rpg-actor/rpg-actor.js",
+			"production": "./dist/client/components/rpg-actor/rpg-actor.js"
+		}
 	}
 }

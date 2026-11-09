@@ -220,24 +220,7 @@ function moderation(data) {
 /** Single fragment code path for full documents and enhanced responses. @param {LightsData} data */
 export function lightsfinderFragment(data) {
 	const f = data.filters, holiday = holidays.find((h) => { return h.id === f.holiday; }) ?? { ...holidays.at(-1), id: f.holiday, name: f.holiday.startsWith('custom:') ? f.holiday.slice(7) : 'Other holiday', icon: '🏮', theme: 'other' };
-	function houseColor() {
-		if (holiday.id === 'christmas') {
-			return '#235e48';
-		}
-		if (holiday.id === 'valentine') {
-			return '#923657';
-		}
-		return '#5d3676';
-	}
-	function holidayDecorations() {
-		if (holiday.id === 'halloween') {
-			return html`<g fill="#ffad5a"><circle cx="46" cy="166" r="19"/><circle cx="74" cy="178" r="13"/></g><g fill="#302039"><path d="M34 166l7-7 4 9M49 168l4-9 6 8M39 175q8 8 15 0"/></g><path d="M46 146v-10M74 163v-9" stroke="#302039" stroke-width="4"/>`;
-		}
-		if (holiday.id === 'christmas') {
-			return html`<g fill="#cb4b43" stroke="#fff5d8" stroke-width="3"><rect x="26" y="151" width="32" height="30" rx="3"/><rect x="59" y="160" width="22" height="22" rx="3"/><path d="M42 150v32M26 162h32M70 160v22"/></g>`;
-		}
-		return html`<g fill="#ffd275"><path d="M42 143l6 13 14 2-10 10 2 14-12-7-12 7 2-14-10-10 14-2Z"/><circle cx="73" cy="170" r="7"/></g>`;
-	}
+	const decoration = ['halloween', 'christmas'].includes(holiday.id) ? holiday.id : 'default';
 	function sightingsContent() {
 		if (data.selected) { return card(data.selected, data, true); }
 		if (data.posts.length) { return html`<ol data-sightings>${data.posts.map((p) => { return html`<li>${card(p, data)}</li>`; })}</ol>`; }
@@ -270,7 +253,7 @@ export function lightsfinderFragment(data) {
 		</nav>
 		<header data-hero><div><p data-eyebrow>${holiday.icon} ${holiday.name} ${f.season} · Let there be delight</p><h1>Lightsfinder</h1><h2>Find holiday decorations<br /><em>near you.</em></h2><p>Set your starting location to discover the lights around you.</p>
 			<form action="${paths.lightsfinder}" method="get" aria-label="Find decorations near you" data-location-form data-locate-search data-target="#main">${filterInputs({ ...f, view: 'explore', zoom: 12 })}<button type="button" data-locate hidden>Use my location</button><p role="status" data-location-status>Allow location access when your browser asks, or explore using the map controls.</p><noscript><p>Browser location needs JavaScript. Use the map’s zoom and direction links to choose an area, then search or share there.</p></noscript></form></div>
-			<div data-illustration aria-hidden="true"><span>${holiday.icon}</span><svg viewBox="0 0 360 210"><path d="M18 185 Q180 130 342 185" fill="none" stroke="currentColor" stroke-width="3"/><path d="M82 104L155 40L226 104V183H82Z" fill="${houseColor()}" stroke="#302039" stroke-width="5"/><path d="M64 105L155 26L245 105" fill="none" stroke="#302039" stroke-width="9"/><rect x="144" y="128" width="35" height="55" rx="16" fill="#ffd275"/><rect x="99" y="107" width="29" height="32" fill="#ffce71"/><rect x="192" y="107" width="20" height="32" fill="#ffce71"/><path d="M67 102Q154 130 243 102M90 75Q154 100 215 76" fill="none" stroke="#ffe2a2" stroke-width="3"/><g fill="#daf082"><circle cx="88" cy="108" r="6"/><circle cx="113" cy="114" r="6"/><circle cx="145" cy="118" r="6"/><circle cx="178" cy="117" r="6"/><circle cx="210" cy="111" r="6"/><circle cx="111" cy="85" r="5"/><circle cx="142" cy="92" r="5"/><circle cx="174" cy="92" r="5"/><circle cx="201" cy="83" r="5"/></g><path d="M278 83L245 152H265L244 176H315L293 152H311Z" fill="#8e9b67" stroke="#302039" stroke-width="3"/>${holidayDecorations()}<g fill="#fff5d8"><path d="M274 31l3 10 10 3-10 3-3 10-3-10-10-3 10-3Z"/><path d="M36 58l3 9 9 3-9 3-3 9-3-9-9-3 9-3Z"/></g></svg><p>big lights. little adventures.</p></div>
+			<div data-illustration aria-hidden="true"><span>${holiday.icon}</span><svg viewBox="0 0 360 210"><use href="./illustrations.svg#scene"/><use href="${`./illustrations.svg#${decoration}`}"/></svg><p>big lights. little adventures.</p></div>
 		</header>
 		${data.error ? html`<p role="alert">${data.error}</p>` : html``}${data.notice ? html`<p role="status">${data.notice}</p>` : html``}
 		${data.user ? html`<p data-account>${data.user.is_owner ? html`<a href="${lightsHref(f, { view: 'moderation' })}">Review reports</a>` : html``}</p>` : html``}
