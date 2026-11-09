@@ -26,7 +26,7 @@ in the Worker, using the same templates. Home renders its RPG Actor sprite from 
 build snapshot without upstream latency. They use the site navigation and
 branding; app pages load the shared app shell and their own stylesheet, with the
 site icon and signed account status in the top right. Rainbow Hour uses its icon’s
-bright sky, sunshine, and rainbow colors. `/contact` redirects to Jessages.
+bright sky, sunshine, and rainbow colors. `/contact` redirects to `/apps/messages/`.
 
 The shared site header always shows the owner's Bluesky portrait, including on
 Home, errors, and app pages. `build/branding.js` refreshes it during each build;

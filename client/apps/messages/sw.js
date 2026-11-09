@@ -1,10 +1,10 @@
 /** @type {any} */
 const sw = self;
 const APP_URL = sw.registration.scope;
-const ICON_URL = new URL('icon.svg', APP_URL).pathname;
+const ICON_URL = new URL('./icon.svg', APP_URL).pathname;
 
-const CACHE = 'messages-v3';
-const PRECACHE = ['/apps/messages/icon.svg', '/styles/base.css', '/styles/app.css', '/apps/messages/styles.css'];
+const CACHE = 'messages-v4';
+const PRECACHE = ['./icon.svg', '/styles/base.css', '/styles/app.css', './styles.css'].map((asset) => { return new URL(asset, APP_URL).href; });
 
 // ── Install: pre-cache app shell ──────────────────────────────────────────────
 
@@ -67,7 +67,7 @@ sw.addEventListener(
 		// App shell and static assets: cache-first, fall back to network
 		if (
 			url.origin === sw.location.origin &&
-			PRECACHE.includes(url.pathname)
+			PRECACHE.includes(url.href)
 		) {
 			event.respondWith(
 				caches.match(event.request).then((cached) => {

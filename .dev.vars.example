@@ -24,6 +24,8 @@ OSRM_URL=
 
 # Public identity only; no app password or AT Protocol token is needed.
 ATPROTO_HANDLE=jessehattabaugh.com
+# Canonical production origin for sitemap and document canonical links, even on previews.
+SITE_ORIGIN=https://jessehattabaugh.com
 
 # Worker runtime secrets. Needed locally for the corresponding capabilities.
 # Remote deployments preserve existing Cloudflare secrets; changing this file

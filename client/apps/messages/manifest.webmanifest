@@ -1,16 +1,21 @@
 {
-	"id": "/apps/messages/",
+	"id": "./",
 	"name": "Jessages — Messages to Jesse",
 	"short_name": "Jessages",
 	"description": "Messages to Jesse. Install this app to be notified of replies.",
-	"start_url": "/apps/messages/?pwa=1",
-	"scope": "/apps/messages/",
+	"start_url": "./?pwa=1",
+	"scope": "./",
 	"display": "standalone",
 	"orientation": "any",
 	"theme_color": "#06b6d4",
 	"background_color": "#06b6d4",
 	"icons": [
-		{ "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" },
+		{
+			"src": "icon.svg",
+			"sizes": "any",
+			"type": "image/svg+xml",
+			"purpose": "any"
+		},
 		{
 			"src": "icon-192.png",
 			"sizes": "192x192",
@@ -27,8 +32,13 @@
 	"shortcuts": [
 		{
 			"name": "Send a message to Jesse",
-			"url": "/apps/messages/",
-			"icons": [{ "src": "icon.svg", "sizes": "any" }]
+			"url": "./",
+			"icons": [
+				{
+					"src": "icon.svg",
+					"sizes": "any"
+				}
+			]
 		}
 	]
 }

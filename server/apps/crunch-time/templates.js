@@ -15,7 +15,7 @@ export function crunchFragment(data) {
 		<div data-dashboard>
 			<section aria-labelledby="pet-heading" data-mood="${data.reps > 0 ? 'happy' : 'ready'}">
 				<div data-pet-title><h2 id="pet-heading">Meet Mochi</h2><span>YOUR POCKET POWERHOUSE</span></div>
-				<div data-pet-stage><span aria-hidden="true">✦</span><img src="/apps/crunch-time/mochi.svg" width="300" height="330" alt="Mochi, a smiling peach-colored kitten with a headband, tiny strong arms, and six-pack abs" /><span aria-hidden="true">✧</span></div>
+				<div data-pet-stage><span aria-hidden="true">✦</span><img src="./mochi.svg" width="300" height="330" alt="Mochi, a smiling peach-colored kitten with a headband, tiny strong arms, and six-pack abs" /><span aria-hidden="true">✧</span></div>
 				<p data-cheer role="status">${data.reps > 0 ? 'You showed up for me. I’m so proud of you!' : 'Hi, I’m Mochi! Let’s get stronger together.'}</p>
 				<p>${mood} · Level ${1 + Math.floor(data.reps / 50)}</p>
 				<label for="pet-fullness">Snack happiness</label><meter id="pet-fullness" min="0" max="100" value="${fullness}">${fullness}%</meter>
@@ -50,6 +50,6 @@ export function crunchFragment(data) {
 /** @param {CrunchData} data */
 export function crunchTime(data) {
 	return layout({ title: 'Crunch Time', app: 'crunch-time', user: data.user, path: paths.crunch, description: 'A situp-powered pocket pet. Teach Mochi your rhythm, track your workouts, and turn small reps into big friendship.', viewTransitions: false,
-		head: html`<link rel="stylesheet" href="/apps/crunch-time/style.css" /><link rel="manifest" href="/apps/crunch-time/manifest.json" /><meta name="theme-color" content="#f5ead7" />`,
-		body: crunchFragment(data), scripts: html`<script type="module" src="/apps/crunch-time/app.js"></script>` });
+		head: html`<link rel="stylesheet" href="./style.css" /><link rel="manifest" href="./manifest.webmanifest" /><meta name="theme-color" content="#f5ead7" />`,
+		body: crunchFragment(data), scripts: html`<script type="module" src="./app.js" data-service-worker="./sw.js"></script>` });
 }

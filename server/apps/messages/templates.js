@@ -83,7 +83,7 @@ export function messagesFragment(data = {}) {
 	}
 	return html`
 		<article data-messages>
-			<img src="/apps/messages/icon.svg" alt="" width="64" height="64" />
+			<img src="./icon.svg" alt="" width="64" height="64" />
 			<h1>Jessages</h1><p>Messages to Jesse</p>
 			${error ? html`<p role="alert">${error}</p>` : html``}
 			${notice ? html`<p role="status">${notice}</p>` : html``}
@@ -100,7 +100,7 @@ export function messagesPage(data = {}) {
 		path: paths.messages, app: 'messages', user: data.user,
 		description: 'Send Jesse a message and read replies on any device.',
 		body: messagesFragment(data),
-		head: html`<link rel="manifest" href="/apps/messages/manifest.webmanifest" /><link rel="stylesheet" href="/apps/messages/styles.css" />`,
-		scripts: html`<script type="module" src="/apps/messages/app.js" data-service-worker="/apps/messages/sw.js" data-scope="/apps/messages/"></script>`,
+		head: html`<link rel="manifest" href="./manifest.webmanifest" /><link rel="stylesheet" href="./styles.css" />`,
+		scripts: html`<script type="module" src="./app.js" data-service-worker="./sw.js" data-scope="./"></script>`,
 	});
 }

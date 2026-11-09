@@ -16,7 +16,7 @@ for (const [path, root] of [
 		// and decode their actual images in the deployed browser, without mocks.
 		const links = await page.evaluate(() => {
 			return Array.from(document.head.getElementsByTagName('link')).map((link) => {
-				return { rel: link.rel, href: link.href, path: new URL(link.href).pathname };
+				return { rel: link.rel, href: link.href, path: new URL(link.href).pathname, reference: link.getAttribute('href') };
 			});
 		});
 		const icons = links.filter((link) => { return link.rel === 'icon' || link.rel === 'apple-touch-icon'; });
@@ -33,6 +33,12 @@ for (const [path, root] of [
 		expect(await dimensions(icons[2].href)).toEqual([180, 180]);
 		const manifestLink = links.find((link) => { return link.rel === 'manifest'; });
 		expect(manifestLink).toBeTruthy();
+		expect(manifestLink.path).toMatch(/\/manifest\.webmanifest$/);
+		expect(links.some((link) => { return link.path.startsWith('/client/'); })).toBe(false);
+		if (path.startsWith('/apps/')) {
+			expect(manifestLink.reference).toBe('./manifest.webmanifest');
+			expect(icons.map((link) => { return link.reference; })).toEqual(['./icon-32.png', './icon.svg', './apple-touch-icon.png']);
+		}
 		const response = await page.request.get(manifestLink.href);
 		expect(response.ok()).toBe(true);
 		const manifest = await response.json();

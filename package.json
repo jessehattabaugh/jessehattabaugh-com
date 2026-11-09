@@ -4,14 +4,16 @@
 		"@eslint/compat": "latest",
 		"@eslint/eslintrc": "latest",
 		"@eslint/js": "latest",
+		"@parcel/plugin": "3.0.0-alpha.2",
 		"@playwright/test": "latest",
 		"@types/node": "latest",
 		"eslint": "latest",
+		"globals": "14.0.0",
 		"lighthouse": "latest",
+		"parcel": "3.0.0-alpha.2",
 		"sharp": "0.35.4",
 		"typescript": "latest",
-		"wrangler": "latest",
-		"globals": "14.0.0"
+		"wrangler": "latest"
 	},
 	"name": "jessehattabaugh-com",
 	"scripts": {
@@ -26,5 +28,9 @@
 		"lint": "eslint . --max-warnings 0"
 	},
 	"type": "module",
-	"version": "1.0.0"
+	"version": "1.0.0",
+	"allowScripts": {
+		"esbuild@0.28.2": true,
+		"workerd@1.20261101.1": true
+	}
 }

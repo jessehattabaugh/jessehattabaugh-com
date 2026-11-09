@@ -10,18 +10,20 @@ import { loadSocial } from '../shared/data/atproto.js';
 import { workerVariables } from './shared/environment.js';
 import { buildActorCard } from './rpg-actor-card.js';
 import { buildBranding } from './branding.js';
-import { copyClientAssets } from './assets.js';
+import { stageClient, bundleClient } from './assets.js';
+import { writeSitemap } from './sitemap.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(__dirname, '..');
 const OUT = join(ROOT, 'dist', 'client');
+const STAGE = join(ROOT, 'dist', 'parcel');
 
 /**
  * @param {string} path  URL path, e.g. "/" or "/about"
  * @param {string} html  Full HTML string
  */
 async function writePage(path, html) {
-	const dir = path === '/' ? OUT : join(OUT, ...path.split('/').filter(Boolean));
+	const dir = path === '/' ? STAGE : join(STAGE, ...path.split('/').filter(Boolean));
 	await mkdir(dir, { recursive: true });
 	await writeFile(join(dir, 'index.html'), html, 'utf8');
 	console.log(`  wrote ${path}`);
@@ -33,7 +35,9 @@ async function build() {
 	// Start clean — files deleted from client/ or the page list must not
 	// linger as stale artifacts from a previous build in the same working tree.
 	await rm(OUT, { recursive: true, force: true });
-	await mkdir(OUT, { recursive: true });
+	await rm(STAGE, { recursive: true, force: true });
+	await mkdir(STAGE, { recursive: true });
+	await stageClient(ROOT, STAGE);
 	const handle = workerVariables().ATPROTO_HANDLE;
 	if (!handle) { throw new Error('ATPROTO_HANDLE must be configured'); }
 	const social = await loadSocial(handle);
@@ -44,13 +48,14 @@ async function build() {
 	await Promise.all(staticRoutes.map((route) => {
 		return writePage(route.path, render(staticPages[route.name](social)));
 	}));
-	await writeFile(join(OUT, '404.html'), render(staticPages.notFound()), 'utf8');
+	await writeFile(join(STAGE, '404.html'), render(staticPages.notFound()), 'utf8');
 
-	await copyClientAssets(ROOT, OUT);
 	// Let consumers and agents discover modules without scraping documentation.
-	await writeFile(join(OUT, 'components', 'catalog.json'), JSON.stringify({ components: componentCatalog }, null, '\t'), 'utf8');
-	await buildBranding(OUT, social);
-	await buildActorCard(OUT, social);
+	await writeFile(join(STAGE, 'client', 'shared', 'components', 'catalog.json'), JSON.stringify({ components: componentCatalog }), 'utf8');
+	await buildBranding(join(STAGE, 'client'), social);
+	await buildActorCard(join(STAGE, 'client'), social);
+	await bundleClient(ROOT, STAGE, OUT);
+	await writeSitemap(OUT);
 
 	console.log('Build complete →', OUT);
 }

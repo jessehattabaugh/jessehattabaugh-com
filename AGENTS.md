@@ -38,7 +38,7 @@ Put runtime-specific reuse in that runtime's `shared/` directory. Keep app-speci
 
 Templates execute where they render, rather than in the browser: public page templates used by Node and Cloudflare live in `shared/templates/pages/`; server-only app templates live in `server/apps/<app>/templates.js` and auth/install templates in `server/shared/templates/`. Static-only Apps, Colophon, component documentation, and 404 templates live in `build/templates/`. Browser assets formerly described as site/static/public assets belong in `client/`.
 
-`build/build.js` renders HTML to `dist/client/`. `build/assets.js` explicitly maps browser source directories to stable public URLs and rebases relative ES-module imports. Never copy all of root `shared/` or `server/` into public assets. Source directory names are not URL contracts; preserve existing links, manifests, service-worker URLs/scopes, and offline caches when moving sources. The Worker handles dynamic routes and falls through to `env.ASSETS`. If `env.ASSETS.fetch()` returns a `404`, return the static `dist/client/404.html` page with a `404` status, never the raw Cloudflare asset response.
+`build/build.js` renders shared templates into `dist/parcel/`; Parcel v3 bundles and minifies public output into `dist/client/`. Browser asset URLs omit runtime ownership prefixes: `/apps/`, `/branding/`, `/components/`, `/enhance/`, and `/styles/`. Use document/module-relative references for local assets and short root-relative URLs in shared templates whose rendering location can vary. `build/assets.js` configures separate browser and module service-worker builds; no compatibility mounts or import-rewriting shims. Only browser assets and generated documents/metadata are published, never server code or shared template sources. Page URLs belong in `shared/routes.js`; canonical public pages feed `/sitemap.xml`. Service-worker scripts live under `/apps/<app>/` alongside their scope; use relative worker, cache, and manifest URLs. The Worker handles dynamic routes and falls through to `env.ASSETS`. If `env.ASSETS.fetch()` returns a `404`, return the static `dist/client/404.html` page with a `404` status, never the raw Cloudflare asset response.
 
 ---
 
@@ -109,6 +109,7 @@ The preview URL is derived automatically — see the `test` npm script, which co
 
 ## Coding standards
 
+- **Web app manifests:** Always name these `manifest.webmanifest`, including new apps.
 - **CSS:** native nesting, `@layer` for cascade control, custom properties for theming. No preprocessor.
 - **Accessibility:** semantic HTML, real headings/landmarks, labelled controls, visible focus states, keyboard operability. The no-JS baseline must be fully accessible.
 - **Semantic elements over ARIA roles.** Use the native element a role implies — `<ul>`/`<li>` not `<div role="list">`/`<div role="listitem">`, `<button>` not `<a>`/`<div>` with a click handler, `<nav>` not `<div role="navigation">`. An explicit `role` on an element that already has a conflicting implicit role (e.g. `role="listitem"` on an `<a>`) overrides the implicit one and breaks assistive-tech and `getByRole` queries. Only reach for an ARIA role when no native element provides it (`role="status"`, `role="alert"`, `role="log"`, `role="region"` are fine on a `<div>` — there's no native equivalent).

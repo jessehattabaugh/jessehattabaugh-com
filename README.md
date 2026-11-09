@@ -20,9 +20,28 @@ client using cutting edge web apis.
 | `shared/` | Cross-runtime modules: build/server rendering and social reads, routes, server/browser solar/weather logic |
 | `test/` | Deployed-preview Playwright suites; fixtures and audit helpers in `test/shared/` |
 
-`build/assets.js` maps browser source files to existing public URLs and adjusts
-module imports. Directory moves do not change service-worker scopes or component
-download URLs. Only explicitly selected root shared modules are published.
+`npm run build` renders shared templates into an ignored staging tree, then Parcel
+v3 bundles and minifies HTML, JavaScript, CSS and SVG into `dist/client/`.
+Public assets use short URLs such as `/styles/main.css`, `/components/`, and
+`/apps/<app>/`. Local asset references are relative; shared templates use short
+root-relative references when their rendering location can vary.
+Page URLs live in `shared/routes.js`; web app manifests use `manifest.webmanifest`.
+Browser and module service-worker bundles use separate Parcel environments.
+Existing TypeScript projects and ESLint rules still
+check each source runtime independently. Wrangler bundles and minifies the server.
+
+Parcel is pinned to `3.0.0-alpha.2`, currently an alpha release. `@parcel/plugin`
+supplies the resolver for runtime image endpoints and native component imports; there
+are no new runtime dependencies. Entry URLs stay stable for server rendering;
+Parcel manages internal chunks. Legacy asset mounts and auth redirects
+are removed; retired URLs return 404. `/contact` remains a permanent redirect to Jessages.
+
+The build emits `/sitemap.xml` and `/robots.txt` from the canonical public routes.
+`SITE_ORIGIN` in `.dev.vars` configures the production origin, including on previews.
+Only searchable public pages belong in the sitemap: manifests, scripts, private
+account pages, errors and query variants do not. No guessed modification dates
+are emitted. See [Google's sitemap guidance](https://developers.google.com/search/docs/crawling-indexing/sitemaps/build-sitemap)
+and [Parcel v3 migration notes](https://v3.parceljs.org/migration/parcel-2/).
 
 ## Reusable components
 

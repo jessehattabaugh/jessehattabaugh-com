@@ -54,9 +54,10 @@ for (const { path, heading } of pages) {
 }
 
 test('unknown URLs show the site’s 404 page', async ({ page }) => {
-	const response = await page.goto(`/missing-${crypto.randomUUID()}`);
+	const response = await page.goto(`/missing-${crypto.randomUUID()}/nested/page`);
 	expect(response.status()).toBe(404);
 	await expect(page.getByRole('heading', { level: 1 })).toContainText('Page not found');
+	await expect.poll(() => { return page.getByRole('img', { name: 'Bluesky avatar', exact: true }).evaluate((image) => { return image instanceof HTMLImageElement && image.complete && image.naturalWidth > 0; }); }).toBe(true);
 });
 
 for (const path of ['/server/index.js', '/shared/data/atproto.js', '/build/assets.js', '/client/tsconfig.service-workers.json']) {
@@ -67,9 +68,21 @@ for (const path of ['/server/index.js', '/shared/data/atproto.js', '/build/asset
 	});
 }
 
-test('old contact bookmarks lead to Jessages', async ({ page }) => {
+for (const path of ['/apps/messages/verify', '/apps/messages/logout', '/apps/messages/profile', '/client/shared/styles/main.css', '/client/shared/enhance/index.js', '/client/shared/components/disclosure-panel/index.js', '/client/icon.svg']) {
+	test(`retired URL ${path} returns 404`, async ({ page }) => {
+		const response = await page.goto(path);
+		expect(response.status()).toBe(404);
+		await expect(page.getByRole('heading', { name: 'Page not found', exact: true })).toBeVisible();
+	});
+}
+
+test('contact redirects permanently to Jessages', async ({ page, request }) => {
+	const redirect = await request.get(paths.contact, { maxRedirects: 0 });
+	expect(redirect.status()).toBe(301);
+	expect(redirect.headers().location).toBe(paths.messages);
 	await page.goto(paths.contact);
-	await expect(page.getByRole('heading', { name: 'Jessages', exact: true })).toBeVisible();
+	await expect(page).toHaveURL(new URL(paths.messages, page.url()).href);
+	await expect(page.getByRole('heading', { name: 'Jessages', level: 1, exact: true })).toBeVisible();
 });
 
 test('apps gallery links open the apps', async ({ page }) => {

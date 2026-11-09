@@ -30,7 +30,7 @@ export const layout = ({
 	social,
 }) => {
 	const normalizedPath = path !== '/' && path.endsWith('/') ? path.slice(0, -1) : path;
-	const iconRoot = app ? `/apps/${app}` : '/branding';
+	const iconRoot = app ? '.' : '/branding';
 
 	return html`<!doctype html>
 		<html lang="en">
@@ -43,7 +43,7 @@ export const layout = ({
 				<link rel="icon" href="${iconRoot}/icon-32.png" type="image/png" sizes="32x32" />
 				<link rel="icon" href="${iconRoot}/icon.svg" type="image/svg+xml" sizes="any" />
 				<link rel="apple-touch-icon" href="${iconRoot}/apple-touch-icon.png" sizes="180x180" />
-				${app ? html`` : html`<link rel="manifest" href="/manifest.webmanifest" />`}
+				${app || !path ? html`` : html`<link rel="manifest" href="/manifest.webmanifest" />`}
 				${head}
 				<style>
 					/* Chromium can leave transition snapshots intercepting native controls
@@ -104,7 +104,7 @@ export const layout = ({
 				${app ? html`` : html`<footer>
 					<p>
 						&copy; Jesse Hattabaugh &middot;
-						<a href="/colophon">How this site works</a>
+						<a href="${paths.colophon}">How this site works</a>
 						&middot; <a href="${social?.profileUrl ?? paths.bluesky}" rel="me">${social ? `@${social.handle} on Bluesky` : 'Bluesky'}</a>
 					</p>
 				</footer>`}

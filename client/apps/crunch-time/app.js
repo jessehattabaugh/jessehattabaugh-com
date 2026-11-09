@@ -1,3 +1,4 @@
+const workerUrl = document.querySelector('script[data-service-worker]')?.getAttribute('data-service-worker');
 import { SitupDetector, validProfile } from './motion.js';
 /** @import { Profile } from './motion.js' */
 /** @typedef {{continuous: boolean, interimResults: boolean, lang: string, onresult: ((event: {results: ArrayLike<ArrayLike<{transcript: string}>>}) => void) | null, onerror: (() => void) | null, onend: (() => void) | null, start(): void, abort(): void}} Recognition */
@@ -172,4 +173,4 @@ const watchdog = window.setInterval(() => {
 }, 1000);
 document.addEventListener('visibilitychange', () => { if (document.hidden) { if (state !== 'idle') { finish(); } recognition?.abort(); } });
 window.addEventListener('pagehide', () => { end(); window.clearInterval(watchdog); recognition?.abort(); if ('speechSynthesis' in window) { speechSynthesis.cancel(); } });
-if ('serviceWorker' in navigator) { void navigator.serviceWorker.register(new URL('./sw.js', import.meta.url), { scope: '/apps/crunch-time/', type: 'module' }).catch(() => {}); }
+if (workerUrl && 'serviceWorker' in navigator) { void navigator.serviceWorker.register(workerUrl, { scope: './', type: 'module' }).catch(() => {}); }

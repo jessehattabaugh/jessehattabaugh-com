@@ -1,52 +1,82 @@
-/** Publish only browser assets. Source ownership and public URLs are independent. */
-import { cp, mkdir, readFile, readdir, stat, writeFile } from 'node:fs/promises';
-import { dirname, join, relative, resolve, sep } from 'node:path';
+/** Parcel owns browser dependency resolution, bundling, and minification. */
+import { cp, mkdir, readdir, readFile, writeFile } from 'node:fs/promises';
+import { join } from 'node:path';
+import { publicAssetPath } from './shared/public-assets.js';
+import { componentCatalog } from './shared/components.js';
+import { execFileSync } from 'node:child_process';
 
-/** @param {string} root @param {string} out */
-export async function copyClientAssets(root, out) {
-	// Explicit mounts preserve bookmarks, vendored component URLs, manifests,
-	// offline caches, and service-worker scopes when source directories move.
-	const mounts = [
-		['client/apps', 'apps'],
-		['client/branding', 'branding'],
-		['client/icon.svg', 'icon.svg'],
-		['client/manifest.webmanifest', 'manifest.webmanifest'],
-		['client/shared/components', 'components'],
-		['client/shared/enhance', 'enhance'],
-		['client/shared/styles', 'styles'],
-		['client/shared/rainbow-hour', 'apps/rainbow-hour'],
-		// The only root shared modules shipped to browsers. Rendering stays private.
-		['shared/rainbow-hour', 'apps/rainbow-hour'],
-	];
-	/** @type {Map<string, string>} Source filename → emitted filename. */
-	const assets = new Map();
-	/** @param {string} source @param {string} destination */
-	async function collect(source, destination) {
-		const entries = await readdir(source, { withFileTypes: true });
-		await Promise.all(entries.map(async (entry) => {
-			if (/^tsconfig(?:\.[^/]+)?\.json$/.test(entry.name)) { return; }
-			const from = join(source, entry.name), to = join(destination, entry.name);
-			if (entry.isDirectory()) { await collect(from, to); }
-			else { assets.set(from, to); }
+/** Stage source domains intact; only Parcel's reachable browser graph is emitted.
+ * @param {string} root @param {string} stage
+ */
+export async function stageClient(root, stage) {
+	await cp(join(root, 'client'), join(stage, 'client'), {
+		recursive: true,
+		filter: (source) => { return !/tsconfig(?:\.[^/]+)?\.json$/.test(source); },
+	});
+	await cp(join(root, 'shared'), join(stage, 'shared'), { recursive: true });
+	// A separate Parcel project root keeps source inputs private while the
+	// resolver and namer link the short public asset tree. It contains no environment files or runtime secrets.
+	await writeFile(join(stage, 'package.json'), JSON.stringify({
+		type: 'module', browserslist: 'last 2 Chrome versions, last 2 Firefox versions, last 2 Safari versions',
+		targets: { default: { context: 'browser', outputFormat: 'esmodule' } },
+	}));
+	await writeFile(join(stage, 'package-lock.json'), '{"lockfileVersion":3}');
+}
+
+/** @param {string} root @param {string} stage @param {string} out */
+export async function bundleClient(root, stage, out) {
+	/** @type {string[]} */
+	const entries = [];
+	/** @param {string} directory */
+	async function collect(directory) {
+		await Promise.all((await readdir(directory, { withFileTypes: true })).map(async (entry) => {
+			const file = join(directory, entry.name);
+			if (entry.isDirectory()) { await collect(file); }
+			else if (!/\/components\/(?:disclosure-panel|rpg-actor)\/.*\.js$/.test(file) && !file.endsWith('/sw.js') && !file.endsWith('/social.png') && /\.(?:js|css|html|svg|png)$/.test(file)) { entries.push(file); }
+			else if (/\.(?:json|webmanifest)$/.test(file) && file.includes('/client/')) {
+				await writeFile(join(out, publicAssetPath(file.slice(stage.length + 1))), JSON.stringify(JSON.parse(await readFile(file, 'utf8'))));
+			}
 		}));
 	}
-	await Promise.all(mounts.map(async ([source, destination]) => {
-		const from = resolve(root, source), to = resolve(out, destination);
-		if ((await stat(from)).isFile()) { assets.set(from, to); }
-		else { await collect(from, to); }
-	}));
-	await Promise.all([...assets].map(async ([source, destination]) => {
-		await mkdir(dirname(destination), { recursive: true });
-		if (!source.endsWith('.js')) { await cp(source, destination); return; }
-		// Modules remain native ES modules. Rebase only relative imports/exports;
-		// URL strings and new URL('./sw.js', import.meta.url) keep their public meaning.
-		const script = (await readFile(source, 'utf8')).replace(/\b(from\s*|import\s*(?:\(\s*)?)(['"])(\.[^'"\n]+)\2/g, (match, prefix, quote, specifier) => {
-			const target = assets.get(resolve(dirname(source), specifier));
-			if (!target) { throw new Error(`Unpublished browser import in ${relative(root, source)}: ${specifier}`); }
-			let url = relative(dirname(destination), target).split(sep).join('/');
-			if (!url.startsWith('.')) { url = `./${url}`; }
-			return `${prefix}${quote}${url}${quote}`;
+	// Only runtime ownership folders are omitted; there is no legacy URL table.
+	await Promise.all(['client', 'client/shared'].map((source) => {
+		return cp(join(stage, source), out, {
+			recursive: true,
+			filter: (file) => { return (file !== join(stage, 'client', 'shared') || source === 'client/shared') && !/\.(?:js|css|html|svg)$/.test(file); },
 		});
-		await writeFile(destination, script, 'utf8');
 	}));
+	await collect(join(stage, 'client'));
+	// Only generated documents at the root, never server/shared source modules.
+	await Promise.all((await readdir(stage, { withFileTypes: true })).map(async (entry) => {
+		if (entry.name === 'client' || entry.name === 'shared') { return; }
+		if (entry.isDirectory()) { await collect(join(stage, entry.name)); }
+		else if (entry.name.endsWith('.html')) { entries.push(join(stage, entry.name)); }
+	}));
+	await mkdir(out, { recursive: true });
+	execFileSync(join(root, 'node_modules', '.bin', 'parcel'), [
+		'build', ...entries.sort(), '--config', join(root, '.parcelrc'), '--dist-dir', out, '--no-source-maps', '--no-content-hash', '--public-url', './',
+	], { cwd: stage, stdio: 'inherit' });
+	await Promise.all(componentCatalog.map(async ({ tag }) => {
+		const directory = join(stage, 'client', 'shared', 'components', tag);
+		const packagePath = join(directory, 'package.json');
+		const metadata = JSON.parse(await readFile(packagePath, 'utf8'));
+		metadata.exports = Object.fromEntries(Object.entries(metadata.exports).filter(([, source]) => { return String(source).endsWith('.js'); }).map(([key, source]) => {
+			return [key, { source, import: `./compiled/${String(source).slice(2)}` }];
+		}));
+		metadata.targets = { import: { optimize: true } };
+		await writeFile(packagePath, JSON.stringify(metadata));
+		// Library targets preserve named exports; app bundles only run entry effects.
+		execFileSync(join(root, 'node_modules', '.bin', 'parcel'), ['build', directory, '--no-source-maps'], { cwd: stage, stdio: 'inherit' });
+		await cp(join(directory, 'compiled'), join(out, 'components', tag), { recursive: true });
+	}));
+	// Service workers have their own environment; they must never share the
+	// browser's DOM bundle loader or depend on importScripts in module workers.
+	const configPath = join(stage, 'package.json');
+	const config = JSON.parse(await readFile(configPath, 'utf8'));
+	config.targets.default.context = 'service-worker';
+	await writeFile(configPath, JSON.stringify(config));
+	execFileSync(join(root, 'node_modules', '.bin', 'parcel'), [
+		'build', 'client/apps/*/sw.js', '--config', join(root, '.parcelrc'),
+		'--dist-dir', out, '--no-source-maps', '--no-content-hash', '--public-url', './',
+	], { cwd: stage, stdio: 'inherit' });
 }

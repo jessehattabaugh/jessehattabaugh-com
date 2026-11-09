@@ -1,0 +1,5 @@
+{
+	"extends": "@parcel/config-default",
+	"namers": ["./build/parcel-namer.js", "..."],
+	"resolvers": ["./build/parcel-resolver.js", "..."]
+}
