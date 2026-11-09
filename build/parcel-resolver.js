@@ -3,6 +3,7 @@ import { Resolver } from '@parcel/plugin';
 import { existsSync } from 'node:fs';
 import { dirname, join, relative, resolve } from 'node:path';
 import { paths } from '../shared/routes.js';
+import { generatedPaths, imageInput, publicAssetPath } from './shared/public-assets.js';
 import { componentCatalog } from './shared/components.js';
 
 export default new Resolver({
@@ -22,10 +23,22 @@ export default new Resolver({
 			return { isExternal: true };
 		}
 		if (dependency.specifierType !== 'url' || /^[\w-]+:/.test(path)) { return null; }
+		// Prepared image sources are real inputs; let Parcel's native resolver read them.
+		if (target.startsWith(join(options.projectRoot, 'dist', 'inputs'))) { return null; }
 		// HTML resolves against the public tree; JS imports resolve against source.
-		const publicPath = path.startsWith('/') ? path.slice(1) : relative(options.projectRoot, target);
+		const publicPath = path.startsWith('/') ? path.slice(1) : publicAssetPath(relative(options.projectRoot, target));
+		if (generatedPaths(options.projectRoot).includes(publicPath)) {
+			// Image dependencies are registered once against their prepared PNG
+			// inputs; rendered documents keep the short canonical output names.
+			if (imageInput(publicPath)) { return { isExternal: true }; }
+			return {
+				filePath: join(options.projectRoot, 'build', 'generated', publicPath), code: publicPath, pipeline: 'generated',
+			};
+		}
 		const filePath = [join(options.projectRoot, 'client', publicPath), join(options.projectRoot, 'client', 'shared', publicPath)]
 			.find((candidate) => { return existsSync(candidate); });
-		return filePath ? { filePath } : null;
+		if (!filePath) { return null; }
+		const metadata = /\/components\/[^/]+\/(?:[^/]+\.json|README\.md|LICENSE)$/.test(filePath);
+		return { filePath, ...(metadata ? { pipeline: 'raw' } : {}) };
 	},
 });

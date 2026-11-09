@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630">
+		<rect width="1200" height="630" fill="#151222"/>
+		<rect x="48" y="48" width="1104" height="534" rx="24" fill="#242035" stroke="#65557f"/>
+		<g font-family="sans-serif" fill="#f6f2ff">
+			<text x="100" y="164" font-size="24" fill="#c5b3ee">A WEB COMPONENT FOR THE OPEN WEB</text>
+			<text x="100" y="270" font-size="82" font-weight="bold">&lt;rpg-actor&gt;</text>
+			<text x="100" y="342" font-size="34">A little character.</text>
+			<text x="100" y="392" font-size="34">A whole range of emotions.</text>
+			<text x="100" y="508" font-size="22" fill="#c5b3ee">HTML attributes · Zero dependencies · MIT</text>
+		</g>
+	</svg>

@@ -20,21 +20,27 @@ client using cutting edge web apis.
 | `shared/` | Cross-runtime modules: build/server rendering and social reads, routes, server/browser solar/weather logic |
 | `test/` | Deployed-preview Playwright suites; fixtures and audit helpers in `test/shared/` |
 
-`npm run build` renders shared templates into an ignored staging tree, then Parcel
-v3 bundles and minifies HTML, JavaScript, CSS and SVG into `dist/client/`.
-Public assets use short URLs such as `/styles/main.css`, `/components/`, and
-`/apps/<app>/`. Local asset references are relative; shared templates use short
-root-relative references when their rendering location can vary.
-Page URLs live in `shared/routes.js`; web app manifests use `manifest.webmanifest`.
-Browser and module service-worker bundles use separate Parcel environments.
-Existing TypeScript projects and ESLint rules still
-check each source runtime independently. Wrangler bundles and minifies the server.
+`npm run build` prepares a public-data snapshot and artwork under ignored
+`dist/inputs/`, then invokes Parcel **once**. Parcel renders the shared page
+templates and emits HTML, sitemap/robots, snapshots/catalogs, manifests, component
+libraries, browser assets and module service workers directly to `dist/client/`.
+There is no source staging tree, asset-copy step, or generated package configuration.
 
-Parcel is pinned to `3.0.0-alpha.2`, currently an alpha release. `@parcel/plugin`
-supplies the resolver for runtime image endpoints and native component imports; there
-are no new runtime dependencies. Entry URLs stay stable for server rendering;
-Parcel manages internal chunks. Legacy asset mounts and auth redirects
-are removed; retired URLs return 404. `/contact` remains a permanent redirect to Jessages.
+Parcel targets live in the root `package.json` (site and component exports),
+`client/package.json` (browser entries), and `client/apps/package.json` (service
+workers). `build/site.json` selects the home template; `shared/routes.js` supplies
+the other pages. TypeScript and ESLint still check each source runtime separately;
+Wrangler compiles/minifies Cloudflare code.
+
+Public assets use short `/apps/`, `/branding/`, `/components/`, `/enhance/`, and
+`/styles/` URLs. Local references are relative; shared/error views use root-relative
+references when needed. Web app manifests always use `manifest.webmanifest`.
+Static artwork lives in `.svg` files; JavaScript only binds data or composes
+request-dependent visuals. `/contact` permanently redirects to Jessages.
+
+Parcel is pinned to `3.0.0-alpha.2`. Its embedded JS plugins cannot load Sharp,
+so Node prepares the identity/card PNGs and required icon sizes; Parcel owns their
+optimization and public emission. There are no new runtime dependencies.
 
 The build emits `/sitemap.xml` and `/robots.txt` from the canonical public routes.
 `SITE_ORIGIN` in `.dev.vars` configures the production origin, including on previews.
@@ -52,6 +58,7 @@ Source distribution is GitHub-only; consumers vendor a pinned revision and can
 install its local package with npm, pnpm, or Yarn. No registry release is needed.
 
 To add one, extend `build/shared/components.js` (also emitted as `/components/catalog.json`),
+declare its native library outputs in the root `package.json`,
 add its showcase and documentation template in `build/templates/components.js`, and entries
 in `build/pages.js` and `shared/routes.js`, and cover its browser API in
 `test/site/components.test.js`. Include the new route in the smoke/Lighthouse

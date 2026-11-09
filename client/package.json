@@ -1,0 +1,21 @@
+{
+	"private": true,
+	"type": "module",
+	"source": [
+		"apps/*/app.js",
+		"shared/enhance/index.js",
+		"shared/components/*demo.js",
+		"**/*.css",
+		"**/*.svg",
+		"apps/*/manifest.webmanifest",
+		"**/offline.html"
+	],
+	"targets": {
+		"default": {
+			"context": "browser",
+			"outputFormat": "esmodule",
+			"distDir": "../dist/client"
+		}
+	},
+	"browserslist": "last 2 Chrome versions, last 2 Firefox versions, last 2 Safari versions"
+}

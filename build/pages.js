@@ -8,7 +8,7 @@ import { error } from '../shared/templates/error.js';
 import { giving } from '../shared/templates/pages/giving.js';
 import { components, disclosurePanel } from './templates/components.js';
 
-/** @type {Record<string, (social?: import('../shared/data/atproto.js').Social) => import('../shared/html.js').Raw>} */
+/** @type {Record<string, (social?: import('../shared/data/atproto.js').Social, query?: URLSearchParams) => import('../shared/html.js').Raw>} */
 export const staticPages = {
 	home,
 	rpgActor,

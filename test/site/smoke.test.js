@@ -60,7 +60,7 @@ test('unknown URLs show the site’s 404 page', async ({ page }) => {
 	await expect.poll(() => { return page.getByRole('img', { name: 'Bluesky avatar', exact: true }).evaluate((image) => { return image instanceof HTMLImageElement && image.complete && image.naturalWidth > 0; }); }).toBe(true);
 });
 
-for (const path of ['/server/index.js', '/shared/data/atproto.js', '/build/assets.js', '/client/tsconfig.service-workers.json']) {
+for (const path of ['/server/index.js', '/shared/data/atproto.js', '/build/assets.js', '/client/tsconfig.service-workers.json', '/client/package.json', '/apps/package.json', '/build/site.json', '/build/artwork/portrait.svg', '/dist/inputs/site.json']) {
 	test(`private source URL ${path} shows the standard 404 page`, async ({ page }) => {
 		const response = await page.goto(path);
 		expect(response.status()).toBe(404);

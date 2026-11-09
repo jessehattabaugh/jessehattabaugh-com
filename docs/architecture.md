@@ -65,44 +65,50 @@ returns that same fragment at the same URL. Successful forms redirect with 303;
 validation responses retain entered values. Browser enhancement follows existing
 HTML controls and falls back to native submission/navigation on errors.
 
-`build/build.js` renders `build/pages.js` with the same public-page templates,
-saves the public social snapshot, publishes client assets and generates branding.
+The Parcel site transformer renders `build/pages.js` with the same public-page
+templates and publishes the prepared public social snapshot and branding.
 No server handlers, secrets, D1 queries or template JavaScript are published.
 
 ## Source paths and public URLs
 
-`build/build.js` stages the source domains and generated HTML under `dist/parcel/`.
-Parcel v3 resolves actual imports rather than rebasing them with regular expressions.
-Only browser entries, generated documents and public metadata are emitted into
-`dist/client/`; staged shared templates are private build inputs. Browser assets
-use `/apps/`, `/branding/`, `/components/`, `/enhance/`, and `/styles/` URLs.
-The Parcel resolver and namer omit the `client/` and `client/shared/` ownership
-prefixes without moving source files or rewriting module imports.
+`build/build.js` cleans the public output, prepares public source data/artwork
+under private `dist/inputs/`, and runs one Parcel command. It never copies source
+trees or writes public output. `build/prepare-inputs.js` fetches the public social
+snapshot and uses Sharp for image composition and icon sizes; Sharp cannot run
+inside Parcel v3's embedded plugin runtime.
 
-Parcel builds browser and service-worker code separately with explicit browser
-and service-worker environments and ES module output. Worker scripts are registered
-from HTML attributes using `./sw.js`. Each script lives at `/apps/<app>/sw.js`,
-so its default directory scope matches its app. No scope-widening header is needed.
-App icons, manifests, offline documents and cache entries use relative URLs; shared
-template assets use root-relative URLs so validation subpaths and fragments work.
-Parcel emits relative references between compiled assets and static pages. The
-404 fallback retains root-relative assets because it is served at arbitrary URLs.
-Explicit service-worker targets also avoid the v3 alpha's automatic worker
-handling generating classic-script loaders for module workers.
-Metadata JSON is compacted; HTML, JS, CSS, SVG and images pass through Parcel's
-production build. Public entry names remain stable for server-rendered templates;
-internal chunks are managed by Parcel. Source maps are not published.
+`build/site.json` is the declarative site entry. Its transformer calls the existing
+shared page templates and registers the other routes and metadata as Parcel URL
+dependencies. `build/shared/public-assets.js` groups public paths, image dimensions, sitemap
+metadata and generated content. `build/branding.js` groups portrait and share-card
+composition. The generated-content transformer supplies HTML, XML, text and JSON
+in memory. Parcel's native pipelines discover their dependencies, optimize them,
+and emit every public file. The snapshot, component catalog, sitemap, robots and
+prepared image files are part of the graph, rather than post-build writes.
 
-Wrangler continues to compile Cloudflare code with minification enabled. Node
-build/deployment tools run directly. Neither pipeline replaces checkJs or ESLint.
-`build/parcel-resolver.js` leaves dynamic image endpoints to the Worker and
-portable component imports to native ES modules. Component library targets keep
-named exports and minify without app-bundle wrappers; missing static dependencies still fail the build.
+The root `package.json` declares the site target and production library exports.
+`client/package.json` declares browser entries with native globs;
+`client/apps/package.json` declares an explicit module service-worker target.
+Native library targets preserve component exports without rewriting or temporarily
+modifying package files. Existing checkJs/ESLint runtime boundaries remain in force.
 
-`build/sitemap.js` emits canonical public page URLs from `shared/routes.js`, including
-server-rendered public apps. The configured `SITE_ORIGIN` is always the production
-origin. Robots advertises the root sitemap. Error, auth/private, asset and query
-URLs are excluded; modification dates are omitted unless trustworthy data exists.
+The resolver/namer link source assets at short public URLs by omitting `client/`
+and `client/shared/`. Source imports stay intact. Local app assets, manifests,
+worker registrations and cache entries use relative URLs. Static documents get
+relative compiled references; shared/error views use root-relative references
+where their request path can vary. App workers live beside their scopes at
+`/apps/<app>/sw.js` without a scope-widening header. No source maps are published.
+
+Authored SVG lives in `build/artwork/` for build-only composition, or beside its
+app under `client/` for browser use. Gallery icons reuse existing SVG files;
+Lightsfinder's fixed artwork uses symbols from `illustrations.svg`. Its map
+geometry remains an escaped server template because it represents live sightings,
+coordinates, links and accessible controls.
+
+`build/shared/public-assets.js` supplies canonical public page URLs from `shared/routes.js`,
+including server-rendered apps, using the configured production `SITE_ORIGIN`.
+Error, auth/private, asset and query URLs are excluded; unverified modification
+dates are omitted. The Parcel graph emits sitemap and robots together.
 
 Portable components retain their package metadata, API manifest, README and MIT
 license under `client/shared/components/<tag>/`. Their source distribution is

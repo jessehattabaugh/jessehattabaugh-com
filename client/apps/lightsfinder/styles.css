@@ -125,3 +125,10 @@
 	/* The map fills its grid cell without its SVG aspect ratio resizing the grid. */
 	[data-lightsfinder] [data-map] > svg { position: absolute; inset: 0; min-height: 0; }
 }
+
+/* SVG symbols inherit the selected holiday's house color from the illustration. */
+@layer components {
+	[data-illustration] { --house-color: #5d3676; }
+	[data-theme="christmas"] [data-illustration] { --house-color: #235e48; }
+	[data-theme="valentine"] [data-illustration] { --house-color: #923657; }
+}

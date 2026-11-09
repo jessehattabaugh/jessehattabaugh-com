@@ -1,10 +1,9 @@
 /** Generate public identity assets at build time; the Worker serves static files. */
-import { mkdir, readFile, writeFile } from 'node:fs/promises';
-import { join } from 'node:path';
+import { readFile } from 'node:fs/promises';
 import sharp from 'sharp';
 
 /** @param {import('../shared/data/atproto.js').Social} social */
-async function avatarSource(social) {
+export async function avatarSource(social) {
 	try {
 		const url = social.profile?.avatar;
 		if (!url?.startsWith('https://cdn.bsky.app/')) { throw new Error('No public avatar'); }
@@ -23,34 +22,35 @@ async function avatarSource(social) {
 	}
 }
 
-/** @param {string} out @param {import('../shared/data/atproto.js').Social} social */
-export async function buildBranding(out, social) {
-	const avatar = await avatarSource(social);
-	const directory = join(out, 'branding');
-	await mkdir(directory, { recursive: true });
+/** The site's circular favicon embeds pixels so SVG image loading is self-contained.
+ * Node prepares PNG sizes; Parcel optimizes and emits the public images.
+ * @param {Uint8Array} avatar
+ */
+export async function portraitIcon(avatar) {
 	const thumbnail = await sharp(avatar).resize(128, 128).png({ palette: true, colours: 128 }).toBuffer();
-	// The SVG embeds decoded PNG pixels, with no remote references or user markup.
-	const icon = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128"><defs><clipPath id="portrait"><circle cx="64" cy="64" r="64"/></clipPath></defs><image width="128" height="128" href="data:image/png;base64,${thumbnail.toString('base64')}" clip-path="url(#portrait)"/></svg>`;
-	await Promise.all([
-		writeFile(join(directory, 'icon.svg'), icon),
-		sharp(avatar).resize(96, 96).png({ palette: true, colours: 128 }).toFile(join(directory, 'avatar-96.png')),
-		sharp(Buffer.from(icon)).resize(32, 32).png().toFile(join(directory, 'icon-32.png')),
-		sharp(avatar).resize(180, 180).png({ palette: true }).toFile(join(directory, 'apple-touch-icon.png')),
-		sharp(avatar).resize(192, 192).png({ palette: true }).toFile(join(directory, 'icon-192.png')),
-		sharp(avatar).resize(512, 512).png({ palette: true }).toFile(join(directory, 'icon-512.png')),
-	]);
-	// Each app keeps its own artwork, favicon, and installed identity. Rasterize
-	// its existing SVG for platforms that require PNG home-screen/touch icons.
-	await Promise.all(['messages', 'rainbow-hour', 'lightsfinder', 'crunch-time'].map(async (app) => {
-		const folder = join(out, 'apps', app);
-		const [svg, manifest] = await Promise.all([
-			readFile(join(folder, 'icon.svg')),
-			readFile(join(folder, 'manifest.webmanifest'), 'utf8'),
-		]);
-		const { background_color: background = '#fff' } = JSON.parse(manifest);
-		await Promise.all([32, 180, 192, 512].map((size) => {
-			const name = size === 180 ? 'apple-touch-icon.png' : `icon-${size}.png`;
-			return sharp(svg).resize(size, size).flatten({ background }).png({ palette: true }).toFile(join(folder, name));
-		}));
-	}));
+	const artwork = await readFile(new URL('./artwork/portrait.svg', import.meta.url), 'utf8');
+	return artwork.replace('{{portrait}}', thumbnail.toString('base64'));
+}
+
+/** Build a share card from the owner's public artwork, not a generated substitute.
+ * @param {import('../shared/data/atproto.js').Social} social */
+export async function actorCard(social) {
+	const background = await readFile(new URL('./artwork/rpg-actor-card.svg', import.meta.url));
+	/** @type {import('sharp').OverlayOptions[]} */
+	const overlays = [];
+	const sprite = social.actor?.sprite;
+	if (sprite && social.pds && social.did) {
+		try {
+			const cid = sprite.emotes.happy?.emoteSheet || sprite.cid;
+			const response = await fetch(`${social.pds}/xrpc/com.atproto.sync.getBlob?${new URLSearchParams({ did: social.did, cid })}`, { signal: AbortSignal.timeout(8000) });
+			if (!response.ok) { throw new Error('Sprite unavailable'); }
+			const bytes = Buffer.from(await response.arrayBuffer());
+			const metadata = await sharp(bytes).metadata();
+			const columns = cid === sprite.cid ? sprite.columns : 3, rows = cid === sprite.cid ? sprite.rows : 4;
+			const width = Math.floor((metadata.width ?? 144) / columns), height = Math.floor((metadata.height ?? 192) / rows);
+			const portrait = await sharp(bytes).extract({ left: Math.min(1, columns - 1) * width, top: 0, width, height }).resize(288, 288, { fit: 'contain', kernel: 'nearest' }).png().toBuffer();
+			overlays.push({ input: portrait, left: 800, top: 190 });
+		} catch (error) { console.error('Actor share-card portrait unavailable; keeping text card', error); }
+	}
+	return sharp(background).composite(overlays).png().toBuffer();
 }
