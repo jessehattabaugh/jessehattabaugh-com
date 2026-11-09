@@ -1,7 +1,8 @@
+const workerUrl = document.querySelector('script[data-service-worker]')?.getAttribute('data-service-worker');
 /** Browser capabilities enhance the existing manual forms, never replace them. */
 import './map.js';
-if ('serviceWorker' in navigator) {
-	navigator.serviceWorker.register(new URL('./sw.js', import.meta.url), { type: 'module' }).catch(() => { /* Online use stays available. */ });
+if (workerUrl && 'serviceWorker' in navigator) {
+	navigator.serviceWorker.register(workerUrl, { scope: './', type: 'module' }).catch(() => { /* Online use stays available. */ });
 }
 function reveal() {
 	for (const button of document.querySelectorAll('[data-lightsfinder] [data-locate]')) {

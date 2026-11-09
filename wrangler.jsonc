@@ -10,6 +10,7 @@
 		}
 	],
 	"main": "./server/index.js",
+	"minify": true,
 	"name": "jessehattabaugh-com",
 	"observability": { "enabled": true },
 	"preview_urls": true,

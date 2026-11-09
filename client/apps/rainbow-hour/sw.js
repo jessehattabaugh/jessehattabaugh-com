@@ -13,7 +13,7 @@
 const sw = self;
 
 const APP_URL = sw.registration.scope;
-const ICON_URL = new URL('icon.svg', APP_URL).pathname;
+const ICON_URL = new URL('./icon.svg', APP_URL).pathname;
 
 import { sunPosition } from '../../../shared/rainbow-hour/solar.js';
 import { evaluateRainbowConditions } from '../../../shared/rainbow-hour/rainbow.js';

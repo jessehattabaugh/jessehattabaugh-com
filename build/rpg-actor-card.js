@@ -32,7 +32,7 @@ export async function buildActorCard(out, social) {
 			overlays.push({ input: portrait, left: 800, top: 190 });
 		} catch (error) { console.error('Actor share-card portrait unavailable; keeping text card', error); }
 	}
-	const directory = join(out, 'components/rpg-actor');
+	const directory = join(out, 'shared/components/rpg-actor');
 	await mkdir(directory, { recursive: true });
 	await sharp(background).composite(overlays).png().toFile(join(directory, 'social.png'));
 }

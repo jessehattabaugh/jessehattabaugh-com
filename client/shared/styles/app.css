@@ -1,5 +1,5 @@
 /* Shared app chrome. Each app supplies its palette and content styling. */
-@import url('/styles/base.css');
+@import url('./base.css');
 
 @layer shell {
 	body > header {

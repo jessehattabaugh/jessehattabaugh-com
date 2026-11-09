@@ -1,6 +1,6 @@
 /** The URL vocabulary belongs to the server. Clients follow rendered controls. */
 export const paths = {
-	home: '/', about: '/about', colophon: '/colophon', apps: '/apps/',
+	home: '/', about: '/about', colophon: '/colophon/', apps: '/apps/',
 	components: '/components/', rpgActor: '/components/rpg-actor/', disclosurePanel: '/components/disclosure-panel/',
 	giving: '/giving', bluesky: '/bluesky', atAvatar: '/atproto/avatar', atBlob: '/atproto/blob',
 	avatar: '/branding/avatar-96.png',
@@ -30,9 +30,6 @@ export const staticRoutes = [
 ];
 
 export const dynamicRoutes = [
-	{ path: '/apps/messages/verify', methods: ['GET', 'POST'], handler: 'legacy-auth' },
-	{ path: '/apps/messages/logout', methods: ['POST'], handler: 'legacy-auth' },
-	{ path: '/apps/messages/profile', methods: ['POST'], handler: 'legacy-auth' },
 	{ path: paths.rpgActor, methods: ['GET'], handler: 'social' },
 	{ path: paths.home, methods: ['GET'], handler: 'social' },
 	{ path: paths.about, methods: ['GET'], handler: 'social' },
@@ -62,3 +59,10 @@ export const dynamicRoutes = [
 export function findDynamicRoute(pathname) {
 	return dynamicRoutes.find((route) => { return route.path === pathname; });
 }
+
+/** Canonical public documents with durable URLs, including server-rendered apps.
+ * Authentication, private views, errors, query variants and assets are not search entries. */
+export const sitemapPaths = [
+	...staticRoutes.filter(({ name }) => { return !['notFound', 'error'].includes(name); }).map(({ path }) => { return path; }),
+	paths.messages, paths.rainbow, paths.lightsfinder, paths.crunch,
+];

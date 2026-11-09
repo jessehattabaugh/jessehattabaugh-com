@@ -44,7 +44,7 @@ export function rainbowHourFragment(data = {}) {
 	const { values = {}, error } = data;
 	return html`<article data-rainbow>
 		<header>
-			<img src="/apps/rainbow-hour/icon.svg" alt="" width="112" height="112" />
+			<img src="./icon.svg" alt="" width="112" height="112" />
 			<div><p>Sunshine. Showers. A little magic.</p><h1>Rainbow Hour</h1>
 			<p>A nudge when rain clears under a low sun — the moment skies grow rainbows.</p></div>
 		</header>
@@ -85,7 +85,7 @@ export function rainbowHourPage(data = {}) {
 		title: 'Rainbow Hour', path: paths.rainbow, app: 'rainbow-hour', user: data.user,
 		description: 'Find rainbow windows and check when rain clears under a low sun.',
 		body: rainbowHourFragment(data),
-		head: html`<meta name="theme-color" content="#38bdf8" /><link rel="manifest" href="/apps/rainbow-hour/manifest.json" /><link rel="stylesheet" href="/apps/rainbow-hour/styles.css" />`,
-		scripts: html`<script type="module" src="/apps/rainbow-hour/app.js" data-service-worker="/apps/rainbow-hour/sw.js" data-scope="/apps/rainbow-hour/"></script>`,
+		head: html`<meta name="theme-color" content="#38bdf8" /><link rel="manifest" href="./manifest.webmanifest" /><link rel="stylesheet" href="./styles.css" />`,
+		scripts: html`<script type="module" src="./app.js" data-service-worker="./sw.js" data-scope="./"></script>`,
 	});
 }

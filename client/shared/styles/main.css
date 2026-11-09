@@ -1,5 +1,5 @@
 /* Site stylesheet: imports shared base then adds site-specific layers. */
-@import url('/styles/base.css');
+@import url('./base.css');
 
 @layer layout, components;
 
@@ -102,7 +102,6 @@
 			label:has(input[type="checkbox"]) { display: flex; align-items: center; gap: .6rem; min-height: 44px; }
 			input[type="checkbox"] { width: 1.2rem; height: 1.2rem; margin: 0; }
 		}
-	}
 	}
 	/* Home page introduction. */
 	main > section:first-child {

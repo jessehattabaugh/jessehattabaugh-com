@@ -33,8 +33,6 @@ export async function buildBranding(out, social) {
 	const icon = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128"><defs><clipPath id="portrait"><circle cx="64" cy="64" r="64"/></clipPath></defs><image width="128" height="128" href="data:image/png;base64,${thumbnail.toString('base64')}" clip-path="url(#portrait)"/></svg>`;
 	await Promise.all([
 		writeFile(join(directory, 'icon.svg'), icon),
-		// Retain the familiar root URL for existing bookmarks and favicon caches.
-		writeFile(join(out, 'icon.svg'), icon),
 		sharp(avatar).resize(96, 96).png({ palette: true, colours: 128 }).toFile(join(directory, 'avatar-96.png')),
 		sharp(Buffer.from(icon)).resize(32, 32).png().toFile(join(directory, 'icon-32.png')),
 		sharp(avatar).resize(180, 180).png({ palette: true }).toFile(join(directory, 'apple-touch-icon.png')),
@@ -47,7 +45,7 @@ export async function buildBranding(out, social) {
 		const folder = join(out, 'apps', app);
 		const [svg, manifest] = await Promise.all([
 			readFile(join(folder, 'icon.svg')),
-			readFile(join(folder, 'manifest.json'), 'utf8').catch(() => { return readFile(join(folder, 'manifest.webmanifest'), 'utf8'); }),
+			readFile(join(folder, 'manifest.webmanifest'), 'utf8'),
 		]);
 		const { background_color: background = '#fff' } = JSON.parse(manifest);
 		await Promise.all([32, 180, 192, 512].map((size) => {
