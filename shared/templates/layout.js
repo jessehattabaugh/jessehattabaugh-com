@@ -86,6 +86,7 @@ export const layout = ({
 									>Apps</a
 								>
 							</li>
+							<li><a href="${paths.games}"${normalizedPath === '/games' || normalizedPath.startsWith('/games/') ? html` aria-current="page"` : html``}>Games</a></li>
 							<li>
 								<a
 									href="/apps/messages/"

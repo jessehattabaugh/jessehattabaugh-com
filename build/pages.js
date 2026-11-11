@@ -7,7 +7,8 @@ import { notFound } from './templates/not-found.js';
 import { error } from '../shared/templates/error.js';
 import { components, disclosurePanel } from './templates/components.js';
 
-import { retroGame, retroRelay } from './templates/retro-game.js';
+import { games, aetherWing } from './templates/games.js';
+import { retroGame } from './templates/retro-game.js';
 
 /** @type {Record<string, (social?: import('../shared/data/atproto.js').Social, query?: URLSearchParams) => import('../shared/html.js').Raw>} */
 export const staticPages = {
@@ -19,7 +20,8 @@ export const staticPages = {
 	components,
 	disclosurePanel,
 	retroGame,
-	retroRelay,
+	games,
+	aetherWing,
 	notFound,
 	error: () => { return error(); },
 };

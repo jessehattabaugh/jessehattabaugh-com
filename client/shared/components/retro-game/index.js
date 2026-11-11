@@ -1,3 +1,7 @@
+import { RetroWorld, RetroStage, RetroPalette, RetroTileset, RetroTile } from './world.js';
+import { RetroInput } from './game-input.js';
+export { RetroWorld, RetroStage, RetroPalette, RetroTileset, RetroTile, RetroInput };
+
 /** @param {Element} element @param {string} name @param {number} fallback */
 function number(element, name, fallback) {
 	const raw = element.getAttribute(name)?.trim();
@@ -290,6 +294,7 @@ export class RetroModal extends HTMLElement {
 
 for (const [tag, element] of Object.entries({
 	'retro-screen': RetroScreen, 'retro-layer': RetroLayer, 'retro-sprite': RetroSprite, 'retro-tilemap': RetroTilemap,
+	'retro-world': RetroWorld, 'retro-stage': RetroStage, 'retro-palette': RetroPalette, 'retro-tileset': RetroTileset, 'retro-tile': RetroTile, 'retro-input': RetroInput,
 	'retro-game': RetroGame, 'retro-scene': RetroScene, 'retro-menu': RetroMenu, 'retro-modal': RetroModal,
 })) {
 	if (!customElements.get(tag)) { customElements.define(tag, element); }

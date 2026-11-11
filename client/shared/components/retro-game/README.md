@@ -59,3 +59,49 @@ complete attribute, CSS, and event contract. The browser runtime has no
 game-specific scripts, dependencies, persistence, or hardware backend. A
 console interpreter can consume the HTML scene graph and bitmap assets
 directly, with hardware-specific palette, memory, and timing checks.
+
+## Perspective worlds
+
+A world screen contains stages of `retro-layer` background tilemaps and
+`retro-sprite` object records. Both reference `retro-tileset` pattern banks.
+Image banks declare tile width and height. Indexed banks contain
+`retro-tile` pixel palette indices. A tilemap references bank entries by
+index and a `retro-palette` by ID. These are the graphics records consumed
+by the CSS display and a future hardware interpreter.
+
+CSS owns `perspective`, `perspective-origin`, `translate3d`, ground
+`rotateX`, parallax transforms, stepped sprite frames, palette keyframes,
+and motion transitions. Native checkboxes and radio controls run/pause the
+course, steer the player, shoot targets and select sectors without scripting.
+Use the live documentation's copyable HTML as a complete example.
+
+Upgrade adds a fixed 60 Hz simulation, controller input, aimed projectiles,
+collision checks, shield damage, score and automatic stage progression.
+The same sprite primitive has an `actor` attribute of `player`, `enemy`
+or `scenery`. Movement bounds, enemy movement, encounters and shots are
+sprite attributes. Optional movement behaviors are `straight`, `sine`,
+`dive`, and `chase`. Equal player vertical bounds constrain height.
+
+The `retro-input` element emits normalized axes and commands from
+keyboard, held pointer buttons and the first exposed gamepad. Arrow keys
+or WASD move, Space fires, and P/Escape pause. A standard controller uses
+the left stick or D-pad, bottom face button or right trigger, and Start.
+Press a button after connection so the browser exposes it. Disconnecting
+hands ownership to another connected pad or keyboard/touch. Set
+`deadzone` and `fire-button` to tune input.
+
+Player sprites emit `retro-shot` and `retro-player-hit`. Enemy sprites
+emit `retro-enemy-hit`. Stages emit `retro-stage-change`, and worlds
+emit `retro-world-change` and `retro-world-error`. All bubble and are
+composed. The manifest documents payloads and defaults.
+
+The world reflects `state`, `score`, and `stage`. Players reflect
+`position-x`, `position-y`, `health` and selected `frame`, while
+rendered objects expose `x`, `y`, and `z`. Missing banks and failed
+images stop initialization of the enhancement. Native presentation remains.
+The simulation pauses when hidden or unfocused.
+
+Console translation still needs hardware-specific assembly routines,
+fixed-point projection, palette packing and sprite/tile resource checks.
+The explicit pattern banks, tile and palette indices, object records and
+stage tables are the content input for that backend.

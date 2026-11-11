@@ -11,14 +11,8 @@
 			border-block-start: 1px solid var(--color-border);
 			padding-block-start: 1rem;
 		}
-	}
-
-	[data-retro-demo], [data-retro-relay] retro-game {
 		--retro-screen-background: #202440;
 		--retro-screen-width: 25rem;
-	}
-
-	[data-retro-demo] {
 		> label:not([hidden]) {
 			display: grid;
 			gap: .25rem;
@@ -30,9 +24,6 @@
 			overflow-wrap: anywhere;
 			font-family: monospace;
 		}
-	}
-
-	[data-retro-demo], [data-retro-relay] {
 		dialog {
 			max-inline-size: min(26rem, 90vw);
 			color: var(--color-text);
@@ -44,23 +35,6 @@
 
 		dialog::backdrop { background: #121426ba; }
 		retro-screen:has(> #road-texture) { --retro-screen-background: linear-gradient(#393350 33.33%, #1c3e41 33.33%); }
-	}
-
-	[data-retro-relay] {
-		> retro-game {
-			max-inline-size: calc(var(--retro-screen-width) + 2rem);
-			margin-block: 1.25rem;
-			padding: 1rem;
-			background: var(--color-surface);
-			border: 1px solid var(--color-border);
-			border-radius: var(--radius);
-		}
-
-		retro-scene > h2 { margin-block-start: 0; }
-		retro-screen + p { margin-block: .75rem; }
-	}
-
-	[data-retro-demo], [data-retro-relay] {
 		retro-screen { border-radius: .25rem; }
 
 		retro-menu nav {
@@ -83,14 +57,6 @@
 		[data-tile="wall"] {
 			background: #1b2740;
 			box-shadow: inset 0 0 0 2px #425674;
-		}
-
-		[data-gate] {
-			background: repeating-linear-gradient(90deg, #d99562 0 25%, #1b2740 25% 50%);
-		}
-
-		[data-powered] [data-gate] {
-			background: repeating-linear-gradient(90deg, #425674 0 25%, #30405b 25% 50%);
 		}
 	}
 }

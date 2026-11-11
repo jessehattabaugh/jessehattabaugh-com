@@ -59,8 +59,12 @@ install its local package with npm, pnpm, or Yarn. No registry release is needed
 
 [Retro game components](https://jessehattabaugh.com/components/retro-game/) are
 shipped together in `client/shared/components/retro-game/`. Their documentation
-includes runnable graphics examples and Signal Relay, a maze whose scene links
-work with JavaScript disabled. See the package README for the markup contract.
+includes runnable graphics examples and Aether Wing at `/games/aether-wing/`,
+listed in the `/games/` showcase. Pattern banks, palettes, tilemaps, layers and
+sprite records are declared in HTML. CSS supplies projection, scrolling,
+palette and frame animations. Native controls support steering, targeting and
+sector selection without scripting. JavaScript adds continuous input,
+collision simulation and gamepad support. See the package README for the contract.
 
 To add one, extend `build/shared/components.js` (also emitted as `/components/catalog.json`),
 declare its native library outputs in the root `package.json`,
