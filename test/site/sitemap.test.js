@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test';
 
 // This is the public URL contract, not a list of every asset or authenticated action.
 const pages = ['/', '/about', '/colophon/', '/apps/', '/components/',
-	'/components/rpg-actor/', '/components/disclosure-panel/', '/apps/messages/',
+	'/components/rpg-actor/', '/components/disclosure-panel/', '/components/retro-game/', '/components/retro-game/relay/', '/apps/messages/',
 	'/apps/rainbow-hour/', '/apps/lightsfinder/', '/apps/crunch-time/'];
 
 test('the root sitemap lists every canonical public document and robots advertises it', async ({ page, request }) => {

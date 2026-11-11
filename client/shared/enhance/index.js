@@ -75,6 +75,18 @@ if ('startViewTransition' in document && 'fetch' in window && 'FormData' in wind
 		try { await follow(link); } catch { location.assign(link.href); }
 	});
 
-	// Reload from the server on back/forward so URL and representation stay in sync.
-	window.addEventListener('popstate', () => { return location.reload(); });
+	let renderedURL = new URL(location.href);
+	const rememberURL = () => { renderedURL = new URL(location.href); };
+	document.addEventListener('fragment-loaded', rememberURL);
+	window.addEventListener('hashchange', rememberURL);
+	window.addEventListener('popstate', () => {
+		const destination = new URL(location.href);
+		// Native fragment links share the current document and its live state.
+		if (destination.pathname === renderedURL.pathname && destination.search === renderedURL.search && destination.href !== renderedURL.href) {
+			renderedURL = destination;
+			return;
+		}
+		// Restore the server representation when traversing enhanced responses.
+		location.reload();
+	});
 }

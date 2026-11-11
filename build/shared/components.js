@@ -1,3 +1,5 @@
+import { paths } from '../../shared/routes.js';
+
 /** Catalog metadata. Add a component here, its page/route, and its browser tests. */
 export const componentCatalog = [{
 	tag: 'disclosure-panel',
@@ -13,4 +15,11 @@ export const componentCatalog = [{
 	manifest: '/components/rpg-actor/custom-elements.json',
 	source: 'https://github.com/jessehattabaugh/jessehattabaugh-com/tree/main/client/shared/components/rpg-actor',
 	description: 'A portable pixel character. Four directions, nine expressions, talking, and attribute-driven playback with an HTML fallback.',
+}, {
+	tag: 'retro-game',
+	path: paths.retroGame,
+	module: '/components/retro-game/index.js',
+	manifest: '/components/retro-game/custom-elements.json',
+	source: 'https://github.com/jessehattabaugh/jessehattabaugh-com/tree/main/client/shared/components/retro-game',
+	description: 'Compose retro games from bitmap layers, sprites, tilemaps, scenes, menus, and native dialogs. Includes live raster effects and a playable tile maze.',
 }];

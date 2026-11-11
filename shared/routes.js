@@ -2,6 +2,7 @@
 export const paths = {
 	home: '/', about: '/about', colophon: '/colophon/', apps: '/apps/',
 	components: '/components/', rpgActor: '/components/rpg-actor/', disclosurePanel: '/components/disclosure-panel/',
+	retroGame: '/components/retro-game/', retroRelay: '/components/retro-game/relay/',
 	bluesky: '/bluesky', atAvatar: '/atproto/avatar', atBlob: '/atproto/blob',
 	avatar: '/branding/avatar-96.png',
 	notFound: '/404/', error: '/500/', contact: '/contact', login: '/login',
@@ -24,6 +25,8 @@ export const staticRoutes = [
 	{ name: 'components', path: paths.components },
 	{ name: 'rpgActor', path: paths.rpgActor },
 	{ name: 'disclosurePanel', path: paths.disclosurePanel },
+	{ name: 'retroGame', path: paths.retroGame },
+	{ name: 'retroRelay', path: paths.retroRelay },
 	{ name: 'notFound', path: paths.notFound },
 	{ name: 'error', path: paths.error },
 ];

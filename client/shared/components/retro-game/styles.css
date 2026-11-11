@@ -1,0 +1,95 @@
+@layer retro-game {
+	retro-screen, retro-layer, retro-sprite, retro-tilemap, retro-game, retro-scene, retro-menu, retro-modal {
+		display: block;
+	}
+
+	retro-screen {
+		--retro-width: max(1, attr(width type(<number>), 128));
+		--retro-height: max(1, attr(height type(<number>), 96));
+		position: relative;
+		container-type: inline-size;
+		isolation: isolate;
+		overflow: hidden;
+		aspect-ratio: 4 / 3;
+		aspect-ratio: var(--retro-width) / var(--retro-height);
+		inline-size: 100%;
+		max-inline-size: var(--retro-screen-width, 32rem);
+		background: var(--retro-screen-background, #171a29);
+		image-rendering: pixelated;
+	}
+
+	retro-layer, retro-tilemap {
+		position: absolute;
+		inset: 0;
+	}
+
+	retro-layer {
+		> img, > canvas {
+			position: absolute;
+			inset: 0;
+			inline-size: 100%;
+			block-size: 100%;
+			object-fit: fill;
+		}
+
+		> img {
+			max-inline-size: none;
+		}
+
+		> canvas[hidden] {
+			display: none;
+		}
+
+		&:has(> canvas:not([hidden])) > img {
+			/* Keep the authored alt text available while the canvas displays its texture. */
+			clip-path: inset(50%);
+		}
+	}
+
+	retro-sprite {
+		--retro-pixel: calc(100cqw / var(--retro-width, 128));
+		--retro-zoom: clamp(0.125, attr(scale type(<number>), 1), 16);
+		position: absolute;
+		left: calc(attr(x type(<number>), 0) * var(--retro-pixel));
+		top: calc(attr(y type(<number>), 0) * var(--retro-pixel));
+		width: calc(max(1, attr(width type(<number>), 8)) * var(--retro-pixel) * var(--retro-zoom));
+		height: calc(max(1, attr(height type(<number>), 8)) * var(--retro-pixel) * var(--retro-zoom));
+
+		> img {
+			display: block;
+			width: 100%;
+			height: 100%;
+			object-fit: fill;
+		}
+
+		&[flip-x] > img {
+			transform: scaleX(-1);
+		}
+	}
+
+	retro-tilemap {
+		display: grid;
+		grid-template-columns: repeat(max(1, attr(columns type(<integer>), 16)), minmax(0, 1fr));
+		grid-template-rows: repeat(max(1, attr(rows type(<integer>), 12)), minmax(0, 1fr));
+		grid-auto-rows: 0;
+		overflow: hidden;
+	}
+
+	/* Fragment navigation is the same scene graph before and after upgrade. */
+	retro-game > retro-scene,
+	retro-game:not([data-retro-ready]):has(> retro-scene:target) > retro-scene,
+	retro-game:not([data-retro-ready]):has(> retro-scene[data-start]) > retro-scene {
+		display: none;
+	}
+
+	retro-game[data-retro-ready] > retro-scene[active],
+	retro-game:not([data-retro-ready]):has(> retro-scene:target) > retro-scene:target,
+	retro-game:not([data-retro-ready]):not(:has(> retro-scene:target)) > retro-scene[data-start],
+	retro-game:not([data-retro-ready]):not(:has(> retro-scene:target, > retro-scene[data-start])) > retro-scene:first-of-type {
+		display: block;
+	}
+
+	retro-scene {
+		scroll-margin-block-start: 1rem;
+	}
+}

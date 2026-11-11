@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test';
 import { lighthouseAudit } from '../shared/lighthouse.js';
 import { staticRoutes, paths } from '../../shared/routes.js';
 
-const headings = { home: 'Useful tools and web experiments', about: 'About', colophon: 'Colophon', apps: 'Apps', components: 'Components', rpgActor: 'rpg-actor', disclosurePanel: 'disclosure-panel' };
+const headings = { home: 'Useful tools and web experiments', about: 'About', colophon: 'Colophon', apps: 'Apps', components: 'Components', rpgActor: 'rpg-actor', disclosurePanel: 'disclosure-panel', retroGame: 'Retro game components', retroRelay: 'Signal Relay' };
 const pages = [
 	...staticRoutes.filter((route) => { return route.name in headings; }).map((route) => {
 		return { path: route.path, heading: headings[route.name] };
