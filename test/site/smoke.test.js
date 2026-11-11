@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test';
 import { lighthouseAudit } from '../shared/lighthouse.js';
 import { staticRoutes, paths } from '../../shared/routes.js';
 
-const headings = { home: 'Useful tools and web experiments', about: 'About', giving: 'Giving away', colophon: 'Colophon', apps: 'Apps', components: 'Components', rpgActor: 'rpg-actor', disclosurePanel: 'disclosure-panel' };
+const headings = { home: 'Useful tools and web experiments', about: 'About', colophon: 'Colophon', apps: 'Apps', components: 'Components', rpgActor: 'rpg-actor', disclosurePanel: 'disclosure-panel' };
 const pages = [
 	...staticRoutes.filter((route) => { return route.name in headings; }).map((route) => {
 		return { path: route.path, heading: headings[route.name] };
@@ -31,10 +31,10 @@ for (const { path, heading } of pages) {
 			return;
 		}
 		const nav = page.getByRole('navigation', { name: 'Main navigation' });
-		await Promise.all(['About', 'Apps', 'Contact', 'Giving away', 'Components'].map((name) => {
+		await Promise.all(['About', 'Apps', 'Contact', 'Components'].map((name) => {
 			return expect(nav.getByRole('link', { name, exact: true })).toBeVisible();
 		}));
-		await expect(nav.getByRole('listitem').getByRole('link')).toHaveText(['About', 'Apps', 'Contact', 'Giving away', 'Components']);
+		await expect(nav.getByRole('listitem').getByRole('link')).toHaveText(['About', 'Apps', 'Contact', 'Components']);
 		if (path === paths.home) {
 			const main = page.getByRole('main');
 			await expect(main.getByRole('link', { name: 'Explore the apps', exact: true })).toBeVisible();
@@ -68,7 +68,7 @@ for (const path of ['/server/index.js', '/shared/data/atproto.js', '/build/asset
 	});
 }
 
-for (const path of ['/apps/messages/verify', '/apps/messages/logout', '/apps/messages/profile', '/client/shared/styles/main.css', '/client/shared/enhance/index.js', '/client/shared/components/disclosure-panel/index.js', '/client/icon.svg']) {
+for (const path of ['/giving', '/giving/', '/apps/messages/verify', '/apps/messages/logout', '/apps/messages/profile', '/client/shared/styles/main.css', '/client/shared/enhance/index.js', '/client/shared/components/disclosure-panel/index.js', '/client/icon.svg']) {
 	test(`retired URL ${path} returns 404`, async ({ page }) => {
 		const response = await page.goto(path);
 		expect(response.status()).toBe(404);

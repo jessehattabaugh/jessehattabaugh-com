@@ -4,7 +4,6 @@ import { paths } from '../../shared/routes.js';
 import { render } from '../../shared/html.js';
 import { home, homeFragment } from '../../shared/templates/pages/home.js';
 import { about, aboutFragment } from '../../shared/templates/pages/about.js';
-import { giving, givingFragment } from '../../shared/templates/pages/giving.js';
 /** @import { Social } from '../../shared/data/atproto.js' */
 
 /** @param {import('../../shared/html.js').Raw} page */
@@ -27,7 +26,7 @@ async function socialData(request, env, ctx) {
 	if (cached) { return /** @type {Promise<Social>} */ (cached.json()); }
 	const fresh = await loadSocial(handle);
 	const sameIdentity = saved.did === fresh.did || (!fresh.did && saved.handle === handle);
-	for (const field of /** @type {const} */ (['profile', 'posts', 'actor', 'gifts'])) {
+	for (const field of /** @type {const} */ (['profile', 'posts', 'actor'])) {
 		if (fresh[field] === null && sameIdentity && saved[field] !== null) {
 			// Each source can fail independently; retain the build's known data.
 			Object.assign(fresh, { [field]: saved[field] }); fresh.stale = true;
@@ -47,7 +46,6 @@ function allowedIds(data) {
 	]);
 	const allowed = new Set([
 		...spriteIds,
-		...(data.gifts ?? []).flatMap((gift) => {return gift.images.map((item) => {return item.cid})}),
 		...(data.posts ?? []).flatMap((post) => {return post.images.map((item) => {return item.cid})}),
 	]);
 	return { spriteIds, allowed };
@@ -107,11 +105,5 @@ export async function handleAtproto(request, env, ctx) {
 	}
 	const data = await socialData(request, env, ctx);
 	if (url.pathname === paths.rpgActor) { return pageResponse(fragment ? rpgActorFragment(data, url.searchParams) : rpgActor(data, url.searchParams, url.origin)); }
-	let template;
-	if (url.pathname === paths.about) {
-		template = fragment ? aboutFragment : about;
-	} else {
-		template = fragment ? givingFragment : giving;
-	}
-	return pageResponse(template(data));
+	return pageResponse(fragment ? aboutFragment(data) : about(data));
 }

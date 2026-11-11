@@ -20,8 +20,8 @@ or runtime dependencies.
 - `build/parcel-site.js`, `parcel-generated.js`, `parcel-resolver.js`, `parcel-namer.js`: render and link the public graph without copying source trees.
 - `test/`: functional browser flows against an isolated deployed preview.
 
-Home, About, Giving away, Apps, Components, and Colophon have static builds. About,
-Giving away, and `/components/rpg-actor/` also render fresh public AT Protocol data
+Home, About, Apps, Components, and Colophon have static builds. About
+and `/components/rpg-actor/` also render fresh public AT Protocol data
 in the Worker, using the same templates. Home renders its RPG Actor sprite from the
 build snapshot without upstream latency. They use the site navigation and
 branding; app pages load the shared app shell and their own stylesheet, with the
@@ -46,25 +46,19 @@ browser, and app artwork is not replaced by the owner's portrait.
 
 `ATPROTO_HANDLE` selects the public owner identity (default documented in
 `.dev.vars.example`). The home page introduces the site and links to its apps,
-About, Colophon, contact, and giveaways; it renders without an AT Protocol lookup.
+About, Colophon, and contact; it renders without an AT Protocol lookup.
 About shows five original Bluesky posts, excluding
 replies, reposts, and labelled posts; UTF-8 facets preserve links and mentions.
 It also displays the Bluesky bio and counts, the RPG Actor sprite, and D&D/DCC
-character sheets. `/giving` lists GiftHood offers that are available or pending,
-including photos and links to arrange pickup on GiftHood. Taken/closed listings
-and requests are omitted. No authentication or new dependency is needed.
+character sheets. No authentication or new dependency is needed.
 
 The build saves a public snapshot; runtime data is cached for five minutes and
 each failed source falls back independently to the build snapshot, with a saved
-date shown. Empty and unavailable states differ. Snapshot data can become stale;
-GiftHood remains the source for pickup/availability. Cache keys include the host,
+date shown. Empty and unavailable states differ. Snapshot data can become stale. Cache keys include the host,
 handle, and snapshot timestamp to isolate versions and previews. Images stream
 through same-origin endpoints restricted to CIDs referenced by the owner's current
 records; photo/avatar thumbnails come from Bluesky's CDN and sprites retain
-their original pixels. Additional GiftHood photos use native details disclosures.
-CSP needs no new origins. Giving away opts out of cross-document View Transitions
-because Chromium's no-JS transition snapshots intercepted native photo disclosures
-in deployed tests, the same issue already documented for Lightsfinder.
+their original pixels. CSP needs no new origins.
 RPG Actor sprites are cropped to their selected pose with CSS without JS, and
 enhanced by the `rpg-actor` Custom Element with walking, nine expressions, talking,
 and showcase playback when optional `emotes` blobs exist on `actor.rpg.sprite/self`.
@@ -245,8 +239,8 @@ test mailbox domain are never uploaded.
 
 The shared layout enables cross-document View Transitions only under
 `@media (scripting: enabled)`: Chromium otherwise left snapshots intercepting
-native controls in no-JS messaging/account flows. Lightsfinder and Giving away
-retain their explicit transition opt-outs. Optional fetch-and-swap enhancement
+native controls in no-JS messaging/account flows. Lightsfinder
+retains its explicit transition opt-out. Optional fetch-and-swap enhancement
 still uses View Transitions. The full messaging/account suites exercise native
 controls with JavaScript disabled; the Rainbow Hour reload test waits for its
 transition to finish updating the URL before reloading.

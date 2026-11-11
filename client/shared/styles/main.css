@@ -127,8 +127,8 @@
 		p { white-space: pre-line; }
 	}
 
-	section[aria-labelledby='bluesky-heading'], [data-gifts] {
-		ol, &[data-gifts] { list-style: none; padding: 0; }
+	section[aria-labelledby='bluesky-heading'] {
+		ol { list-style: none; padding: 0; }
 		li { margin-block: var(--space-lg); }
 		li > article { padding-block: var(--space-md); border-block-start: 1px solid var(--color-border); }
 		p { overflow-wrap: anywhere; white-space: pre-line; }

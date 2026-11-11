@@ -95,7 +95,6 @@ export const layout = ({
 									>Contact</a
 								>
 							</li>
-							<li><a href="${paths.giving}"${normalizedPath === paths.giving ? html` aria-current="page"` : html``}>Giving away</a></li>
 							<li><a href="${paths.components}"${normalizedPath === '/components' || normalizedPath.startsWith('/components/') ? html` aria-current="page"` : html``}>Components</a></li>
 						</ul>
 					</nav>

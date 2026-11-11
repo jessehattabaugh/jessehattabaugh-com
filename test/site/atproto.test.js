@@ -33,25 +33,6 @@ test('About shows RPG Actor sprite and character sheets', async ({ page }) => {
 	await expect(page.getByRole('link', { name: 'View my character on RPG Actor' })).toHaveAttribute('href', `https://rpg.actor/${handle}`);
 });
 
-test('Giving away has linked offers and working listing photos', async ({ page }) => {
-	await page.goto(paths.home);
-	await page.getByRole('navigation', { name: 'Main navigation' }).getByRole('link', { name: 'Giving away', exact: true }).click();
-	await expect(page.getByRole('heading', { name: 'Giving away', exact: true })).toBeVisible();
-	const listings = page.getByRole('main').getByRole('listitem');
-	await expect(listings.first()).toBeVisible();
-	await expect(listings.first().getByRole('link', { name: 'View on GiftHood', exact: true })).toHaveAttribute('href', /^https:\/\/gifthood\.community\/listing\/did%3Aplc%3A/);
-	for (const more of await page.getByText(/^More photos \(/).all()) {
-		// Expand sequentially: browser clicks share one pointer and layout.
-		// eslint-disable-next-line no-await-in-loop
-		await more.click();
-	}
-	for (const image of await page.getByRole('main').getByRole('img').all()) {
-		// Each lazy image needs the same viewport; concurrent scrolling fights itself.
-		// eslint-disable-next-line no-await-in-loop
-		await loaded(image);
-	}
-});
-
 test('site-wide Bluesky link resolves to my public profile', async ({ page }) => {
 	await page.goto(paths.apps);
 	const footer = page.getByRole('contentinfo');
@@ -63,11 +44,11 @@ test('site-wide Bluesky link resolves to my public profile', async ({ page }) =>
 
 test('a fragment request shows the same content and normal navigation restores the full page', async ({ page }) => {
 	await page.setExtraHTTPHeaders({ 'X-Fragment': 'true' });
-	await page.goto(paths.giving);
-	await expect(page.getByRole('heading', { name: 'Giving away', exact: true })).toBeVisible();
+	await page.goto(paths.about);
+	await expect(page.getByRole('heading', { name: 'About', exact: true })).toBeVisible();
 	await expect(page.getByRole('navigation', { name: 'Main navigation' })).toHaveCount(0);
 	await page.setExtraHTTPHeaders({});
 	await page.reload();
 	await expect(page.getByRole('navigation', { name: 'Main navigation' })).toBeVisible();
-	await expect(page.getByRole('heading', { name: 'Giving away', exact: true })).toBeVisible();
+	await expect(page.getByRole('heading', { name: 'About', exact: true })).toBeVisible();
 });

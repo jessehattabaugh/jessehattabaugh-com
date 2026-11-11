@@ -51,8 +51,6 @@ export function emptySocial(handle) {
 		posts: null,
 		/** @type {{ sprite: { cid: string, columns: number, rows: number, emotes: Record<string, { emoteSheet: string, talkSheet: string }> } | null, systems: Array<{ name: string, stats: Array<{ label: string, value: string }> }> } | null} */
 		actor: null,
-		/** @type {Array<{ title: string, description: string, status: string, location: string, url: string, createdAt: string, images: Array<{ cid: string, alt: string }> }> | null} */
-		gifts: null,
 	};
 }
 /** @typedef {ReturnType<typeof emptySocial>} Social */
@@ -106,7 +104,7 @@ export async function loadSocial(handle) {
 			return collectPosts('', 0, []);
 		} catch (error) { console.error('Bluesky posts unavailable', error); return []; }
 	})();
-	/** @type {{ pds: string, actor: NonNullable<Social['actor']> | null, gifts: NonNullable<Social['gifts']> | null }} */
+	/** @type {{ pds: string, actor: NonNullable<Social['actor']> | null }} */
 	const repositoryResult = await (async () => {
 		try {
 			const document = await json(`https://plc.directory/${encodeURIComponent(data.did)}`);
@@ -155,17 +153,10 @@ export async function loadSocial(handle) {
 				systems.push({ name, stats: values });
 			}
 			const actor = { sprite: sprite.available !== false && spriteId && columns > 0 && columns <= 16 && rows > 0 && rows <= 16 ? { cid: spriteId, columns, rows, emotes } : null, systems };
-			const listings = await records('community.gifthood.listing');
-			const gifts = listings.flatMap((item) => {
-				const value = object(item.value);
-				if (value.intent !== 'offer' || !['available', 'pending'].includes(text(value.status))) { return []; }
-				const alts = array(value.imageAlts);
-				return [{ title: text(value.title), description: text(value.description), status: text(value.status), location: text(value.locationName), createdAt: text(value.createdAt), url: `https://gifthood.community/listing/${encodeURIComponent(data.did)}/${encodeURIComponent(text(item.uri).split('/').at(-1) ?? '')}`, images: array(value.images).slice(0, 4).flatMap((image, index) => { const id = blobCid(image); return id ? [{ cid: id, alt: text(alts[index]) || text(value.title) }] : []; }) }];
-			}).sort((a, b) => {return b.createdAt.localeCompare(a.createdAt)});
-			return { pds: normalizedPds, actor, gifts };
+			return { pds: normalizedPds, actor };
 		} catch (error) {
 			console.error('AT Protocol repository unavailable', error);
-			return { pds: '', actor: null, gifts: null };
+			return { pds: '', actor: null };
 		}
 	})();
 	const uniquePosts = [];
@@ -179,6 +170,5 @@ export async function loadSocial(handle) {
 		posts: uniquePosts.slice(0, 5),
 		pds: repositoryResult.pds,
 		actor: repositoryResult.actor,
-		gifts: repositoryResult.gifts,
 	};
 }

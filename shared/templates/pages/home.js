@@ -12,7 +12,7 @@ export function homeFragment(social) {
 				<p>Small apps, practical tools, and things to share.</p>
 				<p>
 					This site is a home for experiments with the open web. Explore apps you can
-					use in your browser, find something free to take home, or take a look at how
+					use in your browser or take a look at how
 					the site is built.
 				</p>
 				<nav aria-label="Quick links">
@@ -35,10 +35,6 @@ export function homeFragment(social) {
 						<h3><a href="${paths.colophon}">How this site works</a></h3>
 						<p>A look at the ideas and choices behind a site built for the open web.</p>
 					</li>
-					<li>
-						<h3><a href="${paths.giving}">Giving away</a></h3>
-						<p>Browse free items being passed along through GiftHood, with photos and availability.</p>
-					</li>
 				</ul>
 			</section>
 		`;
@@ -52,7 +48,7 @@ export const home = (social) => {
 	return layout({
 		title: 'Home',
 		path: '/',
-		description: 'Explore small web apps, useful tools, open web experiments, and free items to give away.',
+		description: 'Explore small web apps, useful tools, and open web experiments.',
 		body: homeFragment(social),
 	});
 };

@@ -1,7 +1,7 @@
 import { test, expect } from '@playwright/test';
 
 // This is the public URL contract, not a list of every asset or authenticated action.
-const pages = ['/', '/about', '/giving', '/colophon/', '/apps/', '/components/',
+const pages = ['/', '/about', '/colophon/', '/apps/', '/components/',
 	'/components/rpg-actor/', '/components/disclosure-panel/', '/apps/messages/',
 	'/apps/rainbow-hour/', '/apps/lightsfinder/', '/apps/crunch-time/'];
 
