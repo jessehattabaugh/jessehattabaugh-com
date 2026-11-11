@@ -21,5 +21,5 @@ export const componentCatalog = [{
 	module: '/components/retro-game/index.js',
 	manifest: '/components/retro-game/custom-elements.json',
 	source: 'https://github.com/jessehattabaugh/jessehattabaugh-com/tree/main/client/shared/components/retro-game',
-	description: 'Compose retro games from bitmap layers, sprites, tilemaps, scenes, menus, and native dialogs. Includes live raster effects and a playable tile maze.',
+	description: 'Compose retro games from bitmap layers, sprites, tilemaps, scenes, menus, and native dialogs. Includes live raster effects and an HTML-authored perspective shooter.',
 }];

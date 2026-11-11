@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test';
 import { lighthouseAudit } from '../shared/lighthouse.js';
 import { staticRoutes, paths } from '../../shared/routes.js';
 
-const headings = { home: 'Useful tools and web experiments', about: 'About', colophon: 'Colophon', apps: 'Apps', components: 'Components', rpgActor: 'rpg-actor', disclosurePanel: 'disclosure-panel', retroGame: 'Retro game components', retroRelay: 'Signal Relay' };
+const headings = { home: 'Useful tools and web experiments', about: 'About', colophon: 'Colophon', apps: 'Apps', components: 'Components', rpgActor: 'rpg-actor', disclosurePanel: 'disclosure-panel', retroGame: 'Retro game components', games: 'Games', aetherWing: 'Aether Wing' };
 const pages = [
 	...staticRoutes.filter((route) => { return route.name in headings; }).map((route) => {
 		return { path: route.path, heading: headings[route.name] };
@@ -31,10 +31,10 @@ for (const { path, heading } of pages) {
 			return;
 		}
 		const nav = page.getByRole('navigation', { name: 'Main navigation' });
-		await Promise.all(['About', 'Apps', 'Contact', 'Components'].map((name) => {
+		await Promise.all(['About', 'Apps', 'Games', 'Contact', 'Components'].map((name) => {
 			return expect(nav.getByRole('link', { name, exact: true })).toBeVisible();
 		}));
-		await expect(nav.getByRole('listitem').getByRole('link')).toHaveText(['About', 'Apps', 'Contact', 'Components']);
+		await expect(nav.getByRole('listitem').getByRole('link')).toHaveText(['About', 'Apps', 'Games', 'Contact', 'Components']);
 		if (path === paths.home) {
 			const main = page.getByRole('main');
 			await expect(main.getByRole('link', { name: 'Explore the apps', exact: true })).toBeVisible();

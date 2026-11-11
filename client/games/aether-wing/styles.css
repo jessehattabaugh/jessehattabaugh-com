@@ -1,0 +1,84 @@
+@layer components {
+	[data-games] > section {
+		margin-block: 2rem;
+		max-inline-size: 40rem;
+
+		img { inline-size: 100%; height: auto; image-rendering: pixelated; border-radius: .75rem; }
+	}
+
+	[data-aether-wing] {
+		max-inline-size: 60rem;
+		margin-inline: auto;
+		> h1 { margin-block-end: .5rem; }
+		> p:first-of-type { font-size: .9rem; }
+		> h1 + p { margin-block-end: 1.5rem; }
+		> details, > section { margin-block: 1.5rem; }
+		li { margin-block: .5rem; }
+	}
+
+	retro-world {
+		--retro-screen-width: 100%;
+		--distance-blur: .01px;
+		margin-block: 1rem;
+		padding: clamp(.5rem, 2vw, 1.2rem);
+		color: #e0eced;
+		background: #131e33;
+		border: 1px solid #425374;
+		border-radius: .8rem;
+
+		[data-world-hud] {
+			display: grid;
+			grid-template-columns: repeat(4, auto);
+			align-items: start;
+			gap: .5rem;
+			margin-block-end: .75rem;
+			font-size: .75rem;
+			color: #adc6d0;
+
+			label { display: grid; gap: .2rem; }
+			output { font-family: monospace; font-weight: 700; color: #f3dba1; font-size: clamp(.8rem, 2vw, 1.1rem); }
+		}
+
+		retro-input { display: flex; flex-direction: column; }
+		retro-input > form { display: contents; }
+		button[type="reset"] { align-self: start; }
+		[data-world-hud] { order: -1; }
+		[data-native-controls] { order: 2; margin-block: .5rem; display: flex; gap: .75rem; flex-wrap: wrap; border-color: #526c89; }
+		fieldset label { display: inline-flex; gap: .3rem; align-items: center; }
+		fieldset input { width: 1rem; height: 1rem; }
+		retro-screen { border-radius: .3rem; }
+		[data-world-viewport]:focus-visible { outline: 3px solid #f2d393; outline-offset: -3px; }
+
+		[data-world-controls] {
+			flex-wrap: wrap;
+			gap: .5rem;
+			margin-block: .75rem;
+		}
+
+		button {
+			min-block-size: 44px;
+			min-inline-size: 44px;
+			padding: .5rem .8rem;
+			font: inherit;
+			font-weight: 600;
+			color: #d5e8e7;
+			background: #243752;
+			border: 1px solid #526c89;
+			border-radius: .35rem;
+			cursor: pointer;
+
+			&:focus-visible { outline: 3px solid #f2d393; outline-offset: 2px; }
+			&:active { background: #416583; }
+			&:disabled { opacity: .5; cursor: default; }
+		}
+
+		button[data-action="fire"], button[data-action="start"] {
+			color: #13263b;
+			background: #9be0c7;
+			border-color: #b3edda;
+		}
+
+		[data-world-status] { min-block-size: 1.6em; margin-block: .65rem; color: #f3dba1; }
+		[data-world-controller] { font-size: .75rem; color: #adc6d0; margin-block: .5rem 0; }
+	}
+}

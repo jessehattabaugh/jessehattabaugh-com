@@ -1,6 +1,7 @@
 import { html } from '../../shared/html.js';
 import { paths } from '../../shared/routes.js';
 import { layout } from '../../shared/templates/layout.js';
+import { worldMarkup } from './games.js';
 import { componentCatalog } from '../shared/components.js';
 
 /** @import { Raw } from '../../shared/html.js' */
@@ -8,7 +9,8 @@ import { componentCatalog } from '../shared/components.js';
 
 const assets = '/components/retro-game-demo';
 const head = html`<link rel="stylesheet" href="/components/retro-game/styles.css">
-	<link rel="stylesheet" href="/components/retro-game-demo/styles.css">`;
+	<link rel="stylesheet" href="/components/retro-game-demo/styles.css">
+	<link rel="stylesheet" href="/games/aether-wing/styles.css">`;
 
 /** @param {string} file @param {string} alt @param {number} width @param {number} height */
 function image(file, alt, width, height) {
@@ -55,12 +57,12 @@ export function retroGame(social) {
 			<h1>Retro game components</h1>
 			<p>Build a screen from tiles, sprites, and bitmap layers. Link scenes to make a game with plain HTML.</p>
 			<nav aria-label="Retro game resources">
-				<a href="${paths.retroRelay}">Play Signal Relay</a>
+				<a href="${paths.aetherWing}">Play Aether Wing</a>
 				<a href="${component?.manifest ?? ''}">Custom Elements Manifest</a>
 				<a href="${component?.source ?? ''}">Source on GitHub</a>
 			</nav>
 			<nav aria-label="Component examples">
-				<a href="#screen">Screen</a> <a href="#tilemap">Tilemap</a> <a href="#sprite">Sprite</a>
+				<a href="#world">Perspective world</a> <a href="#screen">Screen</a> <a href="#tilemap">Tilemap</a> <a href="#sprite">Sprite</a>
 				<a href="#layers">Bitmap layers</a> <a href="#scene">Scene</a> <a href="#game">Game</a>
 				<a href="#menu">Menu</a> <a href="#modal">Modal</a>
 			</nav>
@@ -137,6 +139,33 @@ export function retroGame(social) {
 	</dialog>
 </retro-modal>`, html`<p role="status" data-retro-event="retro-modal-change" hidden></p>`)}
 
+			<section id="world" aria-labelledby="world-title">
+				<h2 id="world-title">Perspective world</h2>
+				<p>This short training range uses the same world renderer and simulation as Aether Wing. Launch, move with arrows or WASD, and hold Space or Fire to shoot. P or Escape pauses. The buttons also work with touch.</p>
+				${worldMarkup(true)}
+				<details><summary>View the world definition</summary>
+					<figure data-code><pre tabindex="0" aria-label="Perspective world HTML"><code>${worldMarkup(true).value}</code></pre></figure>
+				</details>
+				<p><a href="${paths.aetherWing}">Play all three stages of Aether Wing</a> · <a href="${paths.games}">Games showcase</a></p>
+			</section>
+			<section aria-labelledby="world-elements">
+				<h2 id="world-elements">Define the world in HTML</h2>
+				<table><caption>Perspective primitives</caption><thead><tr><th scope="col">Element</th><th scope="col">Authored data</th></tr></thead><tbody>
+					<tr><th scope="row"><code>retro-world</code></th><td>Coordinates the optional fixed-step simulation. Reports state, score, and current stage as attributes. Starts on a user action and pauses when the tab becomes hidden.</td></tr>
+					<tr><th scope="row"><code>retro-palette</code></th><td>A palette RAM record with indexed colors and a palette cycle rate.</td></tr>
+					<tr><th scope="row"><code>retro-tileset</code></th><td>A shared pattern bank. Define tile dimensions and a bitmap sheet, or child tiles containing pixel palette indices.</td></tr>
+					<tr><th scope="row"><code>retro-tile</code></th><td>Pixel palette indices inside a bank, or a bank index inside a tilemap.</td></tr>
+					<tr><th scope="row"><code>retro-layer</code></th><td>A background plane containing a tilemap. Perspective layers use CSS rotateX and translate3d. Other planes scroll at their own parallax factors.</td></tr>
+					<tr><th scope="row"><code>retro-sprite</code></th><td>One graphics primitive for the player, scenery, enemies, shots and effects. References a pattern bank and supplies world coordinates, frame playback, and optional behavior attributes.</td></tr>
+					<tr><th scope="row"><code>retro-stage</code></th><td>Groups layer tilemaps, palettes and sprite records. Sets forward speed, length, and sky. Stages play in DOM order after upgrade and can be selected with native sector controls.</td></tr>
+					<tr><th scope="row"><code>retro-input</code></th><td>Turns keyboard, held pointer buttons, and a connected gamepad into bubbling input events. Buttons name actions with data-action. Stick deadzone and fire button are attributes.</td></tr>
+				</tbody></table>
+				<p>Tilemaps and sprites reference the same <code>retro-tileset</code> pattern banks. Tile indices and palette indices are explicit HTML data. CSS paints atlas tiles and advances sprite frames with stepped keyframes. The screen supplies a common perspective origin for ground and sprites.</p>
+				<p>State flows down as attributes. Child controls emit <code>retro-input</code>, sprites emit <code>retro-shot</code>, <code>retro-player-hit</code>, and <code>retro-enemy-hit</code>, and stages emit <code>retro-stage-change</code>. The world reports <code>retro-world-change</code>. All events bubble and are composed. The manifest contains each payload and attribute default.</p>
+				<p>Run and pause the course, steer with native radio controls, select sectors, and shoot approaching targets with JavaScript disabled. CSS handles perspective, tile painting, ground travel, palette cycling and sprite animation. Upgrade adds continuous movement, depth collisions, aimed projectiles and gamepad input. Missing pattern banks or failed images stop the enhancement and leave the native presentation available.</p>
+				<p>Standard gamepads use the left stick or D-pad, bottom face button or right trigger, and Start. Press a button after connecting so the browser exposes the controller. The input element also permits a configurable fire-button index for other mappings. <a href="https://developer.mozilla.org/en-US/docs/Web/API/Gamepad_API/Using_the_Gamepad_API">Gamepad API behavior</a></p>
+			</section>
+
 			<section aria-labelledby="retro-use">
 				<h2 id="retro-use">Use these elements in your own HTML</h2>
 				<p>Vendor the <code>retro-game</code> package directory from GitHub. Load the stylesheet for layout and the ES module for canvas effects, event reporting, and attribute coordination. The live examples above use a separate script only to connect their sliders and event readouts.</p>
@@ -145,96 +174,10 @@ export function retroGame(social) {
 			</section>
 			<section aria-labelledby="retro-hardware">
 				<h2 id="retro-hardware">From HTML to console data</h2>
-				<p>Signal Relay uses a finite scene graph, a four-color maze tileset, and small bitmap sprites. A console tool could encode the scene IDs and links as a state table, pack the backgrounds into tiles, and map sprite positions to the target’s sprite table. Palette, tile, and sprites-per-scanline limits would need checks for each target.</p>
-				<p>The graphics demos approximate these effects in the browser. A raster offset is a row or column transform in the renderer. A console implementation would use the target’s scroll registers, raster timing, and available scaling hardware.</p>
+				<p>Aether Wing defines pattern banks, tile indices, palettes, layers, sprite records and stages in HTML. A console tool could pack the sprite sheets into tiles, translate placement and wave attributes into tables, and implement projection and input with the target’s assembly routines. Palette, memory, sprites-per-scanline, and raster timing limits need checks for each target.</p>
+				<p>The CSS display projects elements through a shared perspective. A console implementation would replace those transforms with fixed-point projection and the target’s scroll registers, raster timing, and available scaling hardware.</p>
 				<p><a href="https://snes.nesdev.org/wiki/SNES_Development_Manual">Nintendo SNES Development Manual</a> · <a href="https://segaretro.org/images/9/95/GenesisSoftwareManual.pdf">Sega Genesis Software Manual</a></p>
 			</section>
-		</article>`,
-	});
-}
-
-const map = ['########', '########', '###.####', '#....###', '###.####', '########'];
-const directions = {
-	east: 'ArrowRight', west: 'ArrowLeft', north: 'ArrowUp', south: 'ArrowDown',
-};
-
-/** @type {Array<{ id: string, x: number, y: number, title: string, text: string, carrying?: boolean, links: Array<[label: string, to: string, direction?: keyof typeof directions]> }>} */
-const rooms = [
-	{ id: 'landing', x: 1, y: 3, title: 'Landing pad', text: 'Recover the signal crystal and bring it to the relay gate.', links: [['Move east', 'hall', 'east']] },
-	{ id: 'hall', x: 2, y: 3, title: 'Service hall', text: 'The passage continues east to a junction.', links: [['Move east', 'junction', 'east'], ['Move west', 'landing', 'west']] },
-	{ id: 'junction', x: 3, y: 3, title: 'Junction', text: 'The gate east is locked. A light flickers to the north.', links: [['Move north', 'crystal', 'north'], ['Move south', 'dead-end', 'south'], ['Move west', 'hall', 'west']] },
-	{ id: 'dead-end', x: 3, y: 4, title: 'Storage bay', text: 'A dead end. The only exit is back north.', links: [['Move north', 'junction', 'north']] },
-	{ id: 'crystal', x: 3, y: 2, title: 'Crystal recovered', text: 'You picked up the signal crystal. Return south to the junction.', carrying: true, links: [['Move south', 'unlocked', 'south']] },
-	{ id: 'unlocked', x: 3, y: 3, title: 'Gate unlocked', text: 'The crystal opens the gate. The relay is one step east.', carrying: true, links: [['Move east', 'online', 'east'], ['Move north', 'crystal', 'north'], ['Move south', 'dead-end-key', 'south'], ['Move west', 'hall-key', 'west']] },
-	{ id: 'dead-end-key', x: 3, y: 4, title: 'Storage bay', text: 'A dead end. Take the crystal back north to the junction.', carrying: true, links: [['Move north', 'unlocked', 'north']] },
-	{ id: 'hall-key', x: 2, y: 3, title: 'Service hall', text: 'The junction and unlocked gate are to the east.', carrying: true, links: [['Move east', 'unlocked', 'east'], ['Move west', 'landing-key', 'west']] },
-	{ id: 'landing-key', x: 1, y: 3, title: 'Landing pad', text: 'You have the crystal. Take it east to the relay gate.', carrying: true, links: [['Move east', 'hall-key', 'east']] },
-	{ id: 'online', x: 4, y: 3, title: 'Relay online', text: 'The relay is broadcasting again. Mission complete.', carrying: true, links: [['Play again', 'landing']] },
-];
-
-const tiles = map.map((row, y) => {
-	return [...row].map((cell, x) => {
-		const kind = cell === '#' ? 'wall' : 'floor';
-		return html`<span data-tile="${kind}"${x === 4 && y === 3 ? html` data-gate` : html``}></span>`;
-	});
-}).flat();
-
-/** @param {typeof rooms[number]} room */
-function roomScene(room) {
-	return html`<retro-scene id="relay-${room.id}" tabindex="-1">
-		<h2>${room.title}</h2>
-		<retro-screen width="128" height="96" aria-hidden="true">
-			<retro-tilemap columns="8" rows="6"${room.carrying ? html` data-powered` : html``}>${tiles}</retro-tilemap>
-			${room.carrying ? html`` : html`<retro-sprite x="48" y="32" width="16" height="16">${image('signal', '', 16, 16)}</retro-sprite>`}
-			<retro-sprite x="${room.x * 16}" y="${room.y * 16}" width="16" height="16">${image('rover', '', 16, 16)}</retro-sprite>
-		</retro-screen>
-		<p>${room.text}</p>
-		<retro-menu><nav aria-label="Moves">
-			${room.links.map(([label, to, direction]) => {
-				return html`<a href="#relay-${to}"${direction ? html` data-key="${directions[direction]}"` : html``}>${label}</a>`;
-			})}
-		</nav></retro-menu>
-	</retro-scene>`;
-}
-
-/** @param {Social} [social] */
-export function retroRelay(social) {
-	return layout({
-		social, head, title: 'Signal Relay', path: paths.retroRelay,
-		description: 'Guide a rover through a tile maze, recover the signal crystal, and restore the relay.',
-		scripts: html`<script type="module" src="/components/retro-game/index.js"></script>`,
-		body: html`<article data-retro-relay>
-			<p><a href="${paths.retroGame}">Retro game components</a></p>
-			<h1>Signal Relay</h1>
-			<p>Recover the crystal to restore communications.</p>
-			<details>
-				<summary>How to play</summary>
-				<p>Choose a direction. You move one tile at a time. If a direction is missing, that path is blocked. The scene text describes the exits and tells you when you collect the crystal.</p>
-				<p>Use Tab and Enter to play by keyboard. With JavaScript enabled, you can also use the arrow keys while focused on a move link.</p>
-			</details>
-			<retro-game start="relay-briefing">
-				<retro-scene id="relay-briefing" data-start tabindex="-1">
-					<h2>Mission briefing</h2>
-					<retro-screen aria-hidden="true">
-						<retro-layer>${image('ridge', '', 128, 96)}</retro-layer>
-						<retro-sprite x="52" y="60" width="16" height="16" scale="1.5">${image('rover', '', 16, 16)}</retro-sprite>
-					</retro-screen>
-					<p>The remote relay has gone dark. Send the rover to find its missing crystal.</p>
-					<retro-menu><nav aria-label="Mission"><a href="#relay-landing">Start mission</a></nav></retro-menu>
-				</retro-scene>
-				${rooms.map(roomScene)}
-			</retro-game>
-			<nav aria-label="Game options">
-				<a href="#relay-briefing">Restart</a>
-				<button type="button" command="show-modal" commandfor="relay-log">Mission log</button>
-			</nav>
-			<retro-modal>
-				<dialog id="relay-log" aria-labelledby="relay-log-title">
-					<h2 id="relay-log-title">Mission log</h2>
-					<p>Recover the signal crystal, unlock the east gate, and reach the relay.</p>
-					<form method="dialog"><button autofocus>Close log</button></form>
-				</dialog>
-			</retro-modal>
 		</article>`,
 	});
 }

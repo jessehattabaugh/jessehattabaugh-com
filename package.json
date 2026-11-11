@@ -63,6 +63,22 @@
 		"./components/rpg-actor/element": {
 			"source": "./client/shared/components/rpg-actor/rpg-actor.js",
 			"production": "./dist/client/components/rpg-actor/rpg-actor.js"
+		},
+		"./components/retro-game/world-data": {
+			"source": "./client/shared/components/retro-game/world-data.js",
+			"production": "./dist/client/components/retro-game/world-data.js"
+		},
+		"./components/retro-game/game-input": {
+			"source": "./client/shared/components/retro-game/game-input.js",
+			"production": "./dist/client/components/retro-game/game-input.js"
+		},
+		"./components/retro-game/world-renderer": {
+			"source": "./client/shared/components/retro-game/world-renderer.js",
+			"production": "./dist/client/components/retro-game/world-renderer.js"
+		},
+		"./components/retro-game/world": {
+			"source": "./client/shared/components/retro-game/world.js",
+			"production": "./dist/client/components/retro-game/world.js"
 		}
 	}
 }

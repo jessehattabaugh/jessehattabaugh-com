@@ -1,7 +1,6 @@
 import { test, expect } from '@playwright/test';
 
 const docs = '/components/retro-game/';
-const game = '/components/retro-game/relay/';
 
 test('the catalog leads to the component demos and their copyable HTML', async ({ page }) => {
 	await page.goto('/components/');
@@ -175,45 +174,11 @@ test('inventory uses native modal focus and close behavior and reflects open cha
 	}
 });
 
-test('Signal Relay can explore a dead end, recover the crystal, win, and replay', async ({ page }) => {
-	await page.goto(game);
-	await expect(page.getByRole('heading', { name: 'Mission briefing' })).toBeVisible();
-	await page.getByRole('button', { name: 'Mission log' }).click();
-	await expect(page.getByRole('dialog', { name: 'Mission log' })).toBeVisible();
-	await page.getByRole('button', { name: 'Close log' }).click();
-	await page.getByRole('link', { name: 'Start mission' }).click();
-	const move = (direction) => { return page.getByRole('link', { name: `Move ${direction}` }); };
-	await expect(page.getByRole('heading', { name: 'Landing pad' })).toBeVisible();
-	await move('east').press('Enter');
-	await expect(page.getByRole('heading', { name: 'Service hall' })).toBeVisible();
-	await move('east').click();
-	await expect(page.getByRole('heading', { name: 'Junction' })).toBeVisible();
-	await expect(move('east')).toBeHidden();
-	await move('south').click();
-	await expect(page.getByRole('heading', { name: 'Storage bay' })).toBeVisible();
-	await move('north').click();
-	await expect(page.getByRole('heading', { name: 'Junction' })).toBeVisible();
-	await move('north').click();
-	await expect(page.getByRole('heading', { name: 'Crystal recovered' })).toBeVisible();
-	await move('south').click();
-	await expect(page.getByRole('heading', { name: 'Gate unlocked' })).toBeVisible();
-	await move('west').click();
-	await expect(page.getByRole('heading', { name: 'Service hall' })).toBeVisible();
-	await move('east').click();
-	await expect(page.getByRole('heading', { name: 'Gate unlocked' })).toBeVisible();
-	await move('east').click();
-	await expect(page.getByRole('heading', { name: 'Relay online' })).toBeVisible();
-	await page.getByRole('link', { name: 'Play again' }).click();
-	await expect(page.getByRole('heading', { name: 'Landing pad' })).toBeVisible();
-	await page.getByRole('link', { name: 'Restart' }).click();
-	await expect(page.getByRole('heading', { name: 'Mission briefing' })).toBeVisible();
-});
-
-test('the portable package publishes a manifest declaration and definition for all eight elements', async ({ request }) => {
+test('the portable package publishes a manifest declaration and definition for every element', async ({ request }) => {
 	const response = await request.get(`${docs}custom-elements.json`);
 	expect(response.ok()).toBe(true);
 	const manifest = await response.json();
-	const tags = ['retro-screen', 'retro-layer', 'retro-sprite', 'retro-tilemap', 'retro-game', 'retro-scene', 'retro-menu', 'retro-modal'];
+	const tags = ['retro-screen', 'retro-layer', 'retro-sprite', 'retro-tilemap', 'retro-game', 'retro-scene', 'retro-menu', 'retro-modal', 'retro-world', 'retro-stage', 'retro-palette', 'retro-tileset', 'retro-tile', 'retro-input'];
 	expect(manifest.schemaVersion).toBe('1.0.0');
 	expect(manifest.modules.flatMap((module) => {
 		return module.declarations.map((declaration) => { return declaration.tagName; });

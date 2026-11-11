@@ -9,7 +9,8 @@
 		"**/*.css",
 		"**/*.svg",
 		"apps/*/manifest.webmanifest",
-		"**/offline.html"
+		"**/offline.html",
+		"games/**/*.png"
 	],
 	"targets": {
 		"default": {
