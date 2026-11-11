@@ -57,6 +57,11 @@ Manifest (including `x-listens` for incoming events), README, and MIT license.
 Source distribution is GitHub-only; consumers vendor a pinned revision and can
 install its local package with npm, pnpm, or Yarn. No registry release is needed.
 
+[Retro game components](https://jessehattabaugh.com/components/retro-game/) are
+shipped together in `client/shared/components/retro-game/`. Their documentation
+includes runnable graphics examples and Signal Relay, a maze whose scene links
+work with JavaScript disabled. See the package README for the markup contract.
+
 To add one, extend `build/shared/components.js` (also emitted as `/components/catalog.json`),
 declare its native library outputs in the root `package.json`,
 add its showcase and documentation template in `build/templates/components.js`, and entries

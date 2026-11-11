@@ -1,0 +1,516 @@
+{
+	"schemaVersion": "1.0.0",
+	"readme": "README.md",
+	"modules": [
+		{
+			"kind": "javascript-module",
+			"path": "index.js",
+			"declarations": [
+				{
+					"kind": "class",
+					"name": "RetroScreen",
+					"tagName": "retro-screen",
+					"customElement": true,
+					"superclass": {
+						"name": "HTMLElement",
+						"package": "global:"
+					},
+					"description": "Logical pixel viewport. Put layers, tilemaps and sprites directly inside. Graphics clip to the viewport and paint in DOM order.",
+					"attributes": [
+						{
+							"name": "width",
+							"type": {
+								"text": "number"
+							},
+							"default": "128",
+							"description": "Logical width. Minimum 1."
+						},
+						{
+							"name": "height",
+							"type": {
+								"text": "number"
+							},
+							"default": "96",
+							"description": "Logical height. Minimum 1."
+						},
+						{
+							"name": "camera-x",
+							"type": {
+								"text": "number"
+							},
+							"default": "0",
+							"description": "Camera offset in logical pixels. Copied to direct bitmap layers on upgrade, insertion, and change."
+						},
+						{
+							"name": "camera-y",
+							"type": {
+								"text": "number"
+							},
+							"default": "0",
+							"description": "Camera offset in logical pixels. Copied to direct bitmap layers on upgrade, insertion, and change."
+						}
+					],
+					"cssProperties": [
+						{
+							"name": "--retro-screen-width",
+							"default": "32rem",
+							"description": "Maximum rendered width of the responsive viewport."
+						},
+						{
+							"name": "--retro-screen-background",
+							"default": "#171a29",
+							"description": "Color or CSS background behind the graphics."
+						}
+					]
+				},
+				{
+					"kind": "class",
+					"name": "RetroLayer",
+					"tagName": "retro-layer",
+					"customElement": true,
+					"superclass": {
+						"name": "HTMLElement",
+						"package": "global:"
+					},
+					"description": "Repeating bitmap sampled into a canvas on demand. The first direct img supplies the texture and accessible alternative. A missing, failed or loading image leaves the authored fallback. Put inside a retro-screen. Layer resolution defaults to 128 by 96 and is stretched to the viewport.",
+					"attributes": [
+						{
+							"name": "mode",
+							"type": {
+								"text": "\"plain\" | \"affine\" | \"scanlines\" | \"columns\" | \"road\""
+							},
+							"default": "plain",
+							"description": "Plain repeats the image. Affine applies one centered transform. Scanlines offset each row; columns offset each column. Road leaves the top third transparent and increases zoom by row toward the viewer, repeating along the texture’s vertical axis. Unknown modes use plain."
+						},
+						{
+							"name": "width",
+							"type": {
+								"text": "number"
+							},
+							"default": "128",
+							"description": "Canvas width. Rounded and clamped to 1–512."
+						},
+						{
+							"name": "height",
+							"type": {
+								"text": "number"
+							},
+							"default": "96",
+							"description": "Canvas height. Rounded and clamped to 1–512."
+						},
+						{
+							"name": "scroll-x",
+							"type": {
+								"text": "number"
+							},
+							"default": "0",
+							"description": "Local horizontal scroll in logical pixels. Positive values move the layer left."
+						},
+						{
+							"name": "scroll-y",
+							"type": {
+								"text": "number"
+							},
+							"default": "0",
+							"description": "Local vertical scroll in logical pixels. Positive values move the layer up in orthographic modes, or advance texture depth in road mode."
+						},
+						{
+							"name": "camera-x",
+							"type": {
+								"text": "number"
+							},
+							"default": "0",
+							"description": "Camera offset in logical pixels. Managed by the screen when directly nested in one."
+						},
+						{
+							"name": "camera-y",
+							"type": {
+								"text": "number"
+							},
+							"default": "0",
+							"description": "Camera offset in logical pixels. Managed by the screen when directly nested in one."
+						},
+						{
+							"name": "factor",
+							"type": {
+								"text": "number"
+							},
+							"default": "1",
+							"description": "Multiplier for both camera offsets. Applied before adding local scroll."
+						},
+						{
+							"name": "scale",
+							"type": {
+								"text": "number"
+							},
+							"default": "1",
+							"description": "Base texture scale, clamped to 0.125–16. Road mode multiplies this by depth."
+						},
+						{
+							"name": "angle",
+							"type": {
+								"text": "number"
+							},
+							"default": "0",
+							"description": "Clockwise degrees around the center. Affine mode only."
+						},
+						{
+							"name": "amplitude",
+							"type": {
+								"text": "number"
+							},
+							"default": "0",
+							"description": "Maximum strip offset in logical pixels. Scanlines, columns, and road only."
+						},
+						{
+							"name": "phase",
+							"type": {
+								"text": "number"
+							},
+							"default": "0",
+							"description": "Position within the offset wave in degrees. Scanlines, columns, and road only."
+						}
+					]
+				},
+				{
+					"kind": "class",
+					"name": "RetroSprite",
+					"tagName": "retro-sprite",
+					"customElement": true,
+					"superclass": {
+						"name": "HTMLElement",
+						"package": "global:"
+					},
+					"description": "A positioned, pixelated bitmap. Place directly inside a retro-screen and provide a direct img child with useful alt text or an empty alt for decoration. Layout uses typed CSS attr().",
+					"attributes": [
+						{
+							"name": "x",
+							"type": {
+								"text": "number"
+							},
+							"default": "0",
+							"description": "Left edge in logical pixels."
+						},
+						{
+							"name": "y",
+							"type": {
+								"text": "number"
+							},
+							"default": "0",
+							"description": "Top edge in logical pixels."
+						},
+						{
+							"name": "width",
+							"type": {
+								"text": "number"
+							},
+							"default": "8",
+							"description": "Unscaled bitmap width. Minimum 1."
+						},
+						{
+							"name": "height",
+							"type": {
+								"text": "number"
+							},
+							"default": "8",
+							"description": "Unscaled bitmap height. Minimum 1."
+						},
+						{
+							"name": "scale",
+							"type": {
+								"text": "number"
+							},
+							"default": "1",
+							"description": "Size multiplier from the top-left corner, clamped to 0.125–16."
+						},
+						{
+							"name": "flip-x",
+							"type": {
+								"text": "boolean"
+							},
+							"description": "Presence mirrors the bitmap horizontally."
+						}
+					]
+				},
+				{
+					"kind": "class",
+					"name": "RetroTilemap",
+					"tagName": "retro-tilemap",
+					"customElement": true,
+					"superclass": {
+						"name": "HTMLElement",
+						"package": "global:"
+					},
+					"description": "A viewport-filling CSS grid. Use one element per cell, in row-major order, and style the cell or include an image. Cells beyond the declared grid are clipped. Layout uses typed CSS attr().",
+					"attributes": [
+						{
+							"name": "columns",
+							"type": {
+								"text": "number"
+							},
+							"default": "16",
+							"description": "Positive integer number of tile columns."
+						},
+						{
+							"name": "rows",
+							"type": {
+								"text": "number"
+							},
+							"default": "12",
+							"description": "Positive integer number of tile rows."
+						}
+					]
+				},
+				{
+					"kind": "class",
+					"name": "RetroGame",
+					"tagName": "retro-game",
+					"customElement": true,
+					"superclass": {
+						"name": "HTMLElement",
+						"package": "global:"
+					},
+					"description": "Owns direct retro-scene children. Use a document fragment link to select a scene, including without scripting. Browser history restores the scene. The start or first named scene is used when the fragment is absent or unknown.",
+					"attributes": [
+						{
+							"name": "start",
+							"type": {
+								"text": "string"
+							},
+							"description": "ID of the initial scene. Put data-start on the same scene for the stylesheet fallback."
+						},
+						{
+							"name": "scene",
+							"type": {
+								"text": "string"
+							},
+							"description": "Reflects the selected scene after upgrade. Set to a direct scene ID to navigate. Invalid values are restored to the scene selected by the current fragment or start."
+						}
+					],
+					"events": [
+						{
+							"name": "retro-scene-change",
+							"type": {
+								"text": "CustomEvent<{ scene: string, previous: string }>"
+							},
+							"description": "Bubbles and is composed. Emitted after switching between two named scenes. Initial selection is silent."
+						}
+					]
+				},
+				{
+					"kind": "class",
+					"name": "RetroScene",
+					"tagName": "retro-scene",
+					"customElement": true,
+					"superclass": {
+						"name": "HTMLElement",
+						"package": "global:"
+					},
+					"description": "A scene contains ordinary light DOM. Within a game, use a document-unique id and tabindex=\"-1\" for focus after navigation. Outside a game it renders normally.",
+					"attributes": [
+						{
+							"name": "id",
+							"type": {
+								"text": "string"
+							},
+							"description": "Fragment identifier for links and the game start and scene attributes."
+						},
+						{
+							"name": "data-start",
+							"type": {
+								"text": "boolean"
+							},
+							"description": "Author this on one direct scene as the stylesheet’s default scene."
+						},
+						{
+							"name": "active",
+							"type": {
+								"text": "boolean"
+							},
+							"description": "Reflected by the owning game after upgrade."
+						}
+					]
+				},
+				{
+					"kind": "class",
+					"name": "RetroMenu",
+					"tagName": "retro-menu",
+					"customElement": true,
+					"superclass": {
+						"name": "HTMLElement",
+						"package": "global:"
+					},
+					"description": "Contains native fragment links, typically in a nav. Optional data-key attributes on links map KeyboardEvent.key values to actions while a link in that menu has focus. Modified clicks and nested menus keep their native ownership.",
+					"events": [
+						{
+							"name": "retro-action",
+							"type": {
+								"text": "CustomEvent<{ scene: string }>"
+							},
+							"description": "Dispatched from the chosen link before fragment navigation. Bubbles, is composed and is cancelable. The detail contains the fragment text without #, including any percent-encoding."
+						}
+					]
+				},
+				{
+					"kind": "class",
+					"name": "RetroModal",
+					"tagName": "retro-modal",
+					"customElement": true,
+					"superclass": {
+						"name": "HTMLElement",
+						"package": "global:"
+					},
+					"description": "Coordinates one direct dialog child. Use native show-modal commands or the open attribute after upgrade. Escape and method=dialog preserve native behavior. A missing dialog is inert until inserted.",
+					"attributes": [
+						{
+							"name": "open",
+							"type": {
+								"text": "boolean"
+							},
+							"description": "Presence opens the dialog, removal closes it. Reflected from native toggles. At initialization an already-open native dialog is adopted."
+						}
+					],
+					"events": [
+						{
+							"name": "retro-modal-change",
+							"type": {
+								"text": "CustomEvent<{ open: boolean }>"
+							},
+							"description": "Bubbles and is composed. Emitted for a changed open state after initialization. Native toggle notifications can coalesce."
+						}
+					]
+				}
+			],
+			"exports": [
+				{
+					"kind": "js",
+					"name": "RetroScreen",
+					"declaration": {
+						"name": "RetroScreen",
+						"module": "index.js"
+					}
+				},
+				{
+					"kind": "custom-element-definition",
+					"name": "retro-screen",
+					"declaration": {
+						"name": "RetroScreen",
+						"module": "index.js"
+					}
+				},
+				{
+					"kind": "js",
+					"name": "RetroLayer",
+					"declaration": {
+						"name": "RetroLayer",
+						"module": "index.js"
+					}
+				},
+				{
+					"kind": "custom-element-definition",
+					"name": "retro-layer",
+					"declaration": {
+						"name": "RetroLayer",
+						"module": "index.js"
+					}
+				},
+				{
+					"kind": "js",
+					"name": "RetroSprite",
+					"declaration": {
+						"name": "RetroSprite",
+						"module": "index.js"
+					}
+				},
+				{
+					"kind": "custom-element-definition",
+					"name": "retro-sprite",
+					"declaration": {
+						"name": "RetroSprite",
+						"module": "index.js"
+					}
+				},
+				{
+					"kind": "js",
+					"name": "RetroTilemap",
+					"declaration": {
+						"name": "RetroTilemap",
+						"module": "index.js"
+					}
+				},
+				{
+					"kind": "custom-element-definition",
+					"name": "retro-tilemap",
+					"declaration": {
+						"name": "RetroTilemap",
+						"module": "index.js"
+					}
+				},
+				{
+					"kind": "js",
+					"name": "RetroGame",
+					"declaration": {
+						"name": "RetroGame",
+						"module": "index.js"
+					}
+				},
+				{
+					"kind": "custom-element-definition",
+					"name": "retro-game",
+					"declaration": {
+						"name": "RetroGame",
+						"module": "index.js"
+					}
+				},
+				{
+					"kind": "js",
+					"name": "RetroScene",
+					"declaration": {
+						"name": "RetroScene",
+						"module": "index.js"
+					}
+				},
+				{
+					"kind": "custom-element-definition",
+					"name": "retro-scene",
+					"declaration": {
+						"name": "RetroScene",
+						"module": "index.js"
+					}
+				},
+				{
+					"kind": "js",
+					"name": "RetroMenu",
+					"declaration": {
+						"name": "RetroMenu",
+						"module": "index.js"
+					}
+				},
+				{
+					"kind": "custom-element-definition",
+					"name": "retro-menu",
+					"declaration": {
+						"name": "RetroMenu",
+						"module": "index.js"
+					}
+				},
+				{
+					"kind": "js",
+					"name": "RetroModal",
+					"declaration": {
+						"name": "RetroModal",
+						"module": "index.js"
+					}
+				},
+				{
+					"kind": "custom-element-definition",
+					"name": "retro-modal",
+					"declaration": {
+						"name": "RetroModal",
+						"module": "index.js"
+					}
+				}
+			]
+		}
+	]
+}

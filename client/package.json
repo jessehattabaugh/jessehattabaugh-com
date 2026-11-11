@@ -5,6 +5,7 @@
 		"apps/*/app.js",
 		"shared/enhance/index.js",
 		"shared/components/*demo.js",
+		"shared/components/retro-game-demo/*.png",
 		"**/*.css",
 		"**/*.svg",
 		"apps/*/manifest.webmanifest",

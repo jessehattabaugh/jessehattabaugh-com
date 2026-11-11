@@ -7,6 +7,8 @@ import { notFound } from './templates/not-found.js';
 import { error } from '../shared/templates/error.js';
 import { components, disclosurePanel } from './templates/components.js';
 
+import { retroGame, retroRelay } from './templates/retro-game.js';
+
 /** @type {Record<string, (social?: import('../shared/data/atproto.js').Social, query?: URLSearchParams) => import('../shared/html.js').Raw>} */
 export const staticPages = {
 	home,
@@ -16,6 +18,8 @@ export const staticPages = {
 	apps,
 	components,
 	disclosurePanel,
+	retroGame,
+	retroRelay,
 	notFound,
 	error: () => { return error(); },
 };

@@ -52,6 +52,10 @@
 			"source": "./client/shared/components/disclosure-panel/disclosure-panel.js",
 			"production": "./dist/client/components/disclosure-panel/disclosure-panel.js"
 		},
+		"./components/retro-game": {
+			"source": "./client/shared/components/retro-game/index.js",
+			"production": "./dist/client/components/retro-game/index.js"
+		},
 		"./components/rpg-actor": {
 			"source": "./client/shared/components/rpg-actor/index.js",
 			"production": "./dist/client/components/rpg-actor/index.js"
