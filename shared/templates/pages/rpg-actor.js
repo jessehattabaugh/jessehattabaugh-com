@@ -46,14 +46,14 @@ export function rpgActorFragment(social, query = new URLSearchParams()) {
 				<p><a href="https://rpg.actor">rpg.actor</a> stores your character’s sprite and stats in your AT Protocol account, ready for compatible games and websites. This independent component displays those sheets; it does not change your account.</p>
 				<p>The <a href="https://rpg.actor/news/getting-emotional">Getting Emotional announcement</a> adds optional expression and talking variants. No extra animation library required.</p>
 			</section>
-			<section><h2>Start with HTML</h2>
+			<section><h2>Start with a Bluesky handle</h2>
+				<p>Give the component a handle and it finds the public sprite and any published expressions. It shows a bundled courier when no sprite is available.</p>
+				${actorSprite(undefined, { handle: social?.handle ?? 'jessehattabaugh.com', label: 'Character loaded by Bluesky handle', animation: 'idle' })}
 				<p>Copy the component directory from a reviewed GitHub commit into your site’s <code>/vendor/rpg-actor/</code> directory, keeping the license. Serve these ES modules from your own origin.</p>
 				${codeExample({ caption: 'A walking character', language: 'html', label: 'HTML example', source: `<script type="module" src="/vendor/rpg-actor/index.js"></script>
-<rpg-actor src="/sprites/me.png" animation="walk"
-	direction="down" expression="happy" label="My character">
-	<img src="/sprites/me-portrait.png" alt="My character" width="144" height="144">
-</rpg-actor>` })}
-				<p>The child image is your no-JavaScript and failed-image fallback. Use a cropped portrait or your own HTML. The enhanced sprite uses a shadow root and leaves that content intact.</p>
+<rpg-actor handle="${social?.handle ?? 'jessehattabaugh.com'}" animation="walk"
+	direction="down" label="My character"></rpg-actor>` })}
+				<p>No child elements are required. For a portrait before JavaScript loads, add a fallback image in the default slot. Server-rendered pages can provide declarative shadow DOM, as this demo does.</p>
 				${codeExample({ caption: 'Expressions, then state changes', language: 'javascript', label: 'JavaScript example', source: `const actor = document.querySelector('rpg-actor');
 actor.setAttribute('emotes', JSON.stringify({
 	happy: {
@@ -70,7 +70,8 @@ actor.addEventListener('actor-change', ({ detail }) => console.log(detail));` })
 			<section><h2>The HTML interface</h2>
 				<p>Always use the <a href="https://rpg.actor/dev-guide">rpg.actor developer guide</a> as the authoritative reference when integrating or updating this component. Its current sprite, emote, and API contracts take precedence over examples here.</p>
 				<table><caption>Sprite attributes</caption><thead><tr><th scope="col">Attribute</th><th scope="col">Values and defaults</th></tr></thead><tbody>
-					<tr><th scope="row"><code>src</code></th><td>Base sheet URL. Relative or HTTP(S). No credentials required.</td></tr>
+					<tr><th scope="row"><code>handle</code></th><td>Bluesky handle, with or without @. Looks up the public sprite unless a source URL is provided.</td></tr>
+					<tr><th scope="row"><code>src</code></th><td>Optional base sheet URL. Relative or HTTP(S). Overrides handle lookup.</td></tr>
 					<tr><th scope="row"><code>emotes</code></th><td>JSON keyed by expression, with <code>emoteSheet</code> and optional <code>talkSheet</code> URLs.</td></tr>
 					<tr><th scope="row"><code>expression</code></th><td>neutral (default), blink, happy, sad, angry, silly, tired, bruh, pout.</td></tr>
 					<tr><th scope="row"><code>direction</code></th><td>down (default), left, right, up.</td></tr>
@@ -87,10 +88,10 @@ actor.addEventListener('actor-change', ({ detail }) => console.log(detail));` })
 				<p>Boolean attributes use presence: <code>paused="false"</code> still pauses. Unknown enum values use defaults. Invalid numbers use defaults; zero dimensions become one. Remove <code>showcase</code> before taking manual control.</p>
 			</section>
 			<section><h2>Events, styling, and limits</h2>
-				<p><code>actor-change</code> reports <code>{ animation, direction, expression, talking, paused }</code> after attribute changes and showcase steps. <code>actor-load</code> reports <code>{ src }</code> for loaded sheets; <code>actor-error</code> reports <code>{ reason, src }</code> for malformed JSON or failed images. Events bubble, cross shadow boundaries, and are not cancelable. No incoming custom events or custom public methods.</p>
+				<p><code>actor-change</code> reports <code>{ animation, direction, expression, talking, paused }</code> after attribute changes and showcase steps. <code>actor-load</code> reports <code>{ src }</code> for loaded sheets; <code>actor-error</code> reports <code>{ reason, src }</code> for failed lookups, malformed JSON or failed images. Events bubble, cross shadow boundaries, and are not cancelable. No incoming custom events or custom public methods.</p>
 				<p>Set <code>--rpg-actor-size: 192px</code> to resize. Style <code>::part(sprite)</code> and <code>::part(controls)</code>. The default slot holds fallback HTML. Images retain crisp pixels.</p>
-				<p>Missing or failed variants use the base sprite. Failed base images expose your fallback. Only visited sheets load; images are reused within each instance. Hidden documents and disconnected elements stop playback. Reduced motion disables walking, talking, and showcase progression while preserving manual pose selection.</p>
-				<p>Read an actor’s <code>actor.rpg.sprite/self</code> record on your server and resolve its blob references to image URLs. This component accepts URLs, not raw blob objects, and makes no authenticated API requests. Host the sheets yourself or permit their origin in your image CSP. Permit the component’s shadow styles in your style policy. Code is MIT; sprite artwork retains its owner’s license.</p>
+				<p>Missing or failed variants use the base sprite. Handle lookups use the bundled sprite if the record or sheet is unavailable. Failed explicit source URLs expose your slotted fallback. Only visited sheets load; images are reused within each instance. Hidden documents and disconnected elements stop playback. Reduced motion disables walking, talking, and showcase progression while preserving manual pose selection.</p>
+				<p>Handle lookup reads <code>actor.rpg.sprite/self</code> from the actor’s public data server without signing in. It needs browser access to that server, including CORS for the record. You can also pass your own sheet URLs. See the README for content security policy requirements.</p>
 				<p>For npm, pnpm, or Yarn, install the vendored local directory and import <code>@jessehattabaugh/rpg-actor</code> from your browser entry. The <code>/element</code> export provides <code>RpgActor</code> for manual registration. Do not import browser classes during server rendering. See the README for commands and the <a href="https://rpg.actor/dev-guide#pc-emotes">official sprite specification</a> for record details.</p>
 			</section>
 		</article>`;

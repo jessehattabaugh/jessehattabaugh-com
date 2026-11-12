@@ -65,27 +65,41 @@ export function postsFragment(social) {
 	</section>`;
 }
 
+const actorPackage = '/components/rpg-actor/';
+const genericActor = `${actorPackage}generic.svg`;
+
 /** @param {Social | undefined} social
- * @param {{ direction?: string, expression?: string, animation?: string, talking?: boolean, paused?: boolean, showcase?: boolean }} [state] */
+ * @param {{ direction?: string, expression?: string, animation?: string, talking?: boolean, paused?: boolean, showcase?: boolean, handle?: string, label?: string }} [state] */
 export function actorSprite(social, state = {}) {
-	const sprite = social?.actor?.sprite;
-	if (!sprite) { return html`<p>My character is temporarily unavailable.</p>`; }
-	const emotes = Object.fromEntries(Object.entries(sprite.emotes ?? {}).map(([name, variant]) => {
+	const sprite = state.handle ? null : social?.actor?.sprite;
+	const emotes = Object.fromEntries(Object.entries(sprite?.emotes ?? {}).map(([name, variant]) => {
 		return [name, { emoteSheet: variant.emoteSheet ? blobPath(variant.emoteSheet) : '', talkSheet: variant.talkSheet ? blobPath(variant.talkSheet) : '' }];
 	}));
 	const direction = state.direction ?? 'down', expression = state.expression ?? 'neutral';
-	const variant = sprite.emotes?.[expression];
-	const selected = (state.talking && variant?.talkSheet) || variant?.emoteSheet || sprite.cid;
-	const columns = selected === sprite.cid ? sprite.columns : 3, rows = selected === sprite.cid ? sprite.rows : 4;
+	const variant = sprite?.emotes?.[expression];
+	const selected = (state.talking && variant?.talkSheet) || variant?.emoteSheet;
+	const columns = selected ? 3 : sprite?.columns ?? 3, rows = selected ? 4 : sprite?.rows ?? 4;
 	const row = Math.max(0, Math.min(['down', 'left', 'right', 'up'].indexOf(direction), rows - 1));
 	const column = Math.min(1, columns - 1);
-	// Clip the idle frame in the markup so the fallback can paint without a stylesheet.
-	return html`<rpg-actor src="${blobPath(sprite.cid)}" columns="${sprite.columns}" rows="${sprite.rows}" emotes="${JSON.stringify(emotes)}" animation="${state.animation ?? 'walk'}" direction="${direction}" expression="${expression}" ${state.showcase === true ? html`showcase` : html``} ${state.talking ? html`talking` : html``} ${state.paused ? html`paused` : html``} label="My RPG Actor character sprite">
+	const label = state.label ?? 'My RPG Actor character sprite';
+	const { handle } = state;
+	const fallbackCid = selected || sprite?.cid;
+	// The parser creates the shadow root before the module runs. The slotted
+	// portrait can paint before the shadow stylesheet and works without scripting.
+	return html`<rpg-actor ${handle ? html`handle="${handle}"` : html``} ${sprite ? html`src="${blobPath(sprite.cid)}" columns="${sprite.columns}" rows="${sprite.rows}" emotes="${JSON.stringify(emotes)}"` : html``} animation="${state.animation ?? 'walk'}" direction="${direction}" expression="${expression}" ${state.showcase === true ? html`showcase` : html``} ${state.talking ? html`talking` : html``} ${state.paused ? html`paused` : html``} label="${label}">
+		<template shadowrootmode="open">
+			<link rel="stylesheet" href="${actorPackage}styles.css">
+			<slot></slot>
+			<div>
+				<span role="img" part="sprite" hidden></span>
+				<button type="button" part="controls" hidden></button>
+			</div>
+		</template>
 		<figure data-sprite>
 			<div style="width:var(--rpg-actor-size, 144px);aspect-ratio:1;overflow:hidden;position:relative">
-				<img src="${blobPath(selected)}" alt="My RPG Actor character sprite" loading="lazy" style="position:absolute;inset:0 auto auto 0;display:block;max-width:none;width:calc(100% * ${columns});height:calc(100% * ${rows});transform:translate(${(-column * 100) / columns}%,${(-row * 100) / rows}%)" />
+				<img src="${fallbackCid ? blobPath(fallbackCid) : genericActor}" alt="${label}" loading="lazy" style="position:absolute;inset:0 auto auto 0;display:block;max-width:none;width:calc(100% * ${columns});height:calc(100% * ${rows});transform:translate(${(-column * 100) / columns}%,${(-row * 100) / rows}%)" />
 			</div>
-			<figcaption>My rpg.actor sprite</figcaption>
+			${!state.handle ? html`<figcaption>My rpg.actor sprite</figcaption>` : html``}
 		</figure>
 	</rpg-actor>`;
 }

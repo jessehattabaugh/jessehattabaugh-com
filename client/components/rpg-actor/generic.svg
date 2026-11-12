@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="144" height="192" viewBox="0 0 144 192" shape-rendering="crispEdges">
+	<!-- Original courier: 48px cells, step / idle / step, down / left / right / up. -->
+	<defs>
+		<g id="body">
+			<path fill="#263043" d="M16 23h16v4h4v12H12V27h4z"/>
+			<path fill="#458979" d="M16 27h16v9H16z"/>
+			<path fill="#81c3a3" d="M16 27h16v3H16z"/>
+		</g>
+		<g id="boots" fill="#263043"><path d="M15 35h7v8h-7zM26 35h7v8h-7z"/></g>
+		<g id="step" fill="#263043"><path d="M14 34h7v10h-7zM27 34h7v6h-7z"/></g>
+		<g id="head">
+			<path fill="#263043" d="M17 7h14v3h4v12h-4v5H17v-5h-4V10h4z"/>
+			<path fill="#eac497" d="M17 14h14v9H17z"/>
+			<path fill="#f1b94e" d="M17 9h14v3h4v4H13v-4h4z"/>
+		</g>
+		<g id="down"><use href="#body"/><use href="#head"/><path fill="#263043" d="M19 17h2v3h-2zm8 0h2v3h-2z"/></g>
+		<g id="left"><use href="#body"/><use href="#head"/><path fill="#263043" d="M17 17h2v3h-2z"/><path fill="#9b713d" d="M26 16h5v7h-5z"/></g>
+		<g id="right"><use href="#left" transform="translate(48) scale(-1 1)"/></g>
+		<g id="up"><use href="#body"/><use href="#head"/><path fill="#9b713d" d="M17 16h14v7H17z"/><path fill="#c88942" d="M19 29h10v7H19z"/></g>
+	</defs>
+	<g><use href="#step"/><use href="#down" y="1"/></g>
+	<g transform="translate(48)"><use href="#boots"/><use href="#down"/></g>
+	<g transform="translate(96)"><use href="#step" transform="translate(48) scale(-1 1)"/><use href="#down" y="1"/></g>
+	<g transform="translate(0 48)"><use href="#step"/><use href="#left" y="1"/></g>
+	<g transform="translate(48 48)"><use href="#boots"/><use href="#left"/></g>
+	<g transform="translate(96 48)"><use href="#step" transform="translate(48) scale(-1 1)"/><use href="#left" y="1"/></g>
+	<g transform="translate(0 96)"><use href="#step"/><use href="#right" y="1"/></g>
+	<g transform="translate(48 96)"><use href="#boots"/><use href="#right"/></g>
+	<g transform="translate(96 96)"><use href="#step" transform="translate(48) scale(-1 1)"/><use href="#right" y="1"/></g>
+	<g transform="translate(0 144)"><use href="#step"/><use href="#up" y="1"/></g>
+	<g transform="translate(48 144)"><use href="#boots"/><use href="#up"/></g>
+	<g transform="translate(96 144)"><use href="#step" transform="translate(48) scale(-1 1)"/><use href="#up" y="1"/></g>
+</svg>

@@ -139,12 +139,11 @@ Searches, shared sightings, and drive starting points use browser location or th
 selected map center; coordinates are carried in hidden fields, never typed.
 
 `rpg-actor` renders the home/About sprite and has a playground at
-`/components/rpg-actor/`. Its portable package accepts sprite URLs and expression
-sheet URLs through attributes; see its README and Custom Elements Manifest.
-The server reads optional emote blobs from the owner's public AT Protocol record
-and serves them through the existing allow-listed image proxy. The owner must
-publish the rpg.actor emote upgrade before their expressions appear. The home
-page uses the build snapshot; About and the playground refresh public records.
+`/components/rpg-actor/`. The portable element accepts a Bluesky `handle` and
+loads public sprite and expression sheets, with a bundled courier for missing
+sprites. Site pages render a static portrait using declarative shadow DOM.
+See the [component README](client/components/rpg-actor/README.md) for embedding
+and explicit sheet overrides.
 
 About opts into `showcase` cycling; home actors keep their selected pose. Set
 `showcase-duration="3000"` for three seconds per idle/walking/talking pose,

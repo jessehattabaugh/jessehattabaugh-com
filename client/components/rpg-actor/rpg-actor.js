@@ -1,7 +1,10 @@
+import { loadSprite } from './sprite-record.js';
+
 /** Portable renderer for rpg.actor sheets. No site imports or account writes.
  * Sheet contract: https://rpg.actor/dev-guide#pc-playback and #pc-emotes.
  */
 export const expressions = Object.freeze(['neutral', 'blink', 'happy', 'sad', 'angry', 'silly', 'tired', 'bruh', 'pout']);
+const generic = new URL('./generic.svg', import.meta.url).href;
 export const directions = Object.freeze(['down', 'left', 'right', 'up']);
 
 /** @param {string | null} value @param {number} fallback @param {number} max */
@@ -12,12 +15,17 @@ function integer(value, fallback, max) {
 
 /** State flows through attributes; lifecycle owns every timer and listener. */
 export class RpgActor extends HTMLElement {
-	static observedAttributes = ['src', 'emotes', 'columns', 'rows', 'animation', 'direction', 'expression', 'talking', 'paused', 'showcase', 'showcase-duration', 'interval', 'frame', 'label'];
-	#root = this.attachShadow({ mode: 'open' });
-	#viewport = document.createElement('span');
-	#slot = document.createElement('slot');
-	#button = document.createElement('button');
+	static observedAttributes = ['handle', 'src', 'emotes', 'columns', 'rows', 'animation', 'direction', 'expression', 'talking', 'paused', 'showcase', 'showcase-duration', 'interval', 'frame', 'label'];
+	#root = this.shadowRoot ?? this.attachShadow({ mode: 'open' });
+	#viewport = this.#root.querySelector('span') ?? document.createElement('span');
+	#slot = this.#root.querySelector('slot') ?? document.createElement('slot');
+	#button = this.#root.querySelector('button') ?? document.createElement('button');
 	#styled = false;
+	#active = false;
+	/** @type {AbortController | undefined} */
+	#lookup;
+	/** @type {Awaited<ReturnType<typeof loadSprite>>} */
+	#record = null;
 	#motion = matchMedia('(prefers-reduced-motion: reduce)');
 	#timer = 0;
 	#step = 0;
@@ -32,9 +40,12 @@ export class RpgActor extends HTMLElement {
 
 	constructor() {
 		super();
-		const style = document.createElement('link');
-		style.rel = 'stylesheet';
-		style.href = new URL('./styles.css', import.meta.url).href;
+		const style = this.#root.querySelector('link') ?? document.createElement('link');
+		if (!style.parentNode) {
+			style.rel = 'stylesheet';
+			style.href = new URL('./styles.css', import.meta.url).href;
+		}
+		this.#styled = Boolean(style.sheet);
 		style.addEventListener('load', () => {
 			this.#styled = true;
 			if (this.isConnected) { this.#refresh(); }
@@ -46,12 +57,18 @@ export class RpgActor extends HTMLElement {
 		this.#button.setAttribute('part', 'controls');
 		this.#button.hidden = true;
 		this.#button.addEventListener('click', () => { this.toggleAttribute('paused'); });
-		const stage = document.createElement('div');
-		stage.append(this.#viewport, this.#button);
-		this.#root.append(style, this.#slot, stage);
+		if (!style.parentNode) { this.#root.prepend(style); }
+		if (!this.#slot.parentNode) { this.#root.append(this.#slot); }
+		if (!this.#viewport.parentNode || !this.#button.parentNode) {
+			const stage = document.createElement('div');
+			stage.append(this.#viewport, this.#button);
+			this.#root.append(stage);
+		}
 	}
 
 	connectedCallback() {
+		this.#active = true;
+		this.#resolve();
 		this.#motion.addEventListener('change', this.#refresh);
 		document.addEventListener('visibilitychange', this.#refresh);
 		this.#parseEmotes();
@@ -59,6 +76,8 @@ export class RpgActor extends HTMLElement {
 	}
 
 	disconnectedCallback() {
+		this.#active = false;
+		this.#lookup?.abort();
 		clearInterval(this.#timer);
 		this.#motion.removeEventListener('change', this.#refresh);
 		document.removeEventListener('visibilitychange', this.#refresh);
@@ -66,26 +85,46 @@ export class RpgActor extends HTMLElement {
 
 	/** @param {string} name @param {string | null} before @param {string | null} after */
 	attributeChangedCallback(name, before, after) {
-		if (before === after || this.#cycling) { return; }
-		if (name === 'src') {
+		if (before === after || this.#cycling || !this.#active) { return; }
+		if (name === 'src' || name === 'handle') {
 			this.#images.clear();
+			this.#resolve();
 		} else if (name === 'emotes') {
-			const baseUrl = this.#url(this.getAttribute('src') || '');
+			const baseUrl = this.#url(this.getAttribute('src') || this.#record?.src || generic);
 			const baseImage = baseUrl ? this.#images.get(baseUrl) : null;
 			this.#images.clear();
 			if (baseImage) { this.#images.set(baseUrl, baseImage); }
 		}
 		if (name !== 'paused' && name !== 'label') { this.#step = 0; this.#elapsed = 0; }
 		if (!this.isConnected) { return; }
-		if (name === 'emotes') { this.#parseEmotes(); }
+		if (['emotes', 'src', 'handle'].includes(name)) { this.#parseEmotes(); }
 		this.#refresh();
 		this.#emit('actor-change', this.#state());
+	}
+
+	#resolve() {
+		this.#lookup?.abort();
+		this.#record = null;
+		const handle = this.getAttribute('handle');
+		if (this.getAttribute('src') || !handle?.trim()) { return; }
+		const lookup = this.#lookup = new AbortController();
+		const signal = AbortSignal.any([lookup.signal, AbortSignal.timeout(8000)]);
+		loadSprite(handle, signal).then((record) => {
+			if (lookup.signal.aborted) { return; }
+			this.#record = record;
+			this.#parseEmotes();
+			this.#step = 0;
+			this.#refresh();
+		}).catch(() => {
+			if (!lookup.signal.aborted) { this.#emit('actor-error', { reason: 'Actor lookup unavailable', src: '' }); }
+		});
 	}
 
 	#parseEmotes() {
 		this.#emotes = {};
 		try {
-			const value = JSON.parse(this.getAttribute('emotes') || '{}');
+			const override = this.getAttribute('emotes');
+			const value = override === null ? this.#record?.emotes ?? {} : JSON.parse(override);
 			if (!value || typeof value !== 'object' || Array.isArray(value)) { throw new Error(); }
 			for (const name of expressions) {
 				const variant = value[name];
@@ -160,6 +199,7 @@ export class RpgActor extends HTMLElement {
 		if (!this.#images.has(url)) {
 			const image = new Image();
 			image.alt = '';
+			image.referrerPolicy = 'no-referrer';
 			image.decoding = 'async';
 			this.#images.set(url, image);
 			image.onload = () => {
@@ -187,7 +227,8 @@ export class RpgActor extends HTMLElement {
 		const openMouth = state.talking && this.#step % 2 === 1 && !this.#motion.matches;
 		const talk = openMouth && variant?.talkSheet ? this.#image(variant.talkSheet) : null;
 		const emote = talk || (variant?.emoteSheet ? this.#image(variant.emoteSheet) : null);
-		const image = emote || this.#image(this.getAttribute('src') || '');
+		const source = this.getAttribute('src');
+		const image = emote || this.#image(source || this.#record?.src || '') || (!source ? this.#image(generic) : null);
 		// Shadow stylesheets don't block paint. Keep the fallback visible until
 		// the stylesheet can size and clip the sheet to a single frame.
 		if (!image || !this.#styled) {
@@ -195,8 +236,9 @@ export class RpgActor extends HTMLElement {
 			return;
 		}
 		// Emotes always use the standard 3x4 grid, even for a custom base sheet.
-		const columns = emote ? 3 : Math.max(1, integer(this.getAttribute('columns'), 3, 16));
-		const rows = emote ? 4 : Math.max(1, integer(this.getAttribute('rows'), 4, 16));
+		const standardGrid = emote || image.src === generic;
+		const columns = standardGrid ? 3 : Math.max(1, integer(this.getAttribute('columns'), this.#record?.columns ?? 3, 16));
+		const rows = standardGrid ? 4 : Math.max(1, integer(this.getAttribute('rows'), this.#record?.rows ?? 4, 16));
 		const sequence = [...Array(columns).keys(), ...Array.from({ length: Math.max(0, columns - 2) }, (_, index) => { return columns - 2 - index; })];
 		const idle = Math.min(1, columns - 1);
 		let frame = idle;

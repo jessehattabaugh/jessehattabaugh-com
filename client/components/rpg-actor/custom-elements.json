@@ -18,6 +18,11 @@
 					"description": "Attribute-driven rpg.actor sprites, expressions and talking with native HTML fallback.",
 					"attributes": [
 						{
+							"name": "handle",
+							"type": { "text": "string" },
+							"description": "Bluesky handle, optionally prefixed with @. Loads the public actor sprite and expressions. Missing or unavailable sprites use the bundled courier. An explicit src bypasses lookup."
+						},
+						{
 							"name": "src",
 							"type": {
 								"text": "string"
@@ -149,7 +154,7 @@
 							"type": {
 								"text": "CustomEvent<{ reason: string, src: string }>"
 							},
-							"description": "Malformed emotes JSON or image failure. Bubbles and composed; not cancelable."
+							"description": "Failed handle lookup, malformed emotes JSON, or image failure. Bubbles and composed; not cancelable."
 						}
 					],
 					"slots": [
