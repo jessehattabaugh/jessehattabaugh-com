@@ -1,7 +1,5 @@
-/** Fetch public source material and compose PNG artwork using native Node modules.
- * Parcel's embedded plugin runtime cannot load Sharp. These private source images
- * are never copied: Parcel owns optimization and emission of their public files. */
-import { globSync } from 'node:fs';
+/** Generate artwork and the public-data snapshot separately from authored assets. */
+import { globSync, existsSync } from 'node:fs';
 import { mkdir, readFile, rm, writeFile } from 'node:fs/promises';
 import { basename, dirname, join } from 'node:path';
 import sharp from 'sharp';
@@ -37,6 +35,8 @@ export async function prepareInputs(root) {
 		writeFile(join(out, 'icon.svg'), icon),
 		actorCard(social).then((buffer) => { return writeFile(cardPath, buffer); }),
 		...imageVariants(apps).map(async ({ path, source, size }) => {
+			// Authored images already have their final bytes and take precedence.
+			if (existsSync(join(root, 'client', path))) { return; }
 			const file = join(out, 'images', path);
 			await mkdir(dirname(file), { recursive: true });
 			await sharp(artwork.get(source)).resize(size, size).png({ palette: true }).toFile(file);

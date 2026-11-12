@@ -1,11 +1,11 @@
 import '../components/rpg-actor/index.js';
 /** Optional navigation acceleration. The markup owns URLs, methods and targets. */
 import './install.js';
-import '../components/site-auth.js';
+import './auth.js';
 // Showcase pages install their event listener before registering the element.
 // Other pages only need the portable registration entry for installation help.
 if (document.getElementById('demo-panel')) {
-	await import('../components/demo.js');
+	await import('../components/disclosure-panel/docs/demo.js');
 } else {
 	await import('../components/disclosure-panel/index.js');
 }

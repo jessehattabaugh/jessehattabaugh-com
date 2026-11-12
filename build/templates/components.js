@@ -53,7 +53,7 @@ export function components(social) {
 			<h2>Component files</h2>
 			<p>Each component and kit ships an ES module, an MIT license, and a Custom Elements Manifest. The catalog includes artifact URLs and kit dependencies. See the <a href="/components/catalog.json">component catalog JSON</a>.</p>
 			<p>Find the source on GitHub or use the published files listed in the catalog.</p>
-		</article>`, scripts: html`<script type="module" src="/components/demo.js"></script>` });
+		</article>`, scripts: html`<script type="module" src="/components/disclosure-panel/docs/demo.js"></script>` });
 }
 
 /** @param {import('../../shared/data/atproto.js').Social} [social] */
@@ -141,7 +141,7 @@ customElements.define('disclosure-panel', DisclosurePanel);`)}
 				</ul>
 				<p>This component also wraps the site’s app-install instructions. It makes no network requests and stores no data.</p>
 			</section>
-		</article>`, scripts: html`<script type="module" src="/components/demo.js"></script>` });
+		</article>`, scripts: html`<script type="module" src="/components/disclosure-panel/docs/demo.js"></script>` });
 }
 
 /** @param {import('../../shared/data/atproto.js').Social} [social] */

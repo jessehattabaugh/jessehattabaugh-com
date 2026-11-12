@@ -1,5 +1,5 @@
 /** Location and alerts enhance the server's coordinate form and sky report. */
-import { saveLocation, clearLocation } from '../../shared/rainbow-hour/storage.js';
+import { saveLocation, clearLocation } from './storage.js';
 import { sunPosition } from '../../../shared/rainbow-hour/solar.js';
 import { setupPushForm } from '../../enhance/push.js';
 

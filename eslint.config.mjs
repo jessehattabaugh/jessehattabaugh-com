@@ -72,9 +72,9 @@ export default [
 	},
 	// Each runtime gets only its own globals. Cross-runtime code uses Web APIs
 	// available to Node, Cloudflare Workers, and browsers, never DOM/Node bindings.
-	{ files: ['client/**/*.js'], ignores: ['client/**/sw.js', 'client/shared/rainbow-hour/**'], languageOptions: { globals: globals.browser } },
+	{ files: ['client/**/*.js'], ignores: ['client/**/sw.js', 'client/apps/rainbow-hour/storage.js'], languageOptions: { globals: globals.browser } },
 	{ files: ['client/**/sw.js'], languageOptions: { globals: globals.serviceworker } },
-	{ files: ['client/shared/rainbow-hour/**/*.js'], languageOptions: { globals: { indexedDB: 'readonly' } } },
+	{ files: ['client/apps/rainbow-hour/storage.js'], languageOptions: { globals: { indexedDB: 'readonly' } } },
 	{ files: ['server/**/*.js'], languageOptions: { globals: { ...globals.worker, AbortSignal: 'readonly', HTMLRewriter: 'readonly' } } },
 	{ files: ['shared/**/*.js'], languageOptions: { globals: Object.fromEntries(['URL', 'URLSearchParams', 'fetch', 'AbortSignal', 'console', 'TextEncoder', 'TextDecoder'].map((name) => { return [name, 'readonly']; })) } },
 	{ files: ['build/**/*.js', 'test/**/*.js', '*.mjs', 'playwright.config.js'], languageOptions: { globals: globals.node } },
