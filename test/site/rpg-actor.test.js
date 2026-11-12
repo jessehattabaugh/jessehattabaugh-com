@@ -14,13 +14,17 @@ for (const route of ['/', '/about', '/components/', path]) {
 	});
 }
 
-test('documentation HTML is readable and gains syntax colors with JavaScript', async ({ page, javaScriptEnabled }) => {
+test('documentation HTML and JavaScript are highlighted on first render', async ({ page }) => {
 	await page.goto(path);
 	const code = page.getByLabel('HTML example', { exact: true });
 	await expect(code).toBeVisible();
 	await expect(code).toContainText('<rpg-actor');
 	await expect(code).toContainText('</rpg-actor>');
-	if (javaScriptEnabled) { await expectHighlightedCode(code); }
+	await expectHighlightedCode(code);
+	const script = page.getByLabel('JavaScript example', { exact: true });
+	await expect(script).toBeVisible();
+	await expect(script).toContainText("const actor = document.querySelector('rpg-actor');");
+	await expectHighlightedCode(script);
 });
 
 test('playground controls select a pose with and without JavaScript', async ({ page }) => {

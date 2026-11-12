@@ -24,7 +24,9 @@ client using cutting edge web apis.
 `shared/routes.js`, then publishes them with assets in `dist/client/`. Browser
 files are copied byte-for-byte: native ES module imports, CSS imports, JSON,
 images, manifests and service workers remain exactly as authored. Wrangler still
-bundles/minifies server code. Sharp generates icons and social artwork separately.
+bundles/minifies server code. Sharp generates icons and social artwork separately. Documentation examples use
+Highlight.js on the server. Client-created code blocks load the same self-hosted
+ES modules on demand.
 
 To add a page, write its template and add one entry to `shared/routes.js` with
 its URL, template module/export, heading, and optional sitemap/navigation metadata.

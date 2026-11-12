@@ -1,3 +1,4 @@
+import { codeExample } from '../../shared/templates/code-example.js';
 import { actorSprite } from '../../shared/templates/pages/social.js';
 import { html } from '../../shared/html.js';
 import { layout } from '../../shared/templates/layout.js';
@@ -7,7 +8,7 @@ import { componentCatalog, kitCatalog } from '../component-catalog.js';
 
 /** @param {string} label @param {string} language @param {string} source */
 function code(label, language, source) {
-	return html`<figure data-code><figcaption>${label} · ${language}</figcaption><code-block language="${language.toLowerCase()}"><pre tabindex="0" aria-label="${label}"><code>${source}</code></pre></code-block></figure>`;
+	return codeExample({ caption: `${label} · ${language}`, label, language: language.toLowerCase(), source });
 }
 
 /** @param {string} [summary] */

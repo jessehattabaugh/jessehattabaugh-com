@@ -1,3 +1,4 @@
+import { codeExample } from '../../shared/templates/code-example.js';
 import { html } from '../../shared/html.js';
 import { layout } from '../../shared/templates/layout.js';
 import { gameKitElements, gameKitReference, paths } from '../../shared/routes.js';
@@ -17,10 +18,7 @@ const scripts = html`<script type="module" src="${paths.gameKit}docs/index.js"><
 
 /** @param {string} title @param {Raw} markup */
 function code(title, markup) {
-	return html`<figure data-code>
-		<figcaption>${title}</figcaption>
-		<code-block language="html"><pre tabindex="0" aria-label="${title}"><code>${markup.value.trim()}</code></pre></code-block>
-	</figure>`;
+	return codeExample({ caption: title, language: 'html', source: markup.value.trim() });
 }
 
 /** @param {Example} example */

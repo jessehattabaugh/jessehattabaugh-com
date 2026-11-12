@@ -55,6 +55,7 @@ export const layout = ({
 						}
 					}
 				</style>
+				<script type="importmap">{"imports":{"@highlightjs/cdn-assets/es/":"/vendor/highlightjs/"}}</script>
 				<script type="speculationrules">
 					{
 						"prerender": [
