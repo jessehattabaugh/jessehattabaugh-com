@@ -53,6 +53,11 @@ export class GameInput extends HTMLElement {
 		if (event.target instanceof HTMLInputElement || event.target instanceof HTMLTextAreaElement || event.target instanceof HTMLSelectElement ||
 			event.altKey || event.ctrlKey || event.metaKey) { return; }
 		const key = event.key.toLowerCase();
+		if (key === ' ' && event.target instanceof HTMLButtonElement) {
+			// Keep native activation and release fire if focus moved while Space was held.
+			if (event.type === 'keyup' && this.#keys.delete(key)) { this.#poll(); }
+			return;
+		}
 		const actions = ['arrowleft', 'arrowright', 'arrowup', 'arrowdown', 'a', 'd', 'w', 's', ' ', 'p', 'escape'];
 		if (!actions.includes(key)) { return; }
 		event.preventDefault();

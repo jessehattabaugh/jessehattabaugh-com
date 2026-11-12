@@ -151,6 +151,38 @@ test('authored stage lengths advance through distinct scenery and culminate in a
 	await expect(page.getByLabel('Score', { exact: true })).toHaveText('000000');
 });
 
+test('Space activates focused lifecycle buttons', async ({ page, javaScriptEnabled }) => {
+	test.skip(!javaScriptEnabled, 'Exercises the lifecycle controls in the enhanced game.');
+	const viewport = await openWorld(page);
+	const launch = page.getByRole('button', { name: 'Launch', exact: true });
+	const pause = page.getByRole('button', { name: 'Pause', exact: true });
+	const resume = page.getByRole('button', { name: 'Resume', exact: true });
+	const restart = page.getByRole('button', { name: 'Restart flight', exact: true });
+	const progress = page.getByLabel('Route progress', { exact: true });
+	const percent = async () => { return Number.parseInt(await progress.innerText(), 10); };
+
+	await viewport.focus();
+	await page.keyboard.press('Tab');
+	await expect(launch).toBeFocused();
+	await page.keyboard.press('Space');
+	await expect(viewport).toBeFocused();
+	await expect.poll(percent).toBeGreaterThanOrEqual(3);
+
+	await page.keyboard.press('Tab');
+	await expect(pause).toBeFocused();
+	await page.keyboard.press('Space');
+	await expect(resume).toBeFocused();
+	await page.keyboard.press('Space');
+	await expect(viewport).toBeFocused();
+
+	await page.keyboard.press('Tab');
+	await page.keyboard.press('Tab');
+	await expect(restart).toBeFocused();
+	const beforeRestart = await percent();
+	await page.keyboard.press('Space');
+	await expect.poll(percent).toBeLessThan(beforeRestart);
+});
+
 test('native direction and fire buttons support touch and keyboard activation', async ({ page, javaScriptEnabled }) => {
 	test.skip(!javaScriptEnabled, 'Real-time controls require scripting.');
 	const viewport = await openWorld(page);
