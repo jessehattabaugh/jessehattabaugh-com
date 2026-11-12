@@ -1,8 +1,8 @@
 import { getConversation, getPushSubscriptionsByUser, getOwnerPushSubscriptions, deletePushSubscription } from './data.js';
-import { notifyAll } from '../../shared/push/vapid.js';
+import { notifyAll } from '../../push/vapid.js';
 import { paths } from '../../../shared/routes.js';
 
-/** @param {import('../../shared/types.js').Env} env @param {{ conversationId: string, senderIsOwner: boolean, senderName: string, content: string, verified?: boolean }} data */
+/** @param {import('../../types.js').Env} env @param {{ conversationId: string, senderIsOwner: boolean, senderName: string, content: string, verified?: boolean }} data */
 export async function notifyNewMessage(env, data) {
 	if (!env.VAPID_PUBLIC_KEY || !env.VAPID_PRIVATE_KEY) { return; }
 	const conversation = await getConversation(env.DB, data.conversationId);

@@ -2,12 +2,12 @@ import { render } from '../../../shared/html.js';
 import { paths } from '../../../shared/routes.js';
 import { crunchTime, crunchFragment } from './templates.js';
 import { crunchHistory, saveCrunchWorkout, feedCrunchPet } from './data.js';
-import { createSession, verifySession, getSessionUser } from '../../shared/auth/session.js';
-import { getUserById } from '../../shared/data/accounts.js';
-import { readForm, RequestBodyError } from '../../shared/http/request.js';
+import { createSession, verifySession, getSessionUser } from '../../auth/session.js';
+import { getUserById } from '../../data/accounts.js';
+import { readForm, RequestBodyError } from '../../http/request.js';
 
 const COOKIE = '__Host-crunch';
-/** @param {Request} request @param {import('../../shared/types.js').Env} env */
+/** @param {Request} request @param {import('../../types.js').Env} env */
 export async function handleCrunchTime(request, env) {
 	const cookie = request.headers.get('Cookie')?.match(/(?:^|;\s*)__Host-crunch=([^;]+)/)?.[1];
 	const existing = cookie ? await verifySession(env.SESSION_SECRET, cookie) : null;

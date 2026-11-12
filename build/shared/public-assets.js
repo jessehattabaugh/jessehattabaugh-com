@@ -5,7 +5,7 @@ import { join } from 'node:path';
 import { staticRoutes, sitemapPaths } from '../../shared/routes.js';
 import { html, render } from '../../shared/html.js';
 import { staticPages } from '../pages.js';
-import { componentCatalog } from './components.js';
+import { componentCatalog, kitCatalog } from '../component-catalog.js';
 
 /** @param {string} path */
 export function imageInput(path) {
@@ -71,7 +71,7 @@ export function generatedContent(path, root) {
 	if (route) { return render(staticPages[route.name](social, new URLSearchParams(''))); }
 	if (path === '404.html') { return render(staticPages.notFound()); }
 	if (path === 'atproto/snapshot.json') { return JSON.stringify(social); }
-	if (path === 'components/catalog.json') { return JSON.stringify({ components: componentCatalog }); }
+	if (path === 'components/catalog.json') { return JSON.stringify({ components: componentCatalog, kits: kitCatalog }); }
 	if (path === 'sitemap.xml') { return sitemapFiles(origin).xml; }
 	if (path === 'robots.txt') { return sitemapFiles(origin).robots; }
 	const input = join(root, 'dist', 'inputs');

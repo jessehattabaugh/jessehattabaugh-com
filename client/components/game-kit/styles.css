@@ -1,0 +1,369 @@
+@layer game-kit {
+	game-screen, game-layer, game-sprite, game-tilemap, game-flow, game-scene, game-menu, game-modal {
+		display: block;
+	}
+
+	game-screen {
+		--game-width: max(1, attr(width type(<number>), 128));
+		--game-height: max(1, attr(height type(<number>), 96));
+		--game-camera-x: attr(camera-x type(<number>), 0);
+		--game-camera-y: attr(camera-y type(<number>), 0);
+		position: relative;
+		container-type: inline-size;
+		isolation: isolate;
+		overflow: hidden;
+		aspect-ratio: 4 / 3;
+		aspect-ratio: var(--game-width) / var(--game-height);
+		inline-size: 100%;
+		max-inline-size: var(--game-screen-width, 32rem);
+		background: var(--game-screen-background, #171a29);
+		image-rendering: pixelated;
+
+		/* A tilemap can scroll directly in CSS. Author extra tiles beyond the viewport for overscan. */
+		> game-layer {
+			--game-pixel: calc(100cqw / var(--game-width));
+			--game-factor: attr(factor type(<number>), 1);
+			--game-layer-x: attr(scroll-x type(<number>), 0);
+			--game-layer-y: attr(scroll-y type(<number>), 0);
+
+			> game-tilemap {
+				translate:
+					calc(-1 * (var(--game-layer-x) + var(--game-factor) * var(--game-camera-x)) * var(--game-pixel))
+					calc(-1 * (var(--game-layer-y) + var(--game-factor) * var(--game-camera-y)) * var(--game-pixel));
+			}
+		}
+	}
+
+	game-layer, game-tilemap {
+		position: absolute;
+		inset: 0;
+	}
+
+	game-layer {
+		> img, > canvas {
+			position: absolute;
+			inset: 0;
+			inline-size: 100%;
+			block-size: 100%;
+			object-fit: fill;
+		}
+
+		> img {
+			max-inline-size: none;
+		}
+
+		> canvas[hidden] {
+			display: none;
+		}
+
+		&:has(> canvas:not([hidden])) > img {
+			/* Keep the authored alt text available while the canvas displays its texture. */
+			clip-path: inset(50%);
+		}
+	}
+
+	game-sprite {
+		--game-pixel: calc(100cqw / var(--game-width, 128));
+		--game-zoom: clamp(0.125, attr(scale type(<number>), 1), 16);
+		position: absolute;
+		left: calc(attr(x type(<number>), 0) * var(--game-pixel));
+		top: calc(attr(y type(<number>), 0) * var(--game-pixel));
+		z-index: attr(priority type(<integer>), 0);
+		width: calc(max(1, attr(width type(<number>), 8)) * var(--game-pixel) * var(--game-zoom));
+		height: calc(max(1, attr(height type(<number>), 8)) * var(--game-pixel) * var(--game-zoom));
+
+		> img {
+			display: block;
+			width: 100%;
+			height: 100%;
+			object-fit: fill;
+		}
+
+		&[flip-x] > img {
+			transform: scaleX(-1);
+		}
+	}
+
+	game-tilemap {
+		display: grid;
+		grid-template-columns: repeat(max(1, attr(columns type(<integer>), 16)), minmax(0, 1fr));
+		grid-template-rows: repeat(max(1, attr(rows type(<integer>), 12)), minmax(0, 1fr));
+		grid-auto-rows: 0;
+		overflow: hidden;
+
+		> game-tile {
+			--tile-index: attr(index type(<number>), 0);
+			--tile-x: mod(var(--tile-index), var(--sheet-columns, 1));
+			--tile-y: round(down, calc(var(--tile-index) / var(--sheet-columns, 1)), 1);
+			background-size: calc(var(--sheet-columns, 1) * 100%) calc(var(--sheet-rows, 1) * 100%);
+			background-position: calc(var(--tile-x, 0) * 100% / max(1, var(--sheet-columns, 1) - 1)) calc(var(--tile-y, 0) * 100% / max(1, var(--sheet-rows, 1) - 1));
+			image-rendering: pixelated;
+		}
+	}
+
+	/* Fragment navigation is the same scene graph before and after upgrade. */
+	game-flow > game-scene,
+	game-flow:not([data-game-ready]):has(> game-scene:target) > game-scene,
+	game-flow:not([data-game-ready]):has(> game-scene[data-start]) > game-scene {
+		display: none;
+	}
+
+	game-flow[data-game-ready] > game-scene[active],
+	game-flow:not([data-game-ready]):has(> game-scene:target) > game-scene:target,
+	game-flow:not([data-game-ready]):not(:has(> game-scene:target)) > game-scene[data-start],
+	game-flow:not([data-game-ready]):not(:has(> game-scene:target, > game-scene[data-start])) > game-scene:first-of-type {
+		display: block;
+	}
+
+	game-scene {
+		scroll-margin-block-start: 1rem;
+	}
+}
+
+@property --object-z { syntax: "<number>"; inherits: false; initial-value: 60; }
+@property --grid-color { syntax: "<color>"; inherits: true; initial-value: #a7debd; }
+
+@layer game-kit {
+	game-world, game-input { display: block; }
+	game-world game-layer, game-world game-sprite[actor="scenery"], game-world game-sprite[actor="player"] { pointer-events: none; }
+	game-tileset, game-palette { display: none; }
+
+	game-world {
+		--native-x: 0;
+		--native-y: 1.1;
+		--native-bank: 2;
+		--world-motion: paused;
+		counter-reset: targets 0;
+
+		game-input { container-type: inline-size; }
+
+		&:has([data-axis="x"][value="-1"]:checked) { --native-x: -2.7; --native-bank: 0; }
+		&:has([data-axis="x"][value="1"]:checked) { --native-x: 2.7; --native-bank: 4; }
+		&:has([data-axis="y"][value="1"]:checked) { --native-y: 2.4; }
+		&:has([data-axis="y"][value="-1"]:checked) { --native-y: .3; }
+
+		[data-world-viewport] {
+			--unit: calc(100cqw / 320);
+			--camera-x: calc(var(--native-x) * .32);
+			--camera-y: calc(2.4 + var(--native-y) * .15);
+			--horizon: 36%;
+			--game-screen-width: 100%;
+			container-type: inline-size;
+			perspective: calc(156 * var(--unit));
+			perspective-origin: 50% var(--horizon);
+			aspect-ratio: 8 / 5;
+			transform-style: preserve-3d;
+			background: #172d50;
+		}
+
+		game-stage {
+			--stage-speed: attr(speed type(<number>), 18);
+			--sky: attr(sky type(<color>), #172d50);
+			--haze: attr(haze type(<color>), #93c9bd);
+			position: absolute;
+			inset: 0;
+			visibility: hidden;
+			pointer-events: none;
+			transform-style: preserve-3d;
+			&::before {
+				content: "";
+				position: absolute;
+				inset: 0;
+				background: linear-gradient(var(--sky), var(--haze));
+				transform-origin: 50% var(--horizon);
+				transform: translateZ(calc(-4100 * var(--unit))) scale(calc(4256 / 156));
+			}
+
+			&:first-of-type { visibility: visible; }
+
+			> game-layer:not([mode="perspective"]) {
+				--factor: attr(factor type(<number>), .2);
+				--drift: attr(drift type(<number>), .05);
+				--plane-z: calc(-4000 + var(--factor) * 400);
+				height: var(--horizon);
+				top: 0;
+				inset-inline: -10%;
+				width: 120%;
+				transform-origin: 50% 100%;
+				transform: translateZ(calc(var(--plane-z) * var(--unit))) scale(calc((156 - var(--plane-z)) / 156)) translate(calc(var(--camera-x) * var(--factor) * -25 * var(--unit)), calc((var(--camera-y) - 2.565) * 8 * var(--unit)));
+				transition: transform .15s linear;
+
+				> game-tilemap { animation: game-layer-drift 32s linear infinite alternate var(--world-motion); }
+			}
+		}
+
+		&:has([data-stage-choice="1"]:checked) game-stage { visibility: hidden; }
+		&:has([data-stage-choice="1"]:checked) game-stage[data-stage-index="1"] { visibility: visible; }
+		&:has([data-stage-choice="2"]:checked) game-stage { visibility: hidden; }
+		&:has([data-stage-choice="2"]:checked) game-stage[data-stage-index="2"] { visibility: visible; }
+
+
+		game-layer[mode="perspective"] {
+			--cell-size: attr(cell-size type(<number>), 4);
+			--cell: calc(var(--cell-size) * 20 * var(--unit));
+			left: 50%;
+			top: var(--horizon);
+			right: auto;
+			bottom: auto;
+			width: calc(800 * var(--unit));
+			height: calc(3200 * var(--unit));
+			transform-origin: 50% 0;
+			transform: translate3d(calc(-50% - var(--camera-x) * 20 * var(--unit)), calc(var(--camera-y) * 20 * var(--unit)), calc(-3044 * var(--unit))) rotateX(90deg);
+
+			> game-tilemap {
+				--grid-color: var(--palette-3);
+				background-image: linear-gradient(90deg, var(--grid-color) 0 12.5%, transparent 12.5%),
+					linear-gradient(var(--grid-color) 0 12.5%, transparent 12.5%),
+					conic-gradient(var(--palette-0) 25%, var(--palette-1) 0 50%, var(--palette-0) 0 75%, var(--palette-1) 0);
+				background-size: var(--cell) var(--cell), var(--cell) var(--cell), calc(var(--cell) * 2) calc(var(--cell) * 2);
+				animation: game-ground-travel calc(var(--cell-size, 4) * 2 / var(--stage-speed) * 1s) linear infinite var(--world-motion),
+					game-palette-cycle calc(2 / max(.1, var(--cycle-rate, 5)) * 1s) step-end infinite var(--world-motion);
+
+				> game-tile { display: none; }
+			}
+		}
+
+		[data-world-viewport] game-sprite {
+			z-index: auto;
+			--object-x: attr(x type(<number>), 0);
+			--object-y: attr(y type(<number>), 0);
+			--object-z: attr(z type(<number>), 60);
+			--size: attr(size type(<number>), 1.2);
+			--frames: max(1, attr(frames type(<number>), 1));
+			--fps: max(.1, attr(fps type(<number>), 8));
+			--duration: calc(attr(z type(<number>), 60) / var(--stage-speed, 18) * 1s);
+			display: block;
+			position: absolute;
+			left: 50%;
+			top: var(--horizon);
+			width: calc(var(--size) * 20 * var(--unit) * attr(aspect type(<number>), 1));
+			height: calc(var(--size) * 20 * var(--unit));
+			transform-origin: 50% 100%;
+			overflow: hidden;
+			transform: translate3d(calc((var(--object-x) - var(--camera-x)) * 20 * var(--unit)), calc((var(--camera-y) - var(--object-y)) * 20 * var(--unit)), calc((156 - var(--object-z) * 20) * var(--unit))) translate(-50%, -100%);
+			filter: blur(calc(max(0, var(--object-z) - 80) * var(--distance-blur, 0px)));
+
+			> img, > label > span > img {
+				width: calc(100% * var(--frames));
+				height: 100%;
+				max-width: none;
+				object-fit: fill;
+				animation: game-sprite-frames calc(var(--frames) / var(--fps) * 1s) steps(var(--frames)) infinite var(--world-motion);
+			}
+
+			> label, > label > span {
+				display: block;
+				width: 100%;
+				height: 100%;
+				overflow: hidden;
+				cursor: crosshair;
+			}
+
+			> label[data-native-target], > label[data-native-target] > input { pointer-events: auto; }
+
+			> label > input {
+				position: absolute;
+				inset: 0;
+				opacity: 0;
+				width: 100%;
+				height: 100%;
+				cursor: crosshair;
+				z-index: 1;
+			}
+
+			&:focus-within { outline: 2px solid #f8dd91; }
+			&:has(input:checked) { visibility: hidden; counter-increment: targets 100; }
+
+			&[actor="scenery"], &[actor="enemy"] {
+				animation: game-approach var(--duration) linear infinite var(--world-motion);
+				animation-delay: calc(attr(at type(<number>), 0) / var(--stage-speed, 18) * 1s);
+			}
+
+			&[actor="player"] {
+				--object-x: var(--native-x);
+				--object-y: calc(var(--native-y) - .3);
+				--object-z: 3;
+				overflow: hidden;
+				transition: transform .2s ease-out;
+
+				> img { animation: none; transform: translateX(calc(var(--native-bank) * -100% / var(--frames))); }
+			}
+		}
+
+		[data-native-cleared], [data-native-victory], [data-world-controls] { display: none; }
+		game-stage:not(:has(game-sprite[actor="enemy"] input:not(:checked))) [data-native-cleared] {
+			display: block;
+			position: absolute;
+			inset: 40% 10% auto;
+			padding: .5rem;
+			background: #172d50;
+			color: #e9efd4;
+			z-index: 5;
+		}
+
+		&:not(:has(game-sprite[actor="enemy"] input:not(:checked))) [data-native-victory] { display: block; }
+
+		&:not([data-world-ready]) {
+			[data-world-hud] label:not(:has([data-world-score])) { display: none; }
+			[data-world-score] { font-size: 0; }
+			[data-world-score]::after { content: counter(targets); font-size: 1rem; }
+		}
+
+		&:not([data-world-ready]):has([data-native-run]:checked):not(:has([data-native-pause]:checked)),
+		&[state="playing"] { --world-motion: running; }
+
+		&[state="paused"] game-stage > game-layer { transition: none; }
+
+		&[data-world-ready] {
+			[data-native-controls], [data-native-cleared], [data-native-victory] { display: none !important; }
+			[data-world-controls] { display: flex; }
+			game-stage { display: none; visibility: hidden; }
+			game-stage[active] { display: block; visibility: visible; }
+			&[state="ready"] game-stage[active] > game-sprite[actor="scenery"] { display: block; }
+			game-stage > game-sprite:not([data-instance]) { display: none; }
+
+			[data-world-viewport] game-sprite[data-instance] {
+				animation: none;
+				overflow: hidden;
+			}
+
+			game-sprite[actor="player"] {
+				--object-x: attr(x type(<number>), 0);
+				--object-y: attr(y type(<number>), .8);
+				transition: none;
+
+				> img { transform: translateX(calc(attr(frame type(<number>), 2) * -100% / var(--frames))); }
+			}
+		}
+
+		game-sprite[data-instance="shot"] {
+			--size: .12;
+			height: calc(8 * var(--unit));
+			background: #aaffdc;
+			box-shadow: 0 0 3px #c9fff0;
+		}
+
+		game-sprite[data-instance="projectile"] { --size: .22; background: #ff7397; border: 1px solid #ffefb1; border-radius: 50%; }
+		game-sprite[data-instance="burst"] { --size: .7; border: 2px solid #ffd58a; border-radius: 50%; }
+
+		game-sprite[invulnerable] > img { animation: game-hit-flash .14s step-end infinite var(--world-motion); }
+		button[data-action] { touch-action: none; user-select: none; }
+	}
+}
+
+@keyframes game-layer-drift { to { transform: translateX(calc(var(--drift) * -25%)); } }
+@keyframes game-ground-travel { to { background-position-y: calc(var(--cell) * 2); } }
+@keyframes game-palette-cycle {
+	0%, 100% { --grid-color: var(--palette-2); }
+	50% { --grid-color: var(--palette-3); }
+}
+@keyframes game-sprite-frames { to { transform: translateX(-100%); } }
+@keyframes game-approach {
+	from { --object-z: attr(z type(<number>), 60); }
+	to { --object-z: 2; }
+}
+@keyframes game-hit-flash { 50% { opacity: .25; } }
+
+@media (prefers-reduced-motion: reduce) {
+	game-world:not([data-world-ready]) [data-world-viewport] * { animation-duration: 12s; }
+}

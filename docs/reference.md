@@ -13,10 +13,11 @@ or runtime dependencies.
 - `build/build.js`: prepares private inputs and runs one Parcel graph that emits `dist/client/`.
 - `server/index.js`: dispatches the registered dynamic routes, applies security
 	headers, and serves assets with the custom 404 and standard error pages.
-- `server/shared/data/` and `server/apps/*/data.js`: prepared D1 queries; `server/db/migrations/` changes the schema.
-- `client/shared/enhance/`: optional form/link transitions, installation, and Web Push.
+- `server/data/` and `server/apps/*/data.js`: prepared D1 queries; `server/db/migrations/` changes the schema.
+- `client/enhance/`: optional form/link transitions, installation, and Web Push.
 - `client/apps/`: app enhancements and colocated `sw.js` service workers.
-- `client/shared/`: reusable browser components, enhancements, styles, and cross-context storage.
+- `client/components/` and `client/styles/`: browser components and styles.
+- `client/shared/`: dependencies of both the browser main thread and service workers.
 - `build/parcel-site.js`, `parcel-generated.js`, `parcel-resolver.js`, `parcel-namer.js`: render and link the public graph without copying source trees.
 - `test/`: functional browser flows against an isolated deployed preview.
 
@@ -192,7 +193,7 @@ functional flows; Lighthouse covers the public pages and Lightsfinder’s four v
 `/apps/lightsfinder/` uses a dark palette with seasonal accents and offers a themed map, photo sightings, ratings/reports,
 regional season standings, and budgeted driving loops. Server code lives in
 `server/apps/lightsfinder/`; browser/PWA assets in `client/apps/lightsfinder/`.
-Cross-app server infrastructure stays in `server/shared/`; cross-app browser assets stay in `client/shared/`. Core forms work without JS;
+Core forms work without JS;
 GPS, resizing, sharing, and installation are optional enhancements.
 
 Verified accounts can publish 10 sightings and upload 20 raster photos per day.

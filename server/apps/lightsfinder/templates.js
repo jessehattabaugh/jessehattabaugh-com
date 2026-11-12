@@ -2,7 +2,7 @@ import { html } from '../../../shared/html.js';
 import { layout } from '../../../shared/templates/layout.js';
 import { paths } from '../../../shared/routes.js';
 import { holidays, project } from './model.js';
-import { installControls } from '../../shared/templates/install.js';
+import { installControls } from '../../templates/install.js';
 import { signInLink } from '../../../shared/templates/account.js';
 
 /** @typedef {import('./types.js').LightPost} Post */

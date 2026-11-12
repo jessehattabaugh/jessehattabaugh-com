@@ -84,7 +84,7 @@ export default [
 		rules: {
 			'no-restricted-imports': ['error', { patterns: [{
 				group: ['node:*', 'cloudflare:*', '@cloudflare/*', '**/server/**', '**/client/**', '**/build/**', '**/test/**'],
-				message: 'Root shared modules must be runtime-independent; put runtime-specific sharing in that runtime/shared directory.',
+				message: 'Root shared modules must be runtime-independent. Put runtime-specific code in its owning context.',
 			}] }],
 		},
 	},
@@ -107,7 +107,7 @@ export default [
 		},
 	},
 	{
-		files: ['server/apps/*/templates.js', 'server/shared/templates/**/*.js', 'build/templates/**/*.js'],
+		files: ['server/apps/*/templates.js', 'server/templates/**/*.js', 'build/templates/**/*.js'],
 		rules: {
 			'no-restricted-imports': ['error', { patterns: [{
 				group: ['node:*', 'cloudflare:*', '@cloudflare/*', '**/worker.js', '**/data.js', '**/auth/**', '**/server/**', '**/build/**', '**/client/**', '**/test/**'],

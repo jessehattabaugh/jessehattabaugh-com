@@ -15,8 +15,8 @@ client using cutting edge web apis.
 | Directory | Runs in / contains |
 | --- | --- |
 | `build/` | Node.js: HTML/assets, branding, deployment and secrets tooling; common tooling in `build/shared/` |
-| `server/` | Cloudflare: handlers and app data/templates; common infrastructure in `server/shared/`, schema/migrations in `server/db/` |
-| `client/` | Browser: app scripts, service workers beside their app code, manifests and images; cross-app/context assets in `client/shared/` |
+| `server/` | Cloudflare Worker handlers, auth, HTTP, persistence, templates, and D1 schema/migrations |
+| `client/` | Browser apps and their service workers, components, styles and enhancements. Main-thread and worker dependencies in `client/shared/` |
 | `shared/` | Cross-runtime modules: build/server rendering and social reads, routes, server/browser solar/weather logic |
 | `test/` | Deployed-preview Playwright suites; fixtures and audit helpers in `test/shared/` |
 
@@ -51,22 +51,23 @@ and [Parcel v3 migration notes](https://v3.parceljs.org/migration/parcel-2/).
 
 ## Reusable components
 
-`/components/` showcases standalone Custom Elements. Each component lives in
-`client/shared/components/<tag>/` with ES modules, `package.json`, a Custom Elements
+`/components/` showcases standalone Custom Elements and kits. Each component lives in
+`client/components/<tag>/` with ES modules, `package.json`, a Custom Elements
 Manifest (including `x-listens` for incoming events), README, and MIT license.
-Source distribution is GitHub-only; consumers vendor a pinned revision and can
-install its local package with npm, pnpm, or Yarn. No registry release is needed.
+Consumers can vendor a pinned GitHub revision or use a kit’s published artifacts.
+The catalog publishes kit dependencies alongside each kit’s import URLs.
 
-[Retro game components](https://jessehattabaugh.com/components/retro-game/) are
-shipped together in `client/shared/components/retro-game/`. Their documentation
-includes runnable graphics examples and Aether Wing at `/games/aether-wing/`,
-listed in the `/games/` showcase. Pattern banks, palettes, tilemaps, layers and
+[Game Kit](https://jessehattabaugh.com/components/game-kit/) ships from
+`client/components/game-kit/`. Its tutorial and element references
+include runnable graphics examples that reuse art from Aether Wing at
+`/games/aether-wing/`, listed in the `/games/` showcase. Pattern banks, palettes, tilemaps, layers and
 sprite records are declared in HTML. CSS supplies projection, scrolling,
 palette and frame animations. Native controls support steering, targeting and
 sector selection without scripting. JavaScript adds continuous input,
 collision simulation and gamepad support. See the package README for the contract.
 
-To add one, extend `build/shared/components.js` (also emitted as `/components/catalog.json`),
+See the [component guidelines](client/components/AGENTS.md) for kits.
+To add a standalone element, extend `build/component-catalog.js` (also emitted as `/components/catalog.json`),
 declare its native library outputs in the root `package.json`,
 add its showcase and documentation template in `build/templates/components.js`, and entries
 in `build/pages.js` and `shared/routes.js`, and cover its browser API in

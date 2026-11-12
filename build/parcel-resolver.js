@@ -4,7 +4,7 @@ import { existsSync } from 'node:fs';
 import { dirname, join, relative, resolve } from 'node:path';
 import { paths } from '../shared/routes.js';
 import { generatedPaths, imageInput, publicAssetPath } from './shared/public-assets.js';
-import { componentCatalog } from './shared/components.js';
+import { componentPackages } from './component-catalog.js';
 
 export default new Resolver({
 	resolve({ specifier, dependency, options }) {
@@ -19,7 +19,7 @@ export default new Resolver({
 		}
 		const target = path.startsWith('/') ? path : resolve(dirname(dependency.resolveFrom ?? ''), path);
 		// These library targets keep native named exports and one module identity.
-		if (path.endsWith('.js') && componentCatalog.some(({ tag }) => { return target.includes(`/components/${tag}/`); })) {
+		if (path.endsWith('.js') && componentPackages.some((component) => { return target.includes(component.path); })) {
 			return { isExternal: true };
 		}
 		if (dependency.specifierType !== 'url' || /^[\w-]+:/.test(path)) { return null; }

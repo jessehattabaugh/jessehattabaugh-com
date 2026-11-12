@@ -1,8 +1,8 @@
 import { html, render } from '../../../shared/html.js';
 import { paths } from '../../../shared/routes.js';
-import { getSessionUser } from '../../shared/auth/session.js';
-import { getUserById } from '../../shared/data/accounts.js';
-import { readForm, RequestBodyError } from '../../shared/http/request.js';
+import { getSessionUser } from '../../auth/session.js';
+import { getUserById } from '../../data/accounts.js';
+import { readForm, RequestBodyError } from '../../http/request.js';
 import { listLights, getLight, draftPhoto, savePhoto, getPhoto, publishLight, rateLight, reportLight, moderateLight, moderationQueue, awardStandings } from './data.js';
 import { lightsfinder, lightsfinderFragment, lightsHref } from './templates.js';
 import { upcomingHoliday, distance, normalize, holidayKey, validHoliday } from './model.js';
@@ -41,7 +41,7 @@ async function boundedForm(request) {
 function validDate(value) {
 	return /^\d{4}-\d{2}-\d{2}$/.test(value) && Number.isFinite(Date.parse(value)) && new Date(value).toISOString().slice(0, 10) === value;
 }
-/** @param {Request} request @param {import('../../shared/types.js').Env} env */
+/** @param {Request} request @param {import('../../types.js').Env} env */
 /* eslint-disable require-atomic-updates -- All mutated form/render data is local to this request. */
 export async function handleLightsfinder(request, env) {
 	const url = new URL(request.url), q = url.searchParams, today = new Date().toISOString().slice(0, 10);
