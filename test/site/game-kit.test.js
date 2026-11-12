@@ -1,5 +1,6 @@
 import { test, expect } from '@playwright/test';
 import { gameKitElements, gameKitReference, paths } from '../../shared/routes.js';
+import { expectHighlightedCode } from '../shared/code-highlighting.js';
 
 const docs = paths.gameKit;
 
@@ -11,24 +12,11 @@ test('Kits links to a tutorial with highlighted HTML and live results', async ({
 	await expect(page.getByRole('heading', { name: 'Game Kit', level: 1 })).toBeVisible();
 	await expect(page.getByRole('navigation', { name: 'Tutorial steps' }).getByRole('link')).toHaveCount(gameKitElements.length);
 	const viewport = page.getByRole('region', { name: 'Set the flight viewport' });
-	await expect(viewport.getByLabel('Aether Wing viewport HTML')).toBeVisible();
-	await expect(viewport.getByLabel('Aether Wing viewport HTML')).toContainText('<game-screen width="320"');
-	await expect(viewport.getByRole('img', { name: '320 by 200 pixel viewport' })).toBeVisible();
 	const sample = viewport.getByLabel('Aether Wing viewport HTML');
-	// Highlighting never rewrites the code into token spans.
-	expect(await sample.evaluate((pre) => { return pre.querySelectorAll('[data-token]').length; })).toBe(0);
-	if (javaScriptEnabled) {
-		await sample.scrollIntoViewIfNeeded();
-		await expect.poll(async () => {
-			return sample.evaluate((pre) => {
-				const block = pre.closest('code-block');
-				if (!block || !('highlights' in CSS)) { return []; }
-				return ['code-tag', 'code-attribute', 'code-value', 'code-punctuation'].filter((name) => {
-					return Array.from(CSS.highlights.get(name) ?? []).some((range) => { return block.contains(range.startContainer); });
-				});
-			});
-		}).toEqual(['code-tag', 'code-attribute', 'code-value', 'code-punctuation']);
-	}
+	await expect(sample).toBeVisible();
+	await expect(sample).toHaveText('<game-screen width="320" height="200" role="img" aria-label="320 by 200 pixel viewport"></game-screen>');
+	if (javaScriptEnabled) { await expectHighlightedCode(sample); }
+	await expect(viewport.getByRole('img', { name: '320 by 200 pixel viewport' })).toBeVisible();
 	await viewport.getByRole('link', { name: '<game-screen> reference' }).click();
 	await expect(page.getByRole('heading', { name: 'game-screen', level: 1 })).toBeVisible();
 	await Promise.all([[160, 48], [96, 96], [80, 128]].map(async ([width, height]) => {
