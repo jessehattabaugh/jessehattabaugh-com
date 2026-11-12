@@ -2,7 +2,7 @@
 import { Transformer } from '@parcel/plugin';
 import { render } from '../shared/html.js';
 import { staticPages } from './pages.js';
-import { componentCatalog } from './shared/components.js';
+import { componentPackages } from './component-catalog.js';
 import { generatedPaths, imageInput, siteInputs } from './shared/public-assets.js';
 
 export default new Transformer({
@@ -16,9 +16,9 @@ export default new Transformer({
 			const source = input ? `../dist/inputs/images/${input}` : `/${path}`;
 			asset.addURLDependency(source, { isEntry: true, needsStableName: true, priority: 'lazy' });
 		}
-		for (const { tag } of componentCatalog) {
+		for (const { path } of componentPackages) {
 			for (const file of ['custom-elements.json', 'package.json', 'README.md', 'LICENSE']) {
-				asset.addURLDependency(`/components/${tag}/${file}`, { pipeline: 'raw', isEntry: true, needsStableName: true, priority: 'lazy' });
+				asset.addURLDependency(`${path}${file}`, { pipeline: 'raw', isEntry: true, needsStableName: true, priority: 'lazy' });
 			}
 		}
 	},

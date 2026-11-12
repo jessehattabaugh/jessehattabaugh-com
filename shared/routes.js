@@ -1,8 +1,15 @@
+/** Element names shared by the kit tutorial, reference routes and sitemap. */
+export const gameKitElements = /** @type {const} */ ([
+	'game-screen', 'game-sprite', 'game-layer', 'game-tilemap', 'game-tile', 'game-tileset',
+	'game-palette', 'game-stage', 'game-input', 'game-world', 'game-scene', 'game-menu',
+	'game-modal', 'game-flow',
+]);
+
 /** The URL vocabulary belongs to the server. Clients follow rendered controls. */
 export const paths = {
 	home: '/', about: '/about', colophon: '/colophon/', apps: '/apps/',
 	components: '/components/', rpgActor: '/components/rpg-actor/', disclosurePanel: '/components/disclosure-panel/',
-	retroGame: '/components/retro-game/', games: '/games/', aetherWing: '/games/aether-wing/',
+	gameKit: '/components/game-kit/', games: '/games/', aetherWing: '/games/aether-wing/',
 	bluesky: '/bluesky', atAvatar: '/atproto/avatar', atBlob: '/atproto/blob',
 	avatar: '/branding/avatar-96.png',
 	notFound: '/404/', error: '/500/', contact: '/contact', login: '/login',
@@ -17,6 +24,11 @@ export const paths = {
 	rainbow: '/apps/rainbow-hour/', rainbowPush: '/apps/rainbow-hour/push',
 };
 
+/** @param {typeof gameKitElements[number]} tag */
+export function gameKitReference(tag) {
+	return `${paths.gameKit}${tag}/`;
+}
+
 export const staticRoutes = [
 	{ name: 'home', path: paths.home },
 	{ name: 'about', path: paths.about },
@@ -25,7 +37,8 @@ export const staticRoutes = [
 	{ name: 'components', path: paths.components },
 	{ name: 'rpgActor', path: paths.rpgActor },
 	{ name: 'disclosurePanel', path: paths.disclosurePanel },
-	{ name: 'retroGame', path: paths.retroGame },
+	{ name: 'gameKit', path: paths.gameKit },
+	...gameKitElements.map((name) => { return { name, path: gameKitReference(name) }; }),
 	{ name: 'games', path: paths.games },
 	{ name: 'aetherWing', path: paths.aetherWing },
 	{ name: 'notFound', path: paths.notFound },
@@ -33,6 +46,7 @@ export const staticRoutes = [
 ];
 
 export const dynamicRoutes = [
+	{ path: '/components/retro-game/', methods: ['GET'], handler: 'gameKitRedirect' },
 	{ path: paths.rpgActor, methods: ['GET'], handler: 'social' },
 	{ path: paths.home, methods: ['GET'], handler: 'social' },
 	{ path: paths.about, methods: ['GET'], handler: 'social' },

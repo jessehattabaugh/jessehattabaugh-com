@@ -16,8 +16,8 @@
 		li { margin-block: .5rem; }
 	}
 
-	retro-world {
-		--retro-screen-width: 100%;
+	game-world {
+		--game-screen-width: 100%;
 		--distance-blur: .01px;
 		margin-block: 1rem;
 		padding: clamp(.5rem, 2vw, 1.2rem);
@@ -39,14 +39,14 @@
 			output { font-family: monospace; font-weight: 700; color: #f3dba1; font-size: clamp(.8rem, 2vw, 1.1rem); }
 		}
 
-		retro-input { display: flex; flex-direction: column; }
-		retro-input > form { display: contents; }
+		game-input { display: flex; flex-direction: column; }
+		game-input > form { display: contents; }
 		button[type="reset"] { align-self: start; }
 		[data-world-hud] { order: -1; }
 		[data-native-controls] { order: 2; margin-block: .5rem; display: flex; gap: .75rem; flex-wrap: wrap; border-color: #526c89; }
 		fieldset label { display: inline-flex; gap: .3rem; align-items: center; }
 		fieldset input { width: 1rem; height: 1rem; }
-		retro-screen { border-radius: .3rem; }
+		game-screen { border-radius: .3rem; }
 		[data-world-viewport]:focus-visible { outline: 3px solid #f2d393; outline-offset: -3px; }
 
 		[data-world-controls] {
@@ -81,4 +81,13 @@
 		[data-world-status] { min-block-size: 1.6em; margin-block: .65rem; color: #f3dba1; }
 		[data-world-controller] { font-size: .75rem; color: #adc6d0; margin-block: .5rem 0; }
 	}
+}
+
+/* Override the ground map's palette and repeat one runway tile on the same travel cycle. */
+game-layer > game-tilemap[data-citadel-runway] {
+	inset-inline: 35%;
+	background-image: var(--runway-texture);
+	background-size: 100% calc(var(--cell) * 2);
+	background-repeat: repeat-y;
+	animation-name: game-ground-travel;
 }

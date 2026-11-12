@@ -2,13 +2,13 @@ import { handleCrunchTime } from './apps/crunch-time/worker.js';
 import { render } from '../shared/html.js';
 import { error as errorPage } from '../shared/templates/error.js';
 import { findDynamicRoute, paths } from '../shared/routes.js';
-import { handleAuthApi } from './shared/auth/worker.js';
+import { handleAuthApi } from './auth/worker.js';
 import { handleMessagesApi } from './apps/messages/worker.js';
 import { handleRainbowApi } from './apps/rainbow-hour/worker.js';
 import { handleLightsfinder } from './apps/lightsfinder/worker.js';
 import { rainbowWakeCron } from './apps/rainbow-hour/cron.js';
-import { SECURITY_HEADERS } from './shared/http/security-headers.js';
-import { RequestBodyError, ServiceError } from './shared/http/request.js';
+import { SECURITY_HEADERS } from './http/security-headers.js';
+import { RequestBodyError, ServiceError } from './http/request.js';
 import { handleAtproto } from './pages/worker.js';
 
 /** Apply security headers to every representation, including assets and redirects. */
@@ -24,7 +24,7 @@ function failure(status, headers = {}) {
 	return new Response(render(errorPage()), { status, headers: { 'Content-Type': 'text/html;charset=utf-8', ...headers } });
 }
 
-/** @type {ExportedHandler<import('./shared/types.js').Env>} */
+/** @type {ExportedHandler<import('./types.js').Env>} */
 export default {
 	async fetch(request, env, ctx) {
 		const url = new URL(request.url);
@@ -50,6 +50,7 @@ export default {
 				const routeRequest = head ? new Request(request, { method: 'GET' }) : request;
 				let response;
 				if (route.handler === 'contact') { response = new Response(null, { status: 301, headers: { Location: paths.messages } }); }
+				else if (route.handler === 'gameKitRedirect') { response = new Response(null, { status: 301, headers: { Location: paths.gameKit } }); }
 				else if (route.handler === 'social') { response = await handleAtproto(routeRequest, env, ctx); }
 				else if (route.handler === 'lightsfinder') { response = await handleLightsfinder(routeRequest, env); }
 				else if (route.handler === 'crunch') { response = await handleCrunchTime(routeRequest, env); }

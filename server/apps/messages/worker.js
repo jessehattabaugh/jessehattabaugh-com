@@ -1,13 +1,13 @@
-import { createUser, getUserById, getUserByEmailAny, getOwner, claimOwner, normalizeEmail } from '../../shared/data/accounts.js';
+import { createUser, getUserById, getUserByEmailAny, getOwner, claimOwner, normalizeEmail } from '../../data/accounts.js';
 import { getOrCreateConversation, getConversation, getUserConversation, getAllConversations, getMessages, createMessage, savePushSubscription, deleteUserPushSubscription, hasUserPushSubscription } from './data.js';
-import { sessionUser, emailVerification, validEmail } from '../../shared/auth/service.js';
+import { sessionUser, emailVerification, validEmail } from '../../auth/service.js';
 import { notifyNewMessage } from './notifications.js';
-import { json, redirect } from '../../shared/http/responses.js';
+import { json, redirect } from '../../http/responses.js';
 import { render } from '../../../shared/html.js';
 import { messagesPage, messagesFragment } from './templates.js';
 import { paths } from '../../../shared/routes.js';
-import { SECURITY_HEADERS } from '../../shared/http/security-headers.js';
-import { readForm } from '../../shared/http/request.js';
+import { SECURITY_HEADERS } from '../../http/security-headers.js';
+import { readForm } from '../../http/request.js';
 
 /** @param {Request} request @param {import('./templates.js').MessagesData} data @param {number} [status] */
 function page(request, data, status = 200) {
@@ -18,7 +18,7 @@ function page(request, data, status = 200) {
 	});
 }
 
-/** @param {Request} request @param {import('../../shared/types.js').Env} env @param {import('./templates.js').MessagesData} [extra] @param {number} [status] */
+/** @param {Request} request @param {import('../../types.js').Env} env @param {import('./templates.js').MessagesData} [extra] @param {number} [status] */
 async function renderMessagesPage(request, env, extra = {}, status = 200) {
 	const user = await sessionUser(request, env);
 	const url = new URL(request.url);
@@ -67,7 +67,7 @@ async function renderMessagesPage(request, env, extra = {}, status = 200) {
 	return page(request, { ...data, ...extra, values: { ...data.values, ...extra.values } }, status);
 }
 
-/** @param {Request} request @param {import('../../shared/types.js').Env} env */
+/** @param {Request} request @param {import('../../types.js').Env} env */
 async function submitMessage(request, env) {
 	const form = await readForm(request);
 	const user = await sessionUser(request, env);
@@ -119,7 +119,7 @@ async function submitMessage(request, env) {
 	return redirect(`${paths.messages}?conversationId=${encodeURIComponent(conversationId)}&sent=1`);
 }
 
-/** @param {Request} request @param {import('../../shared/types.js').Env} env */
+/** @param {Request} request @param {import('../../types.js').Env} env */
 export async function handleMessagesApi(request, env) {
 	const url = new URL(request.url);
 	const path = url.pathname;

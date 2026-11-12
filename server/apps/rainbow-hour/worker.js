@@ -5,9 +5,9 @@ import { evaluateRainbowConditions } from '../../../shared/rainbow-hour/rainbow.
 import { fetchRainbowWeather } from '../../../shared/rainbow-hour/weather.js';
 import { saveRainbowSubscription, deleteRainbowSubscription, hasRainbowSubscription } from './data.js';
 import { paths } from '../../../shared/routes.js';
-import { readForm } from '../../shared/http/request.js';
-import { getSessionUser } from '../../shared/auth/session.js';
-import { getUserById } from '../../shared/data/accounts.js';
+import { readForm } from '../../http/request.js';
+import { getSessionUser } from '../../auth/session.js';
+import { getUserById } from '../../data/accounts.js';
 
 /** @param {Request} request @param {import('./templates.js').RainbowData} data @param {number} [status] */
 function page(request, data, status = 200) {
@@ -16,7 +16,7 @@ function page(request, data, status = 200) {
 	});
 }
 
-/** @param {Request} request @param {import('../../shared/types.js').Env} env */
+/** @param {Request} request @param {import('../../types.js').Env} env */
 export async function handleRainbowApi(request, env) {
 	const url = new URL(request.url);
 	const session = await getSessionUser(request, env.SESSION_SECRET);

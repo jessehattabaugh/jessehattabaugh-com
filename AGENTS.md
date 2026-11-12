@@ -17,7 +17,7 @@ No SPA framework, no client-side router, no build-time UI framework. If you reac
 1. **Web standards first.** Use platform APIs (`URLPattern`, `fetch`, `FormData`, `Request`/`Response`, History API, View Transitions, Speculation Rules) before any dependency. A dependency must justify its existence.
 2. **Progressive enhancement.** No-JS baseline is the product. JS must never be required for core functionality. If a feature breaks without JS, it is broken.
 3. **HATEOAS.** Responses carry their own controls — links and forms — describing valid next actions. Clients follow what the server gives them; they never hardcode endpoint knowledge.
-4. **One template source.** Build and Worker import the same template functions from their owning modules (`shared/templates/` for build/server pages; `server/apps/<app>/templates.js` and `server/shared/templates/` for server-only views; `build/templates/` for static-only pages). Never maintain two copies of markup.
+4. **One template source.** Build and Worker import the same template functions from their owning modules (`shared/templates/` for build/server pages; `server/apps/<app>/templates.js` and `server/templates/` for server-only views; `build/templates/` for static-only pages). Never maintain two copies of markup.
 5. **JavaScript with JSDoc.** `.js`/`.mjs` with JSDoc annotations. `tsc --checkJs --strict --noEmit` for type checking. No `.ts` transpile step.
 6. **Preview isolation.** Every branch deploys as a version with its own per-branch D1 database and a versioned preview URL, never production data.
 7. **Environment variables.** Secrets and configuration are injected via the `.dev.vars` file. All required variables must be documented in `.dev.vars.example`. Never hardcode secrets or config in source code.
@@ -28,15 +28,15 @@ No SPA framework, no client-side router, no build-time UI framework. If you reac
 
 Top-level directories identify execution domains:
 
-- `build/`: Node.js static generation, asset publishing, deployment/secrets commands. `build/shared/` contains Node configuration and branch-preview tooling reused by these commands and the test runner.
-- `server/`: Cloudflare request/scheduled handlers, app persistence, server-only templates, and `server/db/` schema/migrations. `server/shared/` contains auth, HTTP, crypto, push, and identity persistence reused within the server.
-- `client/`: everything shipped to browsers: app scripts, service workers, styles, manifests, images, and reusable components. Each app's `sw.js` stays beside its other client code in `client/apps/<app>/`. `client/shared/` contains code/assets reused across apps or browser contexts.
-- `shared/`: modules actually used across build/server/client boundaries: build/server page templates, HTML escaping, route definitions, public AT Protocol reads, and server/browser Rainbow Hour calculations. Root sharing does not mean “used by two apps.”
+- `build/`: Node.js static generation, asset publishing, deployment/secrets commands. Reserve `build/shared/` for modules imported by two or more build tools.
+- `server/`: Cloudflare request/scheduled handlers, app persistence, server-only templates, and `server/db/` schema/migrations. Reserve `server/shared/` for modules imported by two or more Cloudflare services. This site runs one Worker, with auth, HTTP, identity data, and other infrastructure in their own directories under `server/`.
+- `client/`: browser app scripts, service workers, styles, manifests, images, and reusable components. Each app's `sw.js` stays beside its other client code in `client/apps/<app>/`. Reserve `client/shared/` for dependencies of both the main thread and a browser worker. Main-thread components, styles, and enhancements live in `client/components/`, `client/styles/`, and `client/enhance/`.
+- `shared/`: modules imported across two or more of `client/`, `server/`, and `build/`, such as the build/server templates or server/browser Rainbow Hour calculations.
 - `test/`: deployed-preview browser suites; `test/shared/` contains test-only fixtures, database maintenance, and audit helpers.
 
-Put runtime-specific reuse in that runtime's `shared/` directory. Keep app-specific server code under `server/apps/<app>/` and client code under `client/apps/<app>/`. Do not recreate top-level `apps/`, `site/`, `worker/`, `scripts/`, or `db/` directories. Root tool configuration remains at the root for automatic discovery; `wrangler.jsonc` points to `server/index.js` and `server/db/migrations`.
+A module can be any file type used as a dependency by other code. Use a `shared/` directory only for actual reuse across its defined contexts. Pages and apps in the same context can import from the owning feature directory. Keep app-specific server code under `server/apps/<app>/` and client code under `client/apps/<app>/`. Do not recreate top-level `apps/`, `site/`, `worker/`, `scripts/`, or `db/` directories. Root tool configuration remains at the root for automatic discovery; `wrangler.jsonc` points to `server/index.js` and `server/db/migrations`.
 
-Templates execute where they render, rather than in the browser: public page templates used by Node and Cloudflare live in `shared/templates/pages/`; server-only app templates live in `server/apps/<app>/templates.js` and auth/install templates in `server/shared/templates/`. Static-only Apps, Colophon, component documentation, and 404 templates live in `build/templates/`. Browser assets formerly described as site/static/public assets belong in `client/`.
+Templates execute where they render, rather than in the browser: public page templates used by Node and Cloudflare live in `shared/templates/pages/`; server-only app templates live in `server/apps/<app>/templates.js` and auth/install templates in `server/templates/`. Static-only Apps, Colophon, component documentation, and 404 templates live in `build/templates/`. Browser assets formerly described as site/static/public assets belong in `client/`.
 
 `build/build.js` prepares public data/artwork under private `dist/inputs/` and invokes Parcel once. Parcel renders shared templates, optimizes assets, and emits all public HTML, metadata, sitemap/robots, images and code directly to `dist/client/`. Native targets are declared in the root, `client/`, and `client/apps/` package files. There are no source copies, temporary package rewrites, or post-build public writes. Browser asset URLs omit runtime ownership prefixes: `/apps/`, `/branding/`, `/components/`, `/enhance/`, and `/styles/`. Use relative references for local assets and root-relative URLs in shared/error views whose rendering location can vary. Page URLs belong in `shared/routes.js`; canonical public pages feed `/sitemap.xml`. Service workers live beside their `/apps/<app>/` scopes. The Worker handles dynamic routes and falls through to `env.ASSETS`. If `env.ASSETS.fetch()` returns a `404`, return the static `dist/client/404.html` page with a `404` status, never the raw Cloudflare asset response.
 
@@ -44,7 +44,10 @@ Templates execute where they render, rather than in the browser: public page tem
 
 ## Templating rules
 
-Templates in `shared/templates/`, `build/templates/`, `server/shared/templates/`, and `server/apps/<app>/templates.js` are plain `(data) => Raw` functions using the `html` tagged template from `shared/html.js`. The helper auto-escapes all interpolations; pass `new Raw(...)` only for already-trusted nested template output.
+For component packages, kits, and their documentation, also read
+[Web components](client/components/AGENTS.md).
+
+Templates in `shared/templates/`, `build/templates/`, `server/templates/`, and `server/apps/<app>/templates.js` are plain `(data) => Raw` functions using the `html` tagged template from `shared/html.js`. The helper auto-escapes all interpolations; pass `new Raw(...)` only for already-trusted nested template output.
 
 - Never concatenate untrusted data into HTML outside the `html` helper.
 - Templates are pure functions — no global state, no DOM access. Cross-runtime templates run in both build and Worker; runtime-specific templates stay in their owning domain.
@@ -83,7 +86,7 @@ The baseline (no JS) is full-page navigation via links and `<form>` POSTs. JS ad
 
 ## Data layer (D1)
 
-All DB access goes through `server/shared/data/` (identity) or `server/apps/<app>/data.js` (app-owned records) behind a small interface — call sites never touch the driver directly. Always use prepared statements: `env.DB.prepare(sql).bind(...args)`. Never string-interpolate user input into SQL. If a data-access function throws, the Worker must catch the error, log it to `console.error`, and return a `500` response rendered with the standard error page template. Never let an unhandled D1 error propagate as an unformatted Cloudflare error response. Do not expose raw error messages to the client.
+All DB access goes through `server/data/` (identity) or `server/apps/<app>/data.js` (app-owned records) behind a small interface — call sites never touch the driver directly. Always use prepared statements: `env.DB.prepare(sql).bind(...args)`. Never string-interpolate user input into SQL. If a data-access function throws, the Worker must catch the error, log it to `console.error`, and return a `500` response rendered with the standard error page template. Never let an unhandled D1 error propagate as an unformatted Cloudflare error response. Do not expose raw error messages to the client.
 
 One production database plus one disposable database per preview branch, all behind the single `DB` binding:
 

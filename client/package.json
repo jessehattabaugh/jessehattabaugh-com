@@ -3,9 +3,9 @@
 	"type": "module",
 	"source": [
 		"apps/*/app.js",
-		"shared/enhance/index.js",
-		"shared/components/*demo.js",
-		"shared/components/retro-game-demo/*.png",
+		"enhance/index.js",
+		"components/*demo.js",
+		"components/*/docs/index.js",
 		"**/*.css",
 		"**/*.svg",
 		"apps/*/manifest.webmanifest",

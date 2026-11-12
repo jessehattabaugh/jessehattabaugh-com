@@ -5,7 +5,7 @@ import {
 	markRainbowNotified,
 	deleteRainbowSubscription,
 } from './data.js';
-import { notifyAll } from '../../shared/push/vapid.js';
+import { notifyAll } from '../../push/vapid.js';
 
 /**
  * Minimum spacing between wake pushes per device. The browser may show a
@@ -26,7 +26,7 @@ const WAKE_MIN_INTERVAL_MS = 55 * 60 * 1000;
  *
  * Runs on the production Worker only — preview versions never get cron
  * triggers, so branches never push to real devices.
- * @param {import('../../shared/types.js').Env} env
+ * @param {import('../../types.js').Env} env
  */
 export async function rainbowWakeCron(env) {
 	const { DB, VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY, VAPID_CONTACT } = env;

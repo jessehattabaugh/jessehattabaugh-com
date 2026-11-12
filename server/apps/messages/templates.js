@@ -2,7 +2,7 @@ import { html } from '../../../shared/html.js';
 import { layout } from '../../../shared/templates/layout.js';
 import { paths } from '../../../shared/routes.js';
 import { accountSettings, signInLink } from '../../../shared/templates/account.js';
-import { installControls } from '../../shared/templates/install.js';
+import { installControls } from '../../templates/install.js';
 
 /**
  * @typedef {object} MessagesData

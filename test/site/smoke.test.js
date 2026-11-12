@@ -1,12 +1,13 @@
 import { test, expect } from '@playwright/test';
 import { lighthouseAudit } from '../shared/lighthouse.js';
-import { staticRoutes, paths } from '../../shared/routes.js';
+import { staticRoutes, paths, gameKitElements, gameKitReference } from '../../shared/routes.js';
 
-const headings = { home: 'Useful tools and web experiments', about: 'About', colophon: 'Colophon', apps: 'Apps', components: 'Components', rpgActor: 'rpg-actor', disclosurePanel: 'disclosure-panel', retroGame: 'Retro game components', games: 'Games', aetherWing: 'Aether Wing' };
+const headings = { home: 'Useful tools and web experiments', about: 'About', colophon: 'Colophon', apps: 'Apps', components: 'Components', rpgActor: 'rpg-actor', disclosurePanel: 'disclosure-panel', gameKit: 'Game Kit', games: 'Games', aetherWing: 'Aether Wing' };
 const pages = [
 	...staticRoutes.filter((route) => { return route.name in headings; }).map((route) => {
 		return { path: route.path, heading: headings[route.name] };
 	}),
+	...gameKitElements.map((tag) => { return { path: gameKitReference(tag), heading: tag }; }),
 	{ path: paths.login, heading: 'Sign in' },
 	{ path: paths.messages, heading: 'Jessages' },
 	{ path: paths.rainbow, heading: 'Rainbow Hour' },
@@ -60,7 +61,7 @@ test('unknown URLs show the site’s 404 page', async ({ page }) => {
 	await expect.poll(() => { return page.getByRole('img', { name: 'Bluesky avatar', exact: true }).evaluate((image) => { return image instanceof HTMLImageElement && image.complete && image.naturalWidth > 0; }); }).toBe(true);
 });
 
-for (const path of ['/server/index.js', '/shared/data/atproto.js', '/build/assets.js', '/client/tsconfig.service-workers.json', '/client/package.json', '/apps/package.json', '/build/site.json', '/build/artwork/portrait.svg', '/dist/inputs/site.json']) {
+for (const path of ['/server/index.js', '/shared/data/atproto.js', '/build/assets.js', '/client/tsconfig.service-workers.json', '/client/package.json', '/apps/package.json', '/build/site.json', '/build/artwork/portrait.svg', '/dist/inputs/site.json', '/client/styles/main.css', '/client/enhance/index.js', '/client/components/disclosure-panel/index.js']) {
 	test(`private source URL ${path} shows the standard 404 page`, async ({ page }) => {
 		const response = await page.goto(path);
 		expect(response.status()).toBe(404);

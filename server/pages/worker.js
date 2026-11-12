@@ -11,7 +11,7 @@ function pageResponse(page) {
 	return new Response(render(page), { headers: { 'Content-Type': 'text/html;charset=utf-8', Vary: 'X-Fragment', 'Cache-Control': 'public, max-age=60' } });
 }
 
-/** @param {Request} request @param {import('../shared/types.js').Env} env @param {ExecutionContext} ctx */
+/** @param {Request} request @param {import('../types.js').Env} env @param {ExecutionContext} ctx */
 async function socialData(request, env, ctx) {
 	const handle = env.ATPROTO_HANDLE?.trim();
 	if (!handle) { throw new Error('ATPROTO_HANDLE must be configured'); }
@@ -81,7 +81,7 @@ async function image(request, data, ctx) {
 	} catch (error) { console.error('AT Protocol image unavailable', error); return new Response(null, { status: 503, headers: { 'Retry-After': '60' } }); }
 }
 
-/** @param {Request} request @param {import('../shared/types.js').Env} env @param {ExecutionContext} ctx */
+/** @param {Request} request @param {import('../types.js').Env} env @param {ExecutionContext} ctx */
 export async function handleAtproto(request, env, ctx) {
 	const url = new URL(request.url);
 	if (url.pathname === paths.bluesky) {

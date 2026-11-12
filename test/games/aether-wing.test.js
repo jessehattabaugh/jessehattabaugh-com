@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test';
 import { createHash } from 'node:crypto';
 
 const game = '/games/aether-wing/';
-const docs = '/components/retro-game/';
+const docs = '/components/game-kit/';
 
 /** @param {import('@playwright/test').Page} page @param {string} url */
 async function openWorld(page, url = game) {
@@ -29,14 +29,14 @@ test('CSS projection, steering, targeting and sector completion work without scr
 	const viewport = page.getByRole('group', { name: 'Aether Wing world viewport' });
 	await expect(viewport).toBeVisible();
 	const player = () => { return viewport.evaluate((screen) => {
-		const bounds = screen.querySelector('retro-sprite[actor="player"]').getBoundingClientRect();
+		const bounds = screen.querySelector('game-sprite[actor="player"]').getBoundingClientRect();
 		return { x: bounds.x, y: bounds.y, width: bounds.width };
 	}); };
 	const initial = await player();
 	await page.getByRole('radio', { name: 'Left', exact: true }).check();
 	await expect.poll(async () => { return (await player()).x; }).toBeLessThan(initial.x);
 	const paletteColor = () => { return viewport.evaluate((screen) => {
-		const ground = screen.querySelector('retro-stage:first-of-type retro-layer[mode="perspective"] > retro-tilemap');
+		const ground = screen.querySelector('game-stage:first-of-type game-layer[mode="perspective"] > game-tilemap');
 		return getComputedStyle(ground).getPropertyValue('--grid-color');
 	}); };
 	const initialColor = await paletteColor();
@@ -49,6 +49,13 @@ test('CSS projection, steering, targeting and sector completion work without scr
 	await page.getByRole('checkbox', { name: 'Shoot scarab', exact: true }).check();
 	await page.getByRole('checkbox', { name: 'Shoot moth', exact: true }).check();
 	await page.getByRole('radio', { name: 'Violet Citadel', exact: true }).check();
+	const runway = viewport.getByRole('img', { name: 'Violet Citadel runway' });
+	await expect(runway).toBeVisible();
+	await expect(runway).toHaveCSS('background-image', /\/games\/aether-wing\/citadel-runway\.png/);
+	const runwayPosition = await runway.evaluate((tilemap) => { return getComputedStyle(tilemap).backgroundPositionY; });
+	await page.getByRole('checkbox', { name: 'Pause motion' }).uncheck();
+	await expect(runway).not.toHaveCSS('background-position-y', runwayPosition);
+	await page.getByRole('checkbox', { name: 'Pause motion' }).check();
 	await page.getByRole('checkbox', { name: 'Shoot sentinel', exact: true }).check();
 	await page.getByRole('checkbox', { name: 'Shoot scarab', exact: true }).check();
 	await expect(page.getByRole('status').filter({ hasText: 'All sectors cleared.' })).toBeVisible();
@@ -68,7 +75,7 @@ test('forward motion, palette cycling and player movement animate the projected 
 	await expect.poll(pixels).not.toBe(initial);
 	await expect(page.getByLabel('Route progress', { exact: true })).not.toHaveText('0%');
 	const position = () => { return viewport.evaluate((screen) => {
-		const player = screen.closest('retro-world').querySelector('retro-sprite[actor="player"]');
+		const player = screen.closest('game-world').querySelector('game-sprite[actor="player"]');
 		return { x: Number(player.getAttribute('position-x')), y: Number(player.getAttribute('position-y')) };
 	}); };
 	await viewport.focus();
@@ -104,16 +111,16 @@ test('projectiles and enemy contact drain shield and restart restores the player
 	const viewport = await openWorld(page, docs);
 	// This is an authoring use case. Tune the live HTML definition before launch.
 	await viewport.evaluate((canvas) => {
-		const world = canvas.closest('retro-world');
-		world.querySelector('retro-sprite[actor="player"]').setAttribute('max-health', '1');
-		world.addEventListener('retro-player-hit', (event) => { canvas.dataset.hitSource = event.detail.source; });
+		const world = canvas.closest('game-world');
+		world.querySelector('game-sprite[actor="player"]').setAttribute('max-health', '1');
+		world.addEventListener('game-player-hit', (event) => { canvas.dataset.hitSource = event.detail.source; });
 	});
 	await page.getByRole('button', { name: 'Restart flight' }).click();
 	await expect(page.getByRole('status', { name: 'Flight status' })).toContainText('Ship lost', { timeout: 10000 });
 	await expect(page.getByLabel('Shield', { exact: true })).toHaveText('0');
 	await expect(viewport).toHaveAttribute('data-hit-source', 'projectile');
 	await viewport.evaluate((screen) => {
-		const enemy = screen.querySelector('retro-sprite[actor="enemy"]:not([data-instance])');
+		const enemy = screen.querySelector('game-sprite[actor="enemy"]:not([data-instance])');
 		enemy.setAttribute('fire-rate', '0');
 		enemy.setAttribute('z', '8');
 	});
@@ -127,16 +134,17 @@ test('authored stage lengths advance through distinct scenery and culminate in a
 	test.skip(!javaScriptEnabled, 'Real-time stage progression requires scripting.');
 	const viewport = await openWorld(page);
 	await viewport.evaluate((canvas) => {
-		const world = canvas.closest('retro-world');
-		for (const stage of world.querySelectorAll('retro-stage')) {
+		const world = canvas.closest('game-world');
+		for (const stage of world.querySelectorAll('game-stage')) {
 			stage.setAttribute('length', '18');
 			stage.setAttribute('speed', '12');
-			for (const wave of stage.querySelectorAll('retro-sprite[actor="enemy"]:not([data-instance])')) { wave.setAttribute('count', '0'); }
+			for (const wave of stage.querySelectorAll('game-sprite[actor="enemy"]:not([data-instance])')) { wave.setAttribute('count', '0'); }
 		}
 	});
 	await page.getByRole('button', { name: 'Launch', exact: true }).click();
 	await expect(page.getByLabel('Sector', { exact: true })).toHaveText('Amber Expanse', { timeout: 6000 });
 	await expect(page.getByLabel('Sector', { exact: true })).toHaveText('Violet Citadel', { timeout: 6000 });
+	await expect(viewport.getByRole('img', { name: 'Violet Citadel runway' })).toBeVisible();
 	await expect(page.getByRole('status', { name: 'Flight status' })).toHaveText('Flight complete. All sectors cleared.', { timeout: 6000 });
 	await page.getByRole('button', { name: 'Fly again', exact: true }).click();
 	await expect(page.getByLabel('Sector', { exact: true })).toHaveText('Emerald Reach');
@@ -150,7 +158,7 @@ test('native direction and fire buttons support touch and keyboard activation', 
 	await page.getByRole('button', { name: 'Fly left', exact: true }).click();
 	await page.getByRole('button', { name: 'Fly up', exact: true }).click();
 	await expect.poll(() => {
-		return viewport.evaluate((canvas) => { return Number(canvas.closest('retro-world').querySelector('retro-sprite[actor="player"]').getAttribute('position-x')); });
+		return viewport.evaluate((canvas) => { return Number(canvas.closest('game-world').querySelector('game-sprite[actor="player"]').getAttribute('position-x')); });
 	}).toBeLessThan(0);
 	await page.getByRole('button', { name: 'Fire', exact: true }).press('Enter');
 	await viewport.press('p');
@@ -161,7 +169,7 @@ test('equal player bounds constrain movement and malformed tuning uses safe defa
 	test.skip(!javaScriptEnabled, 'Exercises the live authoring API.');
 	const viewport = await openWorld(page, docs);
 	await viewport.evaluate((canvas) => {
-		const player = canvas.closest('retro-world').querySelector('retro-sprite[actor="player"]');
+		const player = canvas.closest('game-world').querySelector('game-sprite[actor="player"]');
 		player.setAttribute('min-y', '1.1');
 		player.setAttribute('max-y', '1.1');
 		player.setAttribute('speed', 'not-a-number');
@@ -169,7 +177,7 @@ test('equal player bounds constrain movement and malformed tuning uses safe defa
 	await page.getByRole('button', { name: 'Launch', exact: true }).click();
 	await viewport.press('ArrowUp', { delay: 200 });
 	await expect.poll(() => {
-		return viewport.evaluate((canvas) => { return canvas.closest('retro-world').querySelector('retro-sprite[actor="player"]').getAttribute('position-y'); });
+		return viewport.evaluate((canvas) => { return canvas.closest('game-world').querySelector('game-sprite[actor="player"]').getAttribute('position-y'); });
 	}).toBe('1.100');
 	await page.getByRole('button', { name: 'Pause', exact: true }).click();
 });

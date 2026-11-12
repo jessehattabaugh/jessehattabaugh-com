@@ -1,7 +1,7 @@
 import { actorSprite } from '../../shared/templates/pages/social.js';
 import { html } from '../../shared/html.js';
 import { layout } from '../../shared/templates/layout.js';
-import { componentCatalog } from '../shared/components.js';
+import { componentCatalog, kitCatalog } from '../component-catalog.js';
 
 /** @param {string} label @param {string} language @param {string} source */
 function code(label, language, source) {
@@ -38,9 +38,17 @@ export function components(social) {
 				${showcases.get(component.tag)?.(social) ?? html``}
 				<p><a href="${component.path}">Documentation and examples</a> · <a href="${component.source}">Source on GitHub</a> · <a href="${component.manifest}">Custom Elements Manifest</a></p>
 			</section>`; })}
-			<h2>Built for people and their agents</h2>
-			<p>Each component ships a small ES module, an MIT license, a package manifest, and a machine-readable API. Documentation includes markup, state, outgoing events, incoming requests, styling, failure cases, and packaging. Agents can start with the <a href="/components/catalog.json">component catalog JSON</a>.</p>
-			<p>Source is published only on GitHub. You can vendor the files or install their local package with your preferred package manager.</p>
+			<section aria-labelledby="kits">
+				<h2 id="kits">Kits</h2>
+				${kitCatalog.map((kit) => { return html`<section aria-label="${kit.name}">
+					<h3><a href="${kit.path}">${kit.name}</a></h3>
+					<p>${kit.description}</p>
+					<p><a href="${kit.path}">Tutorial and element reference</a> · <a href="${kit.manifest}">Custom Elements Manifest</a> · <a href="${kit.module}">ES module</a> · <a href="${kit.stylesheet}">Stylesheet</a></p>
+				</section>`; })}
+			</section>
+			<h2>Package metadata</h2>
+			<p>Each component and kit ships an ES module, an MIT license, package metadata, and a Custom Elements Manifest. The catalog includes artifact URLs and kit dependencies. See the <a href="/components/catalog.json">component catalog JSON</a>.</p>
+			<p>Vendor a package from GitHub or import the published module and stylesheet from its catalog entry.</p>
 		</article>`, scripts: html`<script type="module" src="/components/demo.js"></script>` });
 }
 
@@ -100,7 +108,7 @@ button.addEventListener('click', () => {
 				${code('Vendor a pinned GitHub revision', 'Shell', `git clone https://github.com/jessehattabaugh/jessehattabaugh-com.git component-source
 git -C component-source checkout COMMIT_SHA
 mkdir -p vendor
-cp -R component-source/client/shared/components/disclosure-panel vendor/disclosure-panel`)}
+cp -R component-source/client/components/disclosure-panel vendor/disclosure-panel`)}
 				<p>Commit the vendored files, including the license, and record the upstream SHA when updating. GitHub raw-file URLs are source downloads; serve vendored modules from your own origin with a JavaScript MIME type.</p>
 				${code('Choose one package manager', 'Shell', `npm install ./vendor/disclosure-panel
 # Or:
