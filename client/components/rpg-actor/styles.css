@@ -2,7 +2,11 @@
 	display: inline-flex;
 	flex-direction: column;
 	align-items: center;
-	gap: .5rem;
+	max-width: 100%;
+}
+
+div {
+	position: relative;
 	max-width: 100%;
 }
 
@@ -24,19 +28,55 @@ img {
 }
 
 button {
-	font: inherit;
-	color: inherit;
-	background: transparent;
+	position: absolute;
+	right: 4px;
+	bottom: 4px;
+	display: grid;
+	place-items: center;
+	box-sizing: border-box;
+	width: 28px;
+	height: 28px;
+	padding: 0;
+	color: white;
+	background: #171717;
 	border: 1px solid currentColor;
 	border-radius: .4rem;
-	padding: .5rem .75rem;
-	min-height: 44px;
 	cursor: pointer;
 }
 
+button::before {
+	content: '';
+	box-sizing: border-box;
+	width: 10px;
+	height: 12px;
+	border-inline: 3px solid currentColor;
+}
+
+:host([paused]) button::before {
+	width: 0;
+	border: solid transparent;
+	border-width: 6px 0 6px 10px;
+	border-left-color: currentColor;
+}
+
+@media (hover: hover) {
+	/* Opacity keeps the control in the tab order so focus can reveal it. */
+	:host(:not(:hover)) button:not(:focus-visible) {
+		opacity: 0;
+		pointer-events: none;
+	}
+}
+
+@media (hover: none) {
+	button {
+		width: 44px;
+		height: 44px;
+	}
+}
+
 button:focus-visible {
-	outline: 3px solid currentColor;
-	outline-offset: 3px;
+	outline: 2px solid currentColor;
+	outline-offset: -4px;
 }
 
 [hidden] {

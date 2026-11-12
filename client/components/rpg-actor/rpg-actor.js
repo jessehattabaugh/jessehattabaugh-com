@@ -46,7 +46,9 @@ export class RpgActor extends HTMLElement {
 		this.#button.setAttribute('part', 'controls');
 		this.#button.hidden = true;
 		this.#button.addEventListener('click', () => { this.toggleAttribute('paused'); });
-		this.#root.append(style, this.#slot, this.#viewport, this.#button);
+		const stage = document.createElement('div');
+		stage.append(this.#viewport, this.#button);
+		this.#root.append(style, this.#slot, stage);
 	}
 
 	connectedCallback() {
@@ -111,7 +113,7 @@ export class RpgActor extends HTMLElement {
 	#schedule() {
 		clearInterval(this.#timer);
 		const state = this.#state();
-		this.#button.textContent = state.paused ? 'Resume animation' : 'Pause animation';
+		this.#button.setAttribute('aria-label', state.paused ? 'Resume animation' : 'Pause animation');
 		this.#button.hidden = this.#viewport.hidden || this.#motion.matches || !(state.animation === 'walk' || state.talking || this.hasAttribute('showcase'));
 		if (!this.isConnected || this.#viewport.hidden || document.hidden || this.#motion.matches || state.paused) { return; }
 		const interval = Math.max(50, integer(this.getAttribute('interval'), 150, 2000));

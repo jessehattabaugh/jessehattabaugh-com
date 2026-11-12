@@ -33,21 +33,36 @@ test('playground controls select a pose with and without JavaScript', async ({ p
 	await expect(page.getByLabel('Direction', { exact: true })).toHaveValue('down');
 });
 
-test('walking changes the visible frame; pause freezes it and resume restarts it', async ({ page, javaScriptEnabled }) => {
+test('walking changes frames and the sprite control pauses and resumes playback', async ({ page, javaScriptEnabled, hasTouch }) => {
 	test.skip(!javaScriptEnabled, 'The no-JS contract is a static pose, covered by the form test.');
 	await page.goto(`${path}?direction=down&animation=walk`);
 	const sprite = page.getByRole('img', { name: imageName, exact: true });
-	await expect(page.getByRole('button', { name: 'Pause animation', exact: true })).toBeVisible();
+	const pause = page.getByRole('button', { name: 'Pause animation', exact: true });
+	const resume = page.getByRole('button', { name: 'Resume animation', exact: true });
+	await expect(pause).toBeVisible();
+	if (!hasTouch) {
+		await expect(pause).toHaveCSS('opacity', '0');
+		await sprite.hover();
+	}
+	await expect(pause).toHaveCSS('opacity', '1');
 	const initial = await sprite.screenshot();
 	await expect.poll(async () => { return initial.equals(await sprite.screenshot()); }).toBe(false);
-	await page.getByRole('button', { name: 'Pause animation', exact: true }).click();
+	await pause.click();
+	await expect(resume).toBeVisible();
+	if (!hasTouch) {
+		await page.mouse.move(0, 0);
+		await expect(resume).toHaveCSS('opacity', '0');
+	}
 	const paused = await sprite.screenshot();
-	await expect(page.getByRole('button', { name: 'Resume animation', exact: true })).toBeVisible();
 	// A bounded wait covers several frame intervals; pixels must remain unchanged.
 	await page.waitForTimeout(650);
 	expect(paused.equals(await sprite.screenshot())).toBe(true);
-	await page.getByRole('button', { name: 'Resume animation', exact: true }).click();
-	await expect.poll(async () => { return paused.equals(await sprite.screenshot()); }).toBe(false);
+	if (!hasTouch) { await sprite.hover(); }
+	await resume.click();
+	if (!hasTouch) { await page.mouse.move(0, 0); }
+	// The icon changes on resume. Compare two frames after that change.
+	const resumed = await sprite.screenshot();
+	await expect.poll(async () => { return resumed.equals(await sprite.screenshot()); }).toBe(false);
 });
 
 test('DOM attributes control direction and explicit frames; invalid values recover', async ({ page, javaScriptEnabled }) => {
@@ -156,7 +171,7 @@ test('failed base URL preserves fallback and changing src recovers', async ({ pa
 	]);
 });
 
-test('showcase cycles poses and reconnection resumes without duplicate controls', async ({ page, javaScriptEnabled }) => {
+test('showcase cycles poses and reconnection resumes without duplicate controls', async ({ page, javaScriptEnabled, hasTouch }) => {
 	test.skip(!javaScriptEnabled, 'Showcase is an optional animation.');
 	await page.goto(path);
 	const status = page.getByRole('status', { name: 'Sprite state' });
@@ -167,6 +182,7 @@ test('showcase cycles poses and reconnection resumes without duplicate controls'
 		actor.remove(); parent.append(actor);
 	});
 	await expect(page.getByRole('button', { name: 'Pause animation', exact: true })).toHaveCount(1);
+	if (!hasTouch) { await page.getByRole('img', { name: imageName, exact: true }).hover(); }
 	await page.getByRole('button', { name: 'Pause animation', exact: true }).click();
 	await expect(page.getByRole('button', { name: 'Resume animation', exact: true })).toHaveCount(1);
 });
@@ -234,7 +250,7 @@ test('published expressions render distinct faces and talking alternates mouth s
 	}
 });
 
-test('home keeps its selected pose while About opts into adjustable showcase playback', async ({ page, javaScriptEnabled }) => {
+test('home keeps its selected pose while About opts into adjustable showcase playback', async ({ page, javaScriptEnabled, hasTouch }) => {
 	test.skip(!javaScriptEnabled, 'Native fallback coverage above checks both pages without JavaScript.');
 	await page.goto('/');
 	const sprite = page.getByRole('img', { name: imageName, exact: true });
@@ -260,6 +276,7 @@ test('home keeps its selected pose while About opts into adjustable showcase pla
 	expect(await pose()).toEqual(['walk', 'down', 'neutral', false]);
 	await page.clock.runFor(3000);
 	expect(await pose()).toEqual(['idle', 'down', 'neutral', true]);
+	if (!hasTouch) { await sprite.hover(); }
 	await page.getByRole('button', { name: 'Pause animation', exact: true }).click();
 	const paused = await pose();
 	await page.clock.runFor(6000);

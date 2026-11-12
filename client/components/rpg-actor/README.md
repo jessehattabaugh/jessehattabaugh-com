@@ -104,7 +104,8 @@ load on demand and are reused per instance. Attribute changes discard obsolete
 image callbacks. Disconnect stops timers/listeners; reconnect resumes playback.
 Hidden documents suspend playback. Reduced motion stops walking, talking, and
 showcase progression, even if paused is absent. Manual direction/expression
-selection still works. The built-in button pauses/resumes through the attribute.
+selection still works. The pause/play button appears in the sprite's bottom
+right corner on hover or keyboard focus. It stays available on touchscreens.
 
 The component cannot add expressions to an actor that hasn't published them.
 Sign in at rpg.actor and save the sprite upgrade first. No invented emote images.
