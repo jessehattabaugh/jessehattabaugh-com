@@ -181,14 +181,36 @@
 		img { image-rendering: pixelated; }
 		figcaption { font-size: 0.875rem; color: var(--color-text-muted); }
 	}
-	section[aria-labelledby='actor-heading'] dl {
-		display: grid;
-		grid-template-columns: repeat(auto-fit, minmax(95px, 1fr));
-		gap: var(--space-sm);
-		margin-block: var(--space-md);
-		> div { padding: var(--space-sm); border: 1px solid var(--color-border); border-radius: var(--radius); }
-		dt { font-size: 0.8rem; color: var(--color-text-muted); }
-		dd { font-weight: 600; }
+	section[aria-labelledby='actor-heading'] {
+		container-type: inline-size;
+		[data-actor-body] {
+			display: grid;
+			gap: var(--space-lg);
+			align-items: start;
+			margin-block: var(--space-md);
+		}
+		rpg-actor {
+			--rpg-actor-size: 100%;
+			width: 100%;
+			min-height: 0;
+			margin-block: 0;
+		}
+		figure[data-sprite] { width: 100%; }
+		dl {
+			display: grid;
+			grid-template-columns: repeat(auto-fit, minmax(95px, 1fr));
+			gap: var(--space-sm);
+			margin-block: var(--space-md);
+			> div { padding: var(--space-sm); border: 1px solid var(--color-border); border-radius: var(--radius); }
+			dt { font-size: 0.8rem; color: var(--color-text-muted); }
+			dd { font-weight: 600; }
+		}
+	}
+	@container (min-width: 34rem) {
+		section[aria-labelledby='actor-heading'] {
+			[data-actor-body] { grid-template-columns: auto minmax(0, 1fr); }
+			rpg-actor { --rpg-actor-size: 288px; width: auto; }
+		}
 	}
 
 	article {

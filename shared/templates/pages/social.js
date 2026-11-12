@@ -78,13 +78,12 @@ export function actorSprite(social, state = {}) {
 	const selected = (state.talking && variant?.talkSheet) || variant?.emoteSheet || sprite.cid;
 	const columns = selected === sprite.cid ? sprite.columns : 3, rows = selected === sprite.cid ? sprite.rows : 4;
 	const row = Math.max(0, Math.min(['down', 'left', 'right', 'up'].indexOf(direction), rows - 1));
-	const size = 144;
 	const column = Math.min(1, columns - 1);
 	// Clip the idle frame in the markup so the fallback can paint without a stylesheet.
 	return html`<rpg-actor src="${blobPath(sprite.cid)}" columns="${sprite.columns}" rows="${sprite.rows}" emotes="${JSON.stringify(emotes)}" animation="${state.animation ?? 'walk'}" direction="${direction}" expression="${expression}" ${state.showcase === true ? html`showcase` : html``} ${state.talking ? html`talking` : html``} ${state.paused ? html`paused` : html``} label="My RPG Actor character sprite">
 		<figure data-sprite>
-			<div style="width:${size}px;height:${size}px;overflow:hidden">
-				<img src="${blobPath(selected)}" alt="My RPG Actor character sprite" loading="lazy" style="display:block;max-width:none;width:${columns * size}px;height:${rows * size}px;transform:translate(${-column * size}px,${-row * size}px)" />
+			<div style="width:var(--rpg-actor-size, 144px);aspect-ratio:1;overflow:hidden;position:relative">
+				<img src="${blobPath(selected)}" alt="My RPG Actor character sprite" loading="lazy" style="position:absolute;inset:0 auto auto 0;display:block;max-width:none;width:calc(100% * ${columns});height:calc(100% * ${rows});transform:translate(${(-column * 100) / columns}%,${(-row * 100) / rows}%)" />
 			</div>
 			<figcaption>My rpg.actor sprite</figcaption>
 		</figure>
@@ -97,8 +96,12 @@ export function actorFragment(social, showcase = false) {
 	return html`<section aria-labelledby="actor-heading">
 		<h2 id="actor-heading">My RPG Actor</h2>
 		<p>A little roleplaying version of me. <a href="https://rpg.actor">rpg.actor</a> is a portable RPG character registry: sprites and character sheets live in your own AT Protocol account and travel between compatible games.</p>
-		${actorSprite(social, { showcase })}
-		${actor ? actor.systems.map((system) => {return html`<h3>${system.name}</h3><dl>${system.stats.map((stat) => {return html`<div><dt>${stat.label}</dt><dd>${stat.value}</dd></div>`})}</dl>`}) : html`<p>My character is temporarily unavailable.</p>`}
+		<div data-actor-body>
+			${actorSprite(social, { showcase })}
+			<div data-actor-stats>
+				${actor ? actor.systems.map((system) => {return html`<h3>${system.name}</h3><dl>${system.stats.map((stat) => {return html`<div><dt>${stat.label}</dt><dd>${stat.value}</dd></div>`})}</dl>`}) : html`<p>My character is temporarily unavailable.</p>`}
+			</div>
+		</div>
 		<p><a href="https://rpg.actor/${encodeURIComponent(social?.handle ?? '')}">View my character on RPG Actor</a></p>
 	</section>`;
 }
