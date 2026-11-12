@@ -6,7 +6,7 @@ import { actorFragment, profileSummary, postsFragment } from './social.js';
 export function aboutFragment(social) {
 	return html`
 			<article>
-				<h1>About</h1>
+				<h1>About Me</h1>
 				<p>
 					I'm Jesse Hattabaugh, a software engineer with a focus on the open web. I've
 					been building for the web professionally since the mid-2000s.
@@ -45,7 +45,7 @@ export function aboutFragment(social) {
  */
 export const about = (social) => {
 	return layout({
-		title: 'About',
+		title: 'About Me',
 		path: '/about',
 		description: 'About Jesse Hattabaugh — software engineer and web developer.',
 		social,

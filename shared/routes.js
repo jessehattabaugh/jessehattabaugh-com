@@ -45,7 +45,7 @@ export const routes = {
 		path: '/about',
 		template: ['shared/templates/pages/about.js', 'about'],
 		handler: 'social',
-		heading: 'About',
+		heading: 'About Me',
 		sitemap: true,
 		navigation: 'About',
 		navigationOrder: 1,

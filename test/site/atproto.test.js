@@ -45,10 +45,10 @@ test('site-wide Bluesky link resolves to my public profile', async ({ page }) =>
 test('a fragment request shows the same content and normal navigation restores the full page', async ({ page }) => {
 	await page.setExtraHTTPHeaders({ 'X-Fragment': 'true' });
 	await page.goto(paths.about);
-	await expect(page.getByRole('heading', { name: 'About', exact: true })).toBeVisible();
+	await expect(page.getByRole('heading', { name: 'About Me', exact: true })).toBeVisible();
 	await expect(page.getByRole('navigation', { name: 'Main navigation' })).toHaveCount(0);
 	await page.setExtraHTTPHeaders({});
 	await page.reload();
 	await expect(page.getByRole('navigation', { name: 'Main navigation' })).toBeVisible();
-	await expect(page.getByRole('heading', { name: 'About', exact: true })).toBeVisible();
+	await expect(page.getByRole('heading', { name: 'About Me', exact: true })).toBeVisible();
 });
