@@ -11,7 +11,7 @@ test('the catalog links to Code Block and its examples have visible syntax color
 	await Promise.all([
 		['HTML source', '<button type="button" class="save">Save</button>'],
 		['CSS source', 'button.save { color: #173760; }'],
-		['JavaScript source', "const button = document.querySelector('.save');"],
+		['JavaScript source', "const label = 'Save';"],
 		['Shell source', "printf '%s' Ready"],
 	].map(async ([label, source]) => {
 		const sample = examples.getByLabel(label, { exact: true });

@@ -174,7 +174,7 @@ export function codeBlockPage(social) {
 				<h2 id="code-block-examples">Examples</h2>
 				${code('HTML source', 'HTML', '<button type="button" class="save">Save</button>')}
 				${code('CSS source', 'CSS', 'button.save { color: #173760; }')}
-				${code('JavaScript source', 'JavaScript', "const button = document.querySelector('.save');")}
+				${code('JavaScript source', 'JavaScript', "const label = 'Save';")}
 				${code('Shell source', 'Shell', "printf '%s' Ready")}
 			</section>
 			<section>

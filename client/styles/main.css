@@ -1,7 +1,7 @@
 /* Site stylesheet: imports shared base then adds site-specific layers. */
+/* Declare the cascade order before the uninterrupted group of imports. */
+@layer reset, base, layout, components;
 @import url('./base.css');
-
-@layer layout, components;
 @import url('../components/code-block/styles.css') layer(components);
 
 @layer layout {
