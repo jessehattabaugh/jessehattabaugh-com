@@ -4,11 +4,10 @@ import { layout } from '../../shared/templates/layout.js';
 import { webCounter } from '../../shared/templates/web-counter.js';
 import { paths } from '../../shared/routes.js';
 import { componentCatalog, kitCatalog } from '../component-catalog.js';
-import { highlightHtml } from './highlight-html.js';
 
 /** @param {string} label @param {string} language @param {string} source */
 function code(label, language, source) {
-	return html`<figure data-code><figcaption>${label} · ${language}</figcaption><pre tabindex="0" aria-label="${label}"><code>${source}</code></pre></figure>`;
+	return html`<figure data-code><figcaption>${label} · ${language}</figcaption><code-block language="${language.toLowerCase()}"><pre tabindex="0" aria-label="${label}"><code>${source}</code></pre></code-block></figure>`;
 }
 
 /** @param {string} [summary] */
@@ -153,11 +152,8 @@ export function webCounterPage(social) {
 			<p>Display a page-view count on rolling digits styled like a mechanical odometer.</p>
 			<section aria-label="Sample counter"><h2>Sample counter</h2>${webCounter(1234, '2')}</section>
 			<h2>Usage</h2>
-			<figure data-code>
-				<figcaption>Web Counter HTML</figcaption>
-				<pre tabindex="0" aria-label="Web Counter HTML"><code>${highlightHtml(`<script type="module" src="./index.js"></script>
-<web-counter value="1234"></web-counter>`)}</code></pre>
-			</figure>
+			${code('Web Counter HTML', 'HTML', `<script type="module" src="./index.js"></script>
+<web-counter value="1234"></web-counter>`)}
 			<p>Keep <code>index.js</code> and <code>styles.css</code> together. The element loads its stylesheet and renders the wheels from the <code>value</code> attribute. The live sample uses declarative shadow DOM so its wheels are visible without JavaScript.</p>
 			<p>Set <code>leading-zeros</code> to an integer from 0 through 16. The default is one leading zero.</p>
 			<p><a href="${paths.webCounter}index.js">ES module</a> · <a href="${paths.webCounter}styles.css">Stylesheet</a> · <a href="${paths.webCounter}custom-elements.json">Custom Elements Manifest</a> · <a href="${paths.webCounter}README.md">Component README</a></p>

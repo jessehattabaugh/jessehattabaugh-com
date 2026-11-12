@@ -10,6 +10,11 @@ if (document.getElementById('demo-panel')) {
 } else {
 	await import('../components/disclosure-panel/index.js');
 }
+// Syntax highlighting is decorative. Load its module only where code blocks
+// exist, and leave the readable source untouched if the import fails.
+if (document.querySelector('code-block')) {
+	import('../components/code-block/index.js').catch((error) => { console.error('Syntax highlighting unavailable', error); });
+}
 if ('startViewTransition' in document && 'fetch' in window && 'FormData' in window) {
 	/** @param {HTMLFormElement | HTMLAnchorElement} control @param {FormData} [body] */
 	async function follow(control, body) {
