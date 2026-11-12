@@ -4,7 +4,6 @@
 		"@eslint/compat": "latest",
 		"@eslint/eslintrc": "latest",
 		"@eslint/js": "latest",
-		"@highlightjs/cdn-assets": "11.12.0",
 		"@playwright/test": "latest",
 		"@types/node": "latest",
 		"eslint": "latest",
@@ -46,6 +45,7 @@
 		"./components/game-kit/world": "./client/components/game-kit/world.js"
 	},
 	"dependencies": {
-		"hono": "^4.13.16"
+		"hono": "^4.13.16",
+		"@highlightjs/cdn-assets": "11.12.0"
 	}
 }
