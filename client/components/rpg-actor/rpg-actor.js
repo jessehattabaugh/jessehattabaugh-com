@@ -17,6 +17,7 @@ export class RpgActor extends HTMLElement {
 	#viewport = document.createElement('span');
 	#slot = document.createElement('slot');
 	#button = document.createElement('button');
+	#styled = false;
 	#motion = matchMedia('(prefers-reduced-motion: reduce)');
 	#timer = 0;
 	#step = 0;
@@ -34,6 +35,10 @@ export class RpgActor extends HTMLElement {
 		const style = document.createElement('link');
 		style.rel = 'stylesheet';
 		style.href = new URL('./styles.css', import.meta.url).href;
+		style.addEventListener('load', () => {
+			this.#styled = true;
+			if (this.isConnected) { this.#refresh(); }
+		}, { once: true });
 		this.#viewport.setAttribute('role', 'img');
 		this.#viewport.setAttribute('part', 'sprite');
 		this.#viewport.hidden = true;
@@ -181,7 +186,9 @@ export class RpgActor extends HTMLElement {
 		const talk = openMouth && variant?.talkSheet ? this.#image(variant.talkSheet) : null;
 		const emote = talk || (variant?.emoteSheet ? this.#image(variant.emoteSheet) : null);
 		const image = emote || this.#image(this.getAttribute('src') || '');
-		if (!image) {
+		// Shadow stylesheets don't block paint. Keep the fallback visible until
+		// the stylesheet can size and clip the sheet to a single frame.
+		if (!image || !this.#styled) {
 			this.#viewport.hidden = true; this.#slot.hidden = false; this.#button.hidden = true;
 			return;
 		}

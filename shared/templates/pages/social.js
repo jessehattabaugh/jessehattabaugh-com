@@ -78,8 +78,16 @@ export function actorSprite(social, state = {}) {
 	const selected = (state.talking && variant?.talkSheet) || variant?.emoteSheet || sprite.cid;
 	const columns = selected === sprite.cid ? sprite.columns : 3, rows = selected === sprite.cid ? sprite.rows : 4;
 	const row = Math.max(0, Math.min(['down', 'left', 'right', 'up'].indexOf(direction), rows - 1));
+	const size = 144;
+	const column = Math.min(1, columns - 1);
+	// Clip the idle frame in the markup so the fallback can paint without a stylesheet.
 	return html`<rpg-actor src="${blobPath(sprite.cid)}" columns="${sprite.columns}" rows="${sprite.rows}" emotes="${JSON.stringify(emotes)}" animation="${state.animation ?? 'walk'}" direction="${direction}" expression="${expression}" ${state.showcase === true ? html`showcase` : html``} ${state.talking ? html`talking` : html``} ${state.paused ? html`paused` : html``} label="My RPG Actor character sprite">
-		<figure data-sprite style="--sprite-columns:${columns};--sprite-rows:${rows};--sprite-column:${Math.min(1, columns - 1)};--sprite-row:${row}"><div><img src="${blobPath(selected)}" alt="My RPG Actor character sprite" loading="lazy" /></div><figcaption>My rpg.actor sprite</figcaption></figure>
+		<figure data-sprite>
+			<div style="width:${size}px;height:${size}px;overflow:hidden">
+				<img src="${blobPath(selected)}" alt="My RPG Actor character sprite" loading="lazy" style="display:block;max-width:none;width:${columns * size}px;height:${rows * size}px;transform:translate(${-column * size}px,${-row * size}px)" />
+			</div>
+			<figcaption>My rpg.actor sprite</figcaption>
+		</figure>
 	</rpg-actor>`;
 }
 

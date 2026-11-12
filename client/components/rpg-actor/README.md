@@ -18,8 +18,8 @@ Keep the license. Serve the directory from your origin with JavaScript MIME type
 ```
 
 The child image is a cropped portrait fallback, not the whole sheet. Arbitrary
-fallback HTML is supported in the default slot. No JavaScript, failed module
-loading, or unavailable sheets leave that content usable.
+fallback HTML is supported in the default slot. It stays visible until the
+component stylesheet and a usable sprite sheet load.
 
 For a bundler, choose one: `npm install ./vendor/rpg-actor`,
 `pnpm add ./vendor/rpg-actor`, or `yarn add ./vendor/rpg-actor`.
@@ -92,7 +92,8 @@ All events bubble, are composed, and are not cancelable:
 
 No custom public methods or incoming events. Use setAttribute/removeAttribute.
 Style --rpg-actor-size (default 144px), ::part(sprite), and ::part(controls).
-The default slot is preserved and only hidden after a sheet loads.
+The default slot remains visible if JavaScript, the stylesheet, or the sheet
+fails to load.
 
 ## Playback and failures
 

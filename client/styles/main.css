@@ -178,8 +178,7 @@
 	}
 	figure[data-sprite] {
 		margin: 0;
-		> div { width: 144px; height: 144px; overflow: hidden; }
-		img { max-width: none; width: calc(144px * var(--sprite-columns)); height: calc(144px * var(--sprite-rows)); image-rendering: pixelated; transform: translate(calc(-144px * var(--sprite-column, 1)), calc(-144px * var(--sprite-row, 0))); }
+		img { image-rendering: pixelated; }
 		figcaption { font-size: 0.875rem; color: var(--color-text-muted); }
 	}
 	section[aria-labelledby='actor-heading'] dl {
