@@ -27,7 +27,7 @@ function richText(text, facets) {
 		const features = Array.isArray(facet.features) ? facet.features.map(object) : [];
 		const feature = features.find((item) => {return item.$type === 'app.bsky.richtext.facet#link' || item.$type === 'app.bsky.richtext.facet#mention'});
 		const href = feature?.$type === 'app.bsky.richtext.facet#mention' && typeof feature.did === 'string' && /^did:[a-z]+:[a-zA-Z0-9:._%-]+$/.test(feature.did)
-			? `https://bsky.app/profile/${encodeURIComponent(feature.did)}` : httpsUrl(feature?.uri);
+			? `https://bsky.app/profile/${feature.did}` : httpsUrl(feature?.uri);
 		if (!href) { continue; }
 		parts.push(decoder.decode(bytes.slice(end, start)), html`<a href="${href}">${decoder.decode(bytes.slice(start, stop))}</a>`); end = stop;
 	}

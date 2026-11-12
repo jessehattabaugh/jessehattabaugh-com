@@ -67,7 +67,7 @@ function postData(post, did) {
 	const external = object(embed.external ?? media.external);
 	const createdAt = text(record.createdAt);
 	if (!Number.isFinite(Date.parse(createdAt))) { return []; }
-	return [{ text: text(record.text), createdAt, url: `https://bsky.app/profile/${encodeURIComponent(did)}/post/${encodeURIComponent(uri.split('/').at(-1) ?? '')}`, images, facets: array(record.facets), external: { url: httpsUrl(external.uri), title: text(external.title) } }];
+	return [{ text: text(record.text), createdAt, url: `https://bsky.app/profile/${did}/post/${encodeURIComponent(uri.split('/').at(-1) ?? '')}`, images, facets: array(record.facets), external: { url: httpsUrl(external.uri), title: text(external.title) } }];
 }
 
 /** @param {string} handle @returns {Promise<Social>} */
