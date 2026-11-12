@@ -18,7 +18,7 @@ E2E_EMAIL_DOMAIN=
 
 # Public Worker settings. Deployment copies only these allow-listed settings.
 EMAIL_FROM=no-reply@notify.jessehattabaugh.com
-VAPID_CONTACT=mailto:claude_ai@jessehattabaugh.com
+VAPID_CONTACT=mailto:notifications@jessehattabaugh.com
 # Optional OSRM-compatible HTTPS endpoint; empty uses public OSRM.
 OSRM_URL=
 
@@ -33,11 +33,11 @@ SITE_ORIGIN=https://jessehattabaugh.com
 #
 # Account ID for the Cloudflare account that owns the Web Analytics property.
 # https://developers.cloudflare.com/fundamentals/account/find-account-and-zone-ids/
-WEB_ANALYTICS_ACCOUNT_ID=
+WEB_COUNTER_ACCOUNT_ID=
 # Property identifier from the site's site_tag field in the List Web Analytics
 # sites API response. The lookup requires Account Settings Read.
 # https://developers.cloudflare.com/api/resources/rum/subresources/site_info/methods/list/
-WEB_ANALYTICS_SITE_TAG=
+WEB_COUNTER_SITE_TAG=
 
 # Worker runtime secrets. Needed locally for the corresponding capabilities.
 # Remote deployments preserve existing Cloudflare secrets; changing this file
@@ -50,11 +50,12 @@ VAPID_PRIVATE_KEY=
 # Optional one-time credential for claiming the owner role.
 OWNER_SETUP_TOKEN=
 # Secret used by the Worker to query page views for the counter and dashboard.
-# Create a dedicated API token with Account Analytics Read for the account above.
+# Create an account API token named web-counter. Select Account → Account
+# Analytics → Read. The summary lists Account Analytics Read.
 # https://developers.cloudflare.com/analytics/graphql-api/getting-started/authentication/api-token-auth/
 # Store the deployed value as a Worker secret with this same name.
 # https://developers.cloudflare.com/workers/configuration/secrets/
-WEB_ANALYTICS_API_TOKEN=
+WEB_COUNTER_API_TOKEN=
 
 # Optional overrides for npm test; otherwise branch identity supplies these.
 WORKERS_DEV_SUBDOMAIN=billowing-sunset-4e06

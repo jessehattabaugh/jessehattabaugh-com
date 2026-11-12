@@ -15,7 +15,7 @@ const windowDays = 30;
  * @param {URL} url @param {import('../types.js').Env} env @param {ExecutionContext} ctx
  */
 async function publicCount(url, env, ctx) {
-	const key = new Request(new URL(`/_cache/web-analytics/${encodeURIComponent(env.WEB_ANALYTICS_SITE_TAG ?? '')}/${windowDays}`, url.origin));
+	const key = new Request(new URL(`/_cache/web-analytics/${encodeURIComponent(env.WEB_COUNTER_SITE_TAG ?? '')}/${windowDays}`, url.origin));
 	try {
 		const cached = await caches.default.match(key);
 		if (cached) { return /** @type {number | null} */ (await cached.json()); }

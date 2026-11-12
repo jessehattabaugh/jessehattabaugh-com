@@ -12,9 +12,9 @@
  * @property {string} [OSRM_URL] Optional OSRM-compatible road-routing server
  * @property {string} [ATPROTO_HANDLE] Public owner handle for Bluesky and RPG Actor
  * @property {string} [SITE_ORIGIN] Public canonical site origin
- * @property {string} [WEB_ANALYTICS_ACCOUNT_ID] Cloudflare account for Web Analytics queries
- * @property {string} [WEB_ANALYTICS_SITE_TAG] Web Analytics property identifier
- * @property {string} [WEB_ANALYTICS_API_TOKEN] Account Analytics Read credential
+ * @property {string} [WEB_COUNTER_ACCOUNT_ID] Cloudflare account for Web Analytics queries
+ * @property {string} [WEB_COUNTER_SITE_TAG] Web Analytics property identifier
+ * @property {string} [WEB_COUNTER_API_TOKEN] Account Analytics Read credential
  * @property {string} [PREVIEW_BRANCH] Non-production preview alias
  * @property {string} [PREVIEW_DB_NAME] Isolated preview database name
  */

@@ -24,7 +24,7 @@ const query = (/** @type {boolean} */ details) => { return `query WebAnalytics($
 
 /** @param {import('../types.js').Env} env */
 export function analyticsConfigured(env) {
-	return !env.PREVIEW_BRANCH && Boolean(env.WEB_ANALYTICS_ACCOUNT_ID && env.WEB_ANALYTICS_SITE_TAG && env.WEB_ANALYTICS_API_TOKEN);
+	return !env.PREVIEW_BRANCH && Boolean(env.WEB_COUNTER_ACCOUNT_ID && env.WEB_COUNTER_SITE_TAG && env.WEB_COUNTER_API_TOKEN);
 }
 
 /** @param {import('../types.js').Env} env @param {number} days @param {boolean} details */
@@ -32,12 +32,12 @@ export async function readAnalytics(env, days, details) {
 	const end = Date.now();
 	const response = await fetch('https://api.cloudflare.com/client/v4/graphql', {
 		method: 'POST',
-		headers: { Authorization: `Bearer ${env.WEB_ANALYTICS_API_TOKEN}`, 'Content-Type': 'application/json' },
+		headers: { Authorization: `Bearer ${env.WEB_COUNTER_API_TOKEN}`, 'Content-Type': 'application/json' },
 		signal: AbortSignal.timeout(details ? 8000 : 2500),
 		body: JSON.stringify({ query: query(details), variables: {
-			account: env.WEB_ANALYTICS_ACCOUNT_ID,
+			account: env.WEB_COUNTER_ACCOUNT_ID,
 			filter: {
-				siteTag: env.WEB_ANALYTICS_SITE_TAG,
+				siteTag: env.WEB_COUNTER_SITE_TAG,
 				'datetime_geq': new Date(end - days * 86_400_000).toISOString(),
 				'datetime_leq': new Date(end).toISOString(),
 			},

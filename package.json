@@ -7,9 +7,9 @@
 		"@playwright/test": "latest",
 		"@types/node": "latest",
 		"eslint": "latest",
-		"globals": "14.0.0",
+		"globals": "latest",
 		"lighthouse": "latest",
-		"sharp": "0.35.4",
+		"sharp": "latest",
 		"typescript": "latest",
 		"wrangler": "latest"
 	},
@@ -28,8 +28,8 @@
 	"type": "module",
 	"version": "1.0.0",
 	"allowScripts": {
-		"esbuild@0.28.2": true,
-		"workerd@1.20261103.1": true
+		"esbuild@0.28.1": true,
+		"workerd@1.20260926.1": true
 	},
 	"private": true,
 	"exports": {

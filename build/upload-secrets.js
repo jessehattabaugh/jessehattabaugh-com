@@ -6,7 +6,7 @@ import { WRANGLER, ROOT } from './shared/preview.js';
 
 /** @type {Record<string,string>} */
 const secrets = {};
-for (const name of ['SESSION_SECRET', 'VAPID_PUBLIC_KEY', 'VAPID_PRIVATE_KEY', 'OWNER_SETUP_TOKEN', 'WEB_ANALYTICS_API_TOKEN']) {
+for (const name of ['SESSION_SECRET', 'VAPID_PUBLIC_KEY', 'VAPID_PRIVATE_KEY', 'OWNER_SETUP_TOKEN', 'WEB_COUNTER_API_TOKEN']) {
 	if (process.env[name]?.trim()) { secrets[name] = process.env[name]; }
 }
 if (!Object.keys(secrets).length) { throw new Error('No runtime secrets configured. Fill the runtime secret values in .dev.vars first.'); }

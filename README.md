@@ -55,9 +55,9 @@ Cloudflare can sample counts and only measures browsers that run its beacon.
 
 Keep [Cloudflare's automatic beacon injection](https://developers.cloudflare.com/web-analytics/get-started/#sites-proxied-through-cloudflare)
 enabled with EU visitor data excluded. For reporting, set
-`WEB_ANALYTICS_ACCOUNT_ID` and `WEB_ANALYTICS_SITE_TAG` in `.dev.vars` or
+`WEB_COUNTER_ACCOUNT_ID` and `WEB_COUNTER_SITE_TAG` in `.dev.vars` or
 Workers Builds. Store an account-scoped API token with **Account Analytics Read**
-as the Worker secret `WEB_ANALYTICS_API_TOKEN`. Reporting is disabled on branch
+as the Worker secret `WEB_COUNTER_API_TOKEN`. Reporting is disabled on branch
 previews.
 
 ## Reusable components
