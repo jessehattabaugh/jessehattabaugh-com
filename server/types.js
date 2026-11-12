@@ -19,27 +19,4 @@
  * @property {string} [PREVIEW_DB_NAME] Isolated preview database name
  */
 
-/**
- * @typedef {Object} RouteContext
- * @property {Request} request
- * @property {Env} env
- * @property {Record<string, string | undefined>} params
- */
-
-/**
- * @typedef {Object} Route
- * @property {string} method
- * @property {URLPattern} pattern
- * @property {(ctx: RouteContext) => Promise<Response> | Response} handle
- */
-
-/**
- * @typedef {Object} ContactMessage
- * @property {number} id
- * @property {string} name
- * @property {string} email
- * @property {string} message
- * @property {string} createdAt
- */
-
 export {};

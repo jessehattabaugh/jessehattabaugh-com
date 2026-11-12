@@ -4,7 +4,7 @@ export {};
 const service = /** @type {any} */ (self);
 const CACHE = 'crunch-time-public-v3';
 const offline = new URL('./offline.html', service.registration.scope).href;
-const assets = [offline, '/styles/app.css', '/styles/base.css', './style.css', './mochi.svg'].map((asset) => { return new URL(asset, service.registration.scope).href; });
+const assets = [offline, '/styles/app.css', '/styles/base.css', '/components/web-counter/styles.css', './style.css', './mochi.svg'].map((asset) => { return new URL(asset, service.registration.scope).href; });
 service.addEventListener('install', /** @param {any} event */ (event) => { event.waitUntil(caches.open(CACHE).then((cache) => { return cache.addAll(assets); }).then(() => { return service.skipWaiting(); })); });
 service.addEventListener('activate', /** @param {any} event */ (event) => { event.waitUntil(caches.keys().then((keys) => { return Promise.all(keys.filter((key) => { return key.startsWith('crunch-time-public-') && key !== CACHE; }).map((key) => { return caches.delete(key); })); }).then(() => { return service.clients.claim(); })); });
 service.addEventListener('fetch', /** @param {any} event */ (event) => {

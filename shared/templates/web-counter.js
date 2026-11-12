@@ -6,8 +6,7 @@ export function counterFace(views) {
 		return html`<span aria-hidden="true" data-reels><span data-empty></span></span>`;
 	}
 	const digits = String(views);
-	// Parcel's embedded runtime may not load locale data during static rendering.
-	const count = digits.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+	const count = views.toLocaleString('en-US');
 	return html`<span data-count>${count}</span><span aria-hidden="true" data-reels>${[...digits.padStart(6, '0')].map((digit, index) => {
 		return html`<span style="--digit:${digit};--wheel:${index}"></span>`;
 	})}</span>`;

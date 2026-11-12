@@ -1,4 +1,4 @@
-import './rpg-actor/index.js';
+import '../index.js';
 document.addEventListener('submit', (event) => {
 	const form = event.target;
 	const actor = document.querySelector('rpg-actor');

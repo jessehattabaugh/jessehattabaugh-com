@@ -122,7 +122,7 @@ yarn add ./vendor/disclosure-panel`)}
 				<p>Keep the vendor directory and package lockfile in version control. These commands install a local ES module package, without publishing to another repository. Do not install this whole GitHub repository as the component package: its root package belongs to the website.</p>
 				${code('Vite or webpack application entry', 'JavaScript', "import '@jessehattabaugh/disclosure-panel';")}
 				<p>Import once from your browser entry. <a href="https://vite.dev/guide/features">Vite</a> and <a href="https://webpack.js.org/guides/package-exports/">webpack</a> resolve the package export. The registration entry is marked as a side effect so production builds keep it.</p>
-				${code('Rollup without a package-resolution plugin', 'JavaScript', "// In your browser entry; Rollup follows these relative ES module imports.\nimport '../../shared/templates/pages/vendor/disclosure-panel/index.js';")}
+				${code('Rollup without a package-resolution plugin', 'JavaScript', "// In your browser entry; Rollup follows these relative ES module imports.\nimport './vendor/disclosure-panel/index.js';")}
 				<p>For bare package imports in <a href="https://rollupjs.org/tutorial/#using-plugins">Rollup</a>, use its node-resolve plugin. The relative import needs no plugin. All three approaches register the same element; no framework-specific wrapper is needed.</p>
 				${code('Manual registration', 'JavaScript', `import { DisclosurePanel } from '@jessehattabaugh/disclosure-panel/element';
 customElements.define('disclosure-panel', DisclosurePanel);`)}

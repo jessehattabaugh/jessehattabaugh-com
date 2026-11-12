@@ -1,8 +1,8 @@
 # Operations and behavior reference
 
 Personal site and four installable web apps on Cloudflare Workers. Plain JavaScript
-ES modules with JSDoc, native CSS, shared HTML templates, and D1. No UI framework
-; Hono handles Worker routing and Node static rendering.
+ES modules with JSDoc, native CSS, shared HTML templates, and D1. No UI framework;
+Hono handles Worker routing and Node static rendering.
 
 ## Get oriented
 
@@ -30,7 +30,7 @@ bright sky, sunshine, and rainbow colors. `/contact` redirects to `/apps/message
 
 The shared site header always shows the owner's Bluesky portrait, including on
 Home, errors, and app pages. `build/branding.js` refreshes it during each build;
-`client/branding/avatar.png` is a bundled fallback when public profile/image
+`build/artwork/avatar.png` is a bundled fallback when public profile/image
 services are unavailable. The portrait supplies the main site's favicon, Apple
 touch icon, and site manifest's 192/512 PNG icons. Each app retains its own
 original SVG artwork and has its own favicon, touch icon, and install icons.
@@ -227,7 +227,7 @@ automatic; tests reject production or mismatched fixture databases.
 `node build/generate-vapid-keys.js` fills missing runtime secrets in
 `.dev.vars` without printing or rotating existing values. For an existing
 deployment, keep its current secret values; generating a new session key signs
-users out if later deployed. `npm run secrets:upload` sends only the four
+users out if later deployed. `npm run secrets:upload` sends only the five
 allow-listed runtime secrets to an **unpromoted** Cloudflare Worker version.
 Select/deploy that version explicitly when ready. Ordinary app preview deploys
 preserve the remote secrets. Cloudflare's deployed bindings are separate from

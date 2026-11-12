@@ -19,12 +19,10 @@ function breakdown(title, column, rows) {
 }
 
 /** @param {{days: number, notice?: string, report?: Analytics, views?: number}} data */
-export function analyticsPage({ days, notice, report, views = 0 }) {
-	return layout({
-		title: 'Visitor analytics', path: paths.analytics,
-		body: html`<article data-analytics>
+export function analyticsFragment({ days, notice, report, views = 0 }) {
+	return html`<article data-analytics>
 			<h1>Visitor analytics</h1>
-			<form action="${paths.analytics}" method="get">
+			<form action="${paths.analytics}" method="get" data-target="#main">
 				<label for="analytics-days">Date range</label>
 				<select id="analytics-days" name="days">
 					${[7, 30].map((value) => { return html`<option value="${value}" ${value === days ? html`selected` : html``}>Last ${value} days</option>`; })}
@@ -39,6 +37,13 @@ export function analyticsPage({ days, notice, report, views = 0 }) {
 					${breakdown('Top countries by views', 'Country', report?.countries ?? [])}
 				` : html`<p>No page views in this date range.</p>`}
 			`}
-		</article>`,
+		</article>`;
+}
+
+/** @param {{days: number, notice?: string, report?: Analytics, views?: number}} data */
+export function analyticsPage(data) {
+	return layout({
+		title: 'Visitor analytics', path: paths.analytics,
+		body: analyticsFragment(data),
 	});
 }

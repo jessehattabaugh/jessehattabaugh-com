@@ -4,7 +4,7 @@ const APP_URL = sw.registration.scope;
 const ICON_URL = new URL('./icon.svg', APP_URL).pathname;
 
 const CACHE = 'messages-v4';
-const PRECACHE = ['./icon.svg', '/styles/base.css', '/styles/app.css', './styles.css'].map((asset) => { return new URL(asset, APP_URL).href; });
+const PRECACHE = ['./icon.svg', '/styles/base.css', '/styles/app.css', '/components/web-counter/styles.css', './styles.css'].map((asset) => { return new URL(asset, APP_URL).href; });
 
 // ── Install: pre-cache app shell ──────────────────────────────────────────────
 
