@@ -1,0 +1,36 @@
+{
+	"schemaVersion": "1.0.0",
+	"readme": "README.md",
+	"modules": [
+		{
+			"kind": "javascript-module",
+			"path": "code-block.js",
+			"declarations": [
+				{
+					"kind": "class",
+					"name": "CodeBlock",
+					"customElement": true,
+					"tagName": "code-block",
+					"superclass": { "name": "HTMLElement", "package": "global:" },
+					"description": "Highlights the source text in a native pre and code pair.",
+					"attributes": [
+						{
+							"name": "language",
+							"type": { "text": "string" },
+							"default": "html",
+							"description": "Highlight.js grammar. Supports HTML, CSS, JavaScript and Bash. Unknown languages display as plain text."
+						}
+					]
+				}
+			]
+		},
+		{
+			"kind": "javascript-module",
+			"path": "index.js",
+			"exports": [
+				{ "kind": "js", "name": "CodeBlock", "declaration": { "name": "CodeBlock", "module": "code-block.js" } },
+				{ "kind": "custom-element-definition", "name": "code-block", "declaration": { "name": "CodeBlock", "module": "code-block.js" } }
+			]
+		}
+	]
+}

@@ -1,0 +1,20 @@
+code-block { display: block; }
+code-block pre {
+	overflow-x: auto;
+	padding: var(--space-md, 1rem);
+	background: #172033;
+	color: #f3f6fc;
+	border: 1px solid var(--color-border, #526079);
+	border-radius: var(--radius, .5rem);
+	tab-size: 4;
+	line-height: 1.6;
+}
+code-block pre code { white-space: pre; }
+code-block {
+	.hljs-tag { color: #b4c1d4; }
+	.hljs-name, .hljs-keyword, .hljs-selector-tag, .hljs-built_in { color: #9dd8ff; }
+	.hljs-attr, .hljs-property, .hljs-attribute, .hljs-string { color: #f5d5a0; }
+	.hljs-selector-class, .hljs-selector-id, .hljs-title { color: #aee9bc; }
+	.hljs-comment { color: #7f92a8; }
+	.hljs-number, .hljs-literal { color: #f0b37e; }
+}

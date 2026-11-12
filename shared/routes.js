@@ -123,6 +123,12 @@ export const routes = {
 		navigation: 'Components',
 		navigationOrder: 5,
 	},
+	codeBlock: {
+		path: '/components/code-block/',
+		template: ['build/templates/components.js', 'codeBlockPage'],
+		heading: 'Code Block',
+		sitemap: true,
+	},
 	rpgActor: {
 		path: '/components/rpg-actor/',
 		template: ['shared/templates/pages/rpg-actor.js', 'rpgActor'],
