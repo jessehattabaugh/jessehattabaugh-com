@@ -9,7 +9,7 @@ for (const { path, heading } of pages) {
 		await page.goto(path);
 		await expect(page.getByRole('heading', { name: heading, level: 1, exact: true })).toBeVisible();
 		const footer = page.getByRole('contentinfo');
-		await expect(footer.getByRole('status', { name: 'Site page views' })).toBeVisible();
+		await expect(footer.getByRole('status', { name: 'Page views' })).toBeVisible();
 		const portrait = page.getByRole('img', { name: 'Bluesky avatar', exact: true });
 		await expect(portrait).toBeVisible();
 		await expect.poll(() => { return portrait.evaluate((img) => { return img instanceof HTMLImageElement && img.complete && img.naturalWidth > 0; }); }).toBe(true);

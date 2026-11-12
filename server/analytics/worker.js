@@ -10,19 +10,21 @@ import { analyticsConfigured, readAnalytics, viewCount } from './data.js';
 const windowDays = 30;
 
 /**
- * Cache only the public aggregate. A short failure cache limits repeat requests
+ * Cache each page separately. A short failure cache limits repeat requests
  * during provider outages, and never substitutes zero for an unavailable count.
- * @param {URL} url @param {import('../types.js').Env} env @param {ExecutionContext} ctx
+ * @param {URL} origin @param {string} pathname
+ * @param {import('../types.js').Env} env @param {ExecutionContext} ctx
  */
-async function publicCount(url, env, ctx) {
-	const key = new Request(new URL(`/_cache/web-analytics/${encodeURIComponent(env.WEB_COUNTER_SITE_TAG ?? '')}/${windowDays}`, url.origin));
+async function publicCount(origin, pathname, env, ctx) {
+	const siteTag = encodeURIComponent(env.WEB_COUNTER_SITE_TAG ?? '');
+	const key = new Request(new URL(`/_cache/web-analytics/${siteTag}/${windowDays}/${encodeURIComponent(pathname)}`, origin));
 	try {
 		const cached = await caches.default.match(key);
 		if (cached) { return /** @type {number | null} */ (await cached.json()); }
 	} catch (error) { console.error('Web Analytics cache read failed', error); }
 
 	let views = null;
-	try { views = viewCount(await readAnalytics(env, windowDays, false)); }
+	try { views = viewCount(await readAnalytics(env, windowDays, false, pathname)); }
 	catch (error) { console.error('Public Web Analytics unavailable', error); }
 
 	ctx.waitUntil(caches.default.put(key, Response.json(views, {
@@ -38,7 +40,7 @@ async function publicCount(url, env, ctx) {
  */
 export function addAnalytics(request, response, env, ctx) {
 	if (!analyticsConfigured(env) || request.method !== 'GET' || request.headers.get('X-Fragment') === 'true'
-		|| response.status === 206 || !response.headers.get('Content-Type')?.startsWith('text/html') || !response.body) { return response; }
+		|| response.status !== 200 || !response.headers.get('Content-Type')?.startsWith('text/html') || !response.body) { return response; }
 
 	const url = new URL(request.url);
 	const origin = env.SITE_ORIGIN ? new URL(env.SITE_ORIGIN) : null;
@@ -46,7 +48,7 @@ export function addAnalytics(request, response, env, ctx) {
 
 	const transformed = new HTMLRewriter().on('body > footer > web-counter > output', {
 		async element(element) {
-			const count = await publicCount(url, env, ctx);
+			const count = await publicCount(origin, url.pathname, env, ctx);
 			if (count !== null) { element.setInnerContent(render(counterFace(count)), { html: true }); }
 		},
 	}).transform(response);

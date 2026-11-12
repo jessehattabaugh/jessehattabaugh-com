@@ -48,9 +48,10 @@ Only catalog entries explicitly marked `sitemap: true` are indexed.
 
 ### Web Analytics
 
-The footer’s Web Counter shows Cloudflare Web Analytics page views for the last 30 days. The
-Worker caches the public total for five minutes per edge location. The site
-owner can open **Visitor analytics** from Jessages to see 7- and 30-day reports.
+The footer’s Web Counter shows the current page’s Cloudflare Web Analytics views
+for the last 30 days. The Worker caches each URL path’s count for five minutes
+per edge location. The site owner can open **Visitor analytics** from Jessages
+to see site-wide 7- and 30-day reports.
 Cloudflare can sample counts and only measures browsers that run its beacon.
 
 Keep [Cloudflare's automatic beacon injection](https://developers.cloudflare.com/web-analytics/get-started/#sites-proxied-through-cloudflare)

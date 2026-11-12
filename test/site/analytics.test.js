@@ -5,7 +5,7 @@ import { lighthouseAudit } from '../shared/lighthouse.js';
 test('branch previews display a blank counter without the production beacon', async ({ page }) => {
 	const response = await page.goto(paths.colophon);
 	const footer = page.getByRole('contentinfo');
-	const output = footer.getByRole('status', { name: 'Site page views' });
+	const output = footer.getByRole('status', { name: 'Page views' });
 	await expect(output).toBeVisible();
 	await expect(output).toHaveText('');
 	await expect(footer.getByText('Page views · last 30 days')).toBeVisible();
@@ -14,7 +14,7 @@ test('branch previews display a blank counter without the production beacon', as
 
 test('the sample counter has a native fallback and can display a new count', async ({ page, javaScriptEnabled }) => {
 	await page.goto(paths.webCounter);
-	const output = page.getByRole('region', { name: 'Sample counter' }).getByRole('status', { name: 'Site page views' });
+	const output = page.getByRole('region', { name: 'Sample counter' }).getByRole('status', { name: 'Page views' });
 	await expect(output).toHaveText('1,234');
 	if (javaScriptEnabled) {
 		await page.evaluate(() => { return customElements.whenDefined('web-counter').then(() => {}); });

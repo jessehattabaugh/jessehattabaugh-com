@@ -27,8 +27,8 @@ export function analyticsConfigured(env) {
 	return !env.PREVIEW_BRANCH && Boolean(env.WEB_COUNTER_ACCOUNT_ID && env.WEB_COUNTER_SITE_TAG && env.WEB_COUNTER_API_TOKEN);
 }
 
-/** @param {import('../types.js').Env} env @param {number} days @param {boolean} details */
-export async function readAnalytics(env, days, details) {
+/** @param {import('../types.js').Env} env @param {number} days @param {boolean} details @param {string} [pathname] */
+export async function readAnalytics(env, days, details, pathname) {
 	const end = Date.now();
 	const response = await fetch('https://api.cloudflare.com/client/v4/graphql', {
 		method: 'POST',
@@ -38,6 +38,7 @@ export async function readAnalytics(env, days, details) {
 			account: env.WEB_COUNTER_ACCOUNT_ID,
 			filter: {
 				siteTag: env.WEB_COUNTER_SITE_TAG,
+				requestPath: pathname,
 				'datetime_geq': new Date(end - days * 86_400_000).toISOString(),
 				'datetime_leq': new Date(end).toISOString(),
 			},

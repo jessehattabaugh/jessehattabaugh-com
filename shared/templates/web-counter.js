@@ -15,7 +15,7 @@ export function counterFace(views) {
 /** @param {number} [views] */
 export function webCounter(views) {
 	return html`<web-counter${views === undefined ? html`` : html` value="${views}"`}>
-		<output aria-label="Site page views">${counterFace(views)}</output>
+		<output aria-label="Page views">${counterFace(views)}</output>
 		<span>Page views · last 30 days</span>
 	</web-counter>`;
 }
