@@ -28,8 +28,8 @@
 	"type": "module",
 	"version": "1.0.0",
 	"allowScripts": {
-		"esbuild@0.28.1": true,
-		"workerd@1.20260926.1": true
+		"esbuild@0.28.2": true,
+		"workerd@1.20261104.1": true
 	},
 	"private": true,
 	"exports": {
