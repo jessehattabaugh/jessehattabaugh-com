@@ -20,6 +20,15 @@ export const componentCatalog = [{
 	source: 'https://github.com/jessehattabaugh/jessehattabaugh-com/tree/main/client/components/rpg-actor',
 	description: 'A portable pixel character. Four directions, nine expressions, talking, and attribute-driven playback with an HTML fallback.',
 }, {
+	tag: 'code-block',
+	name: 'Code Block',
+	path: paths.codeBlock,
+	module: `${paths.codeBlock}index.js`,
+	stylesheet: `${paths.codeBlock}styles.css`,
+	manifest: `${paths.codeBlock}custom-elements.json`,
+	source: 'https://github.com/jessehattabaugh/jessehattabaugh-com/tree/main/client/components/code-block',
+	description: 'Display copyable HTML, CSS, JavaScript, and shell examples with syntax colors.',
+}, {
 	tag: 'web-counter',
 	name: 'Web Counter',
 	path: paths.webCounter,

@@ -25,6 +25,7 @@ function demo(summary = 'Try the disclosure') {
 const showcases = new Map([
 	['disclosure-panel', () => { return demo(); }],
 	['rpg-actor', actorSprite],
+	['code-block', () => { return code('Sample markup', 'HTML', '<button type="button">Save</button>'); }],
 	['web-counter', () => { return html`<p>Sample counter</p>${webCounter(1234)}`; }],
 ]);
 
@@ -34,7 +35,7 @@ export function components(social) {
 		description: 'Reusable Custom Elements by Jesse Hattabaugh. Native HTML, ES modules, attributes down and events up.',
 		body: html`<article data-components>
 			<h1>Components</h1>
-			<p>Little HTML building blocks. Native elements do the work; Custom Elements make them easier to compose. No framework, no runtime dependencies.</p>
+			<p>Little HTML building blocks. Native elements do the work; Custom Elements make them easier to compose. No framework.</p>
 			<p>Send state down with attributes. Send data up with events. Keep useful HTML underneath.</p>
 			${componentCatalog.map((component) => { return html`<section aria-label="${component.tag}">
 				<h2><a href="${component.path}">${component.name ?? component.tag}</a></h2>
@@ -158,5 +159,31 @@ export function webCounterPage(social) {
 			<p>Keep <code>index.js</code> and <code>styles.css</code> together. The element loads its stylesheet and renders the wheels from the <code>value</code> attribute. The live sample uses declarative shadow DOM so its wheels are visible without JavaScript.</p>
 			<p>Set <code>leading-zeros</code> to an integer from 0 through 16. The default is one leading zero.</p>
 			<p><a href="${paths.webCounter}index.js">ES module</a> · <a href="${paths.webCounter}styles.css">Stylesheet</a> · <a href="${paths.webCounter}custom-elements.json">Custom Elements Manifest</a> · <a href="${paths.webCounter}README.md">Component README</a></p>
+		</article>` });
+}
+
+/** @param {import('../../shared/data/atproto.js').Social} [social] */
+export function codeBlockPage(social) {
+	return layout({ social, title: 'Code Block', path: paths.codeBlock,
+		description: 'Display syntax-highlighted source with the code-block custom element.',
+		body: html`<article data-components>
+			<p><a href="${paths.components}">All components</a> / Code Block</p>
+			<h1>Code Block</h1>
+			<p>Use <code>&lt;code-block&gt;</code> to display source that readers can select, copy, and scroll with the keyboard.</p>
+			<section aria-labelledby="code-block-examples">
+				<h2 id="code-block-examples">Examples</h2>
+				${code('HTML source', 'HTML', '<button type="button" class="save">Save</button>')}
+				${code('CSS source', 'CSS', 'button.save { color: #173760; }')}
+				${code('JavaScript source', 'JavaScript', "const button = document.querySelector('.save');")}
+				${code('Shell source', 'Shell', "printf '%s' Ready")}
+			</section>
+			<section>
+				<h2>Use Code Block</h2>
+				<p>Put escaped source inside <code>&lt;pre&gt;&lt;code&gt;</code>. Give the <code>&lt;pre&gt;</code> a label and <code>tabindex="0"</code> so keyboard users can scroll long lines.</p>
+				${code('Code Block markup', 'HTML', '<code-block language="html">\n\t<pre tabindex="0" aria-label="Button source"><code>&lt;button type="button"&gt;Save&lt;/button&gt;</code></pre>\n</code-block>')}
+				<p><code>language</code> defaults to <code>html</code>. Use <code>css</code>, <code>javascript</code>, or <code>bash</code> for the other grammars. An unknown language displays as plain text. Changing the attribute highlights the current text with the new grammar.</p>
+				<p>These examples ship with colors in their HTML, so they work with JavaScript disabled. For blocks created in the browser, load the stylesheet, register the module, and insert each block with its source already in place. See the README for the file layout and import map.</p>
+				<p><a href="${paths.codeBlock}README.md">Component README</a> · <a href="${paths.codeBlock}index.js">ES module</a> · <a href="${paths.codeBlock}styles.css">Stylesheet</a> · <a href="${paths.codeBlock}custom-elements.json">Custom Elements Manifest</a></p>
+			</section>
 		</article>` });
 }

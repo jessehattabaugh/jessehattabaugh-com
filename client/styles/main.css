@@ -2,6 +2,7 @@
 @import url('./base.css');
 
 @layer layout, components;
+@import url('../components/code-block/styles.css') layer(components);
 
 @layer layout {
 	header {
@@ -122,26 +123,6 @@
 			label:has(input[type="checkbox"]) { display: flex; align-items: center; gap: .6rem; min-height: 44px; }
 			input[type="checkbox"] { width: 1.2rem; height: 1.2rem; margin: 0; }
 		}
-	}
-	code-block { display: block; }
-	code-block pre {
-		overflow-x: auto;
-		padding: var(--space-md);
-		background: #172033;
-		color: #f3f6fc;
-		border: 1px solid var(--color-border);
-		border-radius: var(--radius);
-		tab-size: 4;
-		line-height: 1.6;
-	}
-	code-block pre code { white-space: pre; }
-	code-block {
-		.hljs-tag { color: #b4c1d4; }
-		.hljs-name, .hljs-keyword, .hljs-selector-tag, .hljs-built_in { color: #9dd8ff; }
-		.hljs-attr, .hljs-property, .hljs-attribute, .hljs-string { color: #f5d5a0; }
-		.hljs-selector-class, .hljs-selector-id, .hljs-title { color: #aee9bc; }
-		.hljs-comment { color: #7f92a8; }
-		.hljs-number, .hljs-literal { color: #f0b37e; }
 	}
 	/* Home page introduction. */
 	main > section:first-child {
