@@ -85,7 +85,7 @@ export const layout = ({
 					${app ? html`` : html`<p>
 						&copy; Jesse Hattabaugh &middot;
 						<a href="${paths.colophon}">Colophon</a>
-						&middot; <a href="${social?.profileUrl ?? paths.bluesky}" rel="me">${social ? `@${social.handle} on Bluesky` : 'Bluesky'}</a>
+						&middot; <a href="${social?.profileUrl ?? paths.bluesky}" rel="me">bluesky</a>
 					</p>`}
 					${webCounter()}
 				</footer>

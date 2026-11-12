@@ -66,6 +66,18 @@
 		text-align: center;
 		color: var(--color-text-muted);
 		font-size: 0.875rem;
+
+		a[rel='me']::before {
+			content: '';
+			display: inline-block;
+			inline-size: 1em;
+			block-size: 1em;
+			margin-inline-end: 0.35em;
+			vertical-align: -0.15em;
+			background-color: currentColor;
+			-webkit-mask: url('/branding/bluesky.svg') center / contain no-repeat;
+			mask: url('/branding/bluesky.svg') center / contain no-repeat;
+		}
 	}
 }
 

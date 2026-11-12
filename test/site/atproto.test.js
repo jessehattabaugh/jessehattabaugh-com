@@ -36,7 +36,7 @@ test('About shows RPG Actor sprite and character sheets', async ({ page }) => {
 test('site-wide Bluesky link resolves to my public profile', async ({ page }) => {
 	await page.goto(paths.apps);
 	const footer = page.getByRole('contentinfo');
-	await expect(footer.getByRole('link', { name: /Bluesky/ })).toBeVisible();
+	await expect(footer.getByRole('link', { name: 'bluesky', exact: true })).toBeVisible();
 	const response = await page.request.get(paths.bluesky, { maxRedirects: 0 });
 	expect(response.status()).toBe(302);
 	expect(response.headers().location).toBe(`https://bsky.app/profile/${handle}`);
