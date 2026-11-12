@@ -1,7 +1,7 @@
 {
 	"name": "@jessehattabaugh/rpg-actor",
 	"version": "1.0.0",
-	"description": "Attribute-driven rpg.actor sprites, expressions and talking with native HTML fallback.",
+	"description": "Bluesky handle-driven rpg.actor sprites, expressions and talking with native HTML fallback.",
 	"type": "module",
 	"license": "MIT",
 	"exports": {
@@ -17,6 +17,8 @@
 		"index.js",
 		"rpg-actor.js",
 		"styles.css",
+		"sprite-record.js",
+		"generic.svg",
 		"custom-elements.json",
 		"README.md",
 		"LICENSE"

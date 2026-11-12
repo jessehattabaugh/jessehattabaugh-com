@@ -207,8 +207,8 @@ test('registry distributes the portable package and machine-readable interface',
 	const manifest = await request.get('/components/rpg-actor/custom-elements.json');
 	const [declaration] = (await manifest.json()).modules[0].declarations;
 	expect(declaration.tagName).toBe('rpg-actor');
-	expect(declaration.attributes.map(attr => {return attr.name})).toEqual(expect.arrayContaining(['src', 'emotes', 'expression', 'talking', 'animation', 'direction', 'paused', 'showcase', 'frame']));
-	await Promise.all(['index.js', 'rpg-actor.js', 'package.json', 'README.md', 'LICENSE', 'social.png'].map(async (file) => {
+	expect(declaration.attributes.map(attr => {return attr.name})).toEqual(expect.arrayContaining(['handle', 'src', 'emotes', 'expression', 'talking', 'animation', 'direction', 'paused', 'showcase', 'frame']));
+	await Promise.all(['index.js', 'rpg-actor.js', 'sprite-record.js', 'generic.svg', 'package.json', 'README.md', 'LICENSE', 'social.png'].map(async (file) => {
 		expect((await request.get(`/components/rpg-actor/${file}`)).ok()).toBe(true);
 	}));
 });
@@ -313,4 +313,32 @@ test('home keeps its selected pose while About opts into adjustable showcase pla
 	expect(await pose()).toEqual(paused);
 	await page.clock.runFor(150);
 	expect(await pose()).not.toEqual(paused);
+});
+
+test('the handle example displays a portrait before enhancement and a public sprite after lookup', async ({ page, javaScriptEnabled }) => {
+	await page.goto(path);
+	const sprite = page.getByRole('img', { name: 'Character loaded by Bluesky handle', exact: true });
+	const source = () => {return sprite.evaluate(el => {
+		const image = el instanceof HTMLImageElement ? el : el.querySelector('img');
+		return image?.complete && image.naturalWidth > 0 ? image.currentSrc : '';
+	})};
+	await expect(sprite).toBeVisible();
+	if (!javaScriptEnabled) {
+		await expect.poll(source).toMatch(/\/generic\.svg$/);
+		return;
+	}
+	await expect.poll(source, { timeout: 15000 }).toContain('/xrpc/com.atproto.sync.getBlob?');
+	const published = await source();
+	await sprite.evaluate(el => { el.getRootNode().host.setAttribute('expression', 'happy'); });
+	await expect.poll(source, { timeout: 15000 }).toMatch(/\/xrpc\/com\.atproto\.sync\.getBlob\?/);
+	await expect.poll(source).not.toBe(published);
+	await sprite.evaluate(el => { el.getRootNode().host.removeAttribute('expression'); });
+	await sprite.evaluate(el => { el.getRootNode().host.setAttribute('handle', '@bsky.app'); });
+	await expect.poll(source).toMatch(/\/generic\.svg$/);
+	await sprite.evaluate(el => {
+		const actor = el.getRootNode().host;
+		actor.setAttribute('handle', 'bsky.app');
+		actor.setAttribute('handle', '@jessehattabaugh.com');
+	});
+	await expect.poll(source, { timeout: 15000 }).toBe(published);
 });

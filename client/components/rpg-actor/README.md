@@ -12,14 +12,28 @@ Keep the license. Serve the directory from your origin with JavaScript MIME type
 
 ```html
 <script type="module" src="/vendor/rpg-actor/index.js"></script>
-<rpg-actor src="/sprites/me.png" animation="walk" direction="down" label="My character">
+<rpg-actor handle="@jessehattabaugh.com" animation="walk" label="My character"></rpg-actor>
+```
+
+The component looks up the public `actor.rpg.sprite/self` record and loads
+its base sheet and published expressions. The bundled courier appears during
+lookup and when the account has no usable sprite. No child elements are needed.
+Set a new `handle` to switch characters. An explicit `src` takes precedence
+and can be paired with `emotes`, `columns`, and `rows`.
+
+For a visible character with JavaScript disabled, provide a portrait in the
+default slot. The module adopts a server-rendered open shadow root, or builds
+its own when one is absent. For example:
+
+```html
+<rpg-actor handle="jessehattabaugh.com" label="My character">
+	<template shadowrootmode="open">
+		<link rel="stylesheet" href="/vendor/rpg-actor/styles.css">
+		<slot></slot>
+	</template>
 	<img src="/sprites/portrait.png" alt="My character" width="144" height="144">
 </rpg-actor>
 ```
-
-The child image is a cropped portrait fallback, not the whole sheet. Arbitrary
-fallback HTML is supported in the default slot. It stays visible until the
-component stylesheet and a usable sprite sheet load.
 
 For a bundler, choose one: `npm install ./vendor/rpg-actor`,
 `pnpm add ./vendor/rpg-actor`, or `yarn add ./vendor/rpg-actor`.
@@ -32,6 +46,7 @@ registration is guarded and the first definition wins. Import only in browsers.
 
 | Attribute | Default | Contract |
 | --- | --- | --- |
+| `handle` | absent | Bluesky handle, optionally prefixed with @. |
 | `src` |  | Base sprite sheet URL, relative or HTTP(S). |
 | `emotes` | {} | JSON map of expression names to emoteSheet and optional talkSheet image URLs. |
 | `columns` | 3 | Base grid columns, 1–16. Invalid values use 3; zero becomes 1. |
@@ -73,13 +88,14 @@ actor.setAttribute('paused', '');
 actor.removeAttribute('paused');
 ```
 
-Read actor.rpg.sprite/self from the actor's PDS in your application. Convert
-spriteSheet and emotes.<name>.{emoteSheet,talkSheet} blob references to image URLs
-using the PDS com.atproto.sync.getBlob endpoint with did and cid parameters.
-Pass those URLs as src and the emotes JSON map. Raw AT Protocol blob objects are
-not URLs. You can host images on your own origin; image display needs no CORS.
-Permit the image origin in img-src and the component's shadow styles in style-src.
-Only HTTP(S) URLs without embedded credentials are accepted.
+The browser resolves handles through `public.api.bsky.app`, reads the DID
+document at `plc.directory` or the DID's web domain, then reads the record
+from its public HTTPS personal data server (PDS). These JSON endpoints must
+allow browser CORS. If you set a content security policy, allow those origins
+in `connect-src` and the PDS and bundled artwork origins in `img-src`.
+Allow the package stylesheet in `style-src`. The site demo permits
+Bluesky-hosted PDSs; other hosts can permit the PDS origins they support.
+An explicit source is useful for preloaded or same-origin sheets.
 
 ## Events and styling
 
@@ -88,7 +104,7 @@ All events bubble, are composed, and are not cancelable:
 - actor-change: detail { animation, direction, expression, talking, paused }.
   Fired after attribute changes and showcase steps, not initialization.
 - actor-load: detail { src }, fired for each loaded image in this instance.
-- actor-error: detail { reason, src }, malformed JSON or a failed image.
+- actor-error: detail { reason, src }, failed handle lookup, malformed JSON or a failed image. A missing sprite record is normal and does not emit an error.
 
 No custom public methods or incoming events. Use setAttribute/removeAttribute.
 Style --rpg-actor-size (default 144px), ::part(sprite), and ::part(controls).
@@ -98,8 +114,8 @@ fails to load.
 ## Playback and failures
 
 Missing/failed variants use the base sheet. Invalid emotes JSON is ignored with
-an error event. An unavailable base with no usable selected variant exposes the
-fallback. Changing src/emotes resets the image cache, allowing retries. Images
+an error event. An unavailable explicit base with no usable selected variant exposes the
+slotted fallback. Handle-based actors use the bundled sprite if lookup or loading fails. Changing src/emotes resets the image cache, allowing retries. Images
 load on demand and are reused per instance. Attribute changes discard obsolete
 image callbacks. Disconnect stops timers/listeners; reconnect resumes playback.
 Hidden documents suspend playback. Reduced motion stops walking, talking, and

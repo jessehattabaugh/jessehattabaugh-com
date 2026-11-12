@@ -14,10 +14,16 @@ import { handleAtproto } from './pages/worker.js';
 import { addAnalytics, handleAnalytics } from './analytics/worker.js';
 
 /** Apply security headers to every representation, including assets and redirects. */
-/** @param {Response} response @param {boolean} [head] */
-function secure(response, head = false) {
+/** @param {Response} response @param {boolean} [head] @param {boolean} [actorDemo] */
+function secure(response, head = false, actorDemo = false) {
 	const headers = new Headers(response.headers);
 	for (const [name, value] of Object.entries(SECURITY_HEADERS)) { headers.set(name, value); }
+	// Only the handle demo needs to read public records from Bluesky-hosted PDSs.
+	if (actorDemo) {
+		headers.set('Content-Security-Policy', SECURITY_HEADERS['Content-Security-Policy']
+			.replace('https://tile.openstreetmap.org;', 'https://tile.openstreetmap.org https://*.host.bsky.network;')
+			.replace('https://api.open-meteo.com;', 'https://api.open-meteo.com https://public.api.bsky.app https://plc.directory https://*.host.bsky.network;'));
+	}
 	return new Response(head ? null : response.body, { status: response.status, headers });
 }
 
@@ -108,7 +114,7 @@ export default {
 				headers.set('X-Preview-Database', env.PREVIEW_DB_NAME);
 			}
 			const document = new Response(response.body, { status: response.status, headers });
-			return secure(addAnalytics(request, document, env, ctx), head);
+			return secure(addAnalytics(request, document, env, ctx), head, new URL(request.url).pathname === paths.rpgActor);
 		} catch (error) {
 			console.error(error);
 			return secure(failure(500), head);
