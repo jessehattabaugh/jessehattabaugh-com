@@ -6,16 +6,23 @@
 }
 
 div {
+	/* Size the button's containing block to the sprite, even in a larger host. */
 	position: relative;
+	flex: none;
+	align-self: center;
+	width: var(--rpg-actor-size, 144px);
 	max-width: 100%;
+}
+
+div:has(> span[hidden]) {
+	display: none;
 }
 
 span {
 	display: block;
 	position: relative;
 	overflow: hidden;
-	width: var(--rpg-actor-size, 144px);
-	max-width: 100%;
+	width: 100%;
 	aspect-ratio: 1;
 	image-rendering: pixelated;
 }

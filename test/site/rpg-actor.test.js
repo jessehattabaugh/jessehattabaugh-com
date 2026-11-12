@@ -256,6 +256,17 @@ test('home keeps its selected pose while About opts into adjustable showcase pla
 	const sprite = page.getByRole('img', { name: imageName, exact: true });
 	await expect.poll(() => { return sprite.evaluate(el => { return el.tagName; }); }).toBe('SPAN');
 	await expect.poll(() => { return sprite.evaluate(el => { return el.getRootNode().host.hasAttribute('showcase'); }); }).toBe(false);
+	if (!hasTouch) { await sprite.hover(); }
+	const homePause = page.getByRole('button', { name: 'Pause animation', exact: true });
+	await expect(homePause).toHaveCSS('opacity', '1');
+	const spriteBounds = await sprite.boundingBox();
+	const buttonBounds = await homePause.boundingBox();
+	const rightInset = spriteBounds.x + spriteBounds.width - buttonBounds.x - buttonBounds.width;
+	const bottomInset = spriteBounds.y + spriteBounds.height - buttonBounds.y - buttonBounds.height;
+	expect(rightInset).toBeGreaterThanOrEqual(0);
+	expect(rightInset).toBeLessThan(10);
+	expect(bottomInset).toBeGreaterThanOrEqual(0);
+	expect(bottomInset).toBeLessThan(10);
 	await page.goto('/about');
 	await expect.poll(() => { return sprite.evaluate(el => { return el.tagName; }); }).toBe('SPAN');
 	await page.clock.install();
