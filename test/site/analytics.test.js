@@ -12,13 +12,17 @@ test('branch previews display a blank counter without the production beacon', as
 	expect(await response.text()).not.toContain('data-cf-beacon');
 });
 
-test('the sample counter has a native fallback and can display a new count', async ({ page, javaScriptEnabled }) => {
+test('the sample renders in shadow DOM before JavaScript and the element can display a new count', async ({ page, javaScriptEnabled }) => {
 	await page.goto(paths.webCounter);
 	const sample = page.getByRole('region', { name: 'Sample counter' });
 	const output = sample.getByRole('status', { name: 'Page views' });
 	await expect(output).toHaveText('1,234');
+	await expect(output).toHaveCSS('font-variant-numeric', 'tabular-nums');
+	expect(await output.evaluate((element) => { return element.getRootNode() instanceof ShadowRoot; })).toBe(true);
 	if (javaScriptEnabled) {
 		await page.evaluate(() => { return customElements.whenDefined('web-counter').then(() => {}); });
+		await output.evaluate((element) => { element.getRootNode().host.setAttribute('value', '7'); });
+		await expect(output).toHaveText('7');
 		await sample.evaluate((region) => {
 			const counter = document.createElement('web-counter');
 			counter.setAttribute('value', '12345');

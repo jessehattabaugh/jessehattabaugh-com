@@ -1,11 +1,18 @@
 /** Render a supplied count. Data collection lives with the host site. */
 export class WebCounter extends HTMLElement {
 	static observedAttributes = ['value', 'leading-zeros'];
-	#output = document.createElement('output');
+	/** @type {HTMLOutputElement} */
+	#output;
 
 	constructor() {
 		super();
-		const root = this.attachShadow({ mode: 'open' });
+		const root = this.shadowRoot ?? this.attachShadow({ mode: 'open' });
+		const renderedOutput = root.querySelector('output');
+		if (renderedOutput) {
+			this.#output = renderedOutput;
+			return;
+		}
+		this.#output = document.createElement('output');
 		const style = document.createElement('link');
 		style.rel = 'stylesheet';
 		style.href = new URL('./styles.css', import.meta.url).href;

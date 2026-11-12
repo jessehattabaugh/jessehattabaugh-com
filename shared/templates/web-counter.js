@@ -16,7 +16,12 @@ function counterFace(views, leadingZeros) {
 /** @param {number} [views] @param {string | null} [leadingZeros] */
 export function webCounter(views, leadingZeros) {
 	return html`<web-counter${views === undefined ? html`` : html` value="${views}"`}${leadingZeros == null ? html`` : html` leading-zeros="${leadingZeros}"`}>
-		<output aria-label="Page views">${counterFace(views, leadingZeros)}</output>
+		<template shadowrootmode="open">
+			<link rel="stylesheet" href="/components/web-counter/styles.css">
+			<output aria-label="Page views">${counterFace(views, leadingZeros)}</output>
+			<slot name="label">Page views</slot>
+		</template>
+		<output aria-label="Page views">${views?.toLocaleString('en-US') ?? ''}</output>
 		<span slot="label">Page views · last 30 days</span>
 	</web-counter>`;
 }

@@ -30,6 +30,8 @@ SITE_ORIGIN=https://jessehattabaugh.com
 # Optional Cloudflare Web Analytics. In Manage Site, keep automatic injection
 # enabled with EU visitor data excluded.
 # https://developers.cloudflare.com/web-analytics/get-started/#sites-proxied-through-cloudflare
+# Upload both IDs as Worker secrets with secrets:upload so deploys retain them.
+# https://developers.cloudflare.com/workers/configuration/secrets/
 #
 # Account ID for the Cloudflare account that owns the Web Analytics property.
 # https://developers.cloudflare.com/fundamentals/account/find-account-and-zone-ids/

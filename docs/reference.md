@@ -227,8 +227,8 @@ automatic; tests reject production or mismatched fixture databases.
 `node build/generate-vapid-keys.js` fills missing runtime secrets in
 `.dev.vars` without printing or rotating existing values. For an existing
 deployment, keep its current secret values; generating a new session key signs
-users out if later deployed. `npm run secrets:upload` sends only the five
-allow-listed runtime secrets to an **unpromoted** Cloudflare Worker version.
+users out if later deployed. `npm run secrets:upload` sends only allow-listed
+runtime secrets to an **unpromoted** Cloudflare Worker version.
 Select/deploy that version explicitly when ready. Ordinary app preview deploys
 preserve the remote secrets. Cloudflare's deployed bindings are separate from
 local files; editing `.dev.vars` alone cannot change a running Worker.

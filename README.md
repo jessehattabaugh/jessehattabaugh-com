@@ -55,11 +55,13 @@ to see site-wide 7- and 30-day reports.
 Cloudflare can sample counts and only measures browsers that run its beacon.
 
 Keep [Cloudflare's automatic beacon injection](https://developers.cloudflare.com/web-analytics/get-started/#sites-proxied-through-cloudflare)
-enabled with EU visitor data excluded. For reporting, set
-`WEB_COUNTER_ACCOUNT_ID` and `WEB_COUNTER_SITE_TAG` in `.dev.vars` or
-Workers Builds. Store an account-scoped API token with **Account Analytics Read**
-as the Worker secret `WEB_COUNTER_API_TOKEN`. Reporting is disabled on branch
-previews.
+enabled with EU visitor data excluded. Set `WEB_COUNTER_ACCOUNT_ID`,
+`WEB_COUNTER_SITE_TAG`, and `WEB_COUNTER_API_TOKEN` in `.dev.vars` for local
+development. For deployed reporting, upload all three as Worker secrets using
+`npm run secrets:upload` after a production deployment. Verify the resulting
+version binds the production D1 database before promoting it. Wrangler preserves
+these bindings on subsequent deployments. The account-scoped API token needs
+**Account Analytics Read**. Reporting is disabled on branch previews.
 
 ## Reusable components
 

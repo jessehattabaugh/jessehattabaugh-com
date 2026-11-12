@@ -9,9 +9,14 @@ counter and loads its stylesheet inside its shadow root.
 <web-counter value="1234"></web-counter>
 ```
 
-You can supply an `<output aria-label="Page views">1,234</output>` child as a
-fallback for browsers without JavaScript. To replace the visible “Page views”
-caption, add a child with `slot="label"`.
+For server rendering, place a `<template shadowrootmode="open">` directly inside
+the counter. Include a stylesheet link, an `<output aria-label="Page views">`
+with the initial count, and a `<slot name="label">Page views</slot>` for the
+caption. The browser renders the template before JavaScript runs, and the
+element reuses that output on upgrade. The site's server template also renders
+the digit wheels inside this template. A light DOM `<output>` child can provide
+a plain count for browsers that lack declarative shadow DOM. To replace the
+visible caption, add a child with `slot="label"`.
 
 Set `leading-zeros` to an integer from 0 through 16. Use `0` to display just the
 digits of the count. An absent or invalid setting uses one leading zero.

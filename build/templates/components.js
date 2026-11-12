@@ -158,7 +158,7 @@ export function webCounterPage(social) {
 				<pre tabindex="0" aria-label="Web Counter HTML"><code>${highlightHtml(`<script type="module" src="./index.js"></script>
 <web-counter value="1234"></web-counter>`)}</code></pre>
 			</figure>
-			<p>Keep <code>index.js</code> and <code>styles.css</code> together. The element loads its stylesheet and renders the wheels from the <code>value</code> attribute. Add an optional <code>output</code> child to show the count without JavaScript.</p>
+			<p>Keep <code>index.js</code> and <code>styles.css</code> together. The element loads its stylesheet and renders the wheels from the <code>value</code> attribute. The live sample uses declarative shadow DOM so its wheels are visible without JavaScript.</p>
 			<p>Set <code>leading-zeros</code> to an integer from 0 through 16. The default is one leading zero.</p>
 			<p><a href="${paths.webCounter}index.js">ES module</a> · <a href="${paths.webCounter}styles.css">Stylesheet</a> · <a href="${paths.webCounter}custom-elements.json">Custom Elements Manifest</a> · <a href="${paths.webCounter}README.md">Component README</a></p>
 		</article>` });
