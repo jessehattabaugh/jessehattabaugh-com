@@ -1,4 +1,5 @@
 import { html } from '../../html.js';
+import { paths } from '../../routes.js';
 import { layout } from '../layout.js';
 import { actorFragment, profileSummary, postsFragment } from './social.js';
 
@@ -28,7 +29,7 @@ export function aboutFragment(social) {
 				</li>
 			</ul>
 			<h2>Find me on the Atmosphere</h2>
-			<p>My name on Bluesky is @jessehattabaugh and I experiment with ATProto there.</p>
+			<p>My name on Bluesky is <a href="${social?.profileUrl ?? paths.bluesky}" rel="me">@jessehattabaugh.com</a> and I experiment with ATProto there.</p>
 			${profileSummary(social)} ${actorFragment(social, true)} ${postsFragment(social)}
 		</article>
 	`;
