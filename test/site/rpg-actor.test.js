@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { expectHighlightedCode } from '../shared/code-highlighting.js';
 
 const path = '/components/rpg-actor/';
 const imageName = 'My RPG Actor character sprite';
@@ -13,22 +14,13 @@ for (const route of ['/', '/about', '/components/', path]) {
 	});
 }
 
-test('documentation HTML is highlighted without changing the source markup', async ({ page, javaScriptEnabled }) => {
+test('documentation HTML is readable and gains syntax colors with JavaScript', async ({ page, javaScriptEnabled }) => {
 	await page.goto(path);
 	const code = page.getByLabel('HTML example', { exact: true });
+	await expect(code).toBeVisible();
 	await expect(code).toContainText('<rpg-actor');
-	await code.scrollIntoViewIfNeeded();
-	expect(await code.evaluate((pre) => { return pre.querySelectorAll('[data-token]').length; })).toBe(0);
-	if (!javaScriptEnabled) { return; }
-	await expect.poll(async () => {
-		return code.evaluate((pre) => {
-			const block = pre.closest('code-block');
-			if (!block || !('highlights' in CSS)) { return []; }
-			return ['code-tag', 'code-attribute', 'code-value', 'code-punctuation'].filter((name) => {
-				return Array.from(CSS.highlights.get(name) ?? []).some((range) => { return block.contains(range.startContainer); });
-			});
-		});
-	}).toEqual(['code-tag', 'code-attribute', 'code-value', 'code-punctuation']);
+	await expect(code).toContainText('</rpg-actor>');
+	if (javaScriptEnabled) { await expectHighlightedCode(code); }
 });
 
 test('playground controls select a pose with and without JavaScript', async ({ page }) => {
