@@ -2,6 +2,7 @@
    Imported by main.css (site) and each app's stylesheet. */
 
 @layer reset, base;
+@import url('../components/web-counter/styles.css') layer(base);
 
 @layer reset {
 	*,
@@ -27,6 +28,24 @@
 @layer base {
 	/* Explicit layout applies before Custom Elements upgrade and with JS off. */
 	disclosure-panel { display: block; }
+
+	body > footer {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		justify-content: flex-end;
+		gap: .5rem 1rem;
+
+		> p {
+			flex: 1 0 auto;
+			max-inline-size: 100%;
+			text-align: start;
+		}
+
+		> web-counter {
+			justify-content: flex-end;
+		}
+	}
 
 	.skip-link {
 		position: absolute;

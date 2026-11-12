@@ -41,6 +41,7 @@ export function messagesFragment(data = {}) {
 	function screenContent() {
 		if (user) {
 			return html`
+				${user.is_owner ? html`<p><a href="${paths.analytics}">Visitor analytics</a></p>` : html``}
 				${data.conversations ? html`
 					<nav aria-label="Conversations"><h2>Conversations</h2><ul>
 						${data.conversations.map((conversation) => { return html`<li><a href="${conversation.href}" data-target="#main" ${conversation.id === data.conversationId ? html`aria-current="page"` : html``}>${conversation.display_name}</a></li>`; })}

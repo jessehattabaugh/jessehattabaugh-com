@@ -44,6 +44,10 @@
 		}
 	},
 	"exports": {
+		"./components/web-counter": {
+			"source": "./client/components/web-counter/index.js",
+			"production": "./dist/client/components/web-counter/index.js"
+		},
 		"./components/disclosure-panel": {
 			"source": "./client/components/disclosure-panel/index.js",
 			"production": "./dist/client/components/disclosure-panel/index.js"

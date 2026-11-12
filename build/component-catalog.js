@@ -8,6 +8,7 @@ export const componentCatalog = [{
 	path: '/components/disclosure-panel/',
 	module: '/components/disclosure-panel/index.js',
 	manifest: '/components/disclosure-panel/custom-elements.json',
+	package: '/components/disclosure-panel/package.json',
 	source: 'https://github.com/jessehattabaugh/jessehattabaugh-com/tree/main/client/components/disclosure-panel',
 	description: 'Native disclosure, coordinated with attributes and events. Useful for help, installation instructions, and expandable documentation.',
 }, {
@@ -15,8 +16,18 @@ export const componentCatalog = [{
 	path: '/components/rpg-actor/',
 	module: '/components/rpg-actor/index.js',
 	manifest: '/components/rpg-actor/custom-elements.json',
+	package: '/components/rpg-actor/package.json',
 	source: 'https://github.com/jessehattabaugh/jessehattabaugh-com/tree/main/client/components/rpg-actor',
 	description: 'A portable pixel character. Four directions, nine expressions, talking, and attribute-driven playback with an HTML fallback.',
+}, {
+	tag: 'web-counter',
+	name: 'Web Counter',
+	path: paths.webCounter,
+	module: `${paths.webCounter}index.js`,
+	stylesheet: `${paths.webCounter}styles.css`,
+	manifest: `${paths.webCounter}custom-elements.json`,
+	source: 'https://github.com/jessehattabaugh/jessehattabaugh-com/tree/main/client/components/web-counter',
+	description: 'Display a supplied page-view total with a traditional counter and a native HTML fallback.',
 }];
 
 export const gameKitCatalog = {
@@ -33,4 +44,4 @@ export const gameKitCatalog = {
 };
 
 export const kitCatalog = [gameKitCatalog];
-export const componentPackages = [...componentCatalog, ...kitCatalog];
+export const componentEntries = [...componentCatalog, ...kitCatalog];

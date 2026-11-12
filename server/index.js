@@ -10,6 +10,7 @@ import { rainbowWakeCron } from './apps/rainbow-hour/cron.js';
 import { SECURITY_HEADERS } from './http/security-headers.js';
 import { RequestBodyError, ServiceError } from './http/request.js';
 import { handleAtproto } from './pages/worker.js';
+import { addAnalytics, handleAnalytics } from './analytics/worker.js';
 
 /** Apply security headers to every representation, including assets and redirects. */
 /** @param {Response} response @param {boolean} [head] */
@@ -50,10 +51,12 @@ export default {
 				const routeRequest = head ? new Request(request, { method: 'GET' }) : request;
 				let response;
 				if (route.handler === 'contact') { response = new Response(null, { status: 301, headers: { Location: paths.messages } }); }
+				else if (route.handler === 'webCounterRedirect') { response = new Response(null, { status: 301, headers: { Location: paths.webCounter } }); }
 				else if (route.handler === 'gameKitRedirect') { response = new Response(null, { status: 301, headers: { Location: paths.gameKit } }); }
 				else if (route.handler === 'social') { response = await handleAtproto(routeRequest, env, ctx); }
 				else if (route.handler === 'lightsfinder') { response = await handleLightsfinder(routeRequest, env); }
 				else if (route.handler === 'crunch') { response = await handleCrunchTime(routeRequest, env); }
+				else if (route.handler === 'analytics') { response = await handleAnalytics(routeRequest, env); }
 				else if (route.handler === 'auth') { response = await handleAuthApi(routeRequest, env); }
 				else if (route.handler === 'messages') { response = await handleMessagesApi(routeRequest, env); }
 				else { response = await handleRainbowApi(routeRequest, env); }
@@ -64,15 +67,17 @@ export default {
 						headers.set('X-Preview-Branch', env.PREVIEW_BRANCH);
 						headers.set('X-Preview-Database', env.PREVIEW_DB_NAME);
 					}
-					return secure(new Response(response.body, { status: response.status, headers }), head);
+					const document = new Response(response.body, { status: response.status, headers });
+					return secure(addAnalytics(request, document, env, ctx), head);
 				}
 			}
 			const response = await env.ASSETS.fetch(request);
 			if (response.status === 404) {
 				const fallback = await env.ASSETS.fetch(new URL('/404.html', request.url));
-				return secure(new Response(fallback.body, { status: 404, headers: fallback.headers }), head);
+				const document = new Response(fallback.body, { status: 404, headers: fallback.headers });
+				return secure(addAnalytics(request, document, env, ctx), head);
 			}
-			return secure(response, head);
+			return secure(addAnalytics(request, response, env, ctx), head);
 		} catch (error) {
 			console.error(error);
 			/** @type {Record<string,string>} */

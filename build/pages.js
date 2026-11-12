@@ -7,7 +7,7 @@ import { colophon } from './templates/colophon.js';
 import { apps } from './templates/apps.js';
 import { notFound } from './templates/not-found.js';
 import { error } from '../shared/templates/error.js';
-import { components, disclosurePanel } from './templates/components.js';
+import { components, disclosurePanel, webCounterPage } from './templates/components.js';
 
 import { games, aetherWing } from './templates/games.js';
 import { gameKit, gameKitElement } from './templates/game-kit.js';
@@ -29,6 +29,7 @@ export const staticPages = {
 	apps,
 	components,
 	disclosurePanel,
+	webCounter: webCounterPage,
 	gameKit,
 	...Object.fromEntries(gameKitElements.map((tag) => {
 		const declaration = gameKitDeclarations.get(tag);

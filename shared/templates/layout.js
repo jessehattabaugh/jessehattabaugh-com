@@ -2,6 +2,7 @@ import { html } from '../html.js';
 /** @import { Raw } from '../html.js' */
 import { siteAccount } from './account.js';
 import { paths } from '../routes.js';
+import { webCounter } from './web-counter.js';
 
 /**
  * @param {object} opts
@@ -101,13 +102,14 @@ export const layout = ({
 					</nav>
 				</header>`}
 				<main id="main">${body}</main>
-				${app ? html`` : html`<footer>
-					<p>
+				<footer>
+					${app ? html`` : html`<p>
 						&copy; Jesse Hattabaugh &middot;
 						<a href="${paths.colophon}">How this site works</a>
 						&middot; <a href="${social?.profileUrl ?? paths.bluesky}" rel="me">${social ? `@${social.handle} on Bluesky` : 'Bluesky'}</a>
-					</p>
-				</footer>`}
+					</p>`}
+					${webCounter()}
+				</footer>
 				<script type="module" src="/enhance/index.js"></script>
 				${scripts}
 			</body>

@@ -1,7 +1,10 @@
 import { actorSprite } from '../../shared/templates/pages/social.js';
 import { html } from '../../shared/html.js';
 import { layout } from '../../shared/templates/layout.js';
+import { webCounter } from '../../shared/templates/web-counter.js';
+import { paths } from '../../shared/routes.js';
 import { componentCatalog, kitCatalog } from '../component-catalog.js';
+import { highlightHtml } from './highlight-html.js';
 
 /** @param {string} label @param {string} language @param {string} source */
 function code(label, language, source) {
@@ -22,6 +25,7 @@ function demo(summary = 'Try the disclosure') {
 const showcases = new Map([
 	['disclosure-panel', () => { return demo(); }],
 	['rpg-actor', actorSprite],
+	['web-counter', () => { return html`<p>Sample counter</p>${webCounter(1234)}`; }],
 ]);
 
 /** @param {import('../../shared/data/atproto.js').Social} [social] */
@@ -33,7 +37,7 @@ export function components(social) {
 			<p>Little HTML building blocks. Native elements do the work; Custom Elements make them easier to compose. No framework, no runtime dependencies.</p>
 			<p>Send state down with attributes. Send data up with events. Keep useful HTML underneath.</p>
 			${componentCatalog.map((component) => { return html`<section aria-label="${component.tag}">
-				<h2><a href="${component.path}">${component.tag}</a></h2>
+				<h2><a href="${component.path}">${component.name ?? component.tag}</a></h2>
 				<p>${component.description}</p>
 				${showcases.get(component.tag)?.(social) ?? html``}
 				<p><a href="${component.path}">Documentation and examples</a> · <a href="${component.source}">Source on GitHub</a> · <a href="${component.manifest}">Custom Elements Manifest</a></p>
@@ -46,9 +50,9 @@ export function components(social) {
 					<p><a href="${kit.path}">Tutorial and element reference</a> · <a href="${kit.manifest}">Custom Elements Manifest</a> · <a href="${kit.module}">ES module</a> · <a href="${kit.stylesheet}">Stylesheet</a></p>
 				</section>`; })}
 			</section>
-			<h2>Package metadata</h2>
-			<p>Each component and kit ships an ES module, an MIT license, package metadata, and a Custom Elements Manifest. The catalog includes artifact URLs and kit dependencies. See the <a href="/components/catalog.json">component catalog JSON</a>.</p>
-			<p>Vendor a package from GitHub or import the published module and stylesheet from its catalog entry.</p>
+			<h2>Component files</h2>
+			<p>Each component and kit ships an ES module, an MIT license, and a Custom Elements Manifest. The catalog includes artifact URLs and kit dependencies. See the <a href="/components/catalog.json">component catalog JSON</a>.</p>
+			<p>Find the source on GitHub or use the published files listed in the catalog.</p>
 		</article>`, scripts: html`<script type="module" src="/components/demo.js"></script>` });
 }
 
@@ -138,4 +142,27 @@ customElements.define('disclosure-panel', DisclosurePanel);`)}
 				<p>This component also wraps the site’s app-install instructions. It makes no network requests and stores no data.</p>
 			</section>
 		</article>`, scripts: html`<script type="module" src="/components/demo.js"></script>` });
+}
+
+/** @param {import('../../shared/data/atproto.js').Social} [social] */
+export function webCounterPage(social) {
+	return layout({ social, title: 'Web Counter', path: paths.webCounter,
+		description: 'Display a page view count with a reusable custom element and native HTML fallback.',
+		body: html`<article data-components>
+			<h1>Web Counter</h1>
+			<p>Display a page-view count on rolling digits styled like a mechanical odometer.</p>
+			<section aria-label="Sample counter"><h2>Sample counter</h2>${webCounter(1234)}</section>
+			<h2>Usage</h2>
+			<figure data-code>
+				<figcaption>Web Counter HTML</figcaption>
+				<pre tabindex="0" aria-label="Web Counter HTML"><code>${highlightHtml(`<link rel="stylesheet" href="./styles.css">
+<script type="module" src="./index.js"></script>
+<web-counter value="1234">
+	<output aria-label="Page views">1,234</output>
+	<span>Page views</span>
+</web-counter>`)}</code></pre>
+			</figure>
+			<p>Save the stylesheet and module beside your HTML file. The output shows the initial count without JavaScript. Set the <code>value</code> attribute to a nonnegative integer to update the wheels.</p>
+			<p><a href="${paths.webCounter}index.js">ES module</a> · <a href="${paths.webCounter}styles.css">Stylesheet</a> · <a href="${paths.webCounter}custom-elements.json">Custom Elements Manifest</a> · <a href="${paths.webCounter}README.md">Component README</a></p>
+		</article>`, scripts: html`<script type="module" src="${paths.webCounter}index.js"></script>` });
 }

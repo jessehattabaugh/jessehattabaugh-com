@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test';
 import { lighthouseAudit } from '../shared/lighthouse.js';
 import { staticRoutes, paths, gameKitElements, gameKitReference } from '../../shared/routes.js';
 
-const headings = { home: 'Useful tools and web experiments', about: 'About', colophon: 'Colophon', apps: 'Apps', components: 'Components', rpgActor: 'rpg-actor', disclosurePanel: 'disclosure-panel', gameKit: 'Game Kit', games: 'Games', aetherWing: 'Aether Wing' };
+const headings = { home: 'Useful tools and web experiments', about: 'About', colophon: 'Colophon', apps: 'Apps', components: 'Components', webCounter: 'Web Counter', rpgActor: 'rpg-actor', disclosurePanel: 'disclosure-panel', gameKit: 'Game Kit', games: 'Games', aetherWing: 'Aether Wing' };
 const pages = [
 	...staticRoutes.filter((route) => { return route.name in headings; }).map((route) => {
 		return { path: route.path, heading: headings[route.name] };
@@ -18,6 +18,8 @@ for (const { path, heading } of pages) {
 	test(`${path} renders its heading and navigation`, async ({ page }) => {
 		await page.goto(path);
 		await expect(page.getByRole('heading', { name: heading, level: 1, exact: true })).toBeVisible();
+		const footer = page.getByRole('contentinfo');
+		await expect(footer.getByRole('status', { name: 'Site page views' })).toBeVisible();
 		const portrait = page.getByRole('img', { name: 'Bluesky avatar', exact: true });
 		await expect(portrait).toBeVisible();
 		await expect.poll(() => { return portrait.evaluate((img) => { return img instanceof HTMLImageElement && img.complete && img.naturalWidth > 0; }); }).toBe(true);

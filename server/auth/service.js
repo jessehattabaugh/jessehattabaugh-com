@@ -10,7 +10,7 @@ import { ServiceError } from '../http/request.js';
  */
 export function returnTarget(value) {
 	if (value === 'lightsfinder') { return paths.lightsfinder; }
-	return [paths.home, paths.messages, paths.rainbow, paths.lightsfinder, paths.crunch].find((path) => { return path === value; }) ?? paths.messages;
+	return [paths.home, paths.messages, paths.rainbow, paths.lightsfinder, paths.crunch, paths.analytics].find((path) => { return path === value; }) ?? paths.messages;
 }
 
 /** @param {Request} request @param {import('../types.js').Env} env */

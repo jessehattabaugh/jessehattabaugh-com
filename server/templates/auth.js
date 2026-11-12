@@ -66,6 +66,8 @@ export function authFragment(data = {}) {
 export function authPage(data = {}) {
 	return layout({ title: heading(data),
 		path: ({ verify: paths.verify, profile: paths.profile, login: paths.login })[data.screen ?? 'login'],
+		// Confirmation URLs carry a one-time token. Subsequent pages can run Web Analytics.
+		head: data.screen === 'verify' ? html`<meta name="referrer" content="strict-origin" />` : undefined,
 		user: data.user, body: authFragment(data),
 	});
 }

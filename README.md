@@ -49,12 +49,27 @@ account pages, errors and query variants do not. No guessed modification dates
 are emitted. See [Google's sitemap guidance](https://developers.google.com/search/docs/crawling-indexing/sitemaps/build-sitemap)
 and [Parcel v3 migration notes](https://v3.parceljs.org/migration/parcel-2/).
 
+### Web Analytics
+
+The footer’s Web Counter shows Cloudflare Web Analytics page views for the last 30 days. The
+Worker caches the public total for five minutes per edge location. The site
+owner can open **Visitor analytics** from Jessages to see 7- and 30-day reports.
+Cloudflare can sample counts and only measures browsers that run its beacon.
+
+Keep [Cloudflare's automatic beacon injection](https://developers.cloudflare.com/web-analytics/get-started/#sites-proxied-through-cloudflare)
+enabled with EU visitor data excluded. For reporting, set
+`WEB_ANALYTICS_ACCOUNT_ID` and `WEB_ANALYTICS_SITE_TAG` in `.dev.vars` or
+Workers Builds. Store an account-scoped API token with **Account Analytics Read**
+as the Worker secret `WEB_ANALYTICS_API_TOKEN`. Reporting is disabled on branch
+previews.
+
 ## Reusable components
 
 `/components/` showcases standalone Custom Elements and kits. Each component lives in
-`client/components/<tag>/` with ES modules, `package.json`, a Custom Elements
-Manifest (including `x-listens` for incoming events), README, and MIT license.
-Consumers can vendor a pinned GitHub revision or use a kit’s published artifacts.
+`client/components/<tag>/` with ES modules, a Custom Elements Manifest, README,
+and MIT license. The root package exports Web Counter at
+`jessehattabaugh-com/components/web-counter`. Consumers can vendor a pinned
+GitHub revision or use the published files from the catalog.
 The catalog publishes kit dependencies alongside each kit’s import URLs.
 
 [Game Kit](https://jessehattabaugh.com/components/game-kit/) ships from

@@ -21,15 +21,21 @@ export function freePort() {
  * Runs a Lighthouse audit against a URL using a fresh Chromium instance.
  * Returns category scores as 0–1 values (multiply by 100 for the familiar scale).
  * @param {string} url
+ * @param {import('@playwright/test').Cookie[]} [cookies] Host-scoped cookies for a protected page.
  * @returns {Promise<Record<string, { score: number | null }>>}
  */
-export async function lighthouseAudit(url) {
+export async function lighthouseAudit(url, cookies) {
 	const { default: lighthouse } = await import('lighthouse');
 	const port = await freePort();
 	const browser = await chromium.launch({ args: [`--remote-debugging-port=${port}`] });
 	try {
+		if (cookies?.length) {
+			const connection = await chromium.connectOverCDP(`http://127.0.0.1:${port}`);
+			await connection.contexts()[0].addCookies(cookies);
+		}
 		const result = await lighthouse(url, {
 			port,
+			disableStorageReset: Boolean(cookies?.length),
 			output: 'json',
 			logLevel: 'error',
 			onlyCategories: ['performance', 'accessibility', 'best-practices', 'seo'],
@@ -39,6 +45,7 @@ export async function lighthouseAudit(url) {
 			// environment-specific audit rather than asserting on a platform artifact.
 			skipAudits: ['is-crawlable'],
 		});
+		if (cookies?.length && result.lhr.finalDisplayedUrl !== url) { throw new Error(`Lighthouse did not reach ${url}`); }
 		return result.lhr.categories;
 	} finally {
 		await browser.close();

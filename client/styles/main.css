@@ -70,6 +70,16 @@
 }
 
 @layer components {
+	[data-analytics] {
+		form, p, table { margin-block: 1rem; }
+		table { width: 100%; border-collapse: collapse; }
+		caption { text-align: start; font-weight: 700; }
+		th, td { padding: .5rem; text-align: start; border-bottom: 1px solid var(--color-border); overflow-wrap: anywhere; }
+		th:last-child, td:last-child { text-align: end; }
+		th[scope='row'] { font-weight: normal; }
+		select, button { min-height: 44px; }
+	}
+
 	[data-components] {
 		section { margin-block: var(--space-xl); }
 		nav, p { overflow-wrap: anywhere; }
@@ -84,6 +94,12 @@
 			figcaption { font-size: .875rem; color: var(--color-text-muted); }
 			pre { overflow-x: auto; padding: var(--space-md); background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius); tab-size: 4; line-height: 1.6; }
 			code { white-space: pre; }
+
+			pre:has([data-token]) { background: #172033; color: #f3f6fc; }
+			[data-token="tag"] { color: #9dd8ff; }
+			[data-token="attribute"] { color: #f5d5a0; }
+			[data-token="value"] { color: #aee9bc; }
+			[data-token="punctuation"] { color: #b4c1d4; }
 		}
 		&:has(> section[aria-label='Sprite playground']) > p:first-of-type + h1 + p { font-size: clamp(1.5rem, 4vw, 2.25rem); line-height: 1.2; }
 		section[aria-label='Sprite playground'] {

@@ -27,6 +27,18 @@ ATPROTO_HANDLE=jessehattabaugh.com
 # Canonical production origin for sitemap and document canonical links, even on previews.
 SITE_ORIGIN=https://jessehattabaugh.com
 
+# Optional Cloudflare Web Analytics. In Manage Site, keep automatic injection
+# enabled with EU visitor data excluded.
+# https://developers.cloudflare.com/web-analytics/get-started/#sites-proxied-through-cloudflare
+#
+# Account ID for the Cloudflare account that owns the Web Analytics property.
+# https://developers.cloudflare.com/fundamentals/account/find-account-and-zone-ids/
+WEB_ANALYTICS_ACCOUNT_ID=
+# Property identifier from the site's site_tag field in the List Web Analytics
+# sites API response. The lookup requires Account Settings Read.
+# https://developers.cloudflare.com/api/resources/rum/subresources/site_info/methods/list/
+WEB_ANALYTICS_SITE_TAG=
+
 # Worker runtime secrets. Needed locally for the corresponding capabilities.
 # Remote deployments preserve existing Cloudflare secrets; changing this file
 # alone does not rotate them. Use secrets:upload to upload only this allow-list.
@@ -37,6 +49,12 @@ VAPID_PUBLIC_KEY=
 VAPID_PRIVATE_KEY=
 # Optional one-time credential for claiming the owner role.
 OWNER_SETUP_TOKEN=
+# Secret used by the Worker to query page views for the counter and dashboard.
+# Create a dedicated API token with Account Analytics Read for the account above.
+# https://developers.cloudflare.com/analytics/graphql-api/getting-started/authentication/api-token-auth/
+# Store the deployed value as a Worker secret with this same name.
+# https://developers.cloudflare.com/workers/configuration/secrets/
+WEB_ANALYTICS_API_TOKEN=
 
 # Optional overrides for npm test; otherwise branch identity supplies these.
 WORKERS_DEV_SUBDOMAIN=billowing-sunset-4e06

@@ -3,6 +3,7 @@ import { layout } from '../../shared/templates/layout.js';
 import { gameKitElements, gameKitReference, paths } from '../../shared/routes.js';
 import { gameKitCatalog } from '../component-catalog.js';
 import { lessons } from './game-kit-examples.js';
+import { highlightHtml } from './highlight-html.js';
 
 /** @import { Raw } from '../../shared/html.js' */
 /** @import { Social } from '../../shared/data/atproto.js' */
@@ -15,32 +16,11 @@ const head = html`<link rel="stylesheet" href="${gameKitCatalog.stylesheet}">
 	<link rel="stylesheet" href="/games/aether-wing/styles.css">`;
 const scripts = html`<script type="module" src="${paths.gameKit}docs/index.js"></script>`;
 
-/** Color only syntax. Pass every token through the HTML escaper.
- * @param {string} source */
-function highlight(source) {
-	const tagPattern = /<(\/?)([a-z][\w-]*)(\s+(?:[^"'<>]|"[^"]*"|'[^']*')*)?(\/?>)/gi;
-	/** @type {(string | Raw)[]} */
-	const tokens = [];
-	let offset = 0;
-	for (const match of source.matchAll(tagPattern)) {
-		const [tag, opening, name, attributes = '', closing] = match;
-		tokens.push(source.slice(offset, match.index));
-		const parts = attributes.split(/("[^"]*"|'[^']*'|[\w:-]+)/g);
-		tokens.push(html`<span data-token="punctuation">${`<${opening}`}</span><span data-token="tag">${name}</span>${parts.map((part, index) => {
-			if (index % 2 === 0) { return part; }
-			return html`<span data-token="${part.startsWith('"') || part.startsWith("'") ? 'value' : 'attribute'}">${part}</span>`;
-		})}<span data-token="punctuation">${closing}</span>`);
-		offset = match.index + tag.length;
-	}
-	tokens.push(source.slice(offset));
-	return html`${tokens}`;
-}
-
 /** @param {string} title @param {Raw} markup */
 function code(title, markup) {
 	return html`<figure data-code>
 		<figcaption>${title}</figcaption>
-		<pre tabindex="0" aria-label="${title}"><code>${highlight(markup.value.trim())}</code></pre>
+		<pre tabindex="0" aria-label="${title}"><code>${highlightHtml(markup.value.trim())}</code></pre>
 	</figure>`;
 }
 

@@ -1,0 +1,31 @@
+{
+	"schemaVersion": "1.0.0",
+	"readme": "README.md",
+	"modules": [
+		{
+			"kind": "javascript-module",
+			"path": "index.js",
+			"declarations": [
+				{
+					"kind": "class",
+					"name": "WebCounter",
+					"customElement": true,
+					"tagName": "web-counter",
+					"description": "Formats a supplied page view count in a direct output child.",
+					"superclass": { "name": "HTMLElement", "package": "global:" },
+					"attributes": [
+						{
+							"name": "value",
+							"type": { "text": "string" },
+							"description": "A decimal nonnegative safe integer. Omit it to preserve the server-rendered output."
+						}
+					]
+				}
+			],
+			"exports": [
+				{ "kind": "js", "name": "WebCounter", "declaration": { "name": "WebCounter", "module": "index.js" } },
+				{ "kind": "custom-element-definition", "name": "web-counter", "declaration": { "name": "WebCounter", "module": "index.js" } }
+			]
+		}
+	]
+}

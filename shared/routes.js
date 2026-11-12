@@ -11,7 +11,7 @@ export const paths = {
 	components: '/components/', rpgActor: '/components/rpg-actor/', disclosurePanel: '/components/disclosure-panel/',
 	gameKit: '/components/game-kit/', games: '/games/', aetherWing: '/games/aether-wing/',
 	bluesky: '/bluesky', atAvatar: '/atproto/avatar', atBlob: '/atproto/blob',
-	avatar: '/branding/avatar-96.png',
+	avatar: '/branding/avatar-96.png', analytics: '/admin/analytics/', webCounter: '/components/web-counter/',
 	notFound: '/404/', error: '/500/', contact: '/contact', login: '/login',
 	messages: '/apps/messages/', verify: '/verify',
 	logout: '/logout', setup: '/apps/messages/setup', profile: '/account',
@@ -35,6 +35,7 @@ export const staticRoutes = [
 	{ name: 'colophon', path: paths.colophon },
 	{ name: 'apps', path: paths.apps },
 	{ name: 'components', path: paths.components },
+	{ name: 'webCounter', path: paths.webCounter },
 	{ name: 'rpgActor', path: paths.rpgActor },
 	{ name: 'disclosurePanel', path: paths.disclosurePanel },
 	{ name: 'gameKit', path: paths.gameKit },
@@ -46,6 +47,8 @@ export const staticRoutes = [
 ];
 
 export const dynamicRoutes = [
+	{ path: '/components/page-counter/', methods: ['GET'], handler: 'webCounterRedirect' },
+	{ path: paths.analytics, methods: ['GET'], handler: 'analytics' },
 	{ path: '/components/retro-game/', methods: ['GET'], handler: 'gameKitRedirect' },
 	{ path: paths.rpgActor, methods: ['GET'], handler: 'social' },
 	{ path: paths.home, methods: ['GET'], handler: 'social' },

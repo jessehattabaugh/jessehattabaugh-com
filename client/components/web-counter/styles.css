@@ -1,0 +1,88 @@
+web-counter {
+	display: inline-flex;
+	flex-wrap: wrap;
+	align-items: center;
+	justify-content: center;
+	gap: .5rem;
+	margin-block: .375rem;
+	font-size: .875rem;
+	vertical-align: middle;
+
+	> output {
+		position: relative;
+		display: inline-flex;
+		align-items: center;
+		padding: .2em .32em;
+		border: 2px solid #45392b;
+		border-radius: .3em;
+		background: linear-gradient(#d8bb8b, #897051 48%, #503e30 52%, #a38762);
+		box-shadow: inset 0 1px #f3d4a2, 0 2px 0 #2c211a;
+		color: #fff3d8;
+		font: 700 clamp(.875rem, 4vw, 1.25rem)/1.45 ui-monospace, monospace;
+		font-variant-numeric: tabular-nums;
+		text-shadow: 0 1px #1e160f;
+	}
+
+	> output:not(:has([data-reels])) {
+		background: #33251e;
+	}
+
+	/* Keep the formatted count available to assistive technology. */
+	[data-count] {
+		position: absolute;
+		inline-size: 1px;
+		block-size: 1px;
+		overflow: hidden;
+		clip-path: inset(50%);
+		white-space: nowrap;
+	}
+
+	[data-reels] {
+		display: inline-flex;
+		gap: 1px;
+		overflow: hidden;
+		border: 1px solid #19120e;
+		border-radius: .1em;
+		background: #150f0d;
+	}
+
+	[data-reels] > span {
+		position: relative;
+		display: block;
+		inline-size: .8em;
+		block-size: 1.45em;
+		overflow: hidden;
+		background: linear-gradient(#130e0c, #44362d 47%, #2c221d 53%, #17110e);
+		text-align: center;
+
+		&:not([data-empty])::before {
+			/* A complete turn followed by the digit where the wheel stops. */
+			content: "0\a 1\a 2\a 3\a 4\a 5\a 6\a 7\a 8\a 9\a 0\a 1\a 2\a 3\a 4\a 5\a 6\a 7\a 8\a 9";
+			display: block;
+			white-space: pre;
+			transform: translateY(calc(-1.45em * (10 + var(--digit))));
+		}
+
+		&::after {
+			content: "";
+			position: absolute;
+			inset: 0;
+			background: linear-gradient(transparent 48%, #100b0855 49% 52%, transparent 53%);
+			box-shadow: inset 1px 0 #ffffff16, inset -1px 0 #0006;
+		}
+
+		&:last-child {
+			background: linear-gradient(#3c1512, #8b382b 47%, #67251c 53%, #461814);
+		}
+	}
+}
+
+@media (prefers-reduced-motion: no-preference) {
+	web-counter [data-reels] > span:not([data-empty])::before {
+		animation: web-counter-roll 560ms steps(12, end) calc(var(--wheel) * 48ms) backwards;
+	}
+}
+
+@keyframes web-counter-roll {
+	from { transform: translateY(0); }
+}
