@@ -25,10 +25,16 @@ test('the sample counter has a native fallback and can display a new count', asy
 	}
 });
 
-test('the old component URL redirects to Web Counter', async ({ request }) => {
-	const response = await request.get('/components/page-counter/', { maxRedirects: 0 });
-	expect(response.status()).toBe(301);
-	expect(response.headers().location).toBe(paths.webCounter);
+test('Web Counter ships its manifest, stylesheet, license, and module entry', async ({ request }) => {
+	const catalog = await request.get('/components/catalog.json');
+	expect(catalog.ok()).toBe(true);
+	expect((await catalog.json()).components).toContainEqual(expect.objectContaining({
+		tag: 'web-counter', manifest: `${paths.webCounter}custom-elements.json`,
+	}));
+	await Promise.all(['index.js', 'styles.css', 'custom-elements.json', 'README.md', 'LICENSE'].map(async (file) => {
+		const asset = await request.get(`${paths.webCounter}${file}`);
+		expect(asset.ok(), file).toBe(true);
+	}));
 });
 
 test('signed-out visitors are sent to sign in to view analytics', async ({ page }) => {

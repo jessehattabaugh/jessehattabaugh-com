@@ -8,7 +8,6 @@
 		"@types/node": "latest",
 		"eslint": "latest",
 		"globals": "14.0.0",
-		"hono": "^4.13.16",
 		"lighthouse": "latest",
 		"sharp": "0.35.4",
 		"typescript": "latest",
@@ -44,5 +43,8 @@
 		"./components/game-kit/game-input": "./client/components/game-kit/game-input.js",
 		"./components/game-kit/world-renderer": "./client/components/game-kit/world-renderer.js",
 		"./components/game-kit/world": "./client/components/game-kit/world.js"
+	},
+	"dependencies": {
+		"hono": "^4.13.16"
 	}
 }

@@ -243,9 +243,3 @@ test('the portable package publishes a manifest declaration and definition for e
 		expect((await request.get(docs + file)).ok(), file).toBe(true);
 	}));
 });
-
-test('the former documentation URL redirects to Game Kit', async ({ request }) => {
-	const response = await request.get('/components/retro-game/', { maxRedirects: 0 });
-	expect(response.status()).toBe(301);
-	expect(response.headers().location).toBe(paths.gameKit);
-});

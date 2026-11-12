@@ -100,5 +100,5 @@ export function rpgActor(social, query = new URLSearchParams(), origin = '') {
 	return layout({ title: 'rpg-actor', path: '/components/rpg-actor/', social,
 		description: 'Give your website a little character. A tiny, dependency-free Web Component for rpg.actor walking sprites, expressions, and talking.',
 		head: html`<meta property="og:type" content="website" /><meta property="og:title" content="rpg-actor — Give your website a little character" /><meta property="og:description" content="A portable Web Component: four directions, nine expressions, talking, and HTML attributes. Zero dependencies." /><meta property="og:image" content="${origin}/components/rpg-actor/social.png" /><meta property="og:image:width" content="1200" /><meta property="og:image:height" content="630" /><meta property="og:image:alt" content="rpg-actor: a little character, a whole range of emotions." />`,
-		body: rpgActorFragment(social, query), scripts: html`<script type="module" src="/components/rpg-actor-demo.js"></script>` });
+		body: rpgActorFragment(social, query), scripts: html`<script type="module" src="/components/rpg-actor/docs/demo.js"></script>` });
 }

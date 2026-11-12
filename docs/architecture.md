@@ -10,14 +10,14 @@
 | `server/index.js` | Cloudflare Worker | HTTP dispatch, error handling, security headers, static asset fallback, scheduled dispatch |
 | `server/apps/<app>/` | Cloudflare Worker | App handlers, D1 persistence, server-rendered templates and app-specific helpers |
 | `server/pages/` | Cloudflare Worker | Dynamic public pages, social-data caching and image proxying |
-| `server/auth/`, `server/data/`, `server/http/`, `server/crypto/`, `server/push/`, `server/templates/` | Cloudflare Worker | Auth, identity persistence, HTTP policy, cryptography, push, and server-only views |
+| `server/auth/`, `server/analytics/`, `server/data/`, `server/http/`, `server/crypto/`, `server/push/`, `server/templates/` | Cloudflare Worker | Auth, analytics, identity persistence, HTTP policy, cryptography, push, and server-only views |
 | `server/db/` | D1, applied by Node deployment tooling | Canonical schema and ordered additive migrations |
 | `client/apps/<app>/` | Browser | App enhancements, manifests, images, offline pages and colocated `sw.js` service workers |
 | `client/components/` | Browser main thread | Portable Custom Elements and their demonstrations |
 | `client/enhance/` | Browser main thread | Progressive navigation, authentication, installation and push registration |
 | `client/styles/` | Browser | Cross-app/site CSS |
 | `client/apps/rainbow-hour/storage.js` | Browser main thread and service worker | IndexedDB location storage |
-| `client/branding/`, root client icons/manifest | Browser assets | Public identity artwork and site installation metadata |
+| `client/manifest.webmanifest` | Browser assets | Site installation metadata |
 | `shared/` | Multiple execution domains | Only actual build/server/client reuse, detailed below |
 | `test/` | Node.js and Playwright browsers | Real deployed-preview functional suites; test-only reuse in `test/shared/` |
 
@@ -37,14 +37,14 @@ reports and dependencies are generated, ignored output rather than source domain
 - `shared/html.js`: escaped HTML primitives used by Node generation and Cloudflare rendering.
 - `shared/routes.js`: URL vocabulary and static/dynamic route registry used by build/server.
 - `shared/templates/pages/`: pure public-page/fragment templates rendered by build/server.
-- `shared/templates/`: layout, account affordances, and error views reused by build/server rendering.
+- `shared/templates/`: layout, account affordances, web counter, and error views reused by build/server rendering.
 - `shared/data/atproto.js`: public social-data reads and normalized values used by build/server, with no credentials or D1 access.
 - `shared/rainbow-hour/`: solar, rainbow and weather logic executed on Cloudflare and in browser contexts.
 
 Root shared modules cannot import build, server, client or test implementations.
 Server-specific types stay in `server/types.js`; app record contracts stay
 with their server app. Server-only app templates have one source in
-`server/apps/<app>/templates.js`; auth/install views live in `server/templates/`.
+`server/apps/<app>/templates.js`; auth, install, and analytics views live in `server/templates/`.
 Static-only Apps, Colophon, component documentation, and 404 templates live in
 `build/templates/`; their catalog is in `build/component-catalog.js`.
 Templates execute on the machine rendering HTML. They are not browser scripts.

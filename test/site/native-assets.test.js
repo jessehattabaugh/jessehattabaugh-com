@@ -29,7 +29,8 @@ test('public browser assets preserve the authored files exactly', async ({ page 
 	}));
 });
 
-test('the browser can import published JSON using native import attributes', async ({ page }) => {
+test('the browser can import published JSON using native import attributes', async ({ page }, testInfo) => {
+	test.skip(testInfo.project.use.javaScriptEnabled === false, 'Module execution requires JavaScript; the page and raw asset checks also run without it.');
 	await page.goto('/games/aether-wing/');
 	const expected = JSON.parse(await readFile(new URL('../../client/games/aether-wing/tilemaps.json', import.meta.url), 'utf8'));
 	const data = await page.evaluate(async () => {

@@ -1,6 +1,6 @@
 # AGENTS.md
 
-Instructions for coding agents building this website. Read fully before writing code. Be terse, prefer the web platform over libraries.
+Instructions for coding agents building this website. Read fully before writing code. Be terse, prefer the web platform over libraries. See [docs/architecture.md](docs/architecture.md) for exact ownership, source-to-URL mapping and allowed dependencies, and [README.md](README.md) to get started.
 
 ---
 
@@ -18,7 +18,7 @@ No SPA framework, no client-side router, no build-time UI framework. If you reac
 2. **Progressive enhancement.** No-JS baseline is the product. JS must never be required for core functionality. If a feature breaks without JS, it is broken.
 3. **HATEOAS.** Responses carry their own controls — links and forms — describing valid next actions. Clients follow what the server gives them; they never hardcode endpoint knowledge.
 4. **One template source.** Build and Worker import the same template functions from their owning modules (`shared/templates/` for build/server pages; `server/apps/<app>/templates.js` and `server/templates/` for server-only views; `build/templates/` for static-only pages). Never maintain two copies of markup.
-5. **JavaScript with JSDoc.** `.js`/`.mjs` with JSDoc annotations. `tsc --checkJs --strict --noEmit` for type checking. No `.ts` transpile step.
+5. **JavaScript with JSDoc.** `.js`/`.mjs` ES modules with JSDoc annotations and tabs for indentation. `tsc --checkJs --strict --noEmit` for type checking. No `.ts` transpile step.
 6. **Preview isolation.** Every branch deploys as a version with its own per-branch D1 database and a versioned preview URL, never production data.
 7. **Environment variables.** Secrets and configuration are injected via the `.dev.vars` file. All required variables must be documented in `.dev.vars.example`. Never hardcode secrets or config in source code.
 
@@ -34,7 +34,7 @@ Top-level directories identify execution domains:
 - `shared/`: modules imported across two or more of `client/`, `server/`, and `build/`, such as the build/server templates or server/browser Rainbow Hour calculations.
 - `test/`: deployed-preview browser suites; `test/shared/` contains test-only fixtures, database maintenance, and audit helpers.
 
-A module can be any file type used as a dependency by other code. Use a `shared/` directory only for actual reuse across its defined contexts. Pages and apps in the same context can import from the owning feature directory. Keep app-specific server code under `server/apps/<app>/` and client code under `client/apps/<app>/`. Do not recreate top-level `apps/`, `site/`, `worker/`, `scripts/`, or `db/` directories. Root tool configuration remains at the root for automatic discovery; `wrangler.jsonc` points to `server/index.js` and `server/db/migrations`.
+A module can be any file type used as a dependency by other code. Use a `shared/` directory only for actual reuse across its defined contexts. Pages and apps in the same context can import from the owning feature directory. Keep app-specific server code under `server/apps/<app>/` and client code under `client/apps/<app>/`. Keep public URLs and service-worker scopes stable when moving source files. Do not recreate top-level `apps/`, `site/`, `worker/`, `scripts/`, or `db/` directories. Root tool configuration remains at the root for automatic discovery; `wrangler.jsonc` points to `server/index.js` and `server/db/migrations`.
 
 Templates execute where they render, rather than in the browser: public page templates used by Node and Cloudflare live in `shared/templates/pages/`; server-only app templates live in `server/apps/<app>/templates.js` and auth/install templates in `server/templates/`. Static-only Apps, Colophon, component documentation, and 404 templates live in `build/templates/`. Browser assets formerly described as site/static/public assets belong in `client/`.
 
@@ -129,7 +129,7 @@ The preview URL is derived automatically — see the `test` npm script, which co
 
 ### Philosophy
 
-Unit tests are not used in this repository, including for shared template functions. Every test is an end-to-end functional test exercising real use cases through real browsers pointed at the deployed preview URL.
+Unit tests are not used in this repository, including for shared template functions. Every test is an end-to-end functional test exercising real use cases through real browsers pointed at the deployed preview URL. Document implementation in code and user-visible flows/errors in real browser E2E tests.
 
 - **E2E only.** No mocks, no unit tests, no local dev server. If it doesn't run against the deployed preview, it doesn't run.
 - **Real servers.** Tests target the versioned preview URL (`PREVIEW_URL` env var). Set this to the branch's version preview URL before running (find it in the dashboard under the version, or in the PR comment). Never point tests at `localhost`.

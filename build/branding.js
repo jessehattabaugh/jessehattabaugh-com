@@ -18,12 +18,11 @@ export async function avatarSource(social) {
 		return await sharp(Buffer.concat(chunks), { limitInputPixels: 16_000_000 }).rotate().resize(512, 512, { fit: 'cover' }).png({ palette: true }).toBuffer();
 	} catch (error) {
 		console.warn('Avatar refresh unavailable; using bundled portrait.', error);
-		return readFile(new URL('../client/branding/avatar.png', import.meta.url));
+		return readFile(new URL('./artwork/avatar.png', import.meta.url));
 	}
 }
 
 /** The site's circular favicon embeds pixels so SVG image loading is self-contained.
- * Node prepares PNG sizes; Parcel optimizes and emits the public images.
  * @param {Uint8Array} avatar
  */
 export async function portraitIcon(avatar) {

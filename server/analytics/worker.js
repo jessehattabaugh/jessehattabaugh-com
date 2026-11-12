@@ -4,7 +4,7 @@ import { paths } from '../../shared/routes.js';
 import { error } from '../../shared/templates/error.js';
 import { sessionUser } from '../auth/service.js';
 import { redirect } from '../http/responses.js';
-import { analyticsPage } from '../templates/analytics.js';
+import { analyticsFragment, analyticsPage } from '../templates/analytics.js';
 import { analyticsConfigured, readAnalytics, viewCount } from './data.js';
 
 const windowDays = 30;
@@ -58,7 +58,8 @@ export function addAnalytics(request, response, env, ctx) {
 
 /** @param {Request} request @param {import('../types.js').Env} env */
 export async function handleAnalytics(request, env) {
-	const headers = { 'Content-Type': 'text/html;charset=utf-8', 'X-Robots-Tag': 'noindex' };
+	const headers = { 'Content-Type': 'text/html;charset=utf-8', 'X-Robots-Tag': 'noindex', Vary: 'X-Fragment' };
+	const template = request.headers.get('X-Fragment') === 'true' ? analyticsFragment : analyticsPage;
 	const user = await sessionUser(request, env);
 	if (!user) { return redirect(`${paths.login}?returnTo=${encodeURIComponent(paths.analytics)}`, headers, 302); }
 	if (!user.is_owner) {
@@ -66,13 +67,13 @@ export async function handleAnalytics(request, env) {
 	}
 	const days = new URL(request.url).searchParams.get('days') === '7' ? 7 : windowDays;
 	if (!analyticsConfigured(env)) {
-		return new Response(render(analyticsPage({ days, notice: 'Cloudflare Web Analytics is unavailable in this environment.' })), { headers });
+		return new Response(render(template({ days, notice: 'Cloudflare Web Analytics is unavailable in this environment.' })), { headers });
 	}
 	try {
 		const report = await readAnalytics(env, days, true);
-		return new Response(render(analyticsPage({ days, report, views: viewCount(report) })), { headers });
+		return new Response(render(template({ days, report, views: viewCount(report) })), { headers });
 	} catch (error) {
 		console.error('Owner Web Analytics unavailable', error);
-		return new Response(render(analyticsPage({ days, notice: 'Cloudflare Web Analytics could not be loaded. Try again shortly.' })), { status: 503, headers });
+		return new Response(render(template({ days, notice: 'Cloudflare Web Analytics could not be loaded. Try again shortly.' })), { status: 503, headers });
 	}
 }

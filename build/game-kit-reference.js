@@ -8,7 +8,7 @@ import { gameKitElement } from './templates/game-kit.js';
 export function reference(social, query, origin, route) {
 	const tag = gameKitElements.find((name) => { return name === route.name; });
 	if (!tag) { throw new Error(`Unknown Game Kit element: ${route.name}`); }
-	const modules = /** @type {{ declarations?: import('./templates/game-kit.js').Declaration[] }[]} */ (manifest.modules);
+	const { modules } = /** @type {{ modules: { declarations?: import('./templates/game-kit.js').Declaration[] }[] }} */ (manifest);
 	const declaration = modules.flatMap(({ declarations = [] }) => { return declarations; })
 		.find((item) => { return item.tagName === route.name; });
 	if (!declaration) { throw new Error(`Game Kit manifest lacks ${route.name}`); }
