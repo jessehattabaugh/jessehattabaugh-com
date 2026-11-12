@@ -21,19 +21,12 @@
 		}
 
 		figure[data-code] pre {
-			background: #182336;
 			border-color: #445672;
-			color: #ecf0f7;
 			max-block-size: 24rem;
 			overflow: auto;
 
 			code { white-space: pre-wrap; overflow-wrap: anywhere; }
 		}
-
-		[data-token="tag"] { color: #9dd8ff; }
-		[data-token="attribute"] { color: #f5d5a0; }
-		[data-token="value"] { color: #aee9bc; }
-		[data-token="punctuation"] { color: #b4c1d4; }
 
 		td > span { display: block; }
 		th { min-width: 0; }

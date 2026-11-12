@@ -13,6 +13,24 @@ for (const route of ['/', '/about', '/components/', path]) {
 	});
 }
 
+test('documentation HTML is highlighted without changing the source markup', async ({ page, javaScriptEnabled }) => {
+	await page.goto(path);
+	const code = page.getByLabel('HTML example', { exact: true });
+	await expect(code).toContainText('<rpg-actor');
+	await code.scrollIntoViewIfNeeded();
+	expect(await code.evaluate((pre) => { return pre.querySelectorAll('[data-token]').length; })).toBe(0);
+	if (!javaScriptEnabled) { return; }
+	await expect.poll(async () => {
+		return code.evaluate((pre) => {
+			const block = pre.closest('code-block');
+			if (!block || !('highlights' in CSS)) { return []; }
+			return ['code-tag', 'code-attribute', 'code-value', 'code-punctuation'].filter((name) => {
+				return Array.from(CSS.highlights.get(name) ?? []).some((range) => { return block.contains(range.startContainer); });
+			});
+		});
+	}).toEqual(['code-tag', 'code-attribute', 'code-value', 'code-punctuation']);
+});
+
 test('playground controls select a pose with and without JavaScript', async ({ page }) => {
 	await page.goto(`${path}?direction=down&animation=idle&paused=on`);
 	const sprite = page.getByRole('img', { name: imageName, exact: true });

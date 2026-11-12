@@ -47,13 +47,13 @@ export function rpgActorFragment(social, query = new URLSearchParams()) {
 			</section>
 			<section><h2>Start with HTML</h2>
 				<p>Copy the component directory from a reviewed GitHub commit into your site’s <code>/vendor/rpg-actor/</code> directory, keeping the license. Serve these ES modules from your own origin.</p>
-				<figure data-code><figcaption>A walking character</figcaption><pre tabindex="0" aria-label="HTML example"><code>${`<script type="module" src="/vendor/rpg-actor/index.js"></script>
+				<figure data-code><figcaption>A walking character</figcaption><code-block language="html"><pre tabindex="0" aria-label="HTML example"><code>${`<script type="module" src="/vendor/rpg-actor/index.js"></script>
 <rpg-actor src="/sprites/me.png" animation="walk"
 	direction="down" expression="happy" label="My character">
 	<img src="/sprites/me-portrait.png" alt="My character" width="144" height="144">
-</rpg-actor>`}</code></pre></figure>
+</rpg-actor>`}</code></pre></code-block></figure>
 				<p>The child image is your no-JavaScript and failed-image fallback. Use a cropped portrait or your own HTML. The enhanced sprite uses a shadow root and leaves that content intact.</p>
-				<figure data-code><figcaption>Expressions, then state changes</figcaption><pre tabindex="0" aria-label="JavaScript example"><code>${`const actor = document.querySelector('rpg-actor');
+				<figure data-code><figcaption>Expressions, then state changes</figcaption><code-block language="javascript"><pre tabindex="0" aria-label="JavaScript example"><code>${`const actor = document.querySelector('rpg-actor');
 actor.setAttribute('emotes', JSON.stringify({
 	happy: {
 		emoteSheet: '/sprites/happy.png',
@@ -64,7 +64,7 @@ actor.setAttribute('expression', 'happy');
 actor.setAttribute('talking', '');
 actor.setAttribute('direction', 'left');
 actor.setAttribute('paused', ''); // remove to resume
-actor.addEventListener('actor-change', ({ detail }) => console.log(detail));`}</code></pre></figure>
+actor.addEventListener('actor-change', ({ detail }) => console.log(detail));`}</code></pre></code-block></figure>
 			</section>
 			<section><h2>The HTML interface</h2>
 				<p>Always use the <a href="https://rpg.actor/dev-guide">rpg.actor developer guide</a> as the authoritative reference when integrating or updating this component. Its current sprite, emote, and API contracts take precedence over examples here.</p>

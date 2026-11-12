@@ -3,7 +3,7 @@ import { gameKitElements, gameKitReference, paths } from '../../shared/routes.js
 
 const docs = paths.gameKit;
 
-test('Kits links to a tutorial with visible highlighted HTML and live results', async ({ page }) => {
+test('Kits links to a tutorial with highlighted HTML and live results', async ({ page, javaScriptEnabled }) => {
 	await page.goto('/components/');
 	const kits = page.getByRole('region', { name: 'Kits', exact: true });
 	await kits.getByRole('link', { name: 'Game Kit', exact: true }).click();
@@ -15,9 +15,20 @@ test('Kits links to a tutorial with visible highlighted HTML and live results', 
 	await expect(viewport.getByLabel('Aether Wing viewport HTML')).toContainText('<game-screen width="320"');
 	await expect(viewport.getByRole('img', { name: '320 by 200 pixel viewport' })).toBeVisible();
 	const sample = viewport.getByLabel('Aether Wing viewport HTML');
-	expect(await sample.evaluate((pre) => {
-		return new Set(Array.from(pre.querySelectorAll('[data-token]'), (token) => { return getComputedStyle(token).color; })).size;
-	})).toBeGreaterThan(2);
+	// Highlighting never rewrites the code into token spans.
+	expect(await sample.evaluate((pre) => { return pre.querySelectorAll('[data-token]').length; })).toBe(0);
+	if (javaScriptEnabled) {
+		await sample.scrollIntoViewIfNeeded();
+		await expect.poll(async () => {
+			return sample.evaluate((pre) => {
+				const block = pre.closest('code-block');
+				if (!block || !('highlights' in CSS)) { return []; }
+				return ['code-tag', 'code-attribute', 'code-value', 'code-punctuation'].filter((name) => {
+					return Array.from(CSS.highlights.get(name) ?? []).some((range) => { return block.contains(range.startContainer); });
+				});
+			});
+		}).toEqual(['code-tag', 'code-attribute', 'code-value', 'code-punctuation']);
+	}
 	await viewport.getByRole('link', { name: '<game-screen> reference' }).click();
 	await expect(page.getByRole('heading', { name: 'game-screen', level: 1 })).toBeVisible();
 	await Promise.all([[160, 48], [96, 96], [80, 128]].map(async ([width, height]) => {

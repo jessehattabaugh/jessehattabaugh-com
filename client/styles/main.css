@@ -104,14 +104,6 @@
 		figure[data-code] {
 			margin: var(--space-lg) 0;
 			figcaption { font-size: .875rem; color: var(--color-text-muted); }
-			pre { overflow-x: auto; padding: var(--space-md); background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius); tab-size: 4; line-height: 1.6; }
-			code { white-space: pre; }
-
-			pre:has([data-token]) { background: #172033; color: #f3f6fc; }
-			[data-token="tag"] { color: #9dd8ff; }
-			[data-token="attribute"] { color: #f5d5a0; }
-			[data-token="value"] { color: #aee9bc; }
-			[data-token="punctuation"] { color: #b4c1d4; }
 		}
 		&:has(> section[aria-label='Sprite playground']) > p:first-of-type + h1 + p { font-size: clamp(1.5rem, 4vw, 2.25rem); line-height: 1.2; }
 		section[aria-label='Sprite playground'] {
@@ -130,6 +122,30 @@
 			label:has(input[type="checkbox"]) { display: flex; align-items: center; gap: .6rem; min-height: 44px; }
 			input[type="checkbox"] { width: 1.2rem; height: 1.2rem; margin: 0; }
 		}
+	}
+	/* Code blocks keep a readable plain-text baseline; colors arrive with the
+	   CSS Custom Highlight API and are applied without changing the DOM. */
+	code-block { display: block; }
+	code-block pre {
+		overflow-x: auto;
+		padding: var(--space-md);
+		background: #172033;
+		color: #f3f6fc;
+		border: 1px solid var(--color-border);
+		border-radius: var(--radius);
+		tab-size: 4;
+		line-height: 1.6;
+	}
+	code-block pre code { white-space: pre; }
+	@supports selector(::highlight(code-tag)) {
+		::highlight(code-punctuation) { color: #b4c1d4; }
+		::highlight(code-tag) { color: #9dd8ff; }
+		::highlight(code-attribute) { color: #f5d5a0; }
+		::highlight(code-value) { color: #aee9bc; }
+		::highlight(code-keyword) { color: #c7a6ff; }
+		::highlight(code-string) { color: #aee9bc; }
+		::highlight(code-comment) { color: #7f92a8; }
+		::highlight(code-number) { color: #f0b37e; }
 	}
 	/* Home page introduction. */
 	main > section:first-child {
