@@ -1,4 +1,5 @@
-web-counter {
+/* The same face styles the site's light DOM fallback and the element's shadow DOM. */
+:is(web-counter, :host) {
 	display: inline-flex;
 	flex-wrap: wrap;
 	align-items: center;
@@ -74,7 +75,7 @@ web-counter {
 }
 
 @media (prefers-reduced-motion: no-preference) {
-	web-counter [data-reels] > span:not([data-empty])::before {
+	:is(web-counter, :host) [data-reels] > span:not([data-empty])::before {
 		animation: web-counter-roll 560ms steps(12, end) calc(var(--wheel) * 48ms) backwards;
 	}
 }

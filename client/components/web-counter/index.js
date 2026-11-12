@@ -1,8 +1,27 @@
-/** Render a supplied count into the native output. Data collection lives with the host site. */
+/** Render a supplied count. Data collection lives with the host site. */
 export class WebCounter extends HTMLElement {
 	static observedAttributes = ['value', 'leading-zeros'];
+	#output = document.createElement('output');
 
-	connectedCallback() { this.#update(); }
+	constructor() {
+		super();
+		const root = this.attachShadow({ mode: 'open' });
+		const style = document.createElement('link');
+		style.rel = 'stylesheet';
+		style.href = new URL('./styles.css', import.meta.url).href;
+		this.#output.setAttribute('aria-label', 'Page views');
+		const reels = document.createElement('span');
+		reels.dataset.reels = '';
+		reels.setAttribute('aria-hidden', 'true');
+		const blank = document.createElement('span');
+		blank.dataset.empty = '';
+		reels.append(blank);
+		this.#output.append(reels);
+		const label = document.createElement('slot');
+		label.name = 'label';
+		label.textContent = 'Page views';
+		root.append(style, this.#output, label);
+	}
 
 	attributeChangedCallback() { this.#update(); }
 
@@ -10,15 +29,14 @@ export class WebCounter extends HTMLElement {
 		const raw = this.getAttribute('value');
 		if (!raw || !/^\d+$/.test(raw)) { return; }
 		const count = Number(raw);
-		const output = this.querySelector(':scope > output');
-		if (!output || !Number.isSafeInteger(count)) { return; }
+		if (!Number.isSafeInteger(count)) { return; }
 
 		const formatted = count.toLocaleString('en-US');
 		const rawPadding = this.getAttribute('leading-zeros');
 		const padding = rawPadding !== null && /^\d+$/.test(rawPadding) && Number(rawPadding) <= 16 ? Number(rawPadding) : 1;
 		const digits = '0'.repeat(padding) + count;
-		if (output.querySelector('[data-count]')?.textContent === formatted
-			&& output.querySelector('[data-reels]')?.childElementCount === digits.length) { return; }
+		if (this.#output.querySelector('[data-count]')?.textContent === formatted
+			&& this.#output.querySelector('[data-reels]')?.childElementCount === digits.length) { return; }
 		const text = document.createElement('span');
 		text.dataset.count = '';
 		text.textContent = formatted;
@@ -31,7 +49,7 @@ export class WebCounter extends HTMLElement {
 			wheel.style.setProperty('--wheel', String(index));
 			reels.append(wheel);
 		}
-		output.replaceChildren(text, reels);
+		this.#output.replaceChildren(text, reels);
 	}
 }
 

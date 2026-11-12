@@ -14,14 +14,24 @@ test('branch previews display a blank counter without the production beacon', as
 
 test('the sample counter has a native fallback and can display a new count', async ({ page, javaScriptEnabled }) => {
 	await page.goto(paths.webCounter);
-	const output = page.getByRole('region', { name: 'Sample counter' }).getByRole('status', { name: 'Page views' });
+	const sample = page.getByRole('region', { name: 'Sample counter' });
+	const output = sample.getByRole('status', { name: 'Page views' });
 	await expect(output).toHaveText('1,234');
 	if (javaScriptEnabled) {
 		await page.evaluate(() => { return customElements.whenDefined('web-counter').then(() => {}); });
-		await output.evaluate((element) => { element.parentElement.setAttribute('value', '12345'); });
+		await sample.evaluate((region) => {
+			const counter = document.createElement('web-counter');
+			counter.setAttribute('value', '12345');
+			region.append(counter);
+			region.querySelector('web-counter')?.remove();
+		});
 		await expect(output).toHaveText('12,345');
-		await output.evaluate((element) => { element.parentElement.setAttribute('value', '-1'); });
-		await expect(output).toHaveText('12,345');
+		await expect(output).toHaveCSS('font-variant-numeric', 'tabular-nums');
+		await expect(sample.getByText('Page views', { exact: true })).toBeVisible();
+		await output.evaluate((element) => { element.getRootNode().host.setAttribute('value', '0'); });
+		await expect(output).toHaveText('0');
+		await output.evaluate((element) => { element.getRootNode().host.setAttribute('value', '-1'); });
+		await expect(output).toHaveText('0');
 	}
 });
 

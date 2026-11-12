@@ -11,13 +11,13 @@
 					"name": "WebCounter",
 					"customElement": true,
 					"tagName": "web-counter",
-					"description": "Formats a supplied page view count in a direct output child.",
+					"description": "Renders a supplied page view count on rolling digits inside a shadow root.",
 					"superclass": { "name": "HTMLElement", "package": "global:" },
 					"attributes": [
 						{
 							"name": "value",
 							"type": { "text": "string" },
-							"description": "A decimal nonnegative safe integer. Omit it to preserve the server-rendered output."
+							"description": "A decimal nonnegative safe integer. Starts blank until a valid count is supplied."
 						},
 						{
 							"name": "leading-zeros",
@@ -25,7 +25,8 @@
 							"default": "1",
 							"description": "Number of zero wheels before the count, from 0 through 16. An absent or invalid setting uses one."
 						}
-					]
+					],
+					"slots": [{ "name": "label", "description": "Optional visible caption. Defaults to Page views." }]
 				}
 			],
 			"exports": [
