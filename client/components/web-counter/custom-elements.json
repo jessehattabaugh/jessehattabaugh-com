@@ -18,6 +18,12 @@
 							"name": "value",
 							"type": { "text": "string" },
 							"description": "A decimal nonnegative safe integer. Omit it to preserve the server-rendered output."
+						},
+						{
+							"name": "leading-zeros",
+							"type": { "text": "string" },
+							"default": "1",
+							"description": "Number of zero wheels before the count, from 0 through 16. An absent or invalid setting uses one."
 						}
 					]
 				}

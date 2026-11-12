@@ -1,5 +1,5 @@
 import { render } from '../../shared/html.js';
-import { counterFace } from '../../shared/templates/web-counter.js';
+import { webCounter } from '../../shared/templates/web-counter.js';
 import { paths } from '../../shared/routes.js';
 import { error } from '../../shared/templates/error.js';
 import { sessionUser } from '../auth/service.js';
@@ -46,10 +46,10 @@ export function addAnalytics(request, response, env, ctx) {
 	const origin = env.SITE_ORIGIN ? new URL(env.SITE_ORIGIN) : null;
 	if (!origin || (url.origin !== origin.origin && url.origin !== `${origin.protocol}//www.${origin.host}`)) { return response; }
 
-	const transformed = new HTMLRewriter().on('body > footer > web-counter > output', {
+	const transformed = new HTMLRewriter().on('body > footer > web-counter', {
 		async element(element) {
 			const count = await publicCount(origin, url.pathname, env, ctx);
-			if (count !== null) { element.setInnerContent(render(counterFace(count)), { html: true }); }
+			if (count !== null) { element.replace(render(webCounter(count, element.getAttribute('leading-zeros'))), { html: true }); }
 		},
 	}).transform(response);
 	// Validators for the source asset do not describe the decorated document.

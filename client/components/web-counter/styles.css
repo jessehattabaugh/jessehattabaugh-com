@@ -12,11 +12,6 @@ web-counter {
 		position: relative;
 		display: inline-flex;
 		align-items: center;
-		padding: .2em .32em;
-		border: 2px solid #45392b;
-		border-radius: .3em;
-		background: linear-gradient(#d8bb8b, #897051 48%, #503e30 52%, #a38762);
-		box-shadow: inset 0 1px #f3d4a2, 0 2px 0 #2c211a;
 		color: #fff3d8;
 		font: 700 clamp(.875rem, 4vw, 1.25rem)/1.45 ui-monospace, monospace;
 		font-variant-numeric: tabular-nums;
@@ -24,6 +19,7 @@ web-counter {
 	}
 
 	> output:not(:has([data-reels])) {
+		padding: .2em .32em;
 		background: #33251e;
 	}
 

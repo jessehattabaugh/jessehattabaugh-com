@@ -151,18 +151,19 @@ export function webCounterPage(social) {
 		body: html`<article data-components>
 			<h1>Web Counter</h1>
 			<p>Display a page-view count on rolling digits styled like a mechanical odometer.</p>
-			<section aria-label="Sample counter"><h2>Sample counter</h2>${webCounter(1234)}</section>
+			<section aria-label="Sample counter"><h2>Sample counter</h2>${webCounter(1234, '2')}</section>
 			<h2>Usage</h2>
 			<figure data-code>
 				<figcaption>Web Counter HTML</figcaption>
 				<pre tabindex="0" aria-label="Web Counter HTML"><code>${highlightHtml(`<link rel="stylesheet" href="./styles.css">
 <script type="module" src="./index.js"></script>
-<web-counter value="1234">
+<web-counter value="1234" leading-zeros="2">
 	<output aria-label="Page views">1,234</output>
 	<span>Page views</span>
 </web-counter>`)}</code></pre>
 			</figure>
 			<p>Save the stylesheet and module beside your HTML file. The output shows the initial count without JavaScript. Set the <code>value</code> attribute to a nonnegative integer to update the wheels.</p>
+			<p>Set <code>leading-zeros</code> to an integer from 0 through 16. The default is one leading zero.</p>
 			<p><a href="${paths.webCounter}index.js">ES module</a> · <a href="${paths.webCounter}styles.css">Stylesheet</a> · <a href="${paths.webCounter}custom-elements.json">Custom Elements Manifest</a> · <a href="${paths.webCounter}README.md">Component README</a></p>
 		</article>`, scripts: html`<script type="module" src="${paths.webCounter}index.js"></script>` });
 }
