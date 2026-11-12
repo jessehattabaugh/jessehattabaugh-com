@@ -53,7 +53,7 @@ export const routes = {
 	colophon: {
 		path: '/colophon/',
 		template: ['build/templates/colophon.js', 'colophon'],
-		heading: 'Colophon',
+		heading: 'How this site is built',
 		sitemap: true,
 	},
 

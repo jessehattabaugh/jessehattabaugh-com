@@ -13,7 +13,7 @@ export const colophon = (social) => {
 		description: 'How jessehattabaugh.com is built.',
 		body: html`
 			<article>
-				<h1>Colophon</h1>
+				<h1>How this site is built</h1>
 				<p>
 					This site is a personal experiment in building with the grain of the web. No
 					build-time UI framework, no client-side router, no virtual DOM.
