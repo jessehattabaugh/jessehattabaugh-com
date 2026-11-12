@@ -4,7 +4,7 @@ import { expectHighlightedCode } from '../shared/code-highlighting.js';
 
 const docs = paths.gameKit;
 
-test('Kits links to a tutorial with highlighted HTML and live results', async ({ page, javaScriptEnabled }) => {
+test('Kits links to a tutorial with highlighted HTML and live results', async ({ page }) => {
 	await page.goto('/components/');
 	const kits = page.getByRole('region', { name: 'Kits', exact: true });
 	await kits.getByRole('link', { name: 'Game Kit', exact: true }).click();
@@ -15,7 +15,7 @@ test('Kits links to a tutorial with highlighted HTML and live results', async ({
 	const sample = viewport.getByLabel('Aether Wing viewport HTML');
 	await expect(sample).toBeVisible();
 	await expect(sample).toHaveText('<game-screen width="320" height="200" role="img" aria-label="320 by 200 pixel viewport"></game-screen>');
-	if (javaScriptEnabled) { await expectHighlightedCode(sample); }
+	await expectHighlightedCode(sample);
 	await expect(viewport.getByRole('img', { name: '320 by 200 pixel viewport' })).toBeVisible();
 	await viewport.getByRole('link', { name: '<game-screen> reference' }).click();
 	await expect(page.getByRole('heading', { name: 'game-screen', level: 1 })).toBeVisible();

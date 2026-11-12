@@ -4,6 +4,7 @@
 		"@eslint/compat": "latest",
 		"@eslint/eslintrc": "latest",
 		"@eslint/js": "latest",
+		"@highlightjs/cdn-assets": "11.12.0",
 		"@playwright/test": "latest",
 		"@types/node": "latest",
 		"eslint": "latest",

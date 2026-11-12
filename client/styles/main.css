@@ -123,8 +123,6 @@
 			input[type="checkbox"] { width: 1.2rem; height: 1.2rem; margin: 0; }
 		}
 	}
-	/* Code blocks keep a readable plain-text baseline; colors arrive with the
-	   CSS Custom Highlight API and are applied without changing the DOM. */
 	code-block { display: block; }
 	code-block pre {
 		overflow-x: auto;
@@ -137,15 +135,13 @@
 		line-height: 1.6;
 	}
 	code-block pre code { white-space: pre; }
-	@supports selector(::highlight(code-tag)) {
-		::highlight(code-punctuation) { color: #b4c1d4; }
-		::highlight(code-tag) { color: #9dd8ff; }
-		::highlight(code-attribute) { color: #f5d5a0; }
-		::highlight(code-value) { color: #aee9bc; }
-		::highlight(code-keyword) { color: #c7a6ff; }
-		::highlight(code-string) { color: #aee9bc; }
-		::highlight(code-comment) { color: #7f92a8; }
-		::highlight(code-number) { color: #f0b37e; }
+	code-block {
+		.hljs-tag { color: #b4c1d4; }
+		.hljs-name, .hljs-keyword, .hljs-selector-tag, .hljs-built_in { color: #9dd8ff; }
+		.hljs-attr, .hljs-property, .hljs-attribute, .hljs-string { color: #f5d5a0; }
+		.hljs-selector-class, .hljs-selector-id, .hljs-title { color: #aee9bc; }
+		.hljs-comment { color: #7f92a8; }
+		.hljs-number, .hljs-literal { color: #f0b37e; }
 	}
 	/* Home page introduction. */
 	main > section:first-child {

@@ -37,6 +37,15 @@ await Promise.all(globSync('client/**/*', { cwd: ROOT, exclude: ['**/AGENTS.md',
 await Promise.all(globSync('shared/rainbow-hour/*.js', { cwd: ROOT }).map(async (path) => {
 	await publish(path, await fs.readFile(join(ROOT, path)));
 }));
+// Self-host only the upstream ES modules the browser renderer imports.
+await Promise.all([
+	'core.min.js', 'languages/xml.min.js', 'languages/css.min.js',
+	'languages/javascript.min.js', 'languages/bash.min.js',
+].map(async (path) => {
+	await publish(`vendor/highlightjs/${path}`, await fs.readFile(join(ROOT, 'node_modules/@highlightjs/cdn-assets/es', path)));
+}));
+await publish('vendor/highlightjs/LICENSE', await fs.readFile(join(ROOT, 'node_modules/@highlightjs/cdn-assets/LICENSE')));
+await publish('shared/code-highlight.js', await fs.readFile(join(ROOT, 'shared/code-highlight.js')));
 await Promise.all(globSync('dist/inputs/images/**/*', { cwd: ROOT }).map(async (path) => {
 	const source = join(ROOT, path);
 	if ((await fs.stat(source)).isFile()) { await publish(relative('dist/inputs/images', path), await fs.readFile(source)); }

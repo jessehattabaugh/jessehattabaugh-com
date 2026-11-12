@@ -18,7 +18,8 @@
 	},
 	"include": [
 		"**/*.js",
-		"../shared/rainbow-hour/**/*.js"
+		"../shared/rainbow-hour/**/*.js",
+		"../shared/code-highlight.js"
 	],
 	"exclude": [
 		"apps/*/sw.js"

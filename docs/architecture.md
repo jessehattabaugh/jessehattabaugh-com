@@ -90,8 +90,9 @@ Client directory structure maps directly to public URLs by removing `client/`.
 Imports remain native browser imports; CSS, SVG, JSON and manifests are copied
 unchanged. Agent instructions and TypeScript configurations are excluded.
 Component package metadata, manifests, licenses and documentation stay public.
-The only cross-runtime browser publication is `shared/rainbow-hour/*.js`, explicitly
-copied to `/shared/rainbow-hour/`; no other shared modules become public.
+The build explicitly publishes `shared/rainbow-hour/*.js` and the runtime-neutral
+`shared/code-highlight.js` module. Code highlighting uses the same selected upstream
+Highlight.js ES modules in Node, Workers, and the browser.
 
 App workers live beside their scopes at `/apps/<app>/sw.js`. Browser and service
 worker code use separate checkJs projects but neither gets transpiled or bundled.
