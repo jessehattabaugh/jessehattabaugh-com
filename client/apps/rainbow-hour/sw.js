@@ -18,7 +18,7 @@ const ICON_URL = new URL('./icon.svg', APP_URL).pathname;
 import { sunPosition } from '../../../shared/rainbow-hour/solar.js';
 import { evaluateRainbowConditions } from '../../../shared/rainbow-hour/rainbow.js';
 import { fetchRainbowWeather } from '../../../shared/rainbow-hour/weather.js';
-import { loadLocation } from '../../shared/rainbow-hour/storage.js';
+import { loadLocation } from './storage.js';
 
 // ── Install / activate: take over promptly, nothing to precache ───────────────
 

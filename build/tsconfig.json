@@ -18,7 +18,8 @@
 	},
 	"include": [
 		"**/*.js",
-		"../shared/**/*.js"
+		"../shared/**/*.js",
+		"../client/components/game-kit/custom-elements.json"
 	],
 	"exclude": []
 }

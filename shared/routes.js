@@ -1,87 +1,227 @@
-/** Element names shared by the kit tutorial, reference routes and sitemap. */
+/** One URL catalog for Worker dispatch, static rendering, navigation and browser coverage.
+ * Template module paths are relative to the repository root. Only the Node build
+ * loads them; browsers and Workers never import build-only template modules.
+ * A new page needs its template plus one entry here, not a second renderer map.
+ * @typedef {object} Route
+ * @property {string} path
+ * @property {string[]} [methods] Defaults to GET (and HEAD).
+ * @property {string} [handler] Server feature handler, bound once in server/index.js.
+ * @property {[string, string]} [template] Module and named template export.
+ * @property {string} [heading] Public heading used by the deployed browser suite.
+ * @property {boolean} [sitemap] Include this canonical page in the sitemap.
+ * @property {string} [navigation] Label in the site's primary navigation.
+ * @property {number} [navigationOrder] Primary navigation order.
+ * @property {string} [redirect] Named destination route for a permanent redirect.
+ */
+
 export const gameKitElements = /** @type {const} */ ([
-	'game-screen', 'game-sprite', 'game-layer', 'game-tilemap', 'game-tile', 'game-tileset',
-	'game-palette', 'game-stage', 'game-input', 'game-world', 'game-scene', 'game-menu',
-	'game-modal', 'game-flow',
+	'game-screen',
+	'game-sprite',
+	'game-layer',
+	'game-tilemap',
+	'game-tile',
+	'game-tileset',
+	'game-palette',
+	'game-stage',
+	'game-input',
+	'game-world',
+	'game-scene',
+	'game-menu',
+	'game-modal',
+	'game-flow',
 ]);
 
-/** The URL vocabulary belongs to the server. Clients follow rendered controls. */
-export const paths = {
-	home: '/', about: '/about', colophon: '/colophon/', apps: '/apps/',
-	components: '/components/', rpgActor: '/components/rpg-actor/', disclosurePanel: '/components/disclosure-panel/',
-	gameKit: '/components/game-kit/', games: '/games/', aetherWing: '/games/aether-wing/',
-	bluesky: '/bluesky', atAvatar: '/atproto/avatar', atBlob: '/atproto/blob',
-	avatar: '/branding/avatar-96.png', analytics: '/admin/analytics/', webCounter: '/components/web-counter/',
-	notFound: '/404/', error: '/500/', contact: '/contact', login: '/login',
-	messages: '/apps/messages/', verify: '/verify',
-	logout: '/logout', setup: '/apps/messages/setup', profile: '/account',
-	registerBegin: '/auth/register/begin',
-	registerComplete: '/auth/register/complete',
-	loginBegin: '/auth/login/begin',
-	loginComplete: '/auth/login/complete',
-	messagePush: '/apps/messages/push',
-	lightsfinder: '/apps/lightsfinder/', crunch: '/apps/crunch-time/',
-	rainbow: '/apps/rainbow-hour/', rainbowPush: '/apps/rainbow-hour/push',
+/** @satisfies {Record<string, Route>} */
+export const routes = {
+	// Main site.
+	home: {
+		path: '/',
+		template: ['shared/templates/pages/home.js', 'home'],
+		handler: 'social',
+		heading: 'Useful tools and web experiments',
+		sitemap: true,
+	},
+	about: {
+		path: '/about',
+		template: ['shared/templates/pages/about.js', 'about'],
+		handler: 'social',
+		heading: 'About',
+		sitemap: true,
+		navigation: 'About',
+		navigationOrder: 1,
+	},
+	colophon: {
+		path: '/colophon/',
+		template: ['build/templates/colophon.js', 'colophon'],
+		heading: 'Colophon',
+		sitemap: true,
+	},
+
+	// Apps.
+	apps: {
+		path: '/apps/',
+		template: ['build/templates/apps.js', 'apps'],
+		heading: 'Apps',
+		sitemap: true,
+		navigation: 'Apps',
+		navigationOrder: 2,
+	},
+	messages: {
+		path: '/apps/messages/',
+		handler: 'messages',
+		methods: ['GET', 'POST'],
+		heading: 'Jessages',
+		sitemap: true,
+		navigation: 'Contact',
+		navigationOrder: 4,
+	},
+	setup: { path: '/apps/messages/setup', handler: 'messages', methods: ['POST'] },
+	messagePush: { path: '/apps/messages/push', handler: 'messages', methods: ['POST'] },
+	rainbow: {
+		path: '/apps/rainbow-hour/',
+		handler: 'rainbow',
+		heading: 'Rainbow Hour',
+		sitemap: true,
+	},
+	rainbowPush: { path: '/apps/rainbow-hour/push', handler: 'rainbow', methods: ['POST'] },
+	lightsfinder: {
+		path: '/apps/lightsfinder/',
+		handler: 'lightsfinder',
+		methods: ['GET', 'POST'],
+		sitemap: true,
+	},
+	crunch: {
+		path: '/apps/crunch-time/',
+		handler: 'crunch',
+		methods: ['GET', 'POST'],
+		heading: 'Crunch Time',
+		sitemap: true,
+	},
+
+	// Games.
+	games: {
+		path: '/games/',
+		template: ['build/templates/games.js', 'games'],
+		heading: 'Games',
+		sitemap: true,
+		navigation: 'Games',
+		navigationOrder: 3,
+	},
+	aetherWing: {
+		path: '/games/aether-wing/',
+		template: ['build/templates/games.js', 'aetherWing'],
+		heading: 'Aether Wing',
+		sitemap: true,
+	},
+
+	// Reusable components.
+	components: {
+		path: '/components/',
+		template: ['build/templates/components.js', 'components'],
+		heading: 'Components',
+		sitemap: true,
+		navigation: 'Components',
+		navigationOrder: 5,
+	},
+	rpgActor: {
+		path: '/components/rpg-actor/',
+		template: ['shared/templates/pages/rpg-actor.js', 'rpgActor'],
+		handler: 'social',
+		heading: 'rpg-actor',
+		sitemap: true,
+	},
+	disclosurePanel: {
+		path: '/components/disclosure-panel/',
+		template: ['build/templates/components.js', 'disclosurePanel'],
+		heading: 'disclosure-panel',
+		sitemap: true,
+	},
+	gameKit: {
+		path: '/components/game-kit/',
+		template: ['build/templates/game-kit.js', 'gameKit'],
+		heading: 'Game Kit',
+		sitemap: true,
+	},
+	webCounter: {
+		path: '/components/web-counter/',
+		template: ['build/templates/components.js', 'webCounterPage'],
+		heading: 'Web Counter',
+		sitemap: true,
+	},
+
+	// Identity and administration.
+	login: { path: '/login', handler: 'auth', methods: ['GET', 'POST'], heading: 'Sign in' },
+	verify: { path: '/verify', handler: 'auth', methods: ['GET', 'POST'] },
+	logout: { path: '/logout', handler: 'auth', methods: ['POST'] },
+	profile: { path: '/account', handler: 'auth', methods: ['GET', 'POST'] },
+	registerBegin: { path: '/auth/register/begin', handler: 'auth', methods: ['POST'] },
+	registerComplete: { path: '/auth/register/complete', handler: 'auth', methods: ['POST'] },
+	loginBegin: { path: '/auth/login/begin', handler: 'auth', methods: ['POST'] },
+	loginComplete: { path: '/auth/login/complete', handler: 'auth', methods: ['POST'] },
+	analytics: { path: '/admin/analytics/', handler: 'analytics' },
+
+	// Public identity services.
+	bluesky: { path: '/bluesky', handler: 'social' },
+	atAvatar: { path: '/atproto/avatar', handler: 'social' },
+	atBlob: { path: '/atproto/blob', handler: 'social' },
+	avatar: { path: '/branding/avatar-96.png' },
+
+	// Errors and redirects.
+	notFound: { path: '/404/', template: ['build/templates/not-found.js', 'notFound'] },
+	error: { path: '/500/', template: ['shared/templates/error.js', 'error'] },
+	contact: { path: '/contact', redirect: 'messages' },
 };
+
+/** Derived compatibility vocabulary for templates; never maintain URLs twice. */
+export const paths = /** @type {{ [K in keyof typeof routes]: string }} */ (
+	Object.fromEntries(
+		Object.entries(routes).map(([name, route]) => {
+			return [name, route.path];
+		}),
+	)
+);
 
 /** @param {typeof gameKitElements[number]} tag */
 export function gameKitReference(tag) {
 	return `${paths.gameKit}${tag}/`;
 }
 
-export const staticRoutes = [
-	{ name: 'home', path: paths.home },
-	{ name: 'about', path: paths.about },
-	{ name: 'colophon', path: paths.colophon },
-	{ name: 'apps', path: paths.apps },
-	{ name: 'components', path: paths.components },
-	{ name: 'webCounter', path: paths.webCounter },
-	{ name: 'rpgActor', path: paths.rpgActor },
-	{ name: 'disclosurePanel', path: paths.disclosurePanel },
-	{ name: 'gameKit', path: paths.gameKit },
-	...gameKitElements.map((name) => { return { name, path: gameKitReference(name) }; }),
-	{ name: 'games', path: paths.games },
-	{ name: 'aetherWing', path: paths.aetherWing },
-	{ name: 'notFound', path: paths.notFound },
-	{ name: 'error', path: paths.error },
+/** @type {Array<Route & { name: string }>} */
+export const routeCatalog = [
+	...Object.entries(routes).map(([name, route]) => {
+		return { name, ...route };
+	}),
+	...gameKitElements.map((tag) => {
+		return {
+			name: tag,
+			path: gameKitReference(tag),
+			heading: tag,
+			sitemap: true,
+			template: /** @type {[string, string]} */ ([
+				'build/game-kit-reference.js',
+				'reference',
+			]),
+		};
+	}),
 ];
 
-export const dynamicRoutes = [
-	{ path: '/components/page-counter/', methods: ['GET'], handler: 'webCounterRedirect' },
-	{ path: paths.analytics, methods: ['GET'], handler: 'analytics' },
-	{ path: '/components/retro-game/', methods: ['GET'], handler: 'gameKitRedirect' },
-	{ path: paths.rpgActor, methods: ['GET'], handler: 'social' },
-	{ path: paths.home, methods: ['GET'], handler: 'social' },
-	{ path: paths.about, methods: ['GET'], handler: 'social' },
-	{ path: paths.bluesky, methods: ['GET'], handler: 'social' },
-	{ path: paths.atAvatar, methods: ['GET'], handler: 'social' },
-	{ path: paths.atBlob, methods: ['GET'], handler: 'social' },
-	{ path: paths.crunch, methods: ['GET', 'POST'], handler: 'crunch' },
-	{ path: paths.lightsfinder, methods: ['GET', 'POST'], handler: 'lightsfinder' },
-	{ path: paths.contact, methods: ['GET'], handler: 'contact' },
-	{ path: paths.login, methods: ['GET', 'POST'], handler: 'auth' },
-	{ path: paths.messages, methods: ['GET', 'POST'], handler: 'messages' },
-	{ path: paths.verify, methods: ['GET', 'POST'], handler: 'auth' },
-	{ path: paths.logout, methods: ['POST'], handler: 'auth' },
-	{ path: paths.setup, methods: ['POST'], handler: 'messages' },
-	{ path: paths.profile, methods: ['GET', 'POST'], handler: 'auth' },
-	{ path: paths.messagePush, methods: ['POST'], handler: 'messages' },
-	{ path: paths.registerBegin, methods: ['POST'], handler: 'auth' },
-	{ path: paths.registerComplete, methods: ['POST'], handler: 'auth' },
-	{ path: paths.loginBegin, methods: ['POST'], handler: 'auth' },
-	{ path: paths.loginComplete, methods: ['POST'], handler: 'auth' },
-	{ path: paths.rainbow, methods: ['GET'], handler: 'rainbow' },
-	{ path: paths.rainbowPush, methods: ['POST'], handler: 'rainbow' },
-];
-
-/** @param {string} pathname */
-export function findDynamicRoute(pathname) {
-	return dynamicRoutes.find((route) => { return route.path === pathname; });
-}
-
-/** Canonical public documents with durable URLs, including server-rendered apps.
- * Authentication, private views, errors, query variants and assets are not search entries. */
-export const sitemapPaths = [
-	...staticRoutes.filter(({ name }) => { return !['notFound', 'error'].includes(name); }).map(({ path }) => { return path; }),
-	paths.messages, paths.rainbow, paths.lightsfinder, paths.crunch,
-];
+export const staticRoutes = routeCatalog.filter((route) => {
+	return route.template;
+});
+export const dynamicRoutes = routeCatalog.filter((route) => {
+	return route.handler || route.redirect;
+});
+export const sitemapPaths = routeCatalog
+	.filter((route) => {
+		return route.sitemap;
+	})
+	.map((route) => {
+		return route.path;
+	});
+export const navigationRoutes = routeCatalog
+	.filter((route) => {
+		return route.navigation;
+	})
+	.sort((a, b) => {
+		return (a.navigationOrder ?? 100) - (b.navigationOrder ?? 100);
+	});

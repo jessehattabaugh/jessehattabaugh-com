@@ -1,7 +1,7 @@
 import { html } from '../html.js';
 /** @import { Raw } from '../html.js' */
 import { siteAccount } from './account.js';
-import { paths } from '../routes.js';
+import { paths, navigationRoutes } from '../routes.js';
 import { webCounter } from './web-counter.js';
 
 /**
@@ -73,31 +73,10 @@ export const layout = ({
 							><img src="${paths.avatar}" alt="Bluesky avatar" width="36" height="36" />Jesse Hattabaugh</a
 						>
 						<ul>
-							<li>
-								<a
-									href="/about"
-									${normalizedPath === '/about' ? html` aria-current="page"` : html``}
-									>About</a
-								>
-							</li>
-							<li>
-								<a
-									href="/apps/"
-									${normalizedPath === '/apps' ? html` aria-current="page"` : html``}
-									>Apps</a
-								>
-							</li>
-							<li><a href="${paths.games}"${normalizedPath === '/games' || normalizedPath.startsWith('/games/') ? html` aria-current="page"` : html``}>Games</a></li>
-							<li>
-								<a
-									href="/apps/messages/"
-									${normalizedPath === '/apps/messages'
-										? html` aria-current="page"`
-										: html``}
-									>Contact</a
-								>
-							</li>
-							<li><a href="${paths.components}"${normalizedPath === '/components' || normalizedPath.startsWith('/components/') ? html` aria-current="page"` : html``}>Components</a></li>
+							${navigationRoutes.map((route) => {
+								const current = normalizedPath === route.path.replace(/\/$/, '') || (route.path.endsWith('/') && path.startsWith(route.path));
+								return html`<li><a href="${route.path}"${current ? html` aria-current="page"` : html``}>${route.navigation ?? ''}</a></li>`;
+							})}
 						</ul>
 					</nav>
 				</header>`}

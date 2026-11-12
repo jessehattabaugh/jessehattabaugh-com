@@ -13,10 +13,10 @@
 | `server/auth/`, `server/data/`, `server/http/`, `server/crypto/`, `server/push/`, `server/templates/` | Cloudflare Worker | Auth, identity persistence, HTTP policy, cryptography, push, and server-only views |
 | `server/db/` | D1, applied by Node deployment tooling | Canonical schema and ordered additive migrations |
 | `client/apps/<app>/` | Browser | App enhancements, manifests, images, offline pages and colocated `sw.js` service workers |
-| `client/components/` | Browser main thread | Portable Custom Elements and component demo/auth UI |
-| `client/enhance/` | Browser main thread | Progressive form/link navigation, installation and push registration |
+| `client/components/` | Browser main thread | Portable Custom Elements and their demonstrations |
+| `client/enhance/` | Browser main thread | Progressive navigation, authentication, installation and push registration |
 | `client/styles/` | Browser | Cross-app/site CSS |
-| `client/shared/rainbow-hour/` | Browser main thread and service worker | IndexedDB location storage |
+| `client/apps/rainbow-hour/storage.js` | Browser main thread and service worker | IndexedDB location storage |
 | `client/branding/`, root client icons/manifest | Browser assets | Public identity artwork and site installation metadata |
 | `shared/` | Multiple execution domains | Only actual build/server/client reuse, detailed below |
 | `test/` | Node.js and Playwright browsers | Real deployed-preview functional suites; test-only reuse in `test/shared/` |
@@ -51,7 +51,7 @@ Templates execute on the machine rendering HTML. They are not browser scripts.
 
 There is no source `site/` directory. Browser content/assets live under `client/`;
 public-page rendering shared by Node and Cloudflare lives under root `shared/`.
-The static-only page function registry lives in `build/pages.js`.
+The route catalog in `shared/routes.js` names each static template module and export.
 
 ## Follow a request
 
@@ -67,39 +67,36 @@ returns that same fragment at the same URL. Successful forms redirect with 303;
 validation responses retain entered values. Browser enhancement follows existing
 HTML controls and falls back to native submission/navigation on errors.
 
-The Parcel site transformer renders `build/pages.js` with the same public-page
-templates and publishes the prepared public social snapshot and branding.
+The Node build registers catalog templates with Hono and uses its SSG helper
+to render the same public-page templates and publish the prepared snapshot and branding.
 No server handlers, secrets, D1 queries or template JavaScript are published.
 
 ## Source paths and public URLs
 
-`build/build.js` cleans the public output, prepares public source data/artwork
-under private `dist/inputs/`, and runs one Parcel command. It never copies source
-trees or writes public output. `build/prepare-inputs.js` fetches the public social
-snapshot and uses Sharp for image composition and icon sizes; Sharp cannot run
-inside Parcel v3's embedded plugin runtime.
+`build/build.js` cleans `dist/client/`, prepares public data and generated
+artwork under private `dist/inputs/`, and renders the route catalog using Hono's
+SSG helper. Node writes metadata and copies browser assets without changing bytes.
+`build/prepare-inputs.js` and `build/branding.js` generate image sizes and cards
+with Sharp; authored client artwork is never transformed.
 
-`build/site.json` is the declarative site entry. Its transformer calls the existing
-shared page templates and registers the other routes and metadata as Parcel URL
-dependencies. `build/shared/public-assets.js` groups public paths, image dimensions, sitemap
-metadata and generated content. `build/branding.js` groups portrait and share-card
-composition. The generated-content transformer supplies HTML, XML, text and JSON
-in memory. Parcel's native pipelines discover their dependencies, optimize them,
-and emit every public file. The snapshot, component catalog, sitemap, robots and
-prepared image files are part of the graph, rather than post-build writes.
+The route catalog is authoritative for URLs, methods, feature handler selection,
+static template module/export, sitemap inclusion, navigation and smoke-test headings.
+`paths`, `staticRoutes`, `dynamicRoutes` and `sitemapPaths` are derived views.
+Worker feature handlers are bound once; Hono replaces the string dispatch chain.
+The build loads template modules in Node only, so static-only templates never
+enter the Worker or browser bundle. Adding a static page needs one registration.
 
-The root `package.json` declares the site target and production library exports.
-`client/package.json` declares browser entries with native globs;
-`client/apps/package.json` declares an explicit module service-worker target.
-Native library targets preserve component exports without rewriting or temporarily
-modifying package files. Existing checkJs/ESLint runtime boundaries remain in force.
+Client directory structure maps directly to public URLs by removing `client/`.
+Imports remain native browser imports; CSS, SVG, JSON and manifests are copied
+unchanged. Agent instructions and TypeScript configurations are excluded.
+Component package metadata, manifests, licenses and documentation stay public.
+The only cross-runtime browser publication is `shared/rainbow-hour/*.js`, explicitly
+copied to `/shared/rainbow-hour/`; no other shared modules become public.
 
-The resolver/namer link source assets at short public URLs by omitting `client/`
-and `client/shared/`. Source imports stay intact. Local app assets, manifests,
-worker registrations and cache entries use relative URLs. Static documents get
-relative compiled references; shared/error views use root-relative references
-where their request path can vary. App workers live beside their scopes at
-`/apps/<app>/sw.js` without a scope-widening header. No source maps are published.
+App workers live beside their scopes at `/apps/<app>/sw.js`. Browser and service
+worker code use separate checkJs projects but neither gets transpiled or bundled.
+Wrangler remains free to bundle and minify Cloudflare code. The browser follows
+module imports and ordinary asset URLs; no synthetic dependency loader is generated.
 
 Authored SVG lives in `build/artwork/` for build-only composition, or beside its
 app under `client/` for browser use. Gallery icons reuse existing SVG files;
@@ -110,7 +107,7 @@ coordinates, links and accessible controls.
 `build/shared/public-assets.js` supplies canonical public page URLs from `shared/routes.js`,
 including server-rendered apps, using the configured production `SITE_ORIGIN`.
 Error, auth/private, asset and query URLs are excluded; unverified modification
-dates are omitted. The Parcel graph emits sitemap and robots together.
+dates are omitted. The Node build emits sitemap and robots together.
 
 Portable components retain their package metadata, API manifest, README and MIT
 license under `client/components/<tag>/`. Their source distribution is

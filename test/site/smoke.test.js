@@ -1,18 +1,8 @@
 import { test, expect } from '@playwright/test';
 import { lighthouseAudit } from '../shared/lighthouse.js';
-import { staticRoutes, paths, gameKitElements, gameKitReference } from '../../shared/routes.js';
+import { routeCatalog, paths } from '../../shared/routes.js';
 
-const headings = { home: 'Useful tools and web experiments', about: 'About', colophon: 'Colophon', apps: 'Apps', components: 'Components', webCounter: 'Web Counter', rpgActor: 'rpg-actor', disclosurePanel: 'disclosure-panel', gameKit: 'Game Kit', games: 'Games', aetherWing: 'Aether Wing' };
-const pages = [
-	...staticRoutes.filter((route) => { return route.name in headings; }).map((route) => {
-		return { path: route.path, heading: headings[route.name] };
-	}),
-	...gameKitElements.map((tag) => { return { path: gameKitReference(tag), heading: tag }; }),
-	{ path: paths.login, heading: 'Sign in' },
-	{ path: paths.messages, heading: 'Jessages' },
-	{ path: paths.rainbow, heading: 'Rainbow Hour' },
-	{ path: paths.crunch, heading: 'Crunch Time' },
-];
+const pages = routeCatalog.filter((route) => { return route.heading; });
 
 for (const { path, heading } of pages) {
 	test(`${path} renders its heading and navigation`, async ({ page }) => {
@@ -30,7 +20,7 @@ for (const { path, heading } of pages) {
 			await expect(account.getByRole('link', { name: 'Sign in', exact: true })).toBeVisible();
 			await expect(page.getByRole('navigation', { name: 'Main navigation', exact: true })).toHaveCount(0);
 			await account.getByRole('link', { name: 'Jesse Hattabaugh home', exact: true }).click();
-			await expect(page.getByRole('heading', { level: 1, name: headings.home, exact: true })).toBeVisible();
+			await expect(page.getByRole('heading', { level: 1, name: 'Useful tools and web experiments', exact: true })).toBeVisible();
 			return;
 		}
 		const nav = page.getByRole('navigation', { name: 'Main navigation' });

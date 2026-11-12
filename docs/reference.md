@@ -2,7 +2,7 @@
 
 Personal site and four installable web apps on Cloudflare Workers. Plain JavaScript
 ES modules with JSDoc, native CSS, shared HTML templates, and D1. No UI framework
-or runtime dependencies.
+; Hono handles Worker routing and Node static rendering.
 
 ## Get oriented
 
@@ -10,15 +10,14 @@ or runtime dependencies.
 - `shared/templates/`: escaped HTML, shared by the build and Worker. App page
 	functions call their fragment function directly; `X-Fragment: true` requests
 	receive that fragment from the same URL.
-- `build/build.js`: prepares private inputs and runs one Parcel graph that emits `dist/client/`.
+- `build/build.js`: renders catalog pages with Hono and copies authored browser files unchanged to `dist/client/`.
 - `server/index.js`: dispatches the registered dynamic routes, applies security
 	headers, and serves assets with the custom 404 and standard error pages.
 - `server/data/` and `server/apps/*/data.js`: prepared D1 queries; `server/db/migrations/` changes the schema.
 - `client/enhance/`: optional form/link transitions, installation, and Web Push.
 - `client/apps/`: app enhancements and colocated `sw.js` service workers.
 - `client/components/` and `client/styles/`: browser components and styles.
-- `client/shared/`: dependencies of both the browser main thread and service workers.
-- `build/parcel-site.js`, `parcel-generated.js`, `parcel-resolver.js`, `parcel-namer.js`: render and link the public graph without copying source trees.
+- `client/apps/rainbow-hour/storage.js`: browser/service-worker location storage.
 - `test/`: functional browser flows against an isolated deployed preview.
 
 Home, About, Apps, Components, and Colophon have static builds. About

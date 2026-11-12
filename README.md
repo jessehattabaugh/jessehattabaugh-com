@@ -16,38 +16,35 @@ client using cutting edge web apis.
 | --- | --- |
 | `build/` | Node.js: HTML/assets, branding, deployment and secrets tooling; common tooling in `build/shared/` |
 | `server/` | Cloudflare Worker handlers, auth, HTTP, persistence, templates, and D1 schema/migrations |
-| `client/` | Browser apps and their service workers, components, styles and enhancements. Main-thread and worker dependencies in `client/shared/` |
+| `client/` | Browser apps and their service workers, components, styles and enhancements. App helpers stay with their owning app |
 | `shared/` | Cross-runtime modules: build/server rendering and social reads, routes, server/browser solar/weather logic |
 | `test/` | Deployed-preview Playwright suites; fixtures and audit helpers in `test/shared/` |
 
-`npm run build` prepares a public-data snapshot and artwork under ignored
-`dist/inputs/`, then invokes Parcel **once**. Parcel renders the shared page
-templates and emits HTML, sitemap/robots, snapshots/catalogs, manifests, component
-libraries, browser assets and module service workers directly to `dist/client/`.
-There is no source staging tree, asset-copy step, or generated package configuration.
+`npm run build` uses Node and Hono to render the pages registered in
+`shared/routes.js`, then publishes them with assets in `dist/client/`. Browser
+files are copied byte-for-byte: native ES module imports, CSS imports, JSON,
+images, manifests and service workers remain exactly as authored. Wrangler still
+bundles/minifies server code. Sharp generates icons and social artwork separately.
 
-Parcel targets live in the root `package.json` (site and component exports),
-`client/package.json` (browser entries), and `client/apps/package.json` (service
-workers). `build/site.json` selects the home template; `shared/routes.js` supplies
-the other pages. TypeScript and ESLint still check each source runtime separately;
-Wrangler compiles/minifies Cloudflare code.
+To add a page, write its template and add one entry to `shared/routes.js` with
+its URL, template module/export, heading, and optional sitemap/navigation metadata.
+That catalog drives static HTML, Worker dispatch, sitemap and route smoke tests.
+For a new dynamic feature, bind its handler once in `server/index.js`; subsequent
+URLs for that feature are declared in the catalog. Existing templates and forms
+use the derived `paths` object, so URLs are never maintained in a second list.
 
-Public assets use short `/apps/`, `/branding/`, `/components/`, `/enhance/`, and
-`/styles/` URLs. Local references are relative; shared/error views use root-relative
-references when needed. Web app manifests always use `manifest.webmanifest`.
-Static artwork lives in `.svg` files; JavaScript only binds data or composes
-request-dependent visuals. `/contact` permanently redirects to Jessages.
+`client/` mirrors public asset URLs: `client/apps/foo/app.js` is served at
+`/apps/foo/app.js`. Use browser-valid imports and ordinary stylesheet/image URLs;
+there is no build rewriting. Tool configurations and agent instructions are not
+published. Rainbow Hour's browser storage stays in its app directory; its pure
+server/browser calculations remain in `shared/rainbow-hour/` and are published
+unchanged at that same path. Other shared/server/build modules remain private.
 
-Parcel is pinned to `3.0.0-alpha.2`. Its embedded JS plugins cannot load Sharp,
-so Node prepares the identity/card PNGs and required icon sizes; Parcel owns their
-optimization and public emission. There are no new runtime dependencies.
-
-The build emits `/sitemap.xml` and `/robots.txt` from the canonical public routes.
-`SITE_ORIGIN` in `.dev.vars` configures the production origin, including on previews.
-Only searchable public pages belong in the sitemap: manifests, scripts, private
-account pages, errors and query variants do not. No guessed modification dates
-are emitted. See [Google's sitemap guidance](https://developers.google.com/search/docs/crawling-indexing/sitemaps/build-sitemap)
-and [Parcel v3 migration notes](https://v3.parceljs.org/migration/parcel-2/).
+Web app manifests are named `manifest.webmanifest`. Baseline styles use native
+stylesheet links and work without JavaScript. Navigation follows server-rendered
+links and forms; Hono is a server/build dependency, never a browser dependency.
+`SITE_ORIGIN` configures the canonical origin for `sitemap.xml` and `robots.txt`.
+Only catalog entries explicitly marked `sitemap: true` are indexed.
 
 ### Web Analytics
 
@@ -82,13 +79,10 @@ sector selection without scripting. JavaScript adds continuous input,
 collision simulation and gamepad support. See the package README for the contract.
 
 See the [component guidelines](client/components/AGENTS.md) for kits.
-To add a standalone element, extend `build/component-catalog.js` (also emitted as `/components/catalog.json`),
-declare its native library outputs in the root `package.json`,
-add its showcase and documentation template in `build/templates/components.js`, and entries
-in `build/pages.js` and `shared/routes.js`, and cover its browser API in
-`test/site/components.test.js`. Include the new route in the smoke/Lighthouse
-heading map. Preserve a native HTML fallback. `disclosure-panel` is the first
-example, also used for app-install help.
+To add a standalone element, add its portable files under `client/components/`,
+its catalog metadata in `build/component-catalog.js`, and a showcase template and
+route entry. Cover its browser API in `test/site/`. Public files are discovered
+from the directory tree; there is no asset entry-point list to update.
 
 ## Develop and verify
 

@@ -4,13 +4,12 @@
 		"@eslint/compat": "latest",
 		"@eslint/eslintrc": "latest",
 		"@eslint/js": "latest",
-		"@parcel/plugin": "3.0.0-alpha.2",
 		"@playwright/test": "latest",
 		"@types/node": "latest",
 		"eslint": "latest",
 		"globals": "14.0.0",
+		"hono": "^4.13.16",
 		"lighthouse": "latest",
-		"parcel": "3.0.0-alpha.2",
 		"sharp": "0.35.4",
 		"typescript": "latest",
 		"wrangler": "latest"
@@ -34,55 +33,16 @@
 		"workerd@1.20261103.1": true
 	},
 	"private": true,
-	"browserslist": "last 2 Chrome versions, last 2 Firefox versions, last 2 Safari versions",
-	"targets": {
-		"production": {
-			"context": "browser",
-			"outputFormat": "esmodule",
-			"distDir": "./dist/client",
-			"optimize": true
-		}
-	},
 	"exports": {
-		"./components/web-counter": {
-			"source": "./client/components/web-counter/index.js",
-			"production": "./dist/client/components/web-counter/index.js"
-		},
-		"./components/disclosure-panel": {
-			"source": "./client/components/disclosure-panel/index.js",
-			"production": "./dist/client/components/disclosure-panel/index.js"
-		},
-		"./components/disclosure-panel/element": {
-			"source": "./client/components/disclosure-panel/disclosure-panel.js",
-			"production": "./dist/client/components/disclosure-panel/disclosure-panel.js"
-		},
-		"./components/game-kit": {
-			"source": "./client/components/game-kit/index.js",
-			"production": "./dist/client/components/game-kit/index.js"
-		},
-		"./components/rpg-actor": {
-			"source": "./client/components/rpg-actor/index.js",
-			"production": "./dist/client/components/rpg-actor/index.js"
-		},
-		"./components/rpg-actor/element": {
-			"source": "./client/components/rpg-actor/rpg-actor.js",
-			"production": "./dist/client/components/rpg-actor/rpg-actor.js"
-		},
-		"./components/game-kit/world-data": {
-			"source": "./client/components/game-kit/world-data.js",
-			"production": "./dist/client/components/game-kit/world-data.js"
-		},
-		"./components/game-kit/game-input": {
-			"source": "./client/components/game-kit/game-input.js",
-			"production": "./dist/client/components/game-kit/game-input.js"
-		},
-		"./components/game-kit/world-renderer": {
-			"source": "./client/components/game-kit/world-renderer.js",
-			"production": "./dist/client/components/game-kit/world-renderer.js"
-		},
-		"./components/game-kit/world": {
-			"source": "./client/components/game-kit/world.js",
-			"production": "./dist/client/components/game-kit/world.js"
-		}
+		"./components/web-counter": "./client/components/web-counter/index.js",
+		"./components/disclosure-panel": "./client/components/disclosure-panel/index.js",
+		"./components/disclosure-panel/element": "./client/components/disclosure-panel/disclosure-panel.js",
+		"./components/game-kit": "./client/components/game-kit/index.js",
+		"./components/rpg-actor": "./client/components/rpg-actor/index.js",
+		"./components/rpg-actor/element": "./client/components/rpg-actor/rpg-actor.js",
+		"./components/game-kit/world-data": "./client/components/game-kit/world-data.js",
+		"./components/game-kit/game-input": "./client/components/game-kit/game-input.js",
+		"./components/game-kit/world-renderer": "./client/components/game-kit/world-renderer.js",
+		"./components/game-kit/world": "./client/components/game-kit/world.js"
 	}
 }

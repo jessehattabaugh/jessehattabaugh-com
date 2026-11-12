@@ -17,7 +17,7 @@
 	},
 	"include": [
 		"apps/*/sw.js",
-		"shared/rainbow-hour/**/*.js",
+		"apps/rainbow-hour/storage.js",
 		"../shared/rainbow-hour/**/*.js"
 	]
 }
