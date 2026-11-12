@@ -21,6 +21,7 @@ test('Kits links to a tutorial with highlighted HTML and live results', async ({
 	await expect(page.getByRole('heading', { name: 'game-screen', level: 1 })).toBeVisible();
 	await Promise.all([[160, 48], [96, 96], [80, 128]].map(async ([width, height]) => {
 		const frame = page.getByRole('img', { name: `${width} by ${height} pixel viewport` });
+		await expect(frame).toBeVisible();
 		expect(await frame.evaluate((element) => {
 			const { width, height } = element.getBoundingClientRect();
 			return width / height;
