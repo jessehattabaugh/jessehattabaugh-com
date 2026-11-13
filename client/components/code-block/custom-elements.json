@@ -8,28 +8,74 @@
 			"declarations": [
 				{
 					"kind": "class",
+					"description": "Highlights the source text in a native pre and code pair. Place source in a direct pre containing a code element before connection. Changing language recolors the current source.",
 					"name": "CodeBlock",
-					"customElement": true,
-					"tagName": "code-block",
-					"superclass": { "name": "HTMLElement", "package": "global:" },
-					"description": "Highlights the source text in a native pre and code pair.",
+					"cssProperties": [
+						{
+							"description": "Padding around the source.",
+							"name": "--space-md",
+							"default": "1rem"
+						},
+						{
+							"description": "Border color of the source panel.",
+							"name": "--color-border",
+							"default": "#526079"
+						},
+						{
+							"description": "Corner radius of the source panel.",
+							"name": "--radius",
+							"default": ".5rem"
+						}
+					],
 					"attributes": [
 						{
 							"name": "language",
-							"type": { "text": "string" },
-							"default": "html",
-							"description": "Highlight.js grammar. Supports HTML, CSS, JavaScript and Bash. Unknown languages display as plain text."
+							"type": {
+								"text": "string"
+							},
+							"description": "Highlight.js grammar. Supports HTML, CSS, JavaScript and Bash. Unknown languages display as plain text.",
+							"default": "html"
 						}
-					]
+					],
+					"superclass": {
+						"name": "HTMLElement"
+					},
+					"tagName": "code-block",
+					"customElement": true
+				}
+			],
+			"exports": [
+				{
+					"kind": "js",
+					"name": "CodeBlock",
+					"declaration": {
+						"name": "CodeBlock",
+						"module": "code-block.js"
+					}
 				}
 			]
 		},
 		{
 			"kind": "javascript-module",
 			"path": "index.js",
+			"declarations": [],
 			"exports": [
-				{ "kind": "js", "name": "CodeBlock", "declaration": { "name": "CodeBlock", "module": "code-block.js" } },
-				{ "kind": "custom-element-definition", "name": "code-block", "declaration": { "name": "CodeBlock", "module": "code-block.js" } }
+				{
+					"kind": "custom-element-definition",
+					"name": "code-block",
+					"declaration": {
+						"name": "CodeBlock",
+						"module": "code-block.js"
+					}
+				},
+				{
+					"kind": "js",
+					"name": "CodeBlock",
+					"declaration": {
+						"name": "CodeBlock",
+						"module": "index.js"
+					}
+				}
 			]
 		}
 	]

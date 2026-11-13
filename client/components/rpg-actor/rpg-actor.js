@@ -1,10 +1,9 @@
 import { loadSprite } from './sprite-record.js';
 
-/** Portable renderer for rpg.actor sheets. No site imports or account writes.
- * Sheet contract: https://rpg.actor/dev-guide#pc-playback and #pc-emotes.
- */
+/** The nine supported expression names. */
 export const expressions = Object.freeze(['neutral', 'blink', 'happy', 'sad', 'angry', 'silly', 'tired', 'bruh', 'pout']);
 const generic = new URL('./generic.svg', import.meta.url).href;
+/** The four direction names in sprite row order. */
 export const directions = Object.freeze(['down', 'left', 'right', 'up']);
 
 /** @param {string | null} value @param {number} fallback @param {number} max */
@@ -13,8 +12,34 @@ function integer(value, fallback, max) {
 	return value !== null && value.trim() !== '' && Number.isInteger(number) && number >= 0 && number <= max ? number : fallback;
 }
 
-/** State flows through attributes; lifecycle owns every timer and listener. */
+/**
+ * Attribute-driven rpg.actor sprites, expressions and talking with native HTML fallback.
+ * See https://rpg.actor/dev-guide for the sprite grid and expression-sheet contract.
+ * @attr {string} handle - Bluesky handle, optionally prefixed with @. Loads the public actor sprite and expressions. Missing or unavailable sprites use the bundled courier. An explicit src bypasses lookup.
+ * @attr {string} src - Base sprite sheet URL, relative or HTTP(S). Omit to use the resolved or bundled sprite.
+ * @attr {string} [emotes={}] - JSON map of expression names to emoteSheet and optional talkSheet image URLs.
+ * @attr {number} [columns=3] - Base grid columns, 1–16. Invalid values use 3; zero becomes 1.
+ * @attr {number} [rows=4] - Base grid rows, 1–16. Invalid values use 4; zero becomes 1.
+ * @attr {'idle' | 'walk'} [animation=idle] - Walking uses ping-pong columns, normally 0,1,2,1.
+ * @attr {'down' | 'left' | 'right' | 'up'} [direction=down] - Direction row, clamped to the sheet rows.
+ * @attr {'neutral' | 'blink' | 'happy' | 'sad' | 'angry' | 'silly' | 'tired' | 'bruh' | 'pout'} [expression=neutral] - Missing expression sheets fall back to src.
+ * @attr {boolean} [talking=false] - Presence alternates open and closed mouth sheets.
+ * @attr {boolean} [paused=false] - Presence freezes animation. Reflected by the built-in button.
+ * @attr {boolean} [showcase=false] - Presence cycles available expressions and directions through idle, walking and talking poses.
+ * @attr {number} [showcase-duration=2400] - Milliseconds per pose, 150–60000, rounded up to the next frame. Invalid values use 2400; values below 150 become 150. Independent of interval.
+ * @attr {number} [interval=150] - Frame duration in ms, 50–2000. Invalid values use 150; values below 50 become 50.
+ * @attr {number} frame - Optional zero-based column override; invalid values use idle column.
+ * @attr {string} [label=RPG character] - Accessible image name.
+ * @fires {CustomEvent<{ animation: string, direction: string, expression: string, talking: boolean, paused: boolean }>} actor-change - After observed attribute changes or showcase steps; not on initialization. Bubbles and composed; not cancelable.
+ * @fires {CustomEvent<{ src: string }>} actor-load - After a sheet loads. Bubbles and composed; not cancelable.
+ * @fires {CustomEvent<{ reason: string, src: string }>} actor-error - Failed handle lookup, malformed emotes JSON, or image failure. Bubbles and composed; not cancelable.
+ * @cssprop [--rpg-actor-size=144px] - Rendered sprite width.
+ * @csspart sprite - Cropped sprite viewport.
+ * @csspart controls - Built-in pause/resume button.
+ * @slot - Fallback HTML shown before loading and when base/selected sheets fail.
+ */
 export class RpgActor extends HTMLElement {
+	/** @internal */
 	static observedAttributes = ['handle', 'src', 'emotes', 'columns', 'rows', 'animation', 'direction', 'expression', 'talking', 'paused', 'showcase', 'showcase-duration', 'interval', 'frame', 'label'];
 	#root = this.shadowRoot ?? this.attachShadow({ mode: 'open' });
 	#viewport = this.#root.querySelector('span') ?? document.createElement('span');
@@ -42,7 +67,9 @@ export class RpgActor extends HTMLElement {
 		super();
 		const style = this.#root.querySelector('link') ?? document.createElement('link');
 		if (!style.parentNode) {
+			/** @internal */
 			style.rel = 'stylesheet';
+			/** @internal */
 			style.href = new URL('./styles.css', import.meta.url).href;
 		}
 		this.#styled = Boolean(style.sheet);
@@ -52,9 +79,12 @@ export class RpgActor extends HTMLElement {
 		}, { once: true });
 		this.#viewport.setAttribute('role', 'img');
 		this.#viewport.setAttribute('part', 'sprite');
+		/** @internal */
 		this.#viewport.hidden = true;
+		/** @internal */
 		this.#button.type = 'button';
 		this.#button.setAttribute('part', 'controls');
+		/** @internal */
 		this.#button.hidden = true;
 		this.#button.addEventListener('click', () => { this.toggleAttribute('paused'); });
 		if (!style.parentNode) { this.#root.prepend(style); }
@@ -66,6 +96,7 @@ export class RpgActor extends HTMLElement {
 		}
 	}
 
+	/** @internal */
 	connectedCallback() {
 		this.#active = true;
 		this.#resolve();
@@ -75,6 +106,7 @@ export class RpgActor extends HTMLElement {
 		this.#refresh();
 	}
 
+	/** @internal */
 	disconnectedCallback() {
 		this.#active = false;
 		this.#lookup?.abort();
@@ -83,7 +115,8 @@ export class RpgActor extends HTMLElement {
 		document.removeEventListener('visibilitychange', this.#refresh);
 	}
 
-	/** @param {string} name @param {string | null} before @param {string | null} after */
+	/** @internal
+	 * @param {string} name @param {string | null} before @param {string | null} after */
 	attributeChangedCallback(name, before, after) {
 		if (before === after || this.#cycling || !this.#active) { return; }
 		if (name === 'src' || name === 'handle') {
@@ -256,6 +289,7 @@ export class RpgActor extends HTMLElement {
 
 	/** @param {string} name @param {object} detail */
 	#emit(name, detail) {
+		/** @internal Event names and payloads are documented on the class. */
 		this.dispatchEvent(new CustomEvent(name, { detail, bubbles: true, composed: true }));
 	}
 }

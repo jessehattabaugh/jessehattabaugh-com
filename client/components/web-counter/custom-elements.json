@@ -8,30 +8,55 @@
 			"declarations": [
 				{
 					"kind": "class",
-					"name": "WebCounter",
-					"customElement": true,
-					"tagName": "web-counter",
 					"description": "Renders a supplied page view count on rolling digits inside a shadow root.",
-					"superclass": { "name": "HTMLElement", "package": "global:" },
+					"name": "WebCounter",
+					"slots": [
+						{
+							"description": "Optional visible caption. Defaults to Page views.",
+							"name": "label"
+						}
+					],
 					"attributes": [
 						{
 							"name": "value",
-							"type": { "text": "string" },
-							"description": "A decimal nonnegative safe integer. Starts blank until a valid count is supplied."
+							"type": {
+								"text": "string"
+							},
+							"description": "A decimal nonnegative safe integer. Starts blank until a valid count is supplied. Invalid updates preserve the displayed count."
 						},
 						{
 							"name": "leading-zeros",
-							"type": { "text": "string" },
-							"default": "1",
-							"description": "Number of zero wheels before the count, from 0 through 16. An absent or invalid setting uses one."
+							"type": {
+								"text": "string"
+							},
+							"description": "Number of zero wheels before the count, from 0 through 16. An absent or invalid setting uses one.",
+							"default": "1"
 						}
 					],
-					"slots": [{ "name": "label", "description": "Optional visible caption. Defaults to Page views." }]
+					"superclass": {
+						"name": "HTMLElement"
+					},
+					"tagName": "web-counter",
+					"customElement": true
 				}
 			],
 			"exports": [
-				{ "kind": "js", "name": "WebCounter", "declaration": { "name": "WebCounter", "module": "index.js" } },
-				{ "kind": "custom-element-definition", "name": "web-counter", "declaration": { "name": "WebCounter", "module": "index.js" } }
+				{
+					"kind": "js",
+					"name": "WebCounter",
+					"declaration": {
+						"name": "WebCounter",
+						"module": "index.js"
+					}
+				},
+				{
+					"kind": "custom-element-definition",
+					"name": "web-counter",
+					"declaration": {
+						"name": "WebCounter",
+						"module": "index.js"
+					}
+				}
 			]
 		}
 	]

@@ -233,9 +233,15 @@ test('the portable package publishes a manifest declaration and definition for e
 	const manifest = await response.json();
 	const tags = ['game-screen', 'game-layer', 'game-sprite', 'game-tilemap', 'game-flow', 'game-scene', 'game-menu', 'game-modal', 'game-world', 'game-stage', 'game-palette', 'game-tileset', 'game-tile', 'game-input'];
 	expect(manifest.schemaVersion).toBe('1.0.0');
-	expect(manifest.modules.flatMap((module) => {
-		return module.declarations.map((declaration) => { return declaration.tagName; });
-	})).toEqual(tags);
+	expect(
+		manifest.modules
+			.flatMap((module) => {
+				return (module.declarations ?? []).flatMap(({ tagName }) => {
+					return tagName ? [tagName] : [];
+				});
+			})
+			.sort(),
+	).toEqual([...tags].sort());
 	expect(manifest.modules.flatMap((module) => {
 		return module.exports.filter((entry) => { return entry.kind === 'custom-element-definition'; }).map(({ name }) => { return name; });
 	})).toEqual(tags);

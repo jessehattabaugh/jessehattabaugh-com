@@ -1,11 +1,15 @@
 {
 	"devDependencies": {
 		"@cloudflare/workers-types": "latest",
+		"@custom-elements-manifest/analyzer": "^0.11.0",
 		"@eslint/compat": "latest",
 		"@eslint/eslintrc": "latest",
 		"@eslint/js": "latest",
 		"@playwright/test": "latest",
 		"@types/node": "latest",
+		"ajv": "^8.20.0",
+		"comment-parser": "^1.2.4",
+		"custom-elements-manifest": "^1.0.0",
 		"eslint": "latest",
 		"globals": "latest",
 		"lighthouse": "latest",
@@ -15,15 +19,17 @@
 	},
 	"name": "jessehattabaugh-com",
 	"scripts": {
-		"build": "node build/build.js",
-		"check": "tsc --project server/tsconfig.json --noEmit && tsc --project build/tsconfig.json --noEmit && tsc --project client/tsconfig.json --noEmit && tsc --project client/tsconfig.service-workers.json --noEmit",
+		"build": "npm run cem:check && node build/build.js",
+		"check": "tsc --project server/tsconfig.json --noEmit && tsc --project build/tsconfig.json --noEmit && tsc --project client/tsconfig.json --noEmit && tsc --project client/tsconfig.service-workers.json --noEmit && npm run cem:check",
 		"deploy": "node build/deploy.js",
 		"deploy:prod": "node build/deploy.js --production",
 		"deploy:preview": "node build/deploy.js --preview",
 		"dev": "wrangler dev",
 		"test": "node test/run-preview.js",
 		"secrets:upload": "node build/upload-secrets.js",
-		"lint": "eslint . --max-warnings 0"
+		"lint": "eslint . --max-warnings 0",
+		"cem:generate": "node build/custom-elements.js",
+		"cem:check": "node build/custom-elements.js --check"
 	},
 	"type": "module",
 	"version": "1.0.0",
@@ -42,10 +48,13 @@
 		"./components/game-kit/world-data": "./client/components/game-kit/world-data.js",
 		"./components/game-kit/game-input": "./client/components/game-kit/game-input.js",
 		"./components/game-kit/world-renderer": "./client/components/game-kit/world-renderer.js",
-		"./components/game-kit/world": "./client/components/game-kit/world.js"
+		"./components/game-kit/world": "./client/components/game-kit/world.js",
+		"./custom-elements.json": "./custom-elements.json",
+		"./components/code-block": "./client/components/code-block/index.js"
 	},
 	"dependencies": {
-		"hono": "^4.13.16",
-		"@highlightjs/cdn-assets": "11.12.0"
-	}
+		"@highlightjs/cdn-assets": "11.12.0",
+		"hono": "^4.13.16"
+	},
+	"customElements": "./custom-elements.json"
 }

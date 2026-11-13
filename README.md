@@ -3,7 +3,7 @@
 A personal site and gallery of progressive web apps built with JavaScript ES modules,
 JSDoc, native CSS, and Cloudflare Workers/D1. HATEOAS (Hypertext As The Engine Of
 Application State) is the overall architectural goal; Progressive Enhancement in the
-client using cutting edge web apis. 
+client using cutting edge web apis.
 
 ## Start here
 
@@ -88,6 +88,14 @@ To add a standalone element, add its portable files under `client/components/`,
 its catalog metadata in `build/component-catalog.js`, and a showcase template and
 route entry. Cover its browser API in `test/site/`. Public files are discovered
 from the directory tree; there is no asset entry-point list to update.
+
+Edit the class JSDoc when changing a custom element's public API, then run
+`npm run cem:generate` and commit the regenerated manifests. Use
+`npm run cem:check` to validate the schema, registration links, documentation,
+and freshness without writing files. The root package points IDEs to
+`custom-elements.json`, and each portable package points to its own manifest.
+The site-wide manifest is also served at `/custom-elements.json`, with module
+paths relative to the site root.
 
 ## Develop and verify
 

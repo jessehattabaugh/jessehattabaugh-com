@@ -73,7 +73,9 @@ export function components(social) {
 				provides the format’s analyzer and plugins: editors and documentation tools read the
 				manifest for autocomplete and API reference, while
 				<code>@custom-elements-manifest/analyzer</code> regenerates it from source. Each
-				entry below links its manifest, and the
+				entry below links its manifest. Download the
+				<a href="/custom-elements.json">site-wide Custom Elements Manifest</a> for all
+				registered tags. The
 				<a href="/components/catalog.json">component catalog JSON</a> lists every manifest
 				URL.
 			</p>

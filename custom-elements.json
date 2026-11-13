@@ -1,0 +1,2035 @@
+{
+	"schemaVersion": "1.0.0",
+	"readme": "README.md",
+	"modules": [
+		{
+			"kind": "javascript-module",
+			"path": "client/components/code-block/code-block.js",
+			"declarations": [
+				{
+					"kind": "class",
+					"description": "Highlights the source text in a native pre and code pair. Place source in a direct pre containing a code element before connection. Changing language recolors the current source.",
+					"name": "CodeBlock",
+					"cssProperties": [
+						{
+							"description": "Padding around the source.",
+							"name": "--space-md",
+							"default": "1rem"
+						},
+						{
+							"description": "Border color of the source panel.",
+							"name": "--color-border",
+							"default": "#526079"
+						},
+						{
+							"description": "Corner radius of the source panel.",
+							"name": "--radius",
+							"default": ".5rem"
+						}
+					],
+					"attributes": [
+						{
+							"name": "language",
+							"type": {
+								"text": "string"
+							},
+							"description": "Highlight.js grammar. Supports HTML, CSS, JavaScript and Bash. Unknown languages display as plain text.",
+							"default": "html"
+						}
+					],
+					"superclass": {
+						"name": "HTMLElement"
+					},
+					"tagName": "code-block",
+					"customElement": true
+				}
+			],
+			"exports": [
+				{
+					"kind": "js",
+					"name": "CodeBlock",
+					"declaration": {
+						"name": "CodeBlock",
+						"module": "client/components/code-block/code-block.js"
+					}
+				}
+			]
+		},
+		{
+			"kind": "javascript-module",
+			"path": "client/components/code-block/index.js",
+			"declarations": [],
+			"exports": [
+				{
+					"kind": "custom-element-definition",
+					"name": "code-block",
+					"declaration": {
+						"name": "CodeBlock",
+						"module": "client/components/code-block/code-block.js"
+					}
+				},
+				{
+					"kind": "js",
+					"name": "CodeBlock",
+					"declaration": {
+						"name": "CodeBlock",
+						"module": "client/components/code-block/index.js"
+					}
+				}
+			]
+		},
+		{
+			"kind": "javascript-module",
+			"path": "client/components/disclosure-panel/disclosure-panel.js",
+			"declarations": [
+				{
+					"kind": "class",
+					"description": "Light-DOM enhancement of one direct details child. Native summary interaction works without JavaScript. No shadow root, slots, CSS parts, dependencies, or network requests. Initial upgrade adopts details.open unless the host open attribute is present; no initial change event. Missing details is inert; direct child insertion is observed. Reconnection adopts current markup without emitting an initial event.",
+					"name": "DisclosurePanel",
+					"events": [
+						{
+							"name": "disclosure-change",
+							"type": {
+								"text": "CustomEvent<{ open: boolean }>"
+							},
+							"description": "Emitted for state changes after initialization, including attribute updates and accepted requests. Bubbles and is composed; not cancelable. Repeated state is silent; native toggle events may coalesce rapid changes."
+						}
+					],
+					"attributes": [
+						{
+							"name": "open",
+							"type": {
+								"text": "boolean"
+							},
+							"description": "Boolean presence opens the direct details child. Remove to close. open=\"false\" still opens. Native toggles reflect back to this attribute."
+						}
+					],
+					"superclass": {
+						"name": "HTMLElement"
+					},
+					"x-listens": [
+						{
+							"name": "disclosure-request",
+							"type": {
+								"text": "CustomEvent<{ open: boolean }>"
+							},
+							"description": "Dispatch from a descendant to request open or closed state. Requires a boolean detail.open. Invalid, defaultPrevented, missing-child, and outer-panel requests are ignored. Nested panels own their requests. Requests are not stopped and remain observable by ancestors. Set bubbles and composed when dispatching."
+						}
+					],
+					"tagName": "disclosure-panel",
+					"customElement": true
+				}
+			],
+			"exports": [
+				{
+					"kind": "js",
+					"name": "DisclosurePanel",
+					"declaration": {
+						"name": "DisclosurePanel",
+						"module": "client/components/disclosure-panel/disclosure-panel.js"
+					}
+				}
+			]
+		},
+		{
+			"kind": "javascript-module",
+			"path": "client/components/disclosure-panel/index.js",
+			"declarations": [],
+			"exports": [
+				{
+					"kind": "custom-element-definition",
+					"name": "disclosure-panel",
+					"declaration": {
+						"name": "DisclosurePanel",
+						"module": "client/components/disclosure-panel/disclosure-panel.js"
+					}
+				},
+				{
+					"kind": "js",
+					"name": "DisclosurePanel",
+					"declaration": {
+						"name": "DisclosurePanel",
+						"module": "client/components/disclosure-panel/index.js"
+					}
+				}
+			]
+		},
+		{
+			"kind": "javascript-module",
+			"path": "client/components/game-kit/game-input.js",
+			"declarations": [
+				{
+					"kind": "class",
+					"description": "Owns native buttons with data-action=start|pause|restart|left|right|up|down|fire. Arrow keys/WASD move, Space fires, P/Escape pause. Held pointers support multi-touch. Discovers the first available gamepad at rest and polls axes/buttons every 50 ms. Disconnect hands ownership to the next connected pad or native controls. Modified keys and text entry remain native.",
+					"name": "GameInput",
+					"events": [
+						{
+							"type": {
+								"text": "CustomEvent<{ x: number, y: number, fire: boolean, source: string, command?: string }>"
+							},
+							"description": "Bubbles and is composed. Emitted when normalized axes, fire state, source or command change. Axes are -1–1. Commands match button actions.",
+							"name": "game-input"
+						},
+						{
+							"type": {
+								"text": "CustomEvent<{ index: number, connected: boolean, name: string, mapping: string }>"
+							},
+							"description": "Bubbles and is composed. Reports player-one controller acquisition or loss. index=-1 means native controls. Browser standard mapping uses axes 0/1, D-pad 12–15, trigger 7 and Start 9.",
+							"name": "game-controller-change"
+						}
+					],
+					"attributes": [
+						{
+							"type": {
+								"text": "number"
+							},
+							"description": "Stick deadzone, clamped to 0–0.9. Values outside it are rescaled.",
+							"name": "deadzone",
+							"default": "0.18"
+						},
+						{
+							"type": {
+								"text": "number"
+							},
+							"description": "Gamepad fire-button index, integer 0–31. Right trigger also fires.",
+							"name": "fire-button",
+							"default": "0"
+						}
+					],
+					"superclass": {
+						"name": "HTMLElement"
+					},
+					"x-markup": [
+						{
+							"name": "data-action",
+							"description": "On a button, names an input command. Use start, pause, restart, left, right, up, down, or fire. A world treats pause as a toggle."
+						}
+					],
+					"tagName": "game-input",
+					"customElement": true
+				}
+			],
+			"exports": [
+				{
+					"kind": "js",
+					"name": "GameInput",
+					"declaration": {
+						"name": "GameInput",
+						"module": "client/components/game-kit/game-input.js"
+					}
+				}
+			]
+		},
+		{
+			"kind": "javascript-module",
+			"path": "client/components/game-kit/index.js",
+			"declarations": [
+				{
+					"kind": "class",
+					"description": "Logical pixel viewport. Put layers, tilemaps and sprites directly inside. Graphics clip to the viewport and paint in DOM order.",
+					"name": "GameScreen",
+					"cssProperties": [
+						{
+							"description": "Maximum rendered width of the responsive viewport.",
+							"name": "--game-screen-width",
+							"default": "32rem"
+						},
+						{
+							"description": "Color or CSS background behind the graphics.",
+							"name": "--game-screen-background",
+							"default": "#171a29"
+						}
+					],
+					"attributes": [
+						{
+							"name": "camera-x",
+							"type": {
+								"text": "number"
+							},
+							"description": "Camera offset in logical pixels. Direct tilemap layers scroll in CSS. Copied to direct bitmap layers on upgrade, insertion, and change.",
+							"default": "0"
+						},
+						{
+							"name": "camera-y",
+							"type": {
+								"text": "number"
+							},
+							"description": "Camera offset in logical pixels. Direct tilemap layers scroll in CSS. Copied to direct bitmap layers on upgrade, insertion, and change.",
+							"default": "0"
+						},
+						{
+							"type": {
+								"text": "number"
+							},
+							"description": "Logical width. Minimum 1.",
+							"name": "width",
+							"default": "128"
+						},
+						{
+							"type": {
+								"text": "number"
+							},
+							"description": "Logical height. Minimum 1.",
+							"name": "height",
+							"default": "96"
+						}
+					],
+					"superclass": {
+						"name": "HTMLElement"
+					},
+					"x-markup": [
+						{
+							"name": "data-world-viewport",
+							"description": "Marks the screen that a world projects into depth. Give that screen tabindex=\"0\" so the world can focus it at launch."
+						}
+					],
+					"tagName": "game-screen",
+					"customElement": true
+				},
+				{
+					"kind": "class",
+					"description": "Repeating bitmap sampled into a canvas on demand. The first direct img supplies the texture and accessible alternative. A missing, failed or loading image leaves the authored fallback. Put inside a game-screen. Layer resolution defaults to 128 by 96 and is stretched to the viewport. A direct game-screen layer containing a game-tilemap scrolls the map with CSS. Extend the layer beyond the screen when scrolling should reveal more tiles. In a game-world, the perspective mode projects a CSS ground plane and scenery layers use factor and drift for parallax.",
+					"name": "GameLayer",
+					"cssProperties": [
+						{
+							"description": "First floor color on a perspective layer.",
+							"name": "--palette-0"
+						},
+						{
+							"description": "Second floor color on a perspective layer.",
+							"name": "--palette-1"
+						},
+						{
+							"description": "First cycling grid color on a perspective layer.",
+							"name": "--palette-2"
+						},
+						{
+							"description": "Second cycling grid color on a perspective layer.",
+							"name": "--palette-3"
+						},
+						{
+							"description": "Number of palette changes per second on a perspective layer.",
+							"name": "--cycle-rate",
+							"default": "5"
+						}
+					],
+					"attributes": [
+						{
+							"name": "mode",
+							"type": {
+								"text": "\"plain\" | \"affine\" | \"scanlines\" | \"columns\" | \"road\" | \"perspective\""
+							},
+							"description": "Plain repeats the image. Affine applies one centered transform. Scanlines offset each row; columns offset each column. Road leaves the top third transparent and increases zoom by row toward the viewer, repeating along the texture’s vertical axis. Unknown modes use plain.",
+							"default": "plain"
+						},
+						{
+							"name": "width",
+							"type": {
+								"text": "number"
+							},
+							"description": "Canvas width. Rounded and clamped to 1–512.",
+							"default": "128"
+						},
+						{
+							"name": "height",
+							"type": {
+								"text": "number"
+							},
+							"description": "Canvas height. Rounded and clamped to 1–512.",
+							"default": "96"
+						},
+						{
+							"name": "scroll-x",
+							"type": {
+								"text": "number"
+							},
+							"description": "Local horizontal scroll in logical pixels. Positive values move the layer left.",
+							"default": "0"
+						},
+						{
+							"name": "scroll-y",
+							"type": {
+								"text": "number"
+							},
+							"description": "Local vertical scroll in logical pixels. Positive values move the layer up in orthographic modes, or advance texture depth in road mode.",
+							"default": "0"
+						},
+						{
+							"name": "camera-x",
+							"type": {
+								"text": "number"
+							},
+							"description": "Camera offset in logical pixels. Managed by the screen when directly nested in one.",
+							"default": "0"
+						},
+						{
+							"name": "camera-y",
+							"type": {
+								"text": "number"
+							},
+							"description": "Camera offset in logical pixels. Managed by the screen when directly nested in one.",
+							"default": "0"
+						},
+						{
+							"name": "factor",
+							"type": {
+								"text": "number"
+							},
+							"description": "Multiplier for both camera offsets. Applied before adding local scroll.",
+							"default": "1"
+						},
+						{
+							"name": "scale",
+							"type": {
+								"text": "number"
+							},
+							"description": "Base texture scale, clamped to 0.125–16. Road mode multiplies this by depth.",
+							"default": "1"
+						},
+						{
+							"name": "angle",
+							"type": {
+								"text": "number"
+							},
+							"description": "Clockwise degrees around the center. Affine mode only.",
+							"default": "0"
+						},
+						{
+							"name": "amplitude",
+							"type": {
+								"text": "number"
+							},
+							"description": "Maximum strip offset in logical pixels. Scanlines, columns, and road only.",
+							"default": "0"
+						},
+						{
+							"name": "phase",
+							"type": {
+								"text": "number"
+							},
+							"description": "Position within the offset wave in degrees. Scanlines, columns, and road only.",
+							"default": "0"
+						},
+						{
+							"type": {
+								"text": "number"
+							},
+							"description": "Forward parallax drift used when this layer is a direct child of a world stage.",
+							"name": "drift",
+							"default": "0.05"
+						},
+						{
+							"type": {
+								"text": "number"
+							},
+							"description": "World width and depth of a tile in a perspective layer.",
+							"name": "cell-size",
+							"default": "4"
+						}
+					],
+					"superclass": {
+						"name": "HTMLElement"
+					},
+					"tagName": "game-layer",
+					"customElement": true
+				},
+				{
+					"kind": "class",
+					"description": "A sprite references a pattern bank or contains its own image. Outside a world, x/y/width/height/scale preserve the original logical-screen API. Within a world, x/y/z/size map to CSS 3D transforms. Sprite sheets animate with CSS keyframes and steps(). Player, enemy and scenery behavior is authored on the same graphics record. Native enemy labels can contain checkbox controls for script-free targeting.",
+					"name": "GameSprite",
+					"events": [
+						{
+							"type": {
+								"text": "CustomEvent<{ x: number, y: number }>"
+							},
+							"description": "Bubbles and is composed. Emitted on each accepted shot.",
+							"name": "game-shot"
+						},
+						{
+							"type": {
+								"text": "CustomEvent<{ health: number, source: \"enemy\" | \"projectile\" }>"
+							},
+							"description": "Bubbles and is composed. Emitted on an accepted hit, after applying one point of damage and the recovery interval.",
+							"name": "game-player-hit"
+						},
+						{
+							"type": {
+								"text": "CustomEvent<{ remaining: number, destroyed: boolean, score: number }>"
+							},
+							"description": "Bubbles and is composed. Emitted from the wave for each accepted player shot. Score increases once when an enemy is destroyed.",
+							"name": "game-enemy-hit"
+						}
+					],
+					"attributes": [
+						{
+							"type": {
+								"text": "number"
+							},
+							"description": "Left edge in logical pixels.",
+							"name": "x",
+							"default": "0"
+						},
+						{
+							"type": {
+								"text": "number"
+							},
+							"description": "Top edge in logical pixels.",
+							"name": "y",
+							"default": "0"
+						},
+						{
+							"type": {
+								"text": "number"
+							},
+							"description": "Unscaled bitmap width. Minimum 1.",
+							"name": "width",
+							"default": "8"
+						},
+						{
+							"type": {
+								"text": "number"
+							},
+							"description": "Unscaled bitmap height. Minimum 1.",
+							"name": "height",
+							"default": "8"
+						},
+						{
+							"type": {
+								"text": "number"
+							},
+							"description": "Size multiplier from the top-left corner, clamped to 0.125–16.",
+							"name": "scale",
+							"default": "1"
+						},
+						{
+							"type": {
+								"text": "boolean"
+							},
+							"description": "Presence mirrors the bitmap horizontally.",
+							"name": "flip-x"
+						},
+						{
+							"type": {
+								"text": "number"
+							},
+							"description": "Number of consecutive sheet frames. CSS steps through them. A player selects a bank frame from input.",
+							"name": "frames",
+							"default": "1"
+						},
+						{
+							"type": {
+								"text": "number"
+							},
+							"description": "CSS sprite playback rate.",
+							"name": "fps",
+							"default": "8"
+						},
+						{
+							"type": {
+								"text": "number"
+							},
+							"description": "Initial horizontal position, clamped to authored bounds.",
+							"name": "start-x",
+							"default": "0"
+						},
+						{
+							"type": {
+								"text": "number"
+							},
+							"description": "Initial height, clamped to authored bounds.",
+							"name": "start-y",
+							"default": "1.1"
+						},
+						{
+							"type": {
+								"text": "number"
+							},
+							"description": "Minimum horizontal position, bounded to -10–10.",
+							"name": "min-x",
+							"default": "-2.7"
+						},
+						{
+							"type": {
+								"text": "number"
+							},
+							"description": "Maximum horizontal position, bounded to -10–10 and at least min-x.",
+							"name": "max-x",
+							"default": "2.7"
+						},
+						{
+							"type": {
+								"text": "number"
+							},
+							"description": "Minimum height, bounded to -2–10.",
+							"name": "min-y",
+							"default": "0.3"
+						},
+						{
+							"type": {
+								"text": "number"
+							},
+							"description": "Maximum height, bounded to -2–10 and at least min-y. Equal vertical bounds constrain an actor to the ground.",
+							"name": "max-y",
+							"default": "2.4"
+						},
+						{
+							"type": {
+								"text": "number"
+							},
+							"description": "Movement world units per second, clamped to 0.1–12.",
+							"name": "speed",
+							"default": "3.2"
+						},
+						{
+							"type": {
+								"text": "number"
+							},
+							"description": "Initial shield capacity, integer 1–99.",
+							"name": "max-health",
+							"default": "5"
+						},
+						{
+							"type": {
+								"text": "number"
+							},
+							"description": "Collision radius in world units, clamped to 0.05–1.",
+							"name": "radius",
+							"default": "0.18"
+						},
+						{
+							"type": {
+								"text": "number"
+							},
+							"description": "Billboard height in world units.",
+							"name": "size",
+							"default": "1.2"
+						},
+						{
+							"type": {
+								"text": "number"
+							},
+							"description": "Seconds between player shots, clamped to 0.06–2.",
+							"name": "fire-rate",
+							"default": "0.16"
+						},
+						{
+							"type": {
+								"text": "number"
+							},
+							"description": "Forward shot speed, clamped to 20–180.",
+							"name": "shot-speed",
+							"default": "70"
+						},
+						{
+							"type": {
+								"text": "number"
+							},
+							"description": "Invulnerability after a hit, seconds clamped to 0.1–5.",
+							"name": "recovery",
+							"default": "1.2"
+						},
+						{
+							"type": {
+								"text": "number"
+							},
+							"description": "For a player, reflected remaining shield. For an enemy, the authored number of shots needed to destroy it (default 1).",
+							"name": "health"
+						},
+						{
+							"type": {
+								"text": "number"
+							},
+							"description": "Forward distance at which the first enemy spawns.",
+							"name": "at",
+							"default": "30"
+						},
+						{
+							"type": {
+								"text": "number"
+							},
+							"description": "Distance between spawns, clamped to 1–1000.",
+							"name": "interval",
+							"default": "35"
+						},
+						{
+							"type": {
+								"text": "number"
+							},
+							"description": "Number of enemies, integer 0–50.",
+							"name": "count",
+							"default": "1"
+						},
+						{
+							"type": {
+								"text": "string"
+							},
+							"description": "straight, sine, dive, or chase.",
+							"name": "behavior",
+							"default": "straight"
+						},
+						{
+							"type": {
+								"text": "number"
+							},
+							"description": "World depth. CSS translate3d projects it through the screen perspective.",
+							"name": "z",
+							"default": "60"
+						},
+						{
+							"type": {
+								"text": "number"
+							},
+							"description": "Alternating offset to either side of x, clamped to 0–5.",
+							"name": "spread",
+							"default": "0"
+						},
+						{
+							"type": {
+								"text": "number"
+							},
+							"description": "Horizontal amplitude for sine or dive motion.",
+							"name": "sway",
+							"default": "1"
+						},
+						{
+							"type": {
+								"text": "number"
+							},
+							"description": "Sine angular frequency, clamped to 0–8.",
+							"name": "frequency",
+							"default": "2"
+						},
+						{
+							"type": {
+								"text": "number"
+							},
+							"description": "Height lost per second in dive movement, clamped to 0–2.",
+							"name": "dive-rate",
+							"default": "0.45"
+						},
+						{
+							"type": {
+								"text": "number"
+							},
+							"description": "Chase response coefficient, clamped to 0–3.",
+							"name": "tracking",
+							"default": "0.8"
+						},
+						{
+							"type": {
+								"text": "number"
+							},
+							"description": "Points awarded on destruction, rounded 0–10000.",
+							"name": "score",
+							"default": "100"
+						},
+						{
+							"type": {
+								"text": "number"
+							},
+							"description": "Delay before the first shot, seconds clamped to 0.1–20.",
+							"name": "fire-delay",
+							"default": "1.2"
+						},
+						{
+							"type": {
+								"text": "number"
+							},
+							"description": "World distance between repeating copies, clamped to 2–200.",
+							"name": "spacing",
+							"default": "16"
+						},
+						{
+							"type": {
+								"text": "number"
+							},
+							"description": "Initial world distance, clamped to 0–200.",
+							"name": "offset",
+							"default": "0"
+						},
+						{
+							"type": {
+								"text": "string"
+							},
+							"description": "Contextual behavior in a world: player, scenery, or enemy. Rendering uses the same sprite primitive.",
+							"name": "actor"
+						},
+						{
+							"type": {
+								"text": "string"
+							},
+							"description": "ID of a pattern bank. Its image provides equal-sized, row-major sprite frames.",
+							"name": "tileset"
+						},
+						{
+							"type": {
+								"text": "number"
+							},
+							"description": "Frame width divided by frame height for CSS world sizing.",
+							"name": "aspect",
+							"default": "1"
+						},
+						{
+							"type": {
+								"text": "number"
+							},
+							"description": "Reflected selected frame for a player sprite.",
+							"name": "frame"
+						},
+						{
+							"type": {
+								"text": "number"
+							},
+							"description": "Reflected player center coordinate, separate from the image base x/y.",
+							"name": "position-x"
+						},
+						{
+							"type": {
+								"text": "number"
+							},
+							"description": "Reflected player center altitude.",
+							"name": "position-y"
+						},
+						{
+							"type": {
+								"text": "integer"
+							},
+							"description": "Stacking order in a flat screen. Higher values paint above lower values. Equal values paint in document order. Perspective worlds order sprites by depth.",
+							"name": "priority",
+							"default": "0"
+						},
+						{
+							"type": {
+								"text": "boolean"
+							},
+							"description": "Reflected during player recovery after a hit. The world stylesheet flashes the pilot sheet while this attribute is present.",
+							"name": "invulnerable"
+						}
+					],
+					"superclass": {
+						"name": "HTMLElement"
+					},
+					"x-markup": [
+						{
+							"name": "data-native-target",
+							"description": "On the label wrapping a target checkbox and sprite image, enables pointer targeting without JavaScript."
+						}
+					],
+					"tagName": "game-sprite",
+					"customElement": true
+				},
+				{
+					"kind": "class",
+					"description": "A viewport-filling CSS grid. Use one element per cell, in row-major order, and style the cell or include an image. Cells beyond the declared grid are clipped. Layout uses typed CSS attr(). In a world, child game-tile elements name bank indices. Background maps use CSS atlas positions and may provide background-image, --sheet-columns and --sheet-rows for native rendering. Indexed ground maps repeat in the projected layer.",
+					"name": "GameTilemap",
+					"cssProperties": [
+						{
+							"description": "Pattern-bank column count.",
+							"name": "--sheet-columns"
+						},
+						{
+							"description": "Pattern-bank row count.",
+							"name": "--sheet-rows"
+						}
+					],
+					"attributes": [
+						{
+							"type": {
+								"text": "number"
+							},
+							"description": "Positive integer number of tile columns.",
+							"name": "columns",
+							"default": "16"
+						},
+						{
+							"type": {
+								"text": "number"
+							},
+							"description": "Positive integer number of tile rows.",
+							"name": "rows",
+							"default": "12"
+						},
+						{
+							"type": {
+								"text": "string"
+							},
+							"description": "Pattern-bank ID for tile references.",
+							"name": "tileset"
+						},
+						{
+							"type": {
+								"text": "string"
+							},
+							"description": "Palette ID for indexed patterns.",
+							"name": "palette"
+						},
+						{
+							"type": {
+								"text": "string"
+							},
+							"description": "Optional indices means whitespace-separated row-major tile indices. Otherwise use child game-tile cells.",
+							"name": "encoding"
+						}
+					],
+					"superclass": {
+						"name": "HTMLElement"
+					},
+					"tagName": "game-tilemap",
+					"customElement": true
+				},
+				{
+					"kind": "class",
+					"description": "A scene contains ordinary light DOM. Within a game, use a document-unique id and tabindex=\"-1\" for focus after navigation. Outside a game it renders normally.",
+					"name": "GameScene",
+					"attributes": [
+						{
+							"type": {
+								"text": "string"
+							},
+							"description": "Fragment identifier for links and the game start and scene attributes.",
+							"name": "id"
+						},
+						{
+							"type": {
+								"text": "boolean"
+							},
+							"description": "Author this on one direct scene as the stylesheet’s default scene.",
+							"name": "data-start"
+						},
+						{
+							"type": {
+								"text": "boolean"
+							},
+							"description": "Reflected by the owning game after upgrade.",
+							"name": "active"
+						}
+					],
+					"superclass": {
+						"name": "HTMLElement"
+					},
+					"tagName": "game-scene",
+					"customElement": true
+				},
+				{
+					"kind": "class",
+					"description": "Owns direct game-scene children. Use a document fragment link to select a scene, including without scripting. Browser history restores the scene. The start or first named scene is used when the fragment is absent or unknown.",
+					"name": "GameFlow",
+					"events": [
+						{
+							"type": {
+								"text": "CustomEvent<{ scene: string, previous: string }>"
+							},
+							"description": "Bubbles and is composed. Emitted after switching between two named scenes. Initial selection is silent.",
+							"name": "game-scene-change"
+						}
+					],
+					"attributes": [
+						{
+							"name": "scene",
+							"type": {
+								"text": "string"
+							},
+							"description": "Reflects the selected scene after upgrade. Set to a direct scene ID to navigate. Invalid values are restored to the scene selected by the current fragment or start."
+						},
+						{
+							"name": "start",
+							"type": {
+								"text": "string"
+							},
+							"description": "ID of the initial scene. Put data-start on the same scene for the stylesheet fallback."
+						}
+					],
+					"superclass": {
+						"name": "HTMLElement"
+					},
+					"tagName": "game-flow",
+					"customElement": true
+				},
+				{
+					"kind": "class",
+					"description": "Contains native fragment links, typically in a nav. Optional data-key attributes on links map KeyboardEvent.key values to actions while a link in that menu has focus. Modified clicks and nested menus keep their native ownership.",
+					"name": "GameMenu",
+					"events": [
+						{
+							"type": {
+								"text": "CustomEvent<{ scene: string }>"
+							},
+							"description": "Dispatched from the chosen link before fragment navigation. Bubbles, is composed and is cancelable. The detail contains the fragment text without #, including any percent-encoding.",
+							"name": "game-action"
+						}
+					],
+					"superclass": {
+						"name": "HTMLElement"
+					},
+					"x-markup": [
+						{
+							"name": "data-key",
+							"description": "On a descendant fragment link, adds a shortcut while focus is inside the menu. Use the KeyboardEvent.key value."
+						}
+					],
+					"tagName": "game-menu",
+					"customElement": true
+				},
+				{
+					"kind": "class",
+					"description": "Coordinates one direct dialog child. Use native show-modal commands or the open attribute after upgrade. Escape and method=dialog preserve native behavior. A missing dialog is inert until inserted.",
+					"name": "GameModal",
+					"events": [
+						{
+							"type": {
+								"text": "CustomEvent<{ open: boolean }>"
+							},
+							"description": "Bubbles and is composed. Emitted for a changed open state after initialization. Native toggle notifications can coalesce.",
+							"name": "game-modal-change"
+						}
+					],
+					"attributes": [
+						{
+							"name": "open",
+							"type": {
+								"text": "boolean"
+							},
+							"description": "Presence opens the dialog, removal closes it. Reflected from native toggles. At initialization an already-open native dialog is adopted."
+						}
+					],
+					"superclass": {
+						"name": "HTMLElement"
+					},
+					"tagName": "game-modal",
+					"customElement": true
+				}
+			],
+			"exports": [
+				{
+					"kind": "js",
+					"name": "GameWorld",
+					"declaration": {
+						"name": "GameWorld",
+						"module": "client/components/game-kit/index.js"
+					}
+				},
+				{
+					"kind": "js",
+					"name": "GameStage",
+					"declaration": {
+						"name": "GameStage",
+						"module": "client/components/game-kit/index.js"
+					}
+				},
+				{
+					"kind": "js",
+					"name": "GamePalette",
+					"declaration": {
+						"name": "GamePalette",
+						"module": "client/components/game-kit/index.js"
+					}
+				},
+				{
+					"kind": "js",
+					"name": "GameTileset",
+					"declaration": {
+						"name": "GameTileset",
+						"module": "client/components/game-kit/index.js"
+					}
+				},
+				{
+					"kind": "js",
+					"name": "GameTile",
+					"declaration": {
+						"name": "GameTile",
+						"module": "client/components/game-kit/index.js"
+					}
+				},
+				{
+					"kind": "js",
+					"name": "GameInput",
+					"declaration": {
+						"name": "GameInput",
+						"module": "client/components/game-kit/index.js"
+					}
+				},
+				{
+					"kind": "js",
+					"name": "GameScreen",
+					"declaration": {
+						"name": "GameScreen",
+						"module": "client/components/game-kit/index.js"
+					}
+				},
+				{
+					"kind": "js",
+					"name": "GameLayer",
+					"declaration": {
+						"name": "GameLayer",
+						"module": "client/components/game-kit/index.js"
+					}
+				},
+				{
+					"kind": "js",
+					"name": "GameSprite",
+					"declaration": {
+						"name": "GameSprite",
+						"module": "client/components/game-kit/index.js"
+					}
+				},
+				{
+					"kind": "js",
+					"name": "GameTilemap",
+					"declaration": {
+						"name": "GameTilemap",
+						"module": "client/components/game-kit/index.js"
+					}
+				},
+				{
+					"kind": "js",
+					"name": "GameScene",
+					"declaration": {
+						"name": "GameScene",
+						"module": "client/components/game-kit/index.js"
+					}
+				},
+				{
+					"kind": "js",
+					"name": "GameFlow",
+					"declaration": {
+						"name": "GameFlow",
+						"module": "client/components/game-kit/index.js"
+					}
+				},
+				{
+					"kind": "js",
+					"name": "GameMenu",
+					"declaration": {
+						"name": "GameMenu",
+						"module": "client/components/game-kit/index.js"
+					}
+				},
+				{
+					"kind": "js",
+					"name": "GameModal",
+					"declaration": {
+						"name": "GameModal",
+						"module": "client/components/game-kit/index.js"
+					}
+				},
+				{
+					"kind": "custom-element-definition",
+					"name": "game-screen",
+					"declaration": {
+						"name": "GameScreen",
+						"module": "client/components/game-kit/index.js"
+					}
+				},
+				{
+					"kind": "custom-element-definition",
+					"name": "game-layer",
+					"declaration": {
+						"name": "GameLayer",
+						"module": "client/components/game-kit/index.js"
+					}
+				},
+				{
+					"kind": "custom-element-definition",
+					"name": "game-sprite",
+					"declaration": {
+						"name": "GameSprite",
+						"module": "client/components/game-kit/index.js"
+					}
+				},
+				{
+					"kind": "custom-element-definition",
+					"name": "game-tilemap",
+					"declaration": {
+						"name": "GameTilemap",
+						"module": "client/components/game-kit/index.js"
+					}
+				},
+				{
+					"kind": "custom-element-definition",
+					"name": "game-world",
+					"declaration": {
+						"name": "GameWorld",
+						"module": "client/components/game-kit/world.js"
+					}
+				},
+				{
+					"kind": "custom-element-definition",
+					"name": "game-stage",
+					"declaration": {
+						"name": "GameStage",
+						"module": "client/components/game-kit/world.js"
+					}
+				},
+				{
+					"kind": "custom-element-definition",
+					"name": "game-palette",
+					"declaration": {
+						"name": "GamePalette",
+						"module": "client/components/game-kit/world.js"
+					}
+				},
+				{
+					"kind": "custom-element-definition",
+					"name": "game-tileset",
+					"declaration": {
+						"name": "GameTileset",
+						"module": "client/components/game-kit/world.js"
+					}
+				},
+				{
+					"kind": "custom-element-definition",
+					"name": "game-tile",
+					"declaration": {
+						"name": "GameTile",
+						"module": "client/components/game-kit/world.js"
+					}
+				},
+				{
+					"kind": "custom-element-definition",
+					"name": "game-input",
+					"declaration": {
+						"name": "GameInput",
+						"module": "client/components/game-kit/game-input.js"
+					}
+				},
+				{
+					"kind": "custom-element-definition",
+					"name": "game-flow",
+					"declaration": {
+						"name": "GameFlow",
+						"module": "client/components/game-kit/index.js"
+					}
+				},
+				{
+					"kind": "custom-element-definition",
+					"name": "game-scene",
+					"declaration": {
+						"name": "GameScene",
+						"module": "client/components/game-kit/index.js"
+					}
+				},
+				{
+					"kind": "custom-element-definition",
+					"name": "game-menu",
+					"declaration": {
+						"name": "GameMenu",
+						"module": "client/components/game-kit/index.js"
+					}
+				},
+				{
+					"kind": "custom-element-definition",
+					"name": "game-modal",
+					"declaration": {
+						"name": "GameModal",
+						"module": "client/components/game-kit/index.js"
+					}
+				}
+			]
+		},
+		{
+			"kind": "javascript-module",
+			"path": "client/components/game-kit/world.js",
+			"declarations": [
+				{
+					"kind": "class",
+					"description": "Ordered world stage inside game-screen. Contains game-layer tilemaps, palette and pattern-bank definitions, and scenery/enemy game-sprite records. Score and shield carry between stages. CSS native sector controls can select stages before upgrade.",
+					"name": "GameStage",
+					"events": [
+						{
+							"type": {
+								"text": "CustomEvent<{ stage: string, index: number, name: string }>"
+							},
+							"description": "Bubbles and is composed. Emitted from the stage on entry, including initialization and restart. Index is zero-based.",
+							"name": "game-stage-change"
+						}
+					],
+					"attributes": [
+						{
+							"type": {
+								"text": "string"
+							},
+							"description": "Document-unique stage identifier.",
+							"name": "id"
+						},
+						{
+							"type": {
+								"text": "string"
+							},
+							"description": "Readable name used by the instruments and status.",
+							"name": "name"
+						},
+						{
+							"type": {
+								"text": "number"
+							},
+							"description": "Stage distance in world units, clamped to 10–10000.",
+							"name": "length",
+							"default": "480"
+						},
+						{
+							"type": {
+								"text": "number"
+							},
+							"description": "Forward world units per second, clamped to 1–60.",
+							"name": "speed",
+							"default": "18"
+						},
+						{
+							"type": {
+								"text": "number"
+							},
+							"description": "Scenery far plane, clamped to 10–160.",
+							"name": "draw-distance",
+							"default": "90"
+						},
+						{
+							"type": {
+								"text": "number"
+							},
+							"description": "Shield restored when entering this stage, capped at max-health.",
+							"name": "repair",
+							"default": "1"
+						},
+						{
+							"type": {
+								"text": "string"
+							},
+							"description": "Top sky CSS color.",
+							"name": "sky",
+							"default": "#182b55"
+						},
+						{
+							"type": {
+								"text": "string"
+							},
+							"description": "Sky color near the horizon.",
+							"name": "haze",
+							"default": "#d6b8b9"
+						},
+						{
+							"type": {
+								"text": "boolean"
+							},
+							"description": "Reflected presence on the current stage.",
+							"name": "active"
+						}
+					],
+					"superclass": {
+						"name": "HTMLElement"
+					},
+					"x-markup": [
+						{
+							"name": "data-stage-index",
+							"description": "Native stage number. The starter stylesheet shows the first stage by default and supports native radio selections for indices 1 and 2."
+						}
+					],
+					"tagName": "game-stage",
+					"customElement": true
+				},
+				{
+					"kind": "class",
+					"description": "Palette RAM record. Whitespace-separated colors define the indexed pattern colors. CSS variables --palette-0 through --palette-3 provide the native rendering values. The sample cycles the two grid entries using step-end keyframes.",
+					"name": "GamePalette",
+					"attributes": [
+						{
+							"type": {
+								"text": "string"
+							},
+							"description": "Document-unique bank reference.",
+							"name": "id"
+						},
+						{
+							"type": {
+								"text": "string"
+							},
+							"description": "Whitespace-separated #rrggbb colors.",
+							"name": "colors"
+						},
+						{
+							"type": {
+								"text": "number"
+							},
+							"description": "First rotating palette entry.",
+							"name": "cycle-start",
+							"default": "2"
+						},
+						{
+							"type": {
+								"text": "number"
+							},
+							"description": "Palette changes per second, reflected in the authored CSS --cycle-rate.",
+							"name": "cycle-rate",
+							"default": "5"
+						}
+					],
+					"superclass": {
+						"name": "HTMLElement"
+					},
+					"tagName": "game-palette",
+					"customElement": true
+				},
+				{
+					"kind": "class",
+					"description": "Pattern bank shared by background tilemaps and sprites. A direct image stores equal-sized tiles in row-major order. Alternatively, child game-tile records contain whitespace-separated palette indices. Pattern banks are data and are hidden visually.",
+					"name": "GameTileset",
+					"attributes": [
+						{
+							"type": {
+								"text": "string"
+							},
+							"description": "Document-unique bank reference.",
+							"name": "id"
+						},
+						{
+							"type": {
+								"text": "number"
+							},
+							"description": "Pattern width in pixels, integer 1–64.",
+							"name": "tile-width",
+							"default": "8"
+						},
+						{
+							"type": {
+								"text": "number"
+							},
+							"description": "Pattern height in pixels, integer 1–64.",
+							"name": "tile-height",
+							"default": "8"
+						}
+					],
+					"superclass": {
+						"name": "HTMLElement"
+					},
+					"tagName": "game-tileset",
+					"customElement": true
+				},
+				{
+					"kind": "class",
+					"description": "In a tileset, this record contains row-major pixel palette indices. In a tilemap, its index references one pattern-bank entry. Native atlas rendering uses CSS image positions. A hardware interpreter can read the same index and palette data.",
+					"name": "GameTile",
+					"cssProperties": [
+						{
+							"description": "Pattern-bank column for CSS atlas rendering.",
+							"name": "--tile-x"
+						},
+						{
+							"description": "Pattern-bank row for CSS atlas rendering.",
+							"name": "--tile-y"
+						}
+					],
+					"attributes": [
+						{
+							"type": {
+								"text": "number"
+							},
+							"description": "Zero-based pattern-bank index.",
+							"name": "index",
+							"default": "0"
+						}
+					],
+					"superclass": {
+						"name": "HTMLElement"
+					},
+					"tagName": "game-tile",
+					"customElement": true
+				},
+				{
+					"kind": "class",
+					"description": "Coordinates an HTML/CSS perspective world. Pattern banks supply tilemaps and sprites. The screen contains ordered stages, layer tilemaps and the player sprite. CSS owns 3D projection, palette changes, scrolling, transitions and sprite animation. Native inputs support course motion, steering, targeting and sector choice without JavaScript. Upgrade adds fixed-step movement, aimed projectiles, collisions and controller input. The simulation pauses on blur or hidden tabs.",
+					"name": "GameWorld",
+					"cssProperties": [
+						{
+							"description": "Optional sprite blur per depth unit beyond 80, applied by CSS.",
+							"name": "--distance-blur",
+							"default": "0px"
+						}
+					],
+					"events": [
+						{
+							"type": {
+								"text": "CustomEvent<{ state: string, score: number, health: number, stage: string }>"
+							},
+							"description": "Bubbles and is composed. Emitted on state changes.",
+							"name": "game-world-change"
+						},
+						{
+							"type": {
+								"text": "CustomEvent<{ reason: \"assets-or-definitions\" }>"
+							},
+							"description": "Bubbles and is composed. Reports an incomplete world, failed image, invalid sheet or unknown sprite reference.",
+							"name": "game-world-error"
+						}
+					],
+					"attributes": [
+						{
+							"type": {
+								"text": "string"
+							},
+							"description": "Reflected runtime state: loading, ready, playing, paused, won, lost, or error.",
+							"name": "state"
+						},
+						{
+							"type": {
+								"text": "number"
+							},
+							"description": "Reflected total score, reset when restarting.",
+							"name": "score"
+						},
+						{
+							"type": {
+								"text": "string"
+							},
+							"description": "Reflected ID of the current stage.",
+							"name": "stage"
+						}
+					],
+					"superclass": {
+						"name": "HTMLElement"
+					},
+					"x-markup": [
+						{
+							"name": "data-world-controls",
+							"description": "Wrap launch, pause, and movement buttons in this container. The stylesheet shows it after the world is ready."
+						},
+						{
+							"name": "data-world-status",
+							"description": "Text updated for loading failure, stage changes, pause, victory, and defeat. Use role=\"status\" to announce changes."
+						},
+						{
+							"name": "data-world-hud",
+							"description": "Contains the instrument outputs. The native stylesheet displays only score before upgrade."
+						},
+						{
+							"name": "data-world-shield",
+							"description": "Optional output hooks for health, points, stage name, and percent of the current stage completed."
+						},
+						{
+							"name": "data-world-score",
+							"description": "Optional output hooks for health, points, stage name, and percent of the current stage completed."
+						},
+						{
+							"name": "data-world-sector",
+							"description": "Optional output hooks for health, points, stage name, and percent of the current stage completed."
+						},
+						{
+							"name": "data-world-progress",
+							"description": "Optional output hooks for health, points, stage name, and percent of the current stage completed."
+						},
+						{
+							"name": "data-world-controller",
+							"description": "Optional text hook for the active controller or keyboard/touch."
+						},
+						{
+							"name": "data-world-poster",
+							"description": "Marks an image the world can skip while decoding gameplay artwork."
+						},
+						{
+							"name": "data-native-controls",
+							"description": "Marks the native controls and instructions that remain visible until full controls are ready."
+						},
+						{
+							"name": "data-native-run",
+							"description": "Mark checkboxes for running the course and pausing its CSS animations."
+						},
+						{
+							"name": "data-native-pause",
+							"description": "Mark checkboxes for running the course and pausing its CSS animations."
+						},
+						{
+							"name": "data-axis",
+							"description": "Use x or y on a radio input with value -1, 0, or 1 to move the native player in that direction."
+						},
+						{
+							"name": "data-stage-choice",
+							"description": "On a radio input, selects the stage with the same data-stage-index while native controls are active."
+						},
+						{
+							"name": "data-native-cleared",
+							"description": "Mark text shown when all targets are cleared in the stage or course, respectively."
+						},
+						{
+							"name": "data-native-victory",
+							"description": "Mark text shown when all targets are cleared in the stage or course, respectively."
+						}
+					],
+					"x-listens": [
+						{
+							"name": "game-input",
+							"type": {
+								"text": "CustomEvent<{ x: number, y: number, fire: boolean, source: string, command?: string }>"
+							},
+							"description": "Listens to descendant input. Valid finite axes and a boolean fire are required. Controls in nested worlds retain ownership."
+						}
+					],
+					"tagName": "game-world",
+					"customElement": true
+				}
+			],
+			"exports": [
+				{
+					"kind": "js",
+					"name": "GameStage",
+					"declaration": {
+						"name": "GameStage",
+						"module": "client/components/game-kit/world.js"
+					}
+				},
+				{
+					"kind": "js",
+					"name": "GamePalette",
+					"declaration": {
+						"name": "GamePalette",
+						"module": "client/components/game-kit/world.js"
+					}
+				},
+				{
+					"kind": "js",
+					"name": "GameTileset",
+					"declaration": {
+						"name": "GameTileset",
+						"module": "client/components/game-kit/world.js"
+					}
+				},
+				{
+					"kind": "js",
+					"name": "GameTile",
+					"declaration": {
+						"name": "GameTile",
+						"module": "client/components/game-kit/world.js"
+					}
+				},
+				{
+					"kind": "js",
+					"name": "GameWorld",
+					"declaration": {
+						"name": "GameWorld",
+						"module": "client/components/game-kit/world.js"
+					}
+				}
+			]
+		},
+		{
+			"kind": "javascript-module",
+			"path": "client/components/rpg-actor/index.js",
+			"declarations": [],
+			"exports": [
+				{
+					"kind": "js",
+					"name": "RpgActor",
+					"declaration": {
+						"name": "RpgActor",
+						"module": "client/components/rpg-actor/rpg-actor.js"
+					}
+				},
+				{
+					"kind": "js",
+					"name": "expressions",
+					"declaration": {
+						"name": "expressions",
+						"module": "client/components/rpg-actor/rpg-actor.js"
+					}
+				},
+				{
+					"kind": "js",
+					"name": "directions",
+					"declaration": {
+						"name": "directions",
+						"module": "client/components/rpg-actor/rpg-actor.js"
+					}
+				},
+				{
+					"kind": "custom-element-definition",
+					"name": "rpg-actor",
+					"declaration": {
+						"name": "RpgActor",
+						"module": "client/components/rpg-actor/rpg-actor.js"
+					}
+				}
+			]
+		},
+		{
+			"kind": "javascript-module",
+			"path": "client/components/rpg-actor/rpg-actor.js",
+			"declarations": [
+				{
+					"kind": "variable",
+					"name": "expressions",
+					"description": "The nine supported expression names."
+				},
+				{
+					"kind": "variable",
+					"name": "directions",
+					"description": "The four direction names in sprite row order."
+				},
+				{
+					"kind": "class",
+					"description": "Attribute-driven rpg.actor sprites, expressions and talking with native HTML fallback.\nSee https://rpg.actor/dev-guide for the sprite grid and expression-sheet contract.",
+					"name": "RpgActor",
+					"cssProperties": [
+						{
+							"description": "Rendered sprite width.",
+							"name": "--rpg-actor-size",
+							"default": "144px"
+						}
+					],
+					"cssParts": [
+						{
+							"description": "Cropped sprite viewport.",
+							"name": "sprite"
+						},
+						{
+							"description": "Built-in pause/resume button.",
+							"name": "controls"
+						}
+					],
+					"slots": [
+						{
+							"description": "Fallback HTML shown before loading and when base/selected sheets fail.",
+							"name": ""
+						}
+					],
+					"events": [
+						{
+							"type": {
+								"text": "CustomEvent<{ animation: string, direction: string, expression: string, talking: boolean, paused: boolean }>"
+							},
+							"description": "After observed attribute changes or showcase steps; not on initialization. Bubbles and composed; not cancelable.",
+							"name": "actor-change"
+						},
+						{
+							"type": {
+								"text": "CustomEvent<{ src: string }>"
+							},
+							"description": "After a sheet loads. Bubbles and composed; not cancelable.",
+							"name": "actor-load"
+						},
+						{
+							"type": {
+								"text": "CustomEvent<{ reason: string, src: string }>"
+							},
+							"description": "Failed handle lookup, malformed emotes JSON, or image failure. Bubbles and composed; not cancelable.",
+							"name": "actor-error"
+						}
+					],
+					"attributes": [
+						{
+							"name": "handle",
+							"type": {
+								"text": "string"
+							},
+							"description": "Bluesky handle, optionally prefixed with @. Loads the public actor sprite and expressions. Missing or unavailable sprites use the bundled courier. An explicit src bypasses lookup."
+						},
+						{
+							"name": "src",
+							"type": {
+								"text": "string"
+							},
+							"description": "Base sprite sheet URL, relative or HTTP(S). Omit to use the resolved or bundled sprite."
+						},
+						{
+							"name": "emotes",
+							"type": {
+								"text": "string"
+							},
+							"description": "JSON map of expression names to emoteSheet and optional talkSheet image URLs.",
+							"default": "{}"
+						},
+						{
+							"name": "columns",
+							"type": {
+								"text": "number"
+							},
+							"description": "Base grid columns, 1–16. Invalid values use 3; zero becomes 1.",
+							"default": "3"
+						},
+						{
+							"name": "rows",
+							"type": {
+								"text": "number"
+							},
+							"description": "Base grid rows, 1–16. Invalid values use 4; zero becomes 1.",
+							"default": "4"
+						},
+						{
+							"name": "animation",
+							"type": {
+								"text": "'idle' | 'walk'"
+							},
+							"description": "Walking uses ping-pong columns, normally 0,1,2,1.",
+							"default": "idle"
+						},
+						{
+							"name": "direction",
+							"type": {
+								"text": "'down' | 'left' | 'right' | 'up'"
+							},
+							"description": "Direction row, clamped to the sheet rows.",
+							"default": "down"
+						},
+						{
+							"name": "expression",
+							"type": {
+								"text": "'neutral' | 'blink' | 'happy' | 'sad' | 'angry' | 'silly' | 'tired' | 'bruh' | 'pout'"
+							},
+							"description": "Missing expression sheets fall back to src.",
+							"default": "neutral"
+						},
+						{
+							"name": "talking",
+							"type": {
+								"text": "boolean"
+							},
+							"description": "Presence alternates open and closed mouth sheets.",
+							"default": "false"
+						},
+						{
+							"name": "paused",
+							"type": {
+								"text": "boolean"
+							},
+							"description": "Presence freezes animation. Reflected by the built-in button.",
+							"default": "false"
+						},
+						{
+							"name": "showcase",
+							"type": {
+								"text": "boolean"
+							},
+							"description": "Presence cycles available expressions and directions through idle, walking and talking poses.",
+							"default": "false"
+						},
+						{
+							"name": "showcase-duration",
+							"type": {
+								"text": "number"
+							},
+							"description": "Milliseconds per pose, 150–60000, rounded up to the next frame. Invalid values use 2400; values below 150 become 150. Independent of interval.",
+							"default": "2400"
+						},
+						{
+							"name": "interval",
+							"type": {
+								"text": "number"
+							},
+							"description": "Frame duration in ms, 50–2000. Invalid values use 150; values below 50 become 50.",
+							"default": "150"
+						},
+						{
+							"name": "frame",
+							"type": {
+								"text": "number"
+							},
+							"description": "Optional zero-based column override; invalid values use idle column."
+						},
+						{
+							"name": "label",
+							"type": {
+								"text": "string"
+							},
+							"description": "Accessible image name.",
+							"default": "RPG character"
+						}
+					],
+					"superclass": {
+						"name": "HTMLElement"
+					},
+					"tagName": "rpg-actor",
+					"customElement": true
+				}
+			],
+			"exports": [
+				{
+					"kind": "js",
+					"name": "expressions",
+					"declaration": {
+						"name": "expressions",
+						"module": "client/components/rpg-actor/rpg-actor.js"
+					}
+				},
+				{
+					"kind": "js",
+					"name": "directions",
+					"declaration": {
+						"name": "directions",
+						"module": "client/components/rpg-actor/rpg-actor.js"
+					}
+				},
+				{
+					"kind": "js",
+					"name": "RpgActor",
+					"declaration": {
+						"name": "RpgActor",
+						"module": "client/components/rpg-actor/rpg-actor.js"
+					}
+				}
+			]
+		},
+		{
+			"kind": "javascript-module",
+			"path": "client/components/web-counter/index.js",
+			"declarations": [
+				{
+					"kind": "class",
+					"description": "Renders a supplied page view count on rolling digits inside a shadow root.",
+					"name": "WebCounter",
+					"slots": [
+						{
+							"description": "Optional visible caption. Defaults to Page views.",
+							"name": "label"
+						}
+					],
+					"attributes": [
+						{
+							"name": "value",
+							"type": {
+								"text": "string"
+							},
+							"description": "A decimal nonnegative safe integer. Starts blank until a valid count is supplied. Invalid updates preserve the displayed count."
+						},
+						{
+							"name": "leading-zeros",
+							"type": {
+								"text": "string"
+							},
+							"description": "Number of zero wheels before the count, from 0 through 16. An absent or invalid setting uses one.",
+							"default": "1"
+						}
+					],
+					"superclass": {
+						"name": "HTMLElement"
+					},
+					"tagName": "web-counter",
+					"customElement": true
+				}
+			],
+			"exports": [
+				{
+					"kind": "js",
+					"name": "WebCounter",
+					"declaration": {
+						"name": "WebCounter",
+						"module": "client/components/web-counter/index.js"
+					}
+				},
+				{
+					"kind": "custom-element-definition",
+					"name": "web-counter",
+					"declaration": {
+						"name": "WebCounter",
+						"module": "client/components/web-counter/index.js"
+					}
+				}
+			]
+		},
+		{
+			"kind": "javascript-module",
+			"path": "client/enhance/auth.js",
+			"declarations": [
+				{
+					"kind": "class",
+					"description": "Shared passkey enhancement for the site account elements.",
+					"name": "AccountControl",
+					"superclass": {
+						"name": "HTMLElement"
+					},
+					"customElement": true
+				},
+				{
+					"kind": "class",
+					"description": "Hosts the site account navigation and its signed-in or signed-out links.",
+					"name": "SiteAccount",
+					"superclass": {
+						"name": "AccountControl",
+						"module": "client/enhance/auth.js"
+					},
+					"tagName": "site-account",
+					"customElement": true
+				},
+				{
+					"kind": "class",
+					"description": "Hosts account and sign-out controls. Reveals passkey registration when the browser supports it.",
+					"name": "AccountSettings",
+					"superclass": {
+						"name": "AccountControl",
+						"module": "client/enhance/auth.js"
+					},
+					"x-markup": [
+						{
+							"name": "data-passkey",
+							"description": "Mark the registration form with register."
+						},
+						{
+							"name": "data-complete",
+							"description": "Server-supplied completion URL on the passkey form."
+						},
+						{
+							"name": "data-auth-status",
+							"description": "Status element that announces passkey errors. Email remains available."
+						}
+					],
+					"tagName": "account-settings",
+					"customElement": true
+				},
+				{
+					"kind": "class",
+					"description": "Hosts the email sign-in link or form. Reveals optional passkey sign-in when supported.",
+					"name": "EmailSignIn",
+					"superclass": {
+						"name": "AccountControl",
+						"module": "client/enhance/auth.js"
+					},
+					"x-markup": [
+						{
+							"name": "data-passkey",
+							"description": "Mark the sign-in form with login."
+						},
+						{
+							"name": "data-complete",
+							"description": "Server-supplied completion URL on the passkey form."
+						},
+						{
+							"name": "data-auth-status",
+							"description": "Status element that announces passkey errors. Email remains available."
+						}
+					],
+					"tagName": "email-sign-in",
+					"customElement": true
+				}
+			],
+			"exports": [
+				{
+					"kind": "js",
+					"name": "AccountControl",
+					"declaration": {
+						"name": "AccountControl",
+						"module": "client/enhance/auth.js"
+					}
+				},
+				{
+					"kind": "custom-element-definition",
+					"name": "site-account",
+					"declaration": {
+						"name": "SiteAccount",
+						"module": "client/enhance/auth.js"
+					}
+				},
+				{
+					"kind": "custom-element-definition",
+					"name": "account-settings",
+					"declaration": {
+						"name": "AccountSettings",
+						"module": "client/enhance/auth.js"
+					}
+				},
+				{
+					"kind": "custom-element-definition",
+					"name": "email-sign-in",
+					"declaration": {
+						"name": "EmailSignIn",
+						"module": "client/enhance/auth.js"
+					}
+				}
+			]
+		}
+	]
+}

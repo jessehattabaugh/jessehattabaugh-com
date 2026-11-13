@@ -8,23 +8,8 @@
 			"declarations": [
 				{
 					"kind": "class",
-					"name": "DisclosurePanel",
-					"customElement": true,
-					"tagName": "disclosure-panel",
 					"description": "Light-DOM enhancement of one direct details child. Native summary interaction works without JavaScript. No shadow root, slots, CSS parts, dependencies, or network requests. Initial upgrade adopts details.open unless the host open attribute is present; no initial change event. Missing details is inert; direct child insertion is observed. Reconnection adopts current markup without emitting an initial event.",
-					"superclass": {
-						"name": "HTMLElement",
-						"package": "global:"
-					},
-					"attributes": [
-						{
-							"name": "open",
-							"type": {
-								"text": "boolean"
-							},
-							"description": "Boolean presence opens the direct details child. Remove to close. open=\"false\" still opens. Native toggles reflect back to this attribute."
-						}
-					],
+					"name": "DisclosurePanel",
 					"events": [
 						{
 							"name": "disclosure-change",
@@ -34,15 +19,29 @@
 							"description": "Emitted for state changes after initialization, including attribute updates and accepted requests. Bubbles and is composed; not cancelable. Repeated state is silent; native toggle events may coalesce rapid changes."
 						}
 					],
+					"attributes": [
+						{
+							"name": "open",
+							"type": {
+								"text": "boolean"
+							},
+							"description": "Boolean presence opens the direct details child. Remove to close. open=\"false\" still opens. Native toggles reflect back to this attribute."
+						}
+					],
+					"superclass": {
+						"name": "HTMLElement"
+					},
 					"x-listens": [
 						{
 							"name": "disclosure-request",
-							"type": "CustomEvent<{ open: boolean }>",
-							"bubbles": true,
-							"composed": true,
-							"description": "Dispatch from a descendant to request open or closed state. Requires a boolean detail.open. Invalid, defaultPrevented, missing-child, and outer-panel requests are ignored. Nested panels own their requests. Requests are not stopped and remain observable by ancestors."
+							"type": {
+								"text": "CustomEvent<{ open: boolean }>"
+							},
+							"description": "Dispatch from a descendant to request open or closed state. Requires a boolean detail.open. Invalid, defaultPrevented, missing-child, and outer-panel requests are ignored. Nested panels own their requests. Requests are not stopped and remain observable by ancestors. Set bubbles and composed when dispatching."
 						}
-					]
+					],
+					"tagName": "disclosure-panel",
+					"customElement": true
 				}
 			],
 			"exports": [
@@ -74,7 +73,7 @@
 					"name": "DisclosurePanel",
 					"declaration": {
 						"name": "DisclosurePanel",
-						"module": "disclosure-panel.js"
+						"module": "index.js"
 					}
 				}
 			]

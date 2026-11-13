@@ -2,13 +2,70 @@ import { clamp, report, value } from './world-data.js';
 import { WorldRenderer } from './world-renderer.js';
 /** @import { Control, World } from './world-data.js' */
 
-/** Declarative stage, ground, actor and encounter records are consumed by game-world. */
+/**
+ * Ordered world stage inside game-screen. Contains game-layer tilemaps, palette and pattern-bank definitions, and scenery/enemy game-sprite records. Score and shield carry between stages. CSS native sector controls can select stages before upgrade.
+ * @attr {string} id - Document-unique stage identifier.
+ * @attr {string} name - Readable name used by the instruments and status.
+ * @attr {number} [length=480] - Stage distance in world units, clamped to 10–10000.
+ * @attr {number} [speed=18] - Forward world units per second, clamped to 1–60.
+ * @attr {number} [draw-distance=90] - Scenery far plane, clamped to 10–160.
+ * @attr {number} [repair=1] - Shield restored when entering this stage, capped at max-health.
+ * @attr {string} [sky=#182b55] - Top sky CSS color.
+ * @attr {string} [haze=#d6b8b9] - Sky color near the horizon.
+ * @attr {boolean} active - Reflected presence on the current stage.
+ * @fires {CustomEvent<{ stage: string, index: number, name: string }>} game-stage-change - Bubbles and is composed. Emitted from the stage on entry, including initialization and restart. Index is zero-based.
+ * @markup data-stage-index - Native stage number. The starter stylesheet shows the first stage by default and supports native radio selections for indices 1 and 2.
+ */
 export class GameStage extends HTMLElement {}
+/**
+ * Palette RAM record. Whitespace-separated colors define the indexed pattern colors. CSS variables --palette-0 through --palette-3 provide the native rendering values. The sample cycles the two grid entries using step-end keyframes.
+ * @attr {string} id - Document-unique bank reference.
+ * @attr {string} colors - Whitespace-separated #rrggbb colors.
+ * @attr {number} [cycle-start=2] - First rotating palette entry.
+ * @attr {number} [cycle-rate=5] - Palette changes per second, reflected in the authored CSS --cycle-rate.
+ */
 export class GamePalette extends HTMLElement {}
+/**
+ * Pattern bank shared by background tilemaps and sprites. A direct image stores equal-sized tiles in row-major order. Alternatively, child game-tile records contain whitespace-separated palette indices. Pattern banks are data and are hidden visually.
+ * @attr {string} id - Document-unique bank reference.
+ * @attr {number} [tile-width=8] - Pattern width in pixels, integer 1–64.
+ * @attr {number} [tile-height=8] - Pattern height in pixels, integer 1–64.
+ */
 export class GameTileset extends HTMLElement {}
+/**
+ * In a tileset, this record contains row-major pixel palette indices. In a tilemap, its index references one pattern-bank entry. Native atlas rendering uses CSS image positions. A hardware interpreter can read the same index and palette data.
+ * @attr {number} [index=0] - Zero-based pattern-bank index.
+ * @cssprop --tile-x - Pattern-bank column for CSS atlas rendering.
+ * @cssprop --tile-y - Pattern-bank row for CSS atlas rendering.
+ */
 export class GameTile extends HTMLElement {}
 
-/** Fixed-step forward world simulation. All content and tuning come from descendant attributes. */
+/**
+ * Coordinates an HTML/CSS perspective world. Pattern banks supply tilemaps and sprites. The screen contains ordered stages, layer tilemaps and the player sprite. CSS owns 3D projection, palette changes, scrolling, transitions and sprite animation. Native inputs support course motion, steering, targeting and sector choice without JavaScript. Upgrade adds fixed-step movement, aimed projectiles, collisions and controller input. The simulation pauses on blur or hidden tabs.
+ * @attr {string} state - Reflected runtime state: loading, ready, playing, paused, won, lost, or error.
+ * @attr {number} score - Reflected total score, reset when restarting.
+ * @attr {string} stage - Reflected ID of the current stage.
+ * @fires {CustomEvent<{ state: string, score: number, health: number, stage: string }>} game-world-change - Bubbles and is composed. Emitted on state changes.
+ * @fires {CustomEvent<{ reason: "assets-or-definitions" }>} game-world-error - Bubbles and is composed. Reports an incomplete world, failed image, invalid sheet or unknown sprite reference.
+ * @cssprop [--distance-blur=0px] - Optional sprite blur per depth unit beyond 80, applied by CSS.
+ * @markup data-world-controls - Wrap launch, pause, and movement buttons in this container. The stylesheet shows it after the world is ready.
+ * @markup data-world-status - Text updated for loading failure, stage changes, pause, victory, and defeat. Use role="status" to announce changes.
+ * @markup data-world-hud - Contains the instrument outputs. The native stylesheet displays only score before upgrade.
+ * @markup data-world-shield - Optional output hooks for health, points, stage name, and percent of the current stage completed.
+ * @markup data-world-score - Optional output hooks for health, points, stage name, and percent of the current stage completed.
+ * @markup data-world-sector - Optional output hooks for health, points, stage name, and percent of the current stage completed.
+ * @markup data-world-progress - Optional output hooks for health, points, stage name, and percent of the current stage completed.
+ * @markup data-world-controller - Optional text hook for the active controller or keyboard/touch.
+ * @markup data-world-poster - Marks an image the world can skip while decoding gameplay artwork.
+ * @markup data-native-controls - Marks the native controls and instructions that remain visible until full controls are ready.
+ * @markup data-native-run - Mark checkboxes for running the course and pausing its CSS animations.
+ * @markup data-native-pause - Mark checkboxes for running the course and pausing its CSS animations.
+ * @markup data-axis - Use x or y on a radio input with value -1, 0, or 1 to move the native player in that direction.
+ * @markup data-stage-choice - On a radio input, selects the stage with the same data-stage-index while native controls are active.
+ * @markup data-native-cleared - Mark text shown when all targets are cleared in the stage or course, respectively.
+ * @markup data-native-victory - Mark text shown when all targets are cleared in the stage or course, respectively.
+ * @listens {CustomEvent<{ x: number, y: number, fire: boolean, source: string, command?: string }>} game-input - Listens to descendant input. Valid finite axes and a boolean fire are required. Controls in nested worlds retain ownership.
+ */
 export class GameWorld extends HTMLElement {
 	/** @type {World | null} */
 	#world = null;
@@ -30,6 +87,7 @@ export class GameWorld extends HTMLElement {
 	#state = 'loading';
 	#children = new MutationObserver(() => { void this.#load(); });
 
+	/** @internal */
 	connectedCallback() {
 		this.addEventListener('game-input', this.#input);
 		document.addEventListener('visibilitychange', this.#visibility);
@@ -38,6 +96,7 @@ export class GameWorld extends HTMLElement {
 		queueMicrotask(() => { if (this.isConnected) { void this.#load(); } });
 	}
 
+	/** @internal */
 	disconnectedCallback() {
 		this.#generation++;
 		cancelAnimationFrame(this.#frame);

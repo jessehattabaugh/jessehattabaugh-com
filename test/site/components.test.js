@@ -230,3 +230,51 @@ test('component ships its manifest, license, and portable module entry', async (
 		expect(asset.ok(), file).toBe(true);
 	}));
 });
+
+test('catalog exposes the site-wide IDE manifest with resolvable registrations', async ({
+	page,
+	request,
+}) => {
+	await page.goto('/components/');
+	const manifestLink = page.getByRole('link', { name: 'site-wide Custom Elements Manifest' });
+	await expect(manifestLink).toBeVisible();
+	const response = await request.get(await manifestLink.getAttribute('href'));
+	expect(response.ok()).toBe(true);
+	const { modules } = await response.json();
+	const definitions = modules.flatMap(({ exports = [] }) => {
+		return exports.filter(({ kind }) => {
+			return kind === 'custom-element-definition';
+		});
+	});
+	expect(
+		definitions.map(({ name }) => {
+			return name;
+		}),
+	).toEqual(
+		expect.arrayContaining([
+			'account-settings',
+			'code-block',
+			'disclosure-panel',
+			'email-sign-in',
+			'game-world',
+			'rpg-actor',
+			'site-account',
+			'web-counter',
+		]),
+	);
+	await Promise.all(
+		modules.map(async ({ path, exports = [] }) => {
+			expect((await request.get(`/${path}`)).ok(), path).toBe(true);
+			for (const { name, declaration } of exports.filter(({ kind }) => {
+				return kind === 'custom-element-definition';
+			})) {
+				const source = modules.find((module) => {
+					return module.path === declaration.module;
+				});
+				expect(source?.declarations).toContainEqual(
+					expect.objectContaining({ name: declaration.name, tagName: name }),
+				);
+			}
+		}),
+	);
+});

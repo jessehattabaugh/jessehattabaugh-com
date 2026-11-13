@@ -26,7 +26,9 @@ async function passkey(form) {
 }
 
 
-class AccountControl extends HTMLElement {
+/** Shared passkey enhancement for the site account elements. */
+export class AccountControl extends HTMLElement {
+	/** @internal */
 	connectedCallback() {
 		for (const form of this.querySelectorAll('form[data-passkey]')) {
 			if (!(form instanceof HTMLFormElement) || !('PublicKeyCredential' in window) || !navigator.credentials || !('fetch' in window)) { continue; }
@@ -43,6 +45,25 @@ class AccountControl extends HTMLElement {
 		}
 	}
 }
-for (const tag of ['site-account', 'account-settings', 'email-sign-in']) {
-	if (!customElements.get(tag)) { customElements.define(tag, class extends AccountControl {}); }
-}
+/** Hosts the site account navigation and its signed-in or signed-out links. */
+class SiteAccount extends AccountControl {}
+
+/**
+ * Hosts account and sign-out controls. Reveals passkey registration when the browser supports it.
+ * @markup data-passkey - Mark the registration form with register.
+ * @markup data-complete - Server-supplied completion URL on the passkey form.
+ * @markup data-auth-status - Status element that announces passkey errors. Email remains available.
+ */
+class AccountSettings extends AccountControl {}
+
+/**
+ * Hosts the email sign-in link or form. Reveals optional passkey sign-in when supported.
+ * @markup data-passkey - Mark the sign-in form with login.
+ * @markup data-complete - Server-supplied completion URL on the passkey form.
+ * @markup data-auth-status - Status element that announces passkey errors. Email remains available.
+ */
+class EmailSignIn extends AccountControl {}
+
+if (!customElements.get('site-account')) { customElements.define('site-account', SiteAccount); }
+if (!customElements.get('account-settings')) { customElements.define('account-settings', AccountSettings); }
+if (!customElements.get('email-sign-in')) { customElements.define('email-sign-in', EmailSignIn); }

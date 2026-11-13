@@ -1,0 +1,13 @@
+{
+	"name": "@jessehattabaugh/code-block",
+	"version": "1.0.0",
+	"type": "module",
+	"private": true,
+	"license": "MIT",
+	"customElements": "./custom-elements.json",
+	"exports": {
+		".": "./index.js",
+		"./styles.css": "./styles.css",
+		"./custom-elements.json": "./custom-elements.json"
+	}
+}

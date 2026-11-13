@@ -205,7 +205,13 @@ test('registry distributes the portable package and machine-readable interface',
 	const catalog = await request.get('/components/catalog.json');
 	expect((await catalog.json()).components).toContainEqual(expect.objectContaining({ tag: 'rpg-actor', manifest: '/components/rpg-actor/custom-elements.json' }));
 	const manifest = await request.get('/components/rpg-actor/custom-elements.json');
-	const [declaration] = (await manifest.json()).modules[0].declarations;
+	const declaration = (await manifest.json()).modules
+		.flatMap(({ declarations = [] }) => {
+			return declarations;
+		})
+		.find(({ tagName }) => {
+			return tagName === 'rpg-actor';
+		});
 	expect(declaration.tagName).toBe('rpg-actor');
 	expect(declaration.attributes.map(attr => {return attr.name})).toEqual(expect.arrayContaining(['handle', 'src', 'emotes', 'expression', 'talking', 'animation', 'direction', 'paused', 'showcase', 'frame']));
 	await Promise.all(['index.js', 'rpg-actor.js', 'sprite-record.js', 'generic.svg', 'package.json', 'README.md', 'LICENSE', 'social.png'].map(async (file) => {
