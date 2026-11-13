@@ -95,6 +95,11 @@
 
 	[data-components] {
 		section { margin-block: var(--space-xl); }
+		&:has(> section[aria-labelledby='kits']) > section + section,
+		> section[aria-labelledby='kits'] > section + section {
+			border-block-start: 1px solid var(--color-border);
+			padding-block-start: var(--space-lg);
+		}
 		nav, p { overflow-wrap: anywhere; }
 		disclosure-panel { padding: var(--space-md); border: 1px solid var(--color-border); border-radius: var(--radius); }
 		summary { min-height: 44px; padding-block: var(--space-sm); }
@@ -107,15 +112,45 @@
 			figcaption { font-size: .875rem; color: var(--color-text-muted); }
 		}
 		&:has(> section[aria-label='Sprite playground']) > p:first-of-type + h1 + p { font-size: clamp(1.5rem, 4vw, 2.25rem); line-height: 1.2; }
+		/* A solar-cell grid and a sunlit edge mark the interactive examples. */
+		[data-live-example] {
+			--example-surface: #edf6e9;
+			--example-grid: #287c5414;
+			--example-edge: #83ab90;
+			--example-glow: #f5cf7666;
+			--example-trim: linear-gradient(105deg, #23775b, #61a869 55%, #f0bc52);
+			min-inline-size: 0;
+			margin-block: var(--space-md);
+			padding: clamp(.875rem, 3vw, 1.5rem);
+			border: 1px solid var(--example-edge);
+			border-block-start: .25rem solid transparent;
+			border-radius: .45rem var(--radius-lg) var(--radius-lg);
+			background:
+				radial-gradient(ellipse at top right, var(--example-glow), transparent 55%) padding-box,
+				linear-gradient(var(--example-grid) 1px, transparent 1px) 0 0 / 1.25rem 1.25rem padding-box,
+				linear-gradient(90deg, var(--example-grid) 1px, transparent 1px) 0 0 / 1.25rem 1.25rem padding-box,
+				linear-gradient(var(--example-surface), var(--example-surface)) padding-box,
+				var(--example-trim) border-box;
+			box-shadow: 0 .45rem 1rem #12291a16;
+
+			> :is(figure, p):first-child { margin-block-start: 0; }
+			> :is(figure, p):last-child { margin-block-end: 0; }
+			> disclosure-panel { background: var(--color-surface); }
+
+			@media (prefers-color-scheme: dark) {
+				--example-surface: #142720;
+				--example-grid: #90e5ac14;
+				--example-edge: #4b765e;
+				--example-glow: #d59c3b33;
+			}
+		}
+
 		section[aria-label='Sprite playground'] {
 			display: grid;
 			grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr));
 			gap: var(--space-lg);
-			padding: var(--space-lg);
-			border: 1px solid var(--color-border);
-			border-radius: var(--radius-lg);
-			background: var(--color-surface);
-			> div { display: grid; place-items: center; min-height: 250px; background: radial-gradient(ellipse at center, #8062ba33, transparent 70%); }
+			> div { display: grid; place-items: center; min-height: 250px; min-inline-size: 0; }
+			> [role='status'] { grid-column: 1 / -1; margin-block: 0; }
 			rpg-actor { margin: 0; }
 			form { display: grid; gap: var(--space-sm); }
 			label { display: block; }

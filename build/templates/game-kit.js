@@ -23,7 +23,7 @@ function code(title, markup) {
 
 /** @param {Example} example */
 function live(example) {
-	return html`<div data-game-demo>
+	return html`<div data-game-demo data-live-example>
 		${example.markup}
 		${example.controls ?? html``}
 	</div>`;

@@ -26,7 +26,7 @@ export function rpgActorFragment(social, query = new URLSearchParams()) {
 			<p>Give your website a little character.</p>
 			<p>A pixel-sized companion for the open web. Walk in four directions, wear nine expressions, and talk with your whole face. All through HTML attributes.</p>
 			<p>Web Component · Zero dependencies · MIT · 1.0.0</p>
-			<section aria-label="Sprite playground">
+			<section aria-label="Sprite playground" data-live-example>
 				<div>${actorSprite(social, state)}</div>
 				<form action="/components/rpg-actor/" method="get" aria-label="Sprite controls">
 					${select('Animation', ['idle', 'walk'], state.animation)}
@@ -37,8 +37,8 @@ export function rpgActorFragment(social, query = new URLSearchParams()) {
 					<button type="submit" class="btn">Apply sprite state</button>
 					<a href="/components/rpg-actor/">Play the showcase</a>
 				</form>
+				<p role="status" aria-label="Sprite state">${state.animation} · ${state.direction} · ${state.expression}${state.talking ? ' · talking' : ''}${state.paused ? ' · paused' : ''}</p>
 			</section>
-			<p role="status" aria-label="Sprite state">${state.animation} · ${state.direction} · ${state.expression}${state.talking ? ' · talking' : ''}${state.paused ? ' · paused' : ''}</p>
 			${hasEmotes ? html`<p>This actor has published expression sheets. Try an expression with Talking enabled.</p>` : html`<p>This actor has not published emote sheets yet. Expressions gracefully use the original sprite. The owner can sign in at <a href="https://rpg.actor">rpg.actor</a> to upgrade their sprite; the site will pick up the published sheets automatically.</p>`}
 			<p>The form works without JavaScript: Apply renders the selected pose on the server. JavaScript adds live playback. Your reduced-motion preference keeps the sprite still.</p>
 			<nav aria-label="Component resources"><a href="./custom-elements.json">Custom Elements Manifest</a> · <a href="https://github.com/jessehattabaugh/jessehattabaugh-com/tree/main/client/components/rpg-actor">Source on GitHub</a> · <a href="./README.md">Full documentation</a></nav>
@@ -48,7 +48,7 @@ export function rpgActorFragment(social, query = new URLSearchParams()) {
 			</section>
 			<section><h2>Start with a Bluesky handle</h2>
 				<p>Give the component a handle and it finds the public sprite and any published expressions. It shows a bundled courier when no sprite is available.</p>
-				${actorSprite(undefined, { handle: social?.handle ?? 'jessehattabaugh.com', label: 'Character loaded by Bluesky handle', animation: 'idle' })}
+				<div data-live-example>${actorSprite(undefined, { handle: social?.handle ?? 'jessehattabaugh.com', label: 'Character loaded by Bluesky handle', animation: 'idle' })}</div>
 				<p>Copy the component directory from a reviewed GitHub commit into your site’s <code>/vendor/rpg-actor/</code> directory, keeping the license. Serve these ES modules from your own origin.</p>
 				${codeExample({ caption: 'A walking character', language: 'html', label: 'HTML example', source: `<script type="module" src="/vendor/rpg-actor/index.js"></script>
 <rpg-actor handle="${social?.handle ?? 'jessehattabaugh.com'}" animation="walk"

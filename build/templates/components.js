@@ -26,7 +26,7 @@ const showcases = new Map([
 	['disclosure-panel', () => { return demo(); }],
 	['rpg-actor', actorSprite],
 	['code-block', () => { return code('Sample markup', 'HTML', '<button type="button">Save</button>'); }],
-	['web-counter', () => { return html`<p>Sample counter</p>${webCounter(1234)}`; }],
+	['web-counter', () => { return html`${webCounter(1234)}`; }],
 ]);
 
 /** @param {import('../../shared/data/atproto.js').Social} [social] */
@@ -91,10 +91,11 @@ npx cem analyze --globs "vendor/disclosure-panel/**/*.js"`,
 				the same tooling can discover a component you publish yourself.
 			</p>
 			${componentCatalog.map((component) => {
+				const showcase = showcases.get(component.tag);
 				return html`<section aria-label="${component.tag}">
 					<h3><a href="${component.path}">${component.name ?? component.tag}</a></h3>
 					<p>${component.description}</p>
-					${showcases.get(component.tag)?.(social) ?? html``}
+					${showcase ? html`<div data-live-example>${showcase(social)}</div>` : html``}
 					<p>
 						<a href="${component.path}">Documentation and examples</a> ·
 						<a href="${component.source}">Source on GitHub</a> ·
@@ -151,9 +152,11 @@ export function disclosurePanel(social) {
 			<p><a href="${component.source.replace('/tree/', '/blob/')}/disclosure-panel.js">Element module on GitHub</a> · <a href="${component.source.replace('/tree/', '/blob/')}/index.js">Registration module on GitHub</a> · <a href="${component.manifest}">Custom Elements Manifest</a> · <a href="${component.source.replace('/tree/', '/blob/')}/LICENSE">License</a></p>
 			<nav aria-label="On this page"><a href="#demo">Demo</a> · <a href="#usage">Usage</a> · <a href="#api">API</a> · <a href="#installation">Installation</a> · <a href="#limits">Behavior and limits</a></nav>
 			<section id="demo" aria-labelledby="demo-heading"><h2 id="demo-heading">Live example</h2>
-				${demo()}
-				<p role="status" aria-label="Disclosure state">Use the summary to open or close the panel.</p>
-				<p data-demo-controls hidden><button type="button" data-open-panel>Open via attribute</button> <button type="button" data-remove-open>Close via attribute</button></p>
+				<div data-live-example>
+					${demo()}
+					<p role="status" aria-label="Disclosure state">Use the summary to open or close the panel.</p>
+					<p data-demo-controls hidden><button type="button" data-open-panel>Open via attribute</button> <button type="button" data-remove-open>Close via attribute</button></p>
+				</div>
 				<p>The outer controls change the attribute. The inner button sends a bubbling request; the status listens for the outgoing change event. The summary works without JavaScript.</p>
 			</section>
 			<section id="usage"><h2>Start with HTML</h2>
@@ -233,7 +236,7 @@ export function webCounterPage(social) {
 		body: html`<article data-components>
 			<h1>Web Counter</h1>
 			<p>Display a page-view count on rolling digits styled like a mechanical odometer.</p>
-			<section aria-label="Sample counter"><h2>Sample counter</h2>${webCounter(1234, '2')}</section>
+			<section aria-label="Sample counter"><h2>Sample counter</h2><div data-live-example>${webCounter(1234, '2')}</div></section>
 			<h2>Usage</h2>
 			${code('Web Counter HTML', 'HTML', `<script type="module" src="./index.js"></script>
 <web-counter value="1234"></web-counter>`)}
@@ -253,10 +256,10 @@ export function codeBlockPage(social) {
 			<p>Use <code>&lt;code-block&gt;</code> to display source that readers can select, copy, and scroll with the keyboard.</p>
 			<section aria-labelledby="code-block-examples">
 				<h2 id="code-block-examples">Examples</h2>
-				${code('HTML source', 'HTML', '<button type="button" class="save">Save</button>')}
-				${code('CSS source', 'CSS', 'button.save { color: #173760; }')}
-				${code('JavaScript source', 'JavaScript', "const label = 'Save';")}
-				${code('Shell source', 'Shell', "printf '%s' Ready")}
+				<div data-live-example>${code('HTML source', 'HTML', '<button type="button" class="save">Save</button>')}</div>
+				<div data-live-example>${code('CSS source', 'CSS', 'button.save { color: #173760; }')}</div>
+				<div data-live-example>${code('JavaScript source', 'JavaScript', "const label = 'Save';")}</div>
+				<div data-live-example>${code('Shell source', 'Shell', "printf '%s' Ready")}</div>
 			</section>
 			<section>
 				<h2>Use Code Block</h2>

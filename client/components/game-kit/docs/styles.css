@@ -34,11 +34,6 @@
 	}
 
 	[data-game-demo] {
-		padding: clamp(.75rem, 2.5vw, 1.25rem);
-		margin-block: 1rem;
-		background: var(--color-surface);
-		border: 1px solid var(--color-border);
-		border-radius: var(--radius);
 		--game-screen-background: #202440;
 		--game-screen-width: 25rem;
 
