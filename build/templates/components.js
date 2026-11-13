@@ -31,30 +31,109 @@ const showcases = new Map([
 
 /** @param {import('../../shared/data/atproto.js').Social} [social] */
 export function components(social) {
-	return layout({ social, title: 'Components', path: '/components/',
-		description: 'Reusable Custom Elements by Jesse Hattabaugh. Native HTML, ES modules, attributes down and events up.',
+	return layout({
+		social,
+		title: 'Components',
+		path: '/components/',
+		description:
+			'Reusable Custom Elements by Jesse Hattabaugh. Native HTML, ES modules, attributes down and events up.',
 		body: html`<article data-components>
 			<h1>Components</h1>
-			<p>Little HTML building blocks. Native elements do the work; Custom Elements make them easier to compose. No framework.</p>
-			<p>Send state down with attributes. Send data up with events. Keep useful HTML underneath.</p>
-			${componentCatalog.map((component) => { return html`<section aria-label="${component.tag}">
-				<h2><a href="${component.path}">${component.name ?? component.tag}</a></h2>
-				<p>${component.description}</p>
-				${showcases.get(component.tag)?.(social) ?? html``}
-				<p><a href="${component.path}">Documentation and examples</a> · <a href="${component.source}">Source on GitHub</a> · <a href="${component.manifest}">Custom Elements Manifest</a></p>
-			</section>`; })}
+			<p>
+				I publish this collection so anyone can use the same Web Standard Custom Elements
+				that run this site. They are plain Custom Elements built on native HTML, so they
+				work on any page, with a framework, a static site generator, or no JavaScript
+				tooling at all. Copy the files, vendor them, or import them as a local package.
+			</p>
+			${code(
+				'Use a component on your own site',
+				'HTML',
+				`<script type="module" src="/vendor/disclosure-panel/index.js"></script>
+<disclosure-panel>
+	<details>
+		<summary>Installation help</summary>
+		<p>Use your browser’s Add to Home Screen menu.</p>
+	</details>
+</disclosure-panel>`,
+			)}
+			<p>
+				Copy a component directory into your site and load its ES module. There is no build
+				step, framework wrapper, or global stylesheet to adopt. Keep the module, README,
+				license, and manifest together so updates stay reviewable.
+			</p>
+			<p>
+				Send state down with attributes. Send data up with events. Keep useful HTML
+				underneath.
+			</p>
+			<p>
+				Every component and kit ships a
+				<a href="https://custom-elements-manifest.open-wc.org/">Custom Elements Manifest</a
+				>, a JSON file named <code>custom-elements.json</code> that describes its tags,
+				attributes, events, slots, CSS parts, and exports. The Open Web Components project
+				provides the format’s analyzer and plugins: editors and documentation tools read the
+				manifest for autocomplete and API reference, while
+				<code>@custom-elements-manifest/analyzer</code> regenerates it from source. Each
+				entry below links its manifest, and the
+				<a href="/components/catalog.json">component catalog JSON</a> lists every manifest
+				URL.
+			</p>
+			${code(
+				'Regenerate a vendored manifest',
+				'Shell',
+				`npm install --save-dev @custom-elements-manifest/analyzer
+npx cem analyze --globs "vendor/disclosure-panel/**/*.js"`,
+			)}
+			<p>
+				Point <code>--globs</code> at the component files you vendored. The analyzer writes
+				<code>custom-elements.json</code> and records it in <code>package.json</code>, so
+				the same tooling can discover a component you publish yourself.
+			</p>
+			${componentCatalog.map((component) => {
+				return html`<section aria-label="${component.tag}">
+					<h3><a href="${component.path}">${component.name ?? component.tag}</a></h3>
+					<p>${component.description}</p>
+					${showcases.get(component.tag)?.(social) ?? html``}
+					<p>
+						<a href="${component.path}">Documentation and examples</a> ·
+						<a href="${component.source}">Source on GitHub</a> ·
+						<a href="${component.manifest}">Custom Elements Manifest</a>
+					</p>
+				</section>`;
+			})}
 			<section aria-labelledby="kits">
 				<h2 id="kits">Kits</h2>
-				${kitCatalog.map((kit) => { return html`<section aria-label="${kit.name}">
-					<h3><a href="${kit.path}">${kit.name}</a></h3>
-					<p>${kit.description}</p>
-					<p><a href="${kit.path}">Tutorial and element reference</a> · <a href="${kit.manifest}">Custom Elements Manifest</a> · <a href="${kit.module}">ES module</a> · <a href="${kit.stylesheet}">Stylesheet</a></p>
-				</section>`; })}
+				<p>
+					Kits are separate collections of elements that share a purpose but stand on
+					their own. Use one kit by itself, mix elements from different kits, or combine
+					them on the same page. Each kit ships its own module and stylesheet and lists
+					any kit dependencies.
+				</p>
+				${kitCatalog.map((kit) => {
+					return html`<section aria-label="${kit.name}">
+						<h3><a href="${kit.path}">${kit.name}</a></h3>
+						<p>${kit.description}</p>
+						<p>
+							<a href="${kit.path}">Tutorial and element reference</a> ·
+							<a href="${kit.manifest}">Custom Elements Manifest</a> ·
+							<a href="${kit.module}">ES module</a> ·
+							<a href="${kit.stylesheet}">Stylesheet</a>
+						</p>
+					</section>`;
+				})}
 			</section>
 			<h2>Component files</h2>
-			<p>Each component and kit ships an ES module, an MIT license, and a Custom Elements Manifest. The catalog includes artifact URLs and kit dependencies. See the <a href="/components/catalog.json">component catalog JSON</a>.</p>
+			<p>
+				Each component and kit ships an ES module, an MIT license, and a Custom Elements
+				Manifest. The catalog includes artifact URLs and kit dependencies. See the
+				<a href="/components/catalog.json">component catalog JSON</a>.
+			</p>
 			<p>Find the source on GitHub or use the published files listed in the catalog.</p>
-		</article>`, scripts: html`<script type="module" src="/components/disclosure-panel/docs/demo.js"></script>` });
+		</article>`,
+		scripts: html`<script
+			type="module"
+			src="/components/disclosure-panel/docs/demo.js"
+		></script>`,
+	});
 }
 
 /** @param {import('../../shared/data/atproto.js').Social} [social] */
