@@ -112,13 +112,13 @@
 			figcaption { font-size: .875rem; color: var(--color-text-muted); }
 		}
 		&:has(> section[aria-label='Sprite playground']) > p:first-of-type + h1 + p { font-size: clamp(1.5rem, 4vw, 2.25rem); line-height: 1.2; }
-		/* A solar-cell grid and a sunlit edge mark the interactive examples. */
+		/* A solar-cell grid and a gradient edge mark the interactive examples. */
 		[data-live-example] {
-			--example-surface: #edf6e9;
-			--example-grid: #287c5414;
-			--example-edge: #83ab90;
-			--example-glow: #f5cf7666;
-			--example-trim: linear-gradient(105deg, #23775b, #61a869 55%, #f0bc52);
+			--example-surface: #f1e5fc;
+			--example-grid: #7020a517;
+			--example-edge: #b78ace;
+			--example-glow: #ff42ad40;
+			--example-trim: linear-gradient(105deg, #7929cc, #ff1493);
 			min-inline-size: 0;
 			margin-block: var(--space-md);
 			padding: clamp(.875rem, 3vw, 1.5rem);
@@ -131,17 +131,17 @@
 				linear-gradient(90deg, var(--example-grid) 1px, transparent 1px) 0 0 / 1.25rem 1.25rem padding-box,
 				linear-gradient(var(--example-surface), var(--example-surface)) padding-box,
 				var(--example-trim) border-box;
-			box-shadow: 0 .45rem 1rem #12291a16;
+			box-shadow: 0 .45rem 1rem #35134c1c;
 
 			> :is(figure, p):first-child { margin-block-start: 0; }
 			> :is(figure, p):last-child { margin-block-end: 0; }
 			> disclosure-panel { background: var(--color-surface); }
 
 			@media (prefers-color-scheme: dark) {
-				--example-surface: #142720;
-				--example-grid: #90e5ac14;
-				--example-edge: #4b765e;
-				--example-glow: #d59c3b33;
+				--example-surface: #28163a;
+				--example-grid: #d7a3ff1a;
+				--example-edge: #8255a0;
+				--example-glow: #ff14934d;
 			}
 		}
 
